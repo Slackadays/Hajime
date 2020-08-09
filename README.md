@@ -25,3 +25,11 @@ It's easy to compile Hajime. First, download the files in the **source** section
     sudo g++ -O3 -o hajime hajime.cpp -lstdc++fs
 The "-lstdc++fs" is required if you are running a version of GCC that treats the filesystem library as an experimental one. Now, follow the main Instructions area to finish.
    
+# Using Hajime
+This script is a cinch to actually use. To check its status, run
+
+    sudo systemctl status start
+and substitute "start" if you have renamed the systemd service file. This will display the messages sent by Hajime. For debugging, you may also run it manually.
+
+# How It Works
+Hajime is a fairly simple program, all things considered. It starts by performing file checks followed by a scan of the /proc virtual filesystem to get a maximum PID. This is done for optimization. Then, a device is mounted (if set to do so) and the specified command is run. A perpetual check of /proc is now done to search for a PID that has a particular keyword in it. If the Minecraft server stops, then th keyword is no longer present and the cycle starts over again.
