@@ -7,6 +7,9 @@ Until now, advanced server startup scripts were made with unintelligible systemd
 # Requirements
 There are several prerequisites as of this writing. You'll need a Linux, or at least POSIX-compliant, system. To use a precompiled binary, an ARM device such as a Raspberry Pi is needed. Hajime was designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional.
 
+# What's up With That Name?
+"Hajime" is just "begin" in Japanese. I know this because I hear it a lot when practicing judo.
+
 # Instructions
 If you are using a precompiled binary, stay in this section. If you are compiling, skip this section. Download the version appropriate for your platform. Next, place it in a simple, memorable location. In my own server, I use /media. Now, run 
 
