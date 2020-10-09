@@ -20,7 +20,7 @@ to install the initial configuration file. If you would like to make a systemd s
 to make a systemd service file. By default, the file created is called **start.service**. If you would like a different name (for example, if you are running multiple servers) change the setting in the file **hajime.conf**. Now enable it using
 
     sudo systemctl enable start
-to run Hajime on startup. Before rebooting, you must change the settings in **start.conf** and **hajime.conf**. Start.conf is the settings file for an individual server object. This is done for future-proofing for future versions that may implement multithreading. Hajime.conf is the settings file for the main program.
+to run Hajime on startup. Before rebooting, you must change the settings in **server.conf** and **hajime.conf**. Server.conf is the settings file for an individual server object. This is done for future-proofing for future versions that may implement multithreading. Hajime.conf is the settings file for the main program.
 
 # Instructions: Compiling Your Own
 It's easy to compile Hajime. First, download the files in the **source** section. Then, run this command:
