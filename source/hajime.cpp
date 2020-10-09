@@ -14,7 +14,7 @@ namespace fs = std::experimental::filesystem::v1;
 
 string confFile; // = "server.conf";
 string sconfFile = "hajime.conf";
-string sysdService = ""; // = "/etc/systemd/system/start.service"; //systemd service file location
+string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile;
 
 void makeConfig();
@@ -83,7 +83,7 @@ void makeConfig() {
 	} else {
 		ofstream outsConf(sconfFile);
 		outsConf <<	"DefaultServerConf=server.conf" 
-		<< endl << "SystemdLocation=/etc/systemd/system/start.service"
+		<< endl << "SystemdLocation=/etc/systemd/system/hajime.service"
 		<< endl << "Logfile="
 		<< endl << "#"
 		<< endl;
