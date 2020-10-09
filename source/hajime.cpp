@@ -1,6 +1,6 @@
-//Hajime version 1.0
-//(c) 2020 Jackson Huff.
-//Released under the GPLv3 license
+//Hajime version 1.0.1
+//(c) 2020 Slackadays on Github
+//Released under the LGPL license
 #include <iostream>
 #include <cstring>
 #include <experimental/filesystem>
