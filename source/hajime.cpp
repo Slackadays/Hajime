@@ -12,7 +12,7 @@ using std::cout;
 using std::endl;
 namespace fs = std::experimental::filesystem::v1;
 
-string confFile; // = "start.conf";
+string confFile; // = "server.conf";
 string sconfFile = "hajime.conf";
 string sysdService = ""; // = "/etc/systemd/system/start.service"; //systemd service file location
 string logFile;
@@ -82,7 +82,7 @@ void makeConfig() {
 		cout << "There is a config file here!" << endl;
 	} else {
 		ofstream outsConf(sconfFile);
-		outsConf <<	"DefaultServerConf=start.conf" 
+		outsConf <<	"DefaultServerConf=server.conf" 
 		<< endl << "SystemdLocation=/etc/systemd/system/start.service"
 		<< endl << "Logfile="
 		<< endl << "#"
