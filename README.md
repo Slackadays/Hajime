@@ -17,9 +17,9 @@ If you are using a precompiled binary, stay in this section. If you are compilin
 to install the initial configuration file. If you would like to make a systemd service, now run
 
     sudo ./hajime -S
-to make a systemd service file. By default, the file created is called **start.service**. If you would like a different name (for example, if you are running multiple servers) change the setting in the file **hajime.conf**. Now enable it using
+to make a systemd service file. By default, the file created is called **hajime.service**. If you would like a different name (for example, if you are running multiple servers) change the setting in the file **hajime.conf**. Now enable it using
 
-    sudo systemctl enable start
+    sudo systemctl enable hajime
 to run Hajime on startup. Before rebooting, you must change the settings in **server.conf** and **hajime.conf**. Server.conf is the settings file for an individual server object. This is done for future-proofing for future versions that may implement multithreading. Hajime.conf is the settings file for the main program.
 
 # Instructions: Compiling Your Own
@@ -31,8 +31,8 @@ The "-lstdc++fs" is required if you are running a version of GCC that treats the
 # Using Hajime
 This script is a cinch to actually use. To check its status, run
 
-    sudo systemctl status start
-and substitute "start" if you have renamed the systemd service file. This will display the messages sent by Hajime. For debugging, you may also run it manually.
+    sudo systemctl status hajime
+and substitute "hajime" if you have renamed the systemd service file. This will display the messages sent by Hajime. For debugging, you may also run it manually.
 
 # How It Works
 Hajime is a fairly simple program, all things considered. It starts by performing file checks followed by a scan of the /proc virtual filesystem to get a maximum PID. This is done for optimization. Then, a device is mounted (if set to do so) and the specified command is run. A perpetual check of /proc is now done to search for a PID that has a particular keyword in it. If the Minecraft server stops, then the keyword is no longer present and the cycle starts over again.
