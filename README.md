@@ -5,7 +5,7 @@ A versatile, high-performance Minecraft server startup script written in C++.
 Until now, advanced server startup scripts were made with unintelligible systemd services or Bash programs. Hajime changes all this. It is programmed enntirely in C++ and can actively monitor a server!
 
 # Requirements
-There are several prerequisites as of this writing. You'll need a Linux, or at least POSIX-compliant, system. To use a precompiled binary, an ARM device such as a Raspberry Pi is needed. Hajime was designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional.
+There are several prerequisites as of this writing. You'll need a Linux, or at least POSIX-compliant, system. Hajime was designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional. Your system will also need to be 64-bit x86 or ARM.
 
 # What's up With That Name?
 "Hajime" is just "begin" in Japanese. I know this because I hear it a lot when practicing judo.
