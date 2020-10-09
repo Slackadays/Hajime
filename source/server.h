@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <iostream>
 #include <string>
+#include "output.h"
 
 #ifdef _WIN32
 	#include <Windows.h> //Windows library
@@ -32,7 +33,6 @@ class Server {
 	void makeDir();
 	void startProgram();
 	void readSettings(string confFile);
-	void startServer();
 	void printMessage(string message, int = 1);
 
 	string file, path, command, confFile, device;
@@ -40,7 +40,7 @@ class Server {
 	public:
 		Server();
 		bool isRunning = false;
-		void startServer(string confFile);
+		void startServer(string confFile, Output* fileObj);
 		int getPID();
 };
 
@@ -57,13 +57,13 @@ while (i < 20000) { //20000 is the highest likely process PID
 fs::current_path(oldPath);
 }
 
-void Server::startServer(string confFile) {
+void Server::startServer(string confFile, Output* fileObj) {
 	try {
 		if (fs::is_regular_file(confFile)) {
-			printMessage("Reading settings...", 1);
+			fileObj->out("Reading settings...");
 			readSettings(confFile);
 		} else {
-			cout << "The server's config file doesn't exist" << endl;
+			fileObj->out("The server's config file doesn't exist");
 			return;
 		}
 		

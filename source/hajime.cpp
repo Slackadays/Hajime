@@ -6,6 +6,7 @@
 #include <experimental/filesystem>
 #include <fstream>
 #include "server.h"
+#include "output.h"
 
 using std::cout;
 using std::endl;
@@ -13,7 +14,7 @@ namespace fs = std::experimental::filesystem::v1;
 
 string confFile; // = "start.conf";
 string sconfFile = "hajime.conf";
-string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd service file location
+string sysdService = ""; // = "/etc/systemd/system/start.service"; //systemd service file location
 string logFile;
 
 void makeConfig();
@@ -22,10 +23,13 @@ void readSettings();
 
 //argNum is the number of arguments from the command line, *args[] is the arguments themselves
 int main(int argNum, char *args[]) {
+	Output logObj;
 	if (fs::is_regular_file(sconfFile)) {
 		readSettings();
 		if (logFile == "") {
 			cout << "No log file to be made!" << endl;
+		} else {
+			logObj.init(logFile);
 		}
 
 	} else {
@@ -59,7 +63,7 @@ int main(int argNum, char *args[]) {
 		i++;
 	}
 	Server one;
-	one.startServer(confFile);
+	one.startServer(confFile, &logObj);
 	return 0;
 }
 
@@ -79,7 +83,7 @@ void makeConfig() {
 	} else {
 		ofstream outsConf(sconfFile);
 		outsConf <<	"DefaultServerConf=start.conf" 
-		<< endl << "SystemdLocation=/etc/systemd/system/hajime.service"
+		<< endl << "SystemdLocation=/etc/systemd/system/start.service"
 		<< endl << "Logfile="
 		<< endl << "#"
 		<< endl;
@@ -91,7 +95,7 @@ void makeConfig() {
 void readSettings() {
 	
 	//conjure up a file stream
-	std::fstream sconf;
+	std::fstream sconf; //sconf = settings conf
 	//configuration file open for reading
 	sconf.open(sconfFile, std::fstream::in);
 
