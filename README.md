@@ -8,7 +8,7 @@ Until now, advanced server startup scripts were made with unintelligible systemd
 There are several prerequisites as of this writing. You'll need a Linux, or at least POSIX-compliant, system. Hajime was designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional. Your system will also need to be 64-bit x86 or ARM.
 
 # What's up With That Name?
-"Hajime" is just "begin" in Japanese. I know this because I hear it a lot when practicing judo.
+"Hajime" is just "begin" in Japanese. I know this because I hear it every time I train with my judo professor.
 
 # Instructions
 If you are using a precompiled binary, stay in this section. If you are compiling, skip this section. Download the version appropriate for your platform. Next, place it in a simple, memorable location. In my own server, I use /media. Now, run 
