@@ -160,7 +160,7 @@ void makeSysd() {
 	if (fs::is_directory("/etc/systemd") == true && fs::is_regular_file(sysdService) == false) {
 		cout << "Making systemd service..." << endl;
 		ofstream service(sysdService);
-		service << "[Unit]" << endl << "Description=Starts Hajime" << endl << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=sudo " << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
+		service << "[Unit]" << endl << "Description=Starts Hajime" << endl << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 		service.close();
 	}
 	if (fs::is_directory("/etc/systemd") == false) {
