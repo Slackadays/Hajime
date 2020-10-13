@@ -1,4 +1,4 @@
-//Hajime version 1.0.1
+//Hajime version 1.0.1 R1
 //(c) 2020 Slackadays on Github
 //Released under the LGPL license
 #include <iostream>
