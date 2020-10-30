@@ -2,9 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <experimental/filesystem>
+#include <filesystem>
 #pragma once //this guards against "error: redefinition of class Output"
-namespace fs = std::experimental::filesystem::v1;
+namespace fs = std::filesystem;
 using std::string;
 using std::cout;
 using std::endl;
