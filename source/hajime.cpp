@@ -3,14 +3,14 @@
 //Released under the LGPL license
 #include <iostream>
 #include <cstring>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include "server.h"
 #include "output.h"
 
 using std::cout;
 using std::endl;
-namespace fs = std::experimental::filesystem::v1;
+namespace fs = std::filesystem;
 
 string confFile; // = "server.conf";
 string sconfFile = "hajime.conf";
@@ -168,5 +168,5 @@ void makeSysd() {
 	}
 }
 // compile command
-// sudo g++ -o hajime hajime.cpp -lstdc++fs
+// sudo g++ -std=c++20 -o hajime hajime.cpp
 // filesystem library is experimentral in g++ 8, so an extra thing is needed to include it
