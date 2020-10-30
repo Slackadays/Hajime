@@ -1,6 +1,6 @@
 //Hajime class and function files
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <stdlib.h>
 #include <fstream>
 #include <sys/mount.h>
@@ -17,7 +17,7 @@
 #endif
 
 using namespace std;
-namespace fs = std::experimental::filesystem::v1;
+namespace fs = std::filesystem;
 
 class Server {
 	bool hasOutput = false;
