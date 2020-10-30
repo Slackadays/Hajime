@@ -169,4 +169,4 @@ void makeSysd() {
 }
 // compile command
 // sudo g++ -std=c++20 -o hajime hajime.cpp
-// filesystem library is experimentral in g++ 8, so an extra thing is needed to include it
+// you need to tell g++ to use the c++20 standard to use the filsystem library
