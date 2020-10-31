@@ -25,8 +25,8 @@ to run Hajime on startup. Before rebooting, you must change the settings in **se
 # Instructions: Compiling Your Own
 It's easy to compile Hajime. First, download the files in the **source** section. Then, run this command:
 
-    sudo g++ -O3 -o hajime hajime.cpp -lstdc++fs
-The "-lstdc++fs" is required if you are running a version of GCC that treats the filesystem library as an experimental one. Now, follow the main Instructions area to finish.
+    sudo g++ -std=c++20 -O3 -o hajime hajime.cpp -lstdc++fs
+The "-std=c++20" is required because GCC likes to revert to old versions of C++.
    
 # Using Hajime
 This script is a cinch to actually use. To check its status, run
