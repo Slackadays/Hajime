@@ -58,7 +58,8 @@ while (i < 20000) { //20000 is the highest likely process PID
 fs::current_path(oldPath);
 }
 
-void Server::startServer(string confFile, std::shared_ptr<Output> fileObj) {
+void Server::startServer(string confFile, std::shared_ptr<Output> tempObj) {
+	fileObj = tempObj;
 	try {
 		if (fs::is_regular_file(confFile)) {
 			fileObj->out("Reading settings...");
@@ -68,30 +69,14 @@ void Server::startServer(string confFile, std::shared_ptr<Output> fileObj) {
 			return;
 		}
 		
-		switch(debug) {
-			
-		case 0:
-			break;
-			
-		case 1:
 			fileObj->out("The file is: " + file);
 			fileObj->out("The path is: " + path);
 			fileObj->out("Command: " + command);
-			fileObj->out("Debug value: " + debug);
+			fileObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 			fileObj->out("Device: " + device);
-			break;
-			
-		case 2: 
-			fileObj->out("The file is: " + file);
-			fileObj->out("The path is: " + path);
-			fileObj->out("Command: " + command);
-			fileObj->out("Debug value: " + debug);
-			fileObj->out("Device: " + device);
-			break;
-			
-		}
 		
 		while(true) {
+			fileObj->out("In the loop");
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				sleep(3);
 				fileObj->out("Program is running!");
@@ -99,13 +84,16 @@ void Server::startServer(string confFile, std::shared_ptr<Output> fileObj) {
 				hasMounted = true;
 				} else {
 					isRunning = false;
+					fileObj->out("isRunning is now false");
 				}
 				
 			fs::current_path(path);
 
 			//checks if we're in the right place and if the server file is there
 			if (fs::current_path() == path && fs::is_regular_file(file) && isRunning == false) {
+				fileObj->out("Trying to start program");
 				startProgram();
+				fileObj->out("Program start completed");
 			}
 
 			sleep(2);
@@ -266,9 +254,9 @@ void Server::readSettings(string confFile) {
 
 int Server::getPID() {
 string oldPath = fs::current_path();
-int i = maxPID; //start from beginning
+long unsigned int i = maxPID; //start from beginning
 fs::current_path("/proc"); //proc holds all the processes
-while (i < 20000) { //20000 is the highest likely process PID
+while (i < 60000) { //6000 is the max PID this will check for
 	if (fs::exists(to_string(i))){ //i needs to be a string to use with the fs functions
 			fstream file; //create a file object
 			file.open(to_string(i) + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
