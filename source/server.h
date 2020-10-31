@@ -36,11 +36,12 @@ class Server {
 	void printMessage(string message, int = 1);
 
 	string file, path, command, confFile, device;
+	shared_ptr<Output> fileObj;
 	
 	public:
 		Server();
 		bool isRunning = false;
-		void startServer(string confFile, Output* fileObj);
+		void startServer(string confFile, shared_ptr<Output> fileObj);
 		int getPID();
 };
 
@@ -57,7 +58,7 @@ while (i < 20000) { //20000 is the highest likely process PID
 fs::current_path(oldPath);
 }
 
-void Server::startServer(string confFile, Output* fileObj) {
+void Server::startServer(string confFile, std::shared_ptr<Output> fileObj) {
 	try {
 		if (fs::is_regular_file(confFile)) {
 			fileObj->out("Reading settings...");
@@ -73,19 +74,19 @@ void Server::startServer(string confFile, Output* fileObj) {
 			break;
 			
 		case 1:
-			cout << "The file is: " << file << endl;
-			cout << "The path is: " << path << endl;
-			cout << "Command: " << command << endl;
-			cout << "Debug value: " << debug << endl;
-			cout << "Device: " << device << endl;
+			fileObj->out("The file is: " + file);
+			fileObj->out("The path is: " + path);
+			fileObj->out("Command: " + command);
+			fileObj->out("Debug value: " + debug);
+			fileObj->out("Device: " + device);
 			break;
 			
 		case 2: 
-			cout << "The file is: " << file << endl;
-			cout << "The path is: " << path << endl;
-			cout << "Command: " << command << endl;
-			cout << "Debug value: " << debug << endl;
-			cout << "Device: " << device << endl;
+			fileObj->out("The file is: " + file);
+			fileObj->out("The path is: " + path);
+			fileObj->out("Command: " + command);
+			fileObj->out("Debug value: " + debug);
+			fileObj->out("Device: " + device);
 			break;
 			
 		}
@@ -93,7 +94,7 @@ void Server::startServer(string confFile, Output* fileObj) {
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				sleep(3);
-				printMessage("Program is running!", 1);
+				fileObj->out("Program is running!");
 				isRunning = true;
 				hasMounted = true;
 				} else {
@@ -123,7 +124,7 @@ void Server::startServer(string confFile, Output* fileObj) {
 	} catch(string mes){
 		printMessage(mes, 1);
 	} catch(...) { //error handling
-		printMessage("Whoops! An error occurred.", 1);
+		fileObj->out("Whoops! An error occurred.");
 	}
 }
 
@@ -152,20 +153,20 @@ void Server::startProgram() {
 void Server::makeDir() {
 	printMessage("No directory!", 2);
 	if (!fs::create_directory(path)) {
-		cout << "Error creating directory!" << endl;
+		fileObj->out("Error creating directory!");
 	}
 }
 
 void Server::mountDrive() {
-	printMessage("Trying to mount.", 1);
+	fileObj->out("Trying to mount.");
 	//sda1 is the first external mass storage device
 	if (!fs::is_empty(path)) { //if there are files, then we don't want to mount there
-			printMessage("There are files in the path", 2);
+			fileObj->out("There are files in the path");
 			return;
 	} else {
 		string error;
 	if (mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "") == 0) { //brute-forces every possible filesystem because mount() depends on it being the right one
-		printMessage("Device mounted!", 1);
+		fileObj->out("Device mounted!");
 		hasMounted = true;
 		systemi = 0; //reset in case it needs to mount again
 	} else {
@@ -187,15 +188,15 @@ void Server::mountDrive() {
 			default: error = "Unknown error.";
 			}
 			if (hasOutputUSB == false){
-				printMessage("An error occurred, but the script will keep trying to mount. Error: " + error, 1);
+				fileObj->out("An error occurred, but the script will keep trying to mount. Error: " + error);
 				hasOutputUSB = true;
 				systemi = 0;
 			}
-			printMessage("Error code: " + to_string(errsv), 2);
+			fileObj->out("Error code: " + to_string(errsv));
 			}
 		}
 		if (systemi < 6) {
-			cout << "Trying " << systems[systemi] << " filesystem" << endl;
+			fileObj->out("Trying " + systems[systemi] + " filesystem");
 			systemi++; //increment the filesystem
 		}
 	}
@@ -255,7 +256,7 @@ void Server::readSettings(string confFile) {
 	}
 	
 	if (device == "") {
-		printMessage("No device requested: No mounting this time!", 1);
+		fileObj->out("No device requested: No mounting this time!");
 		hasMounted = true;
 	}
 

@@ -5,6 +5,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include "server.h"
 #include "output.h"
 
@@ -23,64 +24,95 @@ void readSettings();
 
 //argNum is the number of arguments from the command line, *args[] is the arguments themselves
 int main(int argNum, char *args[]) {
-	Output logObj;
+	
+	std::shared_ptr<Output> logObj = std::make_shared<Output>(); //smart pointer to the file output object
+	
 	if (fs::is_regular_file(sconfFile)) {
+		
 		readSettings();
+		
 		if (logFile == "") {
+			
 			cout << "No log file to be made!" << endl;
+			
 		} else {
-			logObj.init(logFile);
+			
+			logObj->init(logFile);
+			
 		}
 
 	} else {
+		
 		cout << "Config file doesn't exist!" << endl;
+		
 	}
+	
 	int i = 0;
+	
 	while (i < argNum) {
 		
 		//allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
 		if (strcmp(args[i], "-f") == 0) {
+			
 			confFile = args[(i + 1)];
+			
 		}
 		
 		if (strcmp(args[i], "-h") == 0 || strcmp(args[i], "--help") == 0) {
+			
 			cout << "Hajime is a high-performance startup script designed to start a Minecraft server from an external device. Usage: \n" << 
 			args[0] << " [-f configuration-file] [-h] [-I] [-S] \n" <<
 			"-f is used in conjunction with a custom config file. A plain filename is interpreted as the same directory the script is located in, so use a / to specify otherwise." << endl;
 			return 0;
+			
 		}
 		
 		if (strcmp(args[i], "-I") == 0) {
+			
 			makeConfig();
 			return 0;
+			
 		}
 		
 		if (strcmp(args[i], "-S") == 0) {
+			
 			makeSysd();
 			return 0;
+			
 		}
 		
 		i++;
 	}
+	
 	Server one;
-	one.startServer(confFile, &logObj);
+	one.startServer(confFile, logObj);
 	return 0;
+	
 }
 
 void makeConfig() {
+	
 	cout << "Installing config file..." << endl;
+	
 	if (fs::is_regular_file(confFile) == true){
+		
 		cout << "The file is already here! To make a new one, delete the existing file." << endl;
+		
 	} else {
+		
 		ofstream outConf(confFile);
 		outConf << "File=SERVER-FILE"<< endl << "Path=PATH-TO-DEVICE" << endl << "Command=SERVER-EXECUTION-COMMAND" << endl << "Debug=1" << endl << "Device=DEVICE" << endl;
 		outConf << "#" << endl << "This is the comment section. Anything after the # is a comment. \n The first line is the file of the server that needs to be executed. The second line is the path that leads to the home directory of the external device. The third line is the command that needs to be executed in order to start the server. The fourth line is the debug setting. 0 means most output is disabled. 1 prevents most looped outputs. 2 enables all outputs. I recommend 1, but switch to 2 if there\'s a problem somewhere." << endl;
 		cout << "The config file (" << confFile << ") has been created and is now ready for your settings." << endl;
 		outConf.close();
+		
 	}
+	
 	if (fs::is_regular_file(sconfFile)) {
 		cout << "There is a config file here!" << endl;
+		
 	} else {
+		
 		ofstream outsConf(sconfFile);
 		outsConf <<	"DefaultServerConf=server.conf" 
 		<< endl << "SystemdLocation=/etc/systemd/system/hajime.service"
@@ -89,6 +121,7 @@ void makeConfig() {
 		<< endl;
 		cout << "Config file made!" << endl;
 		outsConf.close();
+		
 	}
 }
 
@@ -124,6 +157,7 @@ void readSettings() {
 		}
 		//the current position is that of a quote, so increment it 1
 		iter++;
+		
 		//append the finished product
 		while ((uint)iter < line.length()) {
 			finished = finished + line[iter];
@@ -169,4 +203,4 @@ void makeSysd() {
 }
 // compile command
 // sudo g++ -std=c++20 -o hajime hajime.cpp
-// you need to tell g++ to use the c++20 standard to use the filsystem library
+// filesystem library is experimentral in g++ 8, so an extra thing is needed to include it

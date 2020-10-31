@@ -22,7 +22,7 @@ class Output {
 void Output::init(string file) {
 	log = true;
 	filename = file;
-	fileObj.open(filename, std::ios::app);
+	fileObj.open(filename, std::ios::app); //appends to a current file and creates it if needed
 }
 
 void Output::out(string data){
