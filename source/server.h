@@ -25,7 +25,6 @@ class Server {
 	bool hasMounted = false;
 	int debug = 2; //set to 0 to get rid of most messages, 1 for 1 message per action, 2 for all messages available
 	int systemi = 0;
-	int maxPID = 0;
 
 	const string systems[7] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "fuseblk"};
 	
@@ -33,7 +32,6 @@ class Server {
 	void makeDir();
 	void startProgram();
 	void readSettings(string confFile);
-	void printMessage(string message, int = 1);
 
 	string file, path, command, confFile, device;
 	shared_ptr<Output> fileObj;
@@ -101,7 +99,7 @@ void Server::startServer(string confFile, std::shared_ptr<Output> tempObj) {
 			}
 		}
 	} catch(string mes){
-		printMessage(mes, 1);
+		fileObj->out(mes);
 	} catch(...) { //error handling
 		fileObj->out("Whoops! An error occurred.");
 	}
@@ -110,7 +108,7 @@ void Server::startServer(string confFile, std::shared_ptr<Output> tempObj) {
 void Server::startProgram() {
 	if (!isRunning) {
 		
-		printMessage("Starting program!", 1);
+		fileObj->out("Starting program!");
 		
 		fs::current_path(path);
 
@@ -130,7 +128,7 @@ void Server::startProgram() {
 }
 
 void Server::makeDir() {
-	printMessage("No directory!", 2);
+	fileObj->out("No directory!");
 	if (!fs::create_directory(path)) {
 		fileObj->out("Error creating directory!");
 	}
@@ -266,20 +264,6 @@ while (Directory != End) {
 	Directory++; //go up 1 PID
 }
 return 0; //0 is the signal for "doesn't exist"
-}
-
-void Server::printMessage(string message, int v) { //v = verbosity
-	switch (debug) {
-		case 0: 
-			break;
-		case 1:
-			if (v == 1) {cout << message << endl; break;} 
-			if (v == 2) {break;}
-		case 2:
-			if (v == 1 || v == 2) {cout << message << endl; break;}
-		default: //if debug isn't set, we don't want to miss anything
-			cout << message << endl;
-	}
 }
 
 
