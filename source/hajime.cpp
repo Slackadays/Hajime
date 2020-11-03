@@ -101,7 +101,7 @@ void makeConfig() {
 	} else {
 		
 		ofstream outConf(confFile);
-		outConf << "File=SERVER-FILE"<< endl << "Path=PATH-TO-DEVICE" << endl << "Command=SERVER-EXECUTION-COMMAND" << endl << "Debug=1" << endl << "Device=DEVICE" << endl;
+		outConf << "file=SERVER-FILE"<< endl << "path=PATH-TO-DEVICE" << endl << "command=SERVER-EXECUTION-COMMAND" << endl << "debug=1" << endl << "device=DEVICE" << endl;
 		outConf << "#" << endl << "This is the comment section. Anything after the # is a comment. \n The first line is the file of the server that needs to be executed. The second line is the path that leads to the home directory of the file nd can't end in a /. The third line is the command that needs to be executed in order to start the server. The fourth line is the debug setting. 0 means most output is disabled. 1 prevents most looped outputs. 2 enables all outputs. I recommend 1, but switch to 2 if there\'s a problem somewhere." << endl;
 		cout << "The config file (" << confFile << ") has been created and is now ready for your settings." << endl;
 		outConf.close();
@@ -114,9 +114,9 @@ void makeConfig() {
 	} else {
 		
 		ofstream outsConf(sconfFile);
-		outsConf <<	"DefaultServerConf=server.conf" 
-		<< endl << "SystemdLocation=/etc/systemd/system/hajime.service"
-		<< endl << "Logfile="
+		outsConf <<	"defaultserverconf=server.conf" 
+		<< endl << "systemdlocation=/etc/systemd/system/hajime.service"
+		<< endl << "logfile="
 		<< endl << "#"
 		<< endl;
 		cout << "Config file made!" << endl;
@@ -169,9 +169,9 @@ void readSettings() {
 		//reset for the next loop
 		iter = 0;
 		finished = "";
-		if (param[lineNum] == "DefaultServerConf") {confFile = var[lineNum];}
-		if (param[lineNum] == "Logfile") {logFile = var[lineNum];}
-		if (param[lineNum] == "SystemdLocation") {sysdService = var[lineNum];}
+		if (param[lineNum] == "defaultserverconf") {confFile = var[lineNum];}
+		if (param[lineNum] == "logfile") {logFile = var[lineNum];}
+		if (param[lineNum] == "systemdlocation") {sysdService = var[lineNum];}
 		//prep var[] for the next line
 		lineNum++;
 	}

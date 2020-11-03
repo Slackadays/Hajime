@@ -46,16 +46,7 @@ class Server {
 };
 
 Server::Server() {
-string oldPath = fs::current_path();
-int i = 0; //start from beginning
-fs::current_path("/proc"); //proc holds all the processes
-while (i < 20000) { //20000 is the highest likely process PID
-	if (fs::exists(to_string(i))){ //i needs to be a string to use with the fs functions
-			maxPID = i;
-	}
-	i++; //go up 1 PID
-}
-fs::current_path(oldPath);
+
 }
 
 void Server::startServer(string confFile, std::shared_ptr<Output> tempObj) {
@@ -233,12 +224,12 @@ void Server::readSettings(string confFile) {
 		//reset for the next loop
 		iter = 0;
 		finished = "";
-		if (param[lineNum] == "File") {file = var[lineNum];}
-		if (param[lineNum] == "Path") {path = var[lineNum];}
-		if (param[lineNum] == "Command") {command = var[lineNum];}
+		if (param[lineNum] == "file") {file = var[lineNum];}
+		if (param[lineNum] == "path") {path = var[lineNum];}
+		if (param[lineNum] == "command") {command = var[lineNum];}
 		//stoi() converts the string result into an int
-		if (param[lineNum] == "Debug") {debug = stoi(var[lineNum]);}
-		if (param[lineNum] == "Device") {device = var[lineNum];}
+		if (param[lineNum] == "debug") {debug = stoi(var[lineNum]);}
+		if (param[lineNum] == "device") {device = var[lineNum];}
 		//prep var[] for the next line
 		lineNum++;
 	}
@@ -253,28 +244,27 @@ void Server::readSettings(string confFile) {
 }
 
 int Server::getPID() {
-string oldPath = fs::current_path();
-long unsigned int i = maxPID; //start from beginning
-fs::current_path("/proc"); //proc holds all the processes
-while (i < 60000) { //6000 is the max PID this will check for
-	if (fs::exists(to_string(i))){ //i needs to be a string to use with the fs functions
-			fstream file; //create a file object
-			file.open(to_string(i) + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
-			string str = ""; //reset string
-			getline(file, str); //read cmdline (it is only 1 line)
-			if (str.length() > 0){ //if a cmdline is not used, there will be nothing
-				if (str.find("SCREEN") != string::npos){ //look for a keyword in cmdline, string::npos is a special value (-1) that needs to be used
-					file.close(); //erase from memory
-					fs::current_path(oldPath);
-					return i; //return the PID of the known good process
+string dir = "";
+fs::directory_iterator Directory("/proc/");
+fs::directory_iterator End;
+
+while (Directory != End) { 
+	dir = Directory->path();
+	fstream file; //create a file object
+	file.open(dir + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
+	string str = ""; //reset string
+	getline(file, str); //read cmdline (it is only 1 line)
+	if (str.length() > 0){ //if a cmdline is not used, there will be nothing
+		if (str.find("SCREEN") != string::npos){ //look for a keyword in cmdline, string::npos is a special value (-1) that needs to be used
+			file.close(); //erase from memory
+			return stoi(dir.erase(0, 6)); //return the PID of the known good process
 				
-				}
-			}
-			file.close(); //erase the file from memory
+		}
 	}
-	i++; //go up 1 PID
+	file.close(); //erase the file from memory
+	
+	Directory++; //go up 1 PID
 }
-fs::current_path(oldPath);
 return 0; //0 is the signal for "doesn't exist"
 }
 
