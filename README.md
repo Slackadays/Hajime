@@ -2,7 +2,7 @@
 A versatile, high-performance Minecraft server startup script suite.
 
 # The Problem
-Most Minecrafter server startup scripts are either one of these two: simple systemd services, or complicated Bash scripts. The problems with a systemd service are that they're inflexible, unintelligable, and systemd-reliant. Bash scripts are slightly better, as they provide more features. However, you still need a shell to run it on and you don't have as many language features and speed as with "regular" programs. This new, improved script fixes all of this.
+Most Minecraft server startup scripts are either one of these two: simple systemd services, or complicated Bash scripts. The problems with a systemd service are that they're inflexible, unintelligable, and systemd-reliant. Bash scripts are slightly better, as they provide more features. However, you still need a shell to run it on and you don't have as many language features and speed as with "regular" programs. This new, improved script fixes all of this.
 
 # Requirements
 There are several prerequisites as of this writing. You'll need a Linux, or at least POSIX-compliant, system. Hajime was designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional. Your system will also need to be 64-bit x86 to use the included binaries, but it can be compiled to any other system.
