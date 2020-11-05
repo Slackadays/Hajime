@@ -1,6 +1,6 @@
 //Hajime version 1.0.1 R2
 //(c) 2020 Slackadays on Github
-//Released under the LGPL license
+
 #include <iostream>
 #include <cstring>
 #include <filesystem>
@@ -11,6 +11,8 @@
 
 using std::cout;
 using std::endl;
+using std::shared_ptr;
+using std::make_shared;
 namespace fs = std::filesystem;
 
 string confFile; // = "server.conf";
@@ -25,7 +27,7 @@ void readSettings();
 //argNum is the number of arguments from the command line, *args[] is the arguments themselves
 int main(int argNum, char *args[]) {
 	
-	std::shared_ptr<Output> logObj = std::make_shared<Output>(); //smart pointer to the file output object
+	shared_ptr<Output> logObj = make_shared<Output>(); //smart pointer to the file output object
 	
 	if (fs::is_regular_file(sconfFile)) {
 		
@@ -51,14 +53,14 @@ int main(int argNum, char *args[]) {
 	
 	while (i < argNum) {
 		
-		//allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
-		if (strcmp(args[i], "-f") == 0) {
+		
+		if (strcmp(args[i], "-f") == 0) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
 			
 			confFile = args[(i + 1)];
 			
 		}
 		
-		if (strcmp(args[i], "-h") == 0 || strcmp(args[i], "--help") == 0) {
+		if (strcmp(args[i], "-h") == 0 || strcmp(args[i], "--help") == 0) { //-h = --help = help
 			
 			cout << "Hajime is a high-performance startup script designed to start a Minecraft server from an external device. Usage: \n" << 
 			args[0] << " [-f configuration-file] [-h] [-I] [-S] \n" <<
@@ -67,14 +69,14 @@ int main(int argNum, char *args[]) {
 			
 		}
 		
-		if (strcmp(args[i], "-I") == 0) {
+		if (strcmp(args[i], "-I") == 0) { //-I = install
 			
 			makeConfig();
 			return 0;
 			
 		}
 		
-		if (strcmp(args[i], "-S") == 0) {
+		if (strcmp(args[i], "-S") == 0) { //-S = systemd install
 			
 			makeSysd();
 			return 0;
@@ -127,10 +129,10 @@ void makeConfig() {
 
 void readSettings() {
 	
-	//conjure up a file stream
-	std::fstream sconf; //sconf = settings conf
-	//configuration file open for reading
-	sconf.open(sconfFile, std::fstream::in);
+
+	std::fstream sconf; 	//conjure up a file stream, sconf = settings conf
+
+	sconf.open(sconfFile, std::fstream::in); 	//configuration file open for reading
 
 	int iter = 0;
 	int lineNum = 0;
@@ -155,19 +157,19 @@ void readSettings() {
 			param[lineNum] = param[lineNum] + line[iter];
 			iter++;
 		}
-		//the current position is that of a quote, so increment it 1
-		iter++;
 		
-		//append the finished product
-		while ((uint)iter < line.length()) {
-			finished = finished + line[iter];
+		iter++; //the current position is that of a quote, so increment it 1
+		
+
+		while ((uint)iter < line.length()) {		//cast to a uint to prevent a warning
+			finished = finished + line[iter]; 		//append the finished product
 			iter++;
 		}
 
-		//make the var[] what the finished product is
-		var[lineNum] = finished;
-		//reset for the next loop
-		iter = 0;
+	
+		var[lineNum] = finished; 	//make the var[] what the finished product is
+	
+		iter = 0; 	//reset for the next loop 
 		finished = "";
 		if (param[lineNum] == "defaultserverconf") {confFile = var[lineNum];}
 		if (param[lineNum] == "logfile") {logFile = var[lineNum];}
@@ -176,8 +178,8 @@ void readSettings() {
 		lineNum++;
 	}
 	
-	//get rid of the file in memory
-	sconf.close();
+
+	sconf.close(); 	//get rid of the file in memory
 }
 
 void makeSysd() {
@@ -203,4 +205,3 @@ void makeSysd() {
 }
 // compile command
 // sudo g++ -std=c++20 -o hajime hajime.cpp
-// filesystem library is experimentral in g++ 8, so an extra thing is needed to include it

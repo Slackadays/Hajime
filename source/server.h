@@ -1,5 +1,3 @@
-//Hajime class and function files
-
 #include <filesystem>
 #include <stdlib.h>
 #include <fstream>
@@ -9,21 +7,21 @@
 #include <iostream>
 #include <string>
 #include "output.h"
+#include <unistd.h>
 
-#ifdef _WIN32
-	#include <Windows.h> //Windows library
-#else
-	#include <unistd.h> //Linux version of the library
-#endif
-
-using namespace std;
+using std::shared_ptr;
+using std::string;
+using std::fstream;
+using std::to_string;
+using std::ofstream;
+using std::ios;
 namespace fs = std::filesystem;
 
 class Server {
 	bool hasOutput = false;
 	bool hasOutputUSB = false; //if one variable is used, then the debug action will interfere wihh the USB mount function
 	bool hasMounted = false;
-	int debug = 2; //set to 0 to get rid of most messages, 1 for 1 message per action, 2 for all messages available
+	
 	int systemi = 0;
 
 	const string systems[7] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "fuseblk"};
@@ -34,86 +32,102 @@ class Server {
 	void readSettings(string confFile);
 
 	string file, path, command, confFile, device;
-	shared_ptr<Output> fileObj;
+	
+	std::shared_ptr<Output> fileObj;
 	
 	public:
-		Server();
 		bool isRunning = false;
 		void startServer(string confFile, shared_ptr<Output> fileObj);
 		int getPID();
 };
 
-Server::Server() {
-
-}
-
-void Server::startServer(string confFile, std::shared_ptr<Output> tempObj) {
+void Server::startServer(string confFile, shared_ptr<Output> tempObj) {
+	
 	fileObj = tempObj;
+	
 	try {
 		if (fs::is_regular_file(confFile)) {
+			
 			fileObj->out("Reading settings...");
 			readSettings(confFile);
+			
 		} else {
+			
 			fileObj->out("The server's config file doesn't exist");
 			return;
+			
 		}
 		
 			fileObj->out("The file is: " + file);
 			fileObj->out("The path is: " + path);
 			fileObj->out("Command: " + command);
-			fileObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+			//fileObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 			fileObj->out("Device: " + device);
 		
 		while(true) {
-			fileObj->out("In the loop");
+			
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
+				
 				sleep(3);
 				fileObj->out("Program is running!");
 				isRunning = true;
 				hasMounted = true;
+				
 				} else {
+					
 					isRunning = false;
 					fileObj->out("isRunning is now false");
-				}
+					
+			}
 				
 			fs::current_path(path);
 
-			//checks if we're in the right place and if the server file is there
-			if (fs::current_path() == path && fs::is_regular_file(file) && isRunning == false) {
+
+			if (fs::current_path() == path && fs::is_regular_file(file) && isRunning == false) { 			//checks if we're in the right place and if the server file is there
+				
 				fileObj->out("Trying to start program");
 				startProgram();
 				fileObj->out("Program start completed");
+				
 			}
 
 			sleep(2);
 			
-			//if the desired path doesn't exist, make it
-			if (!fs::is_directory(path)) {
+
+			if (!fs::is_directory(path)) { 		//if the desired path doesn't exist, make it
+				
 				makeDir();
+				
 			}
 			
 			fs::current_path(path);
 			
 			if (!hasMounted) {
+				
 				mountDrive();
+				
 			}
 		}
 	} catch(string mes){
+		
 		fileObj->out(mes);
+		
 	} catch(...) { //error handling
+		
 		fileObj->out("Whoops! An error occurred.");
+		
 	}
 }
 
 void Server::startProgram() {
+	
 	if (!isRunning) {
 		
 		fileObj->out("Starting program!");
 		
 		fs::current_path(path);
 
-		//session.lock will be there if the server didn't shut down properly
-		fs::remove("world/session.lock");
+		fs::remove("world/session.lock"); 		//session.lock will be there if the server didn't shut down properly
 
 		//system() is a C command too
 		system(command.c_str()); //execute the command
@@ -135,17 +149,24 @@ void Server::makeDir() {
 }
 
 void Server::mountDrive() {
+	
 	fileObj->out("Trying to mount.");
-	//sda1 is the first external mass storage device
+	
 	if (!fs::is_empty(path)) { //if there are files, then we don't want to mount there
+		
 			fileObj->out("There are files in the path");
 			return;
+			
 	} else {
+		
 		string error;
+		
 	if (mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "") == 0) { //brute-forces every possible filesystem because mount() depends on it being the right one
+		
 		fileObj->out("Device mounted!");
 		hasMounted = true;
 		systemi = 0; //reset in case it needs to mount again
+		
 	} else {
 		int errsv = errno; //errno is the POSIX error code
 		if (systemi == 6) {
@@ -181,11 +202,9 @@ void Server::mountDrive() {
 
 void Server::readSettings(string confFile) {
 	
-	//conjure up a file stream
-	std::fstream conf;
+	std::fstream conf; 	//conjure up a file stream
 
-	//configuration file open for reading
-	conf.open(confFile, std::fstream::in);
+	conf.open(confFile, std::fstream::in); //configuration file open for reading
 
 	int iter = 0;
 	int lineNum = 0;
@@ -219,17 +238,14 @@ void Server::readSettings(string confFile) {
 
 		//make the var[] what the finished product is
 		var[lineNum] = finished;
-		//reset for the next loop
-		iter = 0;
+		iter = 0; 		//reset for the next loop
 		finished = "";
 		if (param[lineNum] == "file") {file = var[lineNum];}
 		if (param[lineNum] == "path") {path = var[lineNum];}
 		if (param[lineNum] == "command") {command = var[lineNum];}
-		//stoi() converts the string result into an int
-		if (param[lineNum] == "debug") {debug = stoi(var[lineNum]);}
+		//if (param[lineNum] == "debug") {debug = stoi(var[lineNum]);} //stoi() converts the string result into an int
 		if (param[lineNum] == "device") {device = var[lineNum];}
-		//prep var[] for the next line
-		lineNum++;
+		lineNum++; 		//prep var[] for the next line
 	}
 	
 	if (device == "") {
@@ -237,33 +253,31 @@ void Server::readSettings(string confFile) {
 		hasMounted = true;
 	}
 
-	//get rid of the file in memory
-	conf.close();
+	conf.close(); //get rid of the file in memory
 }
 
 int Server::getPID() {
-string dir = "";
-fs::directory_iterator Directory("/proc/");
-fs::directory_iterator End;
+	string dir = "";
+	fs::directory_iterator Directory("/proc/"); //search /proc/
+	fs::directory_iterator End;					//a dummy object to compare to
 
-while (Directory != End) { 
-	dir = Directory->path();
-	fstream file; //create a file object
-	file.open(dir + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
-	string str = ""; //reset string
-	getline(file, str); //read cmdline (it is only 1 line)
-	if (str.length() > 0){ //if a cmdline is not used, there will be nothing
-		if (str.find("SCREEN") != string::npos){ //look for a keyword in cmdline, string::npos is a special value (-1) that needs to be used
-			file.close(); //erase from memory
-			return stoi(dir.erase(0, 6)); //return the PID of the known good process
-				
+	while (Directory != End) { 
+		dir = Directory->path();				//assigns a formatted directory string to dir
+		fstream file;							 //create a file object
+		file.open(dir + "/cmdline", ios::in); 	//open the file of /proc/PID/cmdline for reading
+		string str = ""; 						//reset string
+		getline(file, str); 					//read cmdline (it is only 1 line)
+		if (str.length() > 0){ 					//if a cmdline is not used, there will be nothing
+			if (str.find("SCREEN") != string::npos){ //look for a keyword in cmdline, string::npos is a special value (-1) that needs to be used
+				file.close(); //erase from memory
+				return stoi(dir.erase(0, 6)); 	//return the PID of the known good process
+					
+			}
 		}
-	}
+		
 	file.close(); //erase the file from memory
 	
-	Directory++; //go up 1 PID
+	Directory++; //look at the next directory
+	}
+	return 0; //0 = doesn't exist
 }
-return 0; //0 is the signal for "doesn't exist"
-}
-
-
