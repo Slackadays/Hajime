@@ -3,29 +3,30 @@
 
 #include <iostream>
 #include <cstring>
+#include <string>
 #include <filesystem>
 #include <fstream>
 #include <memory>
 #include "server.h"
 #include "output.h"
-
+#include "installer.h"
 using std::cout;
 using std::endl;
 using std::shared_ptr;
 using std::make_shared;
 namespace fs = std::filesystem;
 
-string confFile; // = "server.conf";
+string confFile = ""; // = "server.conf";
 string sconfFile = "hajime.conf";
 string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile;
 
-void makeConfig();
-void makeSysd();
 void readSettings();
 
 //argNum is the number of arguments from the command line, *args[] is the arguments themselves
 int main(int argNum, char *args[]) {
+	
+	Installer install;
 	
 	shared_ptr<Output> logObj = make_shared<Output>(); //smart pointer to the file output object
 	
@@ -71,18 +72,17 @@ int main(int argNum, char *args[]) {
 		
 		if (strcmp(args[i], "-I") == 0) { //-I = install
 			
-			makeConfig();
+			install.mainconfig(confFile);
 			return 0;
 			
 		}
 		
 		if (strcmp(args[i], "-S") == 0) { //-S = systemd install
-			
-			makeSysd();
-			return 0;
-			
+			if (fs::is_regular_file(sconfFile) == true && sysdService == "") {
+		readSettings();
+		install.systemd(sysdService);
 		}
-		
+	}
 		i++;
 	}
 	
@@ -92,40 +92,7 @@ int main(int argNum, char *args[]) {
 	
 }
 
-void makeConfig() {
-	
-	cout << "Installing config file..." << endl;
-	
-	if (fs::is_regular_file(confFile) == true){
-		
-		cout << "The file is already here! To make a new one, delete the existing file." << endl;
-		
-	} else {
-		
-		ofstream outConf(confFile);
-		outConf << "file=SERVER-FILE"<< endl << "path=PATH-TO-DEVICE" << endl << "command=SERVER-EXECUTION-COMMAND" << endl << "debug=1" << endl << "device=DEVICE" << endl;
-		outConf << "#" << endl << "This is the comment section. Anything after the # is a comment. \n The first line is the file of the server that needs to be executed. The second line is the path that leads to the home directory of the file nd can't end in a /. The third line is the command that needs to be executed in order to start the server. The fourth line is the debug setting. 0 means most output is disabled. 1 prevents most looped outputs. 2 enables all outputs. I recommend 1, but switch to 2 if there\'s a problem somewhere." << endl;
-		cout << "The config file (" << confFile << ") has been created and is now ready for your settings." << endl;
-		outConf.close();
-		
-	}
-	
-	if (fs::is_regular_file(sconfFile)) {
-		cout << "There is a config file here!" << endl;
-		
-	} else {
-		
-		ofstream outsConf(sconfFile);
-		outsConf <<	"defaultserverconf=server.conf" 
-		<< endl << "systemdlocation=/etc/systemd/system/hajime.service"
-		<< endl << "logfile="
-		<< endl << "#"
-		<< endl;
-		cout << "Config file made!" << endl;
-		outsConf.close();
-		
-	}
-}
+
 
 void readSettings() {
 	
@@ -136,9 +103,10 @@ void readSettings() {
 
 	int iter = 0;
 	int lineNum = 0;
+	
 	string var[4], param[4], line;
-    string finished = "";
-	//checks if there's stuff left to read
+	string finished = "";
+    
 	while (sconf.good() && lineNum < 3) { //linenum < 6 because otherwise, we get a segmentation fault
 		getline(sconf, line); //get a line and save it to line
 		
@@ -174,34 +142,13 @@ void readSettings() {
 		if (param[lineNum] == "defaultserverconf") {confFile = var[lineNum];}
 		if (param[lineNum] == "logfile") {logFile = var[lineNum];}
 		if (param[lineNum] == "systemdlocation") {sysdService = var[lineNum];}
-		//prep var[] for the next line
-		lineNum++;
+		lineNum++; 		//prep var[] for the next line
 	}
 	
 
 	sconf.close(); 	//get rid of the file in memory
 }
 
-void makeSysd() {
-	if (fs::is_regular_file(sconfFile) == true && sysdService == "") {
-		readSettings();
-	}
-	if (fs::is_regular_file(sconfFile) == false) {
-		cout << "Sorry! Please run Hajime with the -I flag to make a config file first." << endl;
-		return;
-	}
-	if (fs::is_directory("/etc/systemd") == true && fs::is_regular_file(sysdService) == true) {
-		cout << "The systemd service is already here!" << endl;
-	}
-	if (fs::is_directory("/etc/systemd") == true && fs::is_regular_file(sysdService) == false) {
-		cout << "Making systemd service..." << endl;
-		ofstream service(sysdService);
-		service << "[Unit]" << endl << "Description=Starts Hajime" << endl << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
-		service.close();
-	}
-	if (fs::is_directory("/etc/systemd") == false) {
-		cout << "Looks like you don't have systemd." << endl;
-	}
-}
+
 // compile command
 // sudo g++ -std=c++20 -o hajime hajime.cpp
