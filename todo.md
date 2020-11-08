@@ -17,3 +17,5 @@ Add more file logging features (log rotation, auto-zip)
 Add compatibility for sysVinit
 
 Add one-step installation from command line (curl, wget?)
+
+Add multi-server support with multithreading (tricky, requires dynamic allocation of objects)
