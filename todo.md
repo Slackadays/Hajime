@@ -19,3 +19,7 @@ Add compatibility for sysVinit
 Add one-step installation from command line (curl, wget?)
 
 Add multi-server support with multithreading (tricky, requires dynamic allocation of objects)
+
+Add bStats support (create a dummy Java file just for bStats and run it upon startup)
+
+Change the default server.conf to server.server for more descriptive filenames
