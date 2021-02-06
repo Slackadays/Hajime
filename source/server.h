@@ -6,8 +6,9 @@
 #include <errno.h>
 #include <iostream>
 #include <string>
-#include "output.h"
 #include <unistd.h>
+
+#include "output.h"
 
 using std::shared_ptr;
 using std::string;
@@ -15,6 +16,7 @@ using std::fstream;
 using std::to_string;
 using std::ofstream;
 using std::ios;
+
 namespace fs = std::filesystem;
 
 class Server {
@@ -83,7 +85,7 @@ void Server::startServer(string confFile, shared_ptr<Output> tempObj) {
 			fs::current_path(path);
 
 
-			if (fs::current_path() == path && fs::is_regular_file(file) && isRunning == false) { 			//checks if we're in the right place and if the server file is there
+			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { 			//checks if we're in the right place and if the server file is there
 				
 				fileObj->out("Trying to start program");
 				startProgram();
@@ -185,7 +187,7 @@ void Server::mountDrive() {
 			case 19: error = "Unknown device. Is the filesystem supported?"; break;
 			default: error = "Unknown error.";
 			}
-			if (hasOutputUSB == false){
+			if (!hasOutputUSB){
 				fileObj->out("An error occurred, but the script will keep trying to mount. Error: " + error);
 				hasOutputUSB = true;
 				systemi = 0;

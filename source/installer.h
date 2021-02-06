@@ -14,7 +14,7 @@ void Installer::mainconfig(string conf) {
 	
 	cout << "Installing config file..." << endl;
 	
-	if(fs::is_regular_file(conf) == true){
+	if(fs::is_regular_file(conf)){
 		
 		cout << "The file is already here! To make a new one, delete the existing file." << endl;
 		
@@ -53,16 +53,16 @@ void Installer::makeSconfig(string sconfFile) {
 }
 
 void Installer::systemd(string sysdService) {
-	if (fs::is_directory("/etc/systemd") == true && fs::is_regular_file(sysdService) == true) {
+	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
 		cout << "The systemd service is already here!" << endl;
 	}
-	if (fs::is_directory("/etc/systemd") == true && fs::is_regular_file(sysdService) == false) {
+	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysdService)) {
 		cout << "Making systemd service..." << endl;
 		ofstream service(sysdService);
 		service << "[Unit]" << endl << "Description=Starts Hajime" << endl << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 		service.close();
 	}
-	if (fs::is_directory("/etc/systemd") == false) {
+	if (!fs::is_directory("/etc/systemd")) {
 		cout << "Looks like you don't have systemd." << endl;
 	}
 }

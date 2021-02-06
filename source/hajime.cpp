@@ -1,5 +1,5 @@
-//Hajime version 1.0.1 R2
-//(c) 2020 Slackadays on Github
+//Hajime version 1.0.1 R3
+//(c) 2021 Slackadays on Github
 
 #include <iostream>
 #include <cstring>
@@ -7,13 +7,16 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+
 #include "server.h"
 #include "output.h"
 #include "installer.h"
+
 using std::cout;
 using std::endl;
 using std::shared_ptr;
 using std::make_shared;
+
 namespace fs = std::filesystem;
 
 string confFile = ""; // = "server.conf";
@@ -23,8 +26,7 @@ string logFile;
 
 void readSettings();
 
-//argNum is the number of arguments from the command line, *args[] is the arguments themselves
-int main(int argNum, char *args[]) {
+int main(int argn, char *args[]) {
 	
 	Installer install;
 	
@@ -52,7 +54,7 @@ int main(int argNum, char *args[]) {
 	
 	int i = 0;
 	
-	while (i < argNum) {
+	while (i < argn) {
 		
 		
 		if (strcmp(args[i], "-f") == 0) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type

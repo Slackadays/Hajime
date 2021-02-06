@@ -26,7 +26,7 @@ void Output::init(string file) {
 }
 
 void Output::out(string data){
-	if(log == false){
+	if(!log){
 		cout << data << endl;
 	} else {
 		fileObj << data << endl;
