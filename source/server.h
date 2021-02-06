@@ -49,17 +49,12 @@ void Server::startServer(string confFile, shared_ptr<Output> tempObj) {
 	
 	try {
 		if (fs::is_regular_file(confFile)) {
-			
 			fileObj->out("Reading settings...");
 			readSettings(confFile);
-			
 		} else {
-			
 			fileObj->out("The server's config file doesn't exist");
 			return;
-			
 		}
-		
 			fileObj->out("The file is: " + file);
 			fileObj->out("The path is: " + path);
 			fileObj->out("Command: " + command);
@@ -67,26 +62,17 @@ void Server::startServer(string confFile, shared_ptr<Output> tempObj) {
 			fileObj->out("Device: " + device);
 		
 		while(true) {
-			
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
-				
 				sleep(3);
 				fileObj->out("Program is running!");
 				isRunning = true;
 				hasMounted = true;
-				
-				} else {
-					
+			} else {
 					isRunning = false;
 					fileObj->out("isRunning is now false");
-					
 			}
-				
 			fs::current_path(path);
-
-
 			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { 			//checks if we're in the right place and if the server file is there
-				
 				fileObj->out("Trying to start program");
 				startProgram();
 				fileObj->out("Program start completed");
@@ -111,13 +97,9 @@ void Server::startServer(string confFile, shared_ptr<Output> tempObj) {
 			}
 		}
 	} catch(string mes){
-		
 		fileObj->out(mes);
-		
 	} catch(...) { //error handling
-		
 		fileObj->out("Whoops! An error occurred.");
-		
 	}
 }
 

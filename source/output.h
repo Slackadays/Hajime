@@ -1,18 +1,21 @@
-//output.h
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <filesystem>
-#pragma once //this guards against "error: redefinition of class Output"
-namespace fs = std::filesystem;
+
+#pragma once //this guards against G++ error "redefinition of class Output"
+
 using std::string;
 using std::cout;
 using std::endl;
+using std::ofstream;
+
+namespace fs = std::filesystem;
 
 class Output {
 	bool log = false;
 	string filename;
-	std::ofstream fileObj;
+	ofstream fileObj;
 	public:
 		void out(string data);
 		void init(string file);

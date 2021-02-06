@@ -51,11 +51,8 @@ int main(int argn, char *args[]) {
 		cout << "Config file doesn't exist!" << endl;
 		
 	}
-	
 	int i = 0;
-	
 	while (i < argn) {
-		
 		
 		if (strcmp(args[i], "-f") == 0) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
 			
@@ -64,19 +61,15 @@ int main(int argn, char *args[]) {
 		}
 		
 		if (strcmp(args[i], "-h") == 0 || strcmp(args[i], "--help") == 0) { //-h = --help = help
-			
 			cout << "Hajime is a high-performance startup script designed to start a Minecraft server from an external device. Usage: \n" << 
 			args[0] << " [-f configuration-file] [-h] [-I] [-S] \n" <<
 			"-f is used in conjunction with a custom config file. A plain filename is interpreted as the same directory the script is located in, so use a / to specify otherwise." << endl;
 			return 0;
-			
 		}
 		
 		if (strcmp(args[i], "-I") == 0) { //-I = install
-			
 			install.mainconfig(confFile);
 			return 0;
-			
 		}
 		
 		if (strcmp(args[i], "-S") == 0) { //-S = systemd install
@@ -87,17 +80,12 @@ int main(int argn, char *args[]) {
 	}
 		i++;
 	}
-	
 	Server one;
 	one.startServer(confFile, logObj);
 	return 0;
-	
 }
 
-
-
 void readSettings() {
-	
 
 	std::fstream sconf; 	//conjure up a file stream, sconf = settings conf
 
@@ -107,6 +95,7 @@ void readSettings() {
 	int lineNum = 0;
 	
 	string var[4], param[4], line;
+	
 	string finished = "";
     
 	while (sconf.good() && lineNum < 3) { //linenum < 6 because otherwise, we get a segmentation fault
@@ -129,13 +118,11 @@ void readSettings() {
 		}
 		
 		iter++; //the current position is that of a quote, so increment it 1
-		
 
 		while ((uint)iter < line.length()) {		//cast to a uint to prevent a warning
 			finished = finished + line[iter]; 		//append the finished product
 			iter++;
 		}
-
 	
 		var[lineNum] = finished; 	//make the var[] what the finished product is
 	
@@ -146,8 +133,6 @@ void readSettings() {
 		if (param[lineNum] == "systemdlocation") {sysdService = var[lineNum];}
 		lineNum++; 		//prep var[] for the next line
 	}
-	
-
 	sconf.close(); 	//get rid of the file in memory
 }
 
