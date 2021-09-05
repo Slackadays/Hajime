@@ -54,26 +54,26 @@ int main(int argn, char *args[]) {
 	int i = 0;
 	while (i < argn) {
 		
-		if (strcmp(args[i], "-f") == 0) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
+		if (!strcmp(args[i], "-f")) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
 			
 			confFile = args[(i + 1)];
 			
 		}
 		
-		if (strcmp(args[i], "-h") == 0 || strcmp(args[i], "--help") == 0) { //-h = --help = help
+		if (!strcmp(args[i], "-h") || !strcmp(args[i], "--help")) { //-h = --help = help
 			cout << "Hajime is a high-performance startup script designed to start a Minecraft server from an external device. Usage: \n" << 
 			args[0] << " [-f configuration-file] [-h] [-I] [-S] \n" <<
 			"-f is used in conjunction with a custom config file. A plain filename is interpreted as the same directory the script is located in, so use a / to specify otherwise." << endl;
 			return 0;
 		}
 		
-		if (strcmp(args[i], "-I") == 0) { //-I = install
+		if (!strcmp(args[i], "-I")) { //-I = install
 			install.mainconfig(confFile);
 			return 0;
 		}
 		
-		if (strcmp(args[i], "-S") == 0) { //-S = systemd install
-			if (fs::is_regular_file(sconfFile) == true && sysdService == "") {
+		if (!strcmp(args[i], "-S")) { //-S = systemd install
+			if (fs::is_regular_file(sconfFile) && sysdService == "") {
 		readSettings();
 		install.systemd(sysdService);
 		}
