@@ -1,4 +1,3 @@
-//Hajime version 1.0.1 R3
 //(c) 2021 Slackadays on Github
 
 #include <iostream>
