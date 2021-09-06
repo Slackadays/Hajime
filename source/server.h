@@ -17,12 +17,8 @@ using std::to_string;
 using std::ofstream;
 using std::ios;
 
-namespace fs = std::filesystem;
-
 class Server {
-	bool hasOutput = false;
-	bool hasOutputUSB = false; //if one variable is used, then the debug action will interfere wihh the USB mount function
-	bool hasMounted = false;
+	bool hasOutput, hasOutputUSB, hasMounted = false;
 	
 	int systemi = 0;
 
@@ -52,7 +48,7 @@ void Server::startServer(string confFile, shared_ptr<Output> tempObj) {
 			fileObj->out("Reading settings...");
 			readSettings(confFile);
 		} else {
-			fileObj->out("The server's config file doesn't exist");
+			fileObj->out("\e[1;41m\e[1;33m[Error]\e[1;0m The server's config file doesn't exist");
 			return;
 		}
 			fileObj->out("The file is: " + file);

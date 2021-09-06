@@ -8,6 +8,8 @@
 #include <fstream>
 #include <memory>
 
+namespace fs = std::filesystem;
+
 #include "server.h"
 #include "output.h"
 #include "installer.h"
@@ -16,8 +18,6 @@ using std::cout;
 using std::endl;
 using std::shared_ptr;
 using std::make_shared;
-
-namespace fs = std::filesystem;
 
 string confFile = ""; // = "server.conf";
 string sconfFile = "hajime.conf";
@@ -38,7 +38,7 @@ int main(int argn, char *args[]) {
 		
 		if (logFile == "") {
 			
-			cout << "No log file to be made!" << endl;
+			cout << "\e[1;46m[Info]\e[1;0mNo log file to be made; sending messages to console." << endl;
 			
 		} else {
 			
@@ -48,7 +48,7 @@ int main(int argn, char *args[]) {
 
 	} else {
 		
-		cout << "Config file doesn't exist!" << endl;
+		cout << "\e[1;41m\e[1;33m[Error]\e[1;0m Config file doesn't exist!" << endl;
 		
 	}
 	int i = 0;
@@ -98,7 +98,7 @@ void readSettings() {
 	
 	string finished = "";
     
-	while (sconf.good() && lineNum < 3) { //linenum < 6 because otherwise, we get a segmentation fault
+	while (sconf.good() && lineNum < 3) { //this value is higher than the number of lines = segmentation fault!
 		getline(sconf, line); //get a line and save it to line
 		
 		if (line == ""){
@@ -106,13 +106,13 @@ void readSettings() {
 		}
 		//if we've reachd the end of the config section (#) then get out of the loop!
 		if (line[iter] == '#') {
-					break;
+			break;
 		}
 		
 		param[lineNum] = "";
-		//skips past anything that isn't in a quote
+		
 		//single quotes mean a char, and escape the double quote with a backslash
-		while (line[iter] != '=') {
+		while (line[iter] != '=') { //skips past anything that isn't in a quote
 			param[lineNum] = param[lineNum] + line[iter];
 			iter++;
 		}

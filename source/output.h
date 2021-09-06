@@ -3,18 +3,16 @@
 #include <string>
 #include <filesystem>
 
-#pragma once //this guards against G++ error "redefinition of class Output"
+#pragma once //this guards against g++ error "redefinition of class Output"
 
 using std::string;
 using std::cout;
 using std::endl;
 using std::ofstream;
 
-namespace fs = std::filesystem;
-
 class Output {
-	bool log = false;
-	string filename;
+	bool logToFile = false;
+	string logFilename;
 	ofstream fileObj;
 	public:
 		void out(string data);
@@ -23,13 +21,13 @@ class Output {
 };
 
 void Output::init(string file) {
-	log = true;
-	filename = file;
-	fileObj.open(filename, std::ios::app); //appends to a current file and creates it if needed
+	logToFile = true;
+	logFilename = file;
+	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 
 void Output::out(string data){
-	if(!log){
+	if(!logToFile){
 		cout << data << endl;
 	} else {
 		fileObj << data << endl;
@@ -38,5 +36,5 @@ void Output::out(string data){
 
 void Output::end(){
 	fileObj.close();
-	log = false;
+	logToFile = false;
 }
