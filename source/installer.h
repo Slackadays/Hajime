@@ -11,7 +11,7 @@ class Installer {
 };
 
 void Installer::mainconfig(string conf) {
-	cout << "Installing config file..." << endl;
+	cout << "\e[1;46m[Info]\e[1;0m Installing config file..." << endl;
 	if(fs::is_regular_file(conf)){
 		cout << "The file is already here! To make a new one, delete the existing file." << endl;
 	} else {
@@ -30,14 +30,14 @@ void Installer::mainconfig(string conf) {
 
 void Installer::makeSconfig(string sconfFile) {
 	if(fs::is_regular_file(sconfFile)) {
-		cout << "There is a config file here!" << endl;
+		cout << "\e[1;46mThere is a config file here!\e[1;0m" << endl;
 	} else {
 		ofstream outsConf(sconfFile);
 		outsConf <<	"defaultserverconf=server.conf" << endl 
 		<< "systemdlocation=/etc/systemd/system/hajime.service"<< endl 
 		<< "logfile=" << endl 
 		<< "#" << endl;
-		cout << "Config file made!" << endl;
+		cout << "\e[1;46m[Info]\e[1;0m Config file made!" << endl;
 		outsConf.close();
 	}
 }
@@ -47,12 +47,12 @@ void Installer::systemd(string sysdService) {
 		cout << "The systemd service is already here!" << endl;
 	}
 	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysdService)) {
-		cout << "Making systemd service..." << endl;
+		cout << "\e[1;46m[Info]\e[1;0m Making systemd service..." << endl;
 		ofstream service(sysdService);
 		service << "[Unit]" << endl << "Description=Starts Hajime" << endl << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 		service.close();
 	}
 	if (!fs::is_directory("/etc/systemd")) {
-		cout << "Looks like you don't have systemd." << endl;
+		cout << "\e[1;41m\e[1;33m[Error]\e[1;0m Looks like there is no systemd; use another installation option instead." << endl;
 	}
 }
