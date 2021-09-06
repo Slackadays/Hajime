@@ -19,7 +19,7 @@ using std::endl;
 using std::shared_ptr;
 using std::make_shared;
 
-string confFile = ""; // = "server.conf";
+string defaultServerConfFile = ""; // = "server.conf";
 string sconfFile = "hajime.conf";
 string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile;
@@ -32,56 +32,62 @@ int main(int argn, char *args[]) {
 	
 	shared_ptr<Output> logObj = make_shared<Output>(); //smart pointer to the file output object
 	
-	if (fs::is_regular_file(sconfFile)) {
-		
-		readSettings();
-		
-		if (logFile == "") {
-			
-			cout << "\e[1;46m[Info]\e[1;0mNo log file to be made; sending messages to console." << endl;
-			
-		} else {
-			
-			logObj->init(logFile);
-			
-		}
-
-	} else {
-		
-		cout << "\e[1;41m\e[1;33m[Error]\e[1;0m Config file doesn't exist!" << endl;
-		
-	}
 	int i = 0;
 	while (i < argn) {
 		
 		if (!strcmp(args[i], "-f")) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
 			
-			confFile = args[(i + 1)];
+			defaultServerConfFile = args[(i + 1)];
 			
 		}
 		
 		if (!strcmp(args[i], "-h") || !strcmp(args[i], "--help")) { //-h = --help = help
-			cout << "Hajime is a high-performance startup script designed to start a Minecraft server from an external device. Usage: \n" << 
-			args[0] << " [-f configuration-file] [-h] [-I] [-S] \n" <<
-			"-f is used in conjunction with a custom config file. A plain filename is interpreted as the same directory the script is located in, so use a / to specify otherwise." << endl;
+			cout << "Hajime is a high-performance startup script designed to start a Minecraft server from an external device. \n\e[1;32mUsage:\e[1;0m " << 
+			args[0] << " [any of the following flags]\n-f configuration-file  \e[1;1m|\e[1;0m  Specify a server configuration file to use manually.\n-h  \e[1;1m|\e[1;0m  Show this help message.\n-I  \e[1;1m|\e[1;0m  Create a default server configuration file.\n-S  \e[1;1m|\e[1;0m  Install a systemd service file to start Hajime automatically.\n" <<
+			"\e[1;32mNotes:\e[1;0m\n-f is used in conjunction with a custom config file. A plain filename is interpreted as the same directory the script is located in, so use a / to specify otherwise." << endl;
 			return 0;
 		}
 		
 		if (!strcmp(args[i], "-I")) { //-I = install
-			install.mainconfig(confFile);
+			install.mainconfig(defaultServerConfFile);
 			return 0;
 		}
 		
 		if (!strcmp(args[i], "-S")) { //-S = systemd install
+			if (!fs::is_regular_file(sconfFile)) {
+				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n]";
+				string response;
+				std::cin >> response;
+			if (response == "y"){cout << "Testing" << endl;}
+		}
 			if (fs::is_regular_file(sconfFile) && sysdService == "") {
-		readSettings();
-		install.systemd(sysdService);
+				readSettings();
+				install.systemd(sysdService);
 		}
 	}
 		i++;
 	}
+ 	if (fs::is_regular_file(sconfFile)) {
+
+                readSettings();
+
+                if (logFile == "") {
+
+                        cout << "\e[1;46m[Info]\e[1;0mNo log file to be made; sending messages to console." << endl;
+
+                } else {
+
+                        logObj->init(logFile);
+
+                }
+
+        	} else {
+
+                cout << "\e[1;41m\e[1;33m[Error]\e[1;0m Config file doesn't exist!" << endl;
+
+        }
 	Server one;
-	one.startServer(confFile, logObj);
+	one.startServer(defaultServerConfFile, logObj);
 	return 0;
 }
 
@@ -128,7 +134,7 @@ void readSettings() {
 	
 		iter = 0; 	//reset for the next loop 
 		finished = "";
-		if (param[lineNum] == "defaultserverconf") {confFile = var[lineNum];}
+		if (param[lineNum] == "defaultserverconf") {defaultServerConfFile = var[lineNum];}
 		if (param[lineNum] == "logfile") {logFile = var[lineNum];}
 		if (param[lineNum] == "systemdlocation") {sysdService = var[lineNum];}
 		lineNum++; 		//prep var[] for the next line
