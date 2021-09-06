@@ -1,3 +1,4 @@
+//Hajime version 1.0.1 R3
 //(c) 2021 Slackadays on Github
 
 #include <iostream>
@@ -19,7 +20,7 @@ using std::shared_ptr;
 using std::make_shared;
 
 string defaultServerConfFile = ""; // = "server.conf";
-string sconfFile = "hajime.conf";
+string hajDefaultConfFile = "hajime.conf";
 string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile;
 
@@ -53,20 +54,20 @@ int main(int argn, char *args[]) {
 		}
 		
 		if (!strcmp(args[i], "-S")) { //-S = systemd install
-			if (!fs::is_regular_file(sconfFile)) {
+			if (!fs::is_regular_file(hajDefaultConfFile)) {
 				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n]";
 				string response;
 				std::cin >> response;
 			if (response == "y"){cout << "Testing" << endl;}
 		}
-			if (fs::is_regular_file(sconfFile) && sysdService == "") {
+			if (fs::is_regular_file(hajDefaultConfFile) && sysdService == "") {
 				readSettings();
 				install.systemd(sysdService);
 		}
 	}
 		i++;
 	}
- 	if (fs::is_regular_file(sconfFile)) {
+ 	if (fs::is_regular_file(hajDefaultConfFile)) {
 
                 readSettings();
 
@@ -94,7 +95,7 @@ void readSettings() {
 
 	std::fstream sconf; 	//conjure up a file stream, sconf = settings conf
 
-	sconf.open(sconfFile, std::fstream::in); 	//configuration file open for reading
+	sconf.open(hajDefaultConfFile, std::fstream::in); 	//configuration file open for reading
 
 	int iter = 0;
 	int lineNum = 0;
