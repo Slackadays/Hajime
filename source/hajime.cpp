@@ -1,5 +1,6 @@
 // (c) 2021 Slackadays on GitHub
-
+// compile command
+// sudo g++ -std=c++20 -o hajime hajime.cpp
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -47,32 +48,26 @@ int main(int argn, char *args[]) {
 		if (!strcmp(args[i], "-S")) { //-S = systemd install
 			if (!fs::is_regular_file(hajDefaultConfFile)) {
 				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n] ";
-			if (getYN() == true){cout << "Testing" << endl;}
-		}
+				if (getYN() == true){
+					cout << "Testing" << endl;
+					logObj->out("blah\n\n", "error", 0);
+				}
+			}
 			if (fs::is_regular_file(hajDefaultConfFile) && sysdService == "") {
 				readSettings();
 				install.systemd(sysdService);
+			}
 		}
 	}
-	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
-
                 readSettings();
-
                 if (logFile == "") {
-
                         cout << "\e[1;46m[Info]\e[1;0mNo log file to be made; sending messages to console." << endl;
-
                 } else {
-
                         logObj->init(logFile);
-
                 }
-
         	} else {
-
                 cout << "\e[1;41m\e[1;33m[Error]\e[1;0m Config file doesn't exist!" << endl;
-
         }
 	Server one;
 	one.startServer(defaultServerConfFile, logObj);
@@ -80,11 +75,8 @@ int main(int argn, char *args[]) {
 }
 
 void readSettings() {
-
 	std::fstream sconf; 	//conjure up a file stream, sconf = settings conf
-
 	sconf.open(hajDefaultConfFile, std::fstream::in); 	//configuration file open for reading
-
 	int iter = 0;
 	int lineNum = 0;
 	string var[4], param[4], line;
@@ -132,6 +124,3 @@ bool getYN(){
 		return false;
 	}
 }
-
-// compile command
-// sudo g++ -std=c++20 -o hajime hajime.cpp

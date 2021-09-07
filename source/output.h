@@ -15,8 +15,9 @@ class Output {
 	string logFilename;
 	ofstream fileObj;
 	string removeEndlines(string input);
+	string addColorsByType(string data, string type);
 	public:
-		void out(string data);
+		void out(string data, string type, bool keepEndlines);
 		void init(string file);
 		void end();
 };
@@ -27,11 +28,19 @@ void Output::init(string file) {
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 
-void Output::out(string data){
+void Output::out(string data, string type = "none", bool keepEndlines = false){
 	if (!logToFile){
-		cout << Output::removeEndlines(data) << endl;
+		if (!keepEndlines){
+                        cout << Output::addColorsByType(Output::removeEndlines(data), type) << endl;
+                } else {
+                        cout << Output::addColorsByType(data, type) << endl;
+                }
 	} else {
-		fileObj << Output::removeEndlines(data) << endl;
+		if (!keepEndlines){
+			fileObj << Output::addColorsByType(Output::removeEndlines(data), type) << endl;
+		} else {
+			fileObj << Output::addColorsByType(data, type) << endl;
+		}
 	}
 }
 
@@ -47,4 +56,11 @@ string Output::removeEndlines(string input){
 		}
 	}
 	return input;
+}
+
+string Output::addColorsByType(string data, string type){
+	if (type == "none"){return data;}
+	if (type == "info"){return "\e[1;46m[Info]\e[1;0m " + data;}
+	if (type == "error"){return "\e[1;41m\e[1;33m[Error]\e[1;0m " + data;}
+	return data;
 }
