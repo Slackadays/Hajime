@@ -14,6 +14,7 @@ namespace fs = std::filesystem;
 #include "output.h"
 #include "installer.h"
 
+using std::cin;
 using std::cout;
 using std::endl;
 using std::shared_ptr;
@@ -25,6 +26,7 @@ string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd se
 string logFile;
 
 void readSettings();
+bool getYN();
 
 int main(int argn, char *args[]) {
 	
@@ -55,10 +57,8 @@ int main(int argn, char *args[]) {
 		
 		if (!strcmp(args[i], "-S")) { //-S = systemd install
 			if (!fs::is_regular_file(hajDefaultConfFile)) {
-				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n]";
-				string response;
-				std::cin >> response;
-			if (response == "y"){cout << "Testing" << endl;}
+				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n] ";
+			if (getYN() == true){cout << "Testing" << endl;}
 		}
 			if (fs::is_regular_file(hajDefaultConfFile) && sysdService == "") {
 				readSettings();
@@ -140,6 +140,18 @@ void readSettings() {
 		lineNum++; 		//prep var[] for the next line
 	}
 	sconf.close(); 	//get rid of the file in memory
+}
+
+bool getYN(){
+	string response = "";
+	cout << "\e[1;1m";
+	cin >> response;
+	cout << "\e[1;0m";
+	if (response == "y" || response == "Y" || response == "yes" || response == "Yes" || response == "YES"){
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
