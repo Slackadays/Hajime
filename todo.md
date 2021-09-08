@@ -1,4 +1,4 @@
-Finish transition to installer.h
+Finish transition to installer.h ALMOST DONE
 
 Add an interactive installation option
 
@@ -10,7 +10,7 @@ Add a start.sh compatibility option (offer to be middleware for existing scripts
 
 Add "intelligent configuration" which detects for existing server .jar files and automagically configures the files
 
-Add colors to the output messages
+~~Add colors to the output messages~~ DONE
 
 Add more file logging features (log rotation, auto-zip)
 
@@ -22,4 +22,4 @@ Add multi-server support with multithreading (tricky, requires dynamic allocatio
 
 Add bStats support (create a dummy Java file just for bStats and run it upon startup)
 
-Change the default server.conf to server.server for more descriptive filenames
+~~Change the default server.conf to server.server for more descriptive filenames~~ WON'T ADD
