@@ -7,6 +7,10 @@ Most Minecraft server startup scripts are either overly simplistic shell scripts
 # Requirements
 There are a couple prerequisites. You'll need a POSIX-compliant system such as Linux or FreeBSD or MacOS. Hajime was originally designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional. Your system will also need to have g++ available for installation (this requirement is coming in a futue release).
 
+# Why C++?
+I decided to make this script in C++ to help me learn it, as well as get at least acceptable performance no matter how many features I add. 
+There's also a lot of libraries available for C++ and that might be an advantage over something like shell script.
+
 # What's up With That Name?
 "Hajime" is just "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
 
