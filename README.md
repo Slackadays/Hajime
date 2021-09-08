@@ -2,15 +2,15 @@
 A versatile, high-performance Minecraft server startup script suite.
 
 # The Problem
-Most Minecraft server startup scripts are either one of these two: simple systemd services, or complicated Bash scripts. The problems with a systemd service are that they're inflexible, unintelligable, and systemd-reliant. Bash scripts are slightly better, as they provide more features. However, you still need a shell to run it on and you don't have as many language features and speed as with "regular" programs. This new, improved script fixes all of this.
+Most Minecraft server startup scripts are either overly simplistic shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different; it provides more features and is blazing fast thanks to its compiled nature.
 
 # Requirements
-There are several prerequisites as of this writing. You'll need a Linux, or at least POSIX-compliant, system. Hajime was designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional. Your system will also need to be 64-bit x86 to use the included binaries, but it can be compiled to any other system.
+There are a couple prerequisites. You'll need a POSIX-compliant system such as Linux or FreeBSD or MacOS. Hajime was originally designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, although this feature is now optional. Your system will also need to have g++ available for installation (this requirement is coming in a futue release).
 
 # What's up With That Name?
 "Hajime" is just "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
 
-# Instructions
+# Instructions (WIP)
 If you are using a precompiled binary, stay in this section. If you are compiling, skip this section. Download the version appropriate for your platform. Next, place it in a simple, memorable location. In my own server, I use /media. Now, run 
 
     sudo ./hajime -I
@@ -29,13 +29,15 @@ again. Server.conf is the settings file for an individual server object. This is
 # Compiling Your Own
 It's easy to compile Hajime. First, download the files in the **source** section. Then, run this command:
 
-    sudo g++ -std=c++20 -O3 -o hajime hajime.cpp -lstdc++fs
-The "-std=c++20" is required because GCC likes to revert to old versions of C++.
+    sudo g++ -std=c++20 -Ofast -o hajime hajime.cpp
+    
+Hajime requires at least C++17 to work.
    
 # Using Hajime
 This script is a cinch to actually use. To check its status, run
 
     sudo systemctl status hajime
+    
 and substitute "hajime" if you have renamed the systemd service file. This will display the messages sent by Hajime. For debugging, you may also run it manually.
 
 # Troubleshooting
