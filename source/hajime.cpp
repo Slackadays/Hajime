@@ -1,6 +1,6 @@
 // (c) 2021 Slackadays on GitHub
 // compile command
-// sudo g++ -std=c++20 -o hajime hajime.cpp
+// sudo g++ -std=c++17 -o hajime hajime.cpp
 #include <iostream>
 #include <cstring>
 #include <string>
