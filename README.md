@@ -15,11 +15,11 @@ There's also a lot of standard libraries available for C++ and that might be an 
 "Hajime" is "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
 
 # Quick Start
-Use this command to install Hajime in one step.
+Use this command to install Hajime in one step. It will download and compile the latest version available on GitHub.
 
     curl -o install.sh https://raw.githubusercontent.com/Slackadays/Hajime/master/install.sh && sudo sh install.sh
 
-Like with all shel scripts, before running, make sure to review the install.sh file to check for any potentially malicious commands.
+Like with all shell scripts, before running, make sure to review the install.sh file to check for any potentially malicious commands.
 
 # Instructions (WIP)
 If you are using a precompiled binary, stay in this section. If you are compiling, skip this section. Download the version appropriate for your platform. Next, place it in a simple, memorable location. In my own server, I use /media. Now, run 
