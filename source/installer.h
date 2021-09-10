@@ -7,6 +7,7 @@
 
 class Installer {
 	Output logObj;
+	void installNewServerConfigFile(string fileLocation);
 	public:
 		void mainconfig(string conf);
 		void systemd(string sysdService);
@@ -17,18 +18,19 @@ void Installer::mainconfig(string conf) {
 	logObj.out("Installing config file...", "info");
 	if (fs::is_regular_file(conf)){
 		logObj.out("The file is already here! To make a new one, delete the existing file.", "warning");
+		logObj.out("Would you like to create a new configuration file anyway? [y/n] ", "info", 0, 0); // don't keep endlines, don't add endline
+		if (getYN()) {logObj.out("Installing a new file...", "info"); Installer::installNewServerConfigFile(conf);}
 	} else {
-		ofstream outConf(conf);
-		outConf << "file=SERVER-FILE"<< endl 
-		<< "path=PATH-TO-DEVICE" << endl 
-		<< "command=SERVER-EXECUTION-COMMAND" << endl 
-		<< "debug=1" << endl 
-		<< "device=DEVICE" << endl;
-		outConf << "#" << endl 
-		<< "This is the comment section. Anything after the # is a comment. \n The first line is the file of the server that needs to be executed. The second line is the path that leads to the home directory of the file nd can't end in a /. The third line is the command that needs to be executed in order to start the server. The fourth line is the debug setting.\n 0 means most output is disabled.\n 1 prevents most looped outputs.\n 2 enables all outputs.\n I recommend 1, but switch to 2 if there\'s a problem somewhere." << endl;
-		cout << "The config file (" << conf << ") has been created and is now ready for your settings." << endl;
-		outConf.close();
+		Installer::installNewServerConfigFile(conf);
 	}
+}
+
+void Installer::installNewServerConfigFile(string fileLocation) {
+	ofstream outConf(fileLocation);
+        outConf << "file=SERVER-FILE" << endl << "path=PATH-TO-DEVICE" << endl << "command=SERVER-EXECUTION-COMMAND" << endl << "debug=1" << endl << "device=DEVICE" << endl;
+        outConf << "#" << endl << "This is the comment section. Anything after the # is a comment. \nThe first line is the file of the server that needs to be executed. The second line is the path to the device." << endl; 
+	cout << "The config file (" << fileLocation << ") has been created and is now ready for your settings." << endl;
+        outConf.close();
 }
 
 void Installer::makeSconfig(string sconfFile) {

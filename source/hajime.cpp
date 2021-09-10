@@ -10,6 +10,7 @@
 
 namespace fs = std::filesystem;
 
+#include "getyn.h"
 #include "server.h"
 #include "output.h"
 #include "installer.h"
@@ -20,7 +21,7 @@ using std::endl;
 using std::shared_ptr;
 using std::make_shared;
 
-string defaultServerConfFile = ""; // = "server.conf";
+string defaultServerConfFile = "server.conf";
 string hajDefaultConfFile = "hajime.conf";
 string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile;
@@ -29,24 +30,24 @@ void readSettings();
 bool getYN();
 
 int main(int argn, char *args[]) {
-	Installer install;
+	Installer installer;
 	shared_ptr<Output> logObj = make_shared<Output>(); //smart pointer to the file output object
 	for (int i = 0; i < argn; i++) {
 		if (!strcmp(args[i], "-f") || !strcmp(args[i], "--server-file")) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
 			defaultServerConfFile = args[(i + 1)];
 		}
 		if (!strcmp(args[i], "-h") || !strcmp(args[i], "--help")) { //-h = --help = help
-			cout << "Hajime is a high-performance startup script that can start a Minecraft server from an external device." << endl;
-			cout << "\e[1;32mUsage:\e[1;0m " << args[0] << " [the following flags]" << endl;
-			cout << "-f configuration-file \e[3mor\e[0m --server-file configuration-file \e[1;1m|\e[1;0m  Specify a server configuration file to use manually." << endl; 
-			cout << "-h  \e[3mor\e[0m --help \e[1;1m|\e[1;0m  Show this help message." << endl;
-			cout << "-I  \e[3mor\e[0m --install \e[1;1m|\e[1;0m  Create a default server configuration file." << endl;
-			cout << "-S  \e[3mor\e[0m --systemd \e[1;1m|\e[1;0m  Install a systemd service file to start Hajime automatically.\n" <<
-			"\e[1;32mNotes:\e[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \e[1m/\e[0m to specify otherwise." << endl;
+			logObj->out("Hajime is a high-performance startup script that can start a Minecraft server from an external device.");
+			logObj->out("\e[1;1m\e[1;32mUsage:\e[1;0m " + (string)args[0] + " [the following flags]");
+			logObj->out("-f configuration-file \e[3mor\e[0m --server-file configuration-file \e[1;1m|\e[1;0m  Specify a server configuration file to use manually.");
+			logObj->out("-h  \e[3mor\e[0m --help \e[1;1m|\e[1;0m  Show this help message.");
+			logObj->out("-I  \e[3mor\e[0m --install \e[1;1m|\e[1;0m  Create a default server configuration file.");
+			logObj->out("-S  \e[3mor\e[0m --systemd \e[1;1m|\e[1;0m  Install a systemd service file to start Hajime automatically.");
+			logObj->out("\e[1;1m\e[1;32mNotes:\e[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \e[1m/\e[0m to specify otherwise.");
 			return 0;
 		}
-		if (!strcmp(args[i], "-I") || !strcmp(args[i], "--install")) { //-I = install
-			install.mainconfig(defaultServerConfFile);
+		if (!strcmp(args[i], "-I") || !strcmp(args[i], "--install")) { //-I , --install = install a default server configuration file
+			installer.mainconfig(defaultServerConfFile);
 			return 0;
 		}
 		if (!strcmp(args[i], "-S") || !strcmp(args[i], "--systemd")) { //-S = systemd install
@@ -54,12 +55,11 @@ int main(int argn, char *args[]) {
 				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n] ";
 				if (getYN() == true){
 					cout << "Testing" << endl;
-					logObj->out("blah\n\n", "error", 0);
 				}
 			}
 			if (fs::is_regular_file(hajDefaultConfFile) && sysdService == "") {
 				readSettings();
-				install.systemd(sysdService);
+				installer.systemd(sysdService);
 			}
 		}
 	}
@@ -73,8 +73,8 @@ int main(int argn, char *args[]) {
         	} else {
                 cout << "\e[1;41m\e[1;33m[Error]\e[1;0m Config file doesn't exist!" << endl;
         }
-	Server one;
-	one.startServer(defaultServerConfFile, logObj);
+	Server serverOne;
+	serverOne.startServer(defaultServerConfFile, logObj);
 	return 0;
 }
 
@@ -115,16 +115,4 @@ void readSettings() {
 		lineNum++; 		//prep var[] for the next line
 	}
 	sconf.close(); 	//get rid of the file in memory
-}
-
-bool getYN(){
-	string response = "";
-	cout << "\e[1;1m";
-	cin >> response;
-	cout << "\e[1;0m";
-	if (response == "y" || response == "Y" || response == "yes" || response == "Yes" || response == "YES"){
-		return true;
-	} else {
-		return false;
-	}
 }

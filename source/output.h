@@ -17,7 +17,7 @@ class Output {
 	string removeEndlines(string input, bool keepEndlines);
 	string addColorsByType(string data, string type);
 	public:
-		void out(string data, string type, bool keepEndlines);
+		void out(string data, string type, bool keepEndlines, bool endLineAtEnd);
 		void init(string file);
 		void end();
 };
@@ -28,9 +28,13 @@ void Output::init(string file) {
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 
-void Output::out(string data, string type = "none", bool keepEndlines = false){
+void Output::out(string data, string type = "none", bool keepEndlines = false, bool endLineAtEnd = true){
 	if (!logToFile){
-                cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
+		if (endLineAtEnd) {
+                	cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
+		} else {
+			cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type);
+		}
 	} else {
 		fileObj << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
 	}
