@@ -4,6 +4,7 @@ apt update && apt install -y g++ git #g++-10 or the otherwise latest version of 
 echo "\e[1mDownloading...\e[0m"
 git clone https://github.com/Slackadays/Hajime
 echo "\e[1mCompiling...\e[0m"
+echo "\e[1mThis may take from a few seconds to a few minutes depending on your system speed.\e[0m"
 cd Hajime/source
 g++ -Ofast -std=c++17 -o hajime hajime.cpp -lstdc++fs #lstdc++fs enables filsystem library in older installations
 echo "\e[1mCleaning up...\e[0m"
