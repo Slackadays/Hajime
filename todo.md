@@ -2,6 +2,10 @@
 
 Add an interactive installation option
 
+Add compatibility to install.sh for non-apt repos
+
+Add checkers to install.sh for a friendlier experience
+
 Make it a true daemon (to not depend on systemd) by using std::thread
 
 Try to move away from system() to compensate for non-Bash shells
