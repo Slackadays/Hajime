@@ -17,7 +17,7 @@ There's also a lot of standard libraries available for C++ and that might be an 
 # Quick Start
 Use this command to install Hajime in one step. It will download and compile the latest version available on GitHub.
 
-    curl -o install.sh https://raw.githubusercontent.com/Slackadays/Hajime/master/install.sh && sudo sh install.sh
+    curl -o install.sh https://raw.githubusercontent.com/Slackadays/Hajime/master/install.sh && sh install.sh
 
 Like with all shell scripts, before running, make sure to review the install.sh file to check for any potentially malicious commands.
 
@@ -40,7 +40,7 @@ again. Server.conf is the settings file for an individual server object. This is
 # Compiling Your Own
 It's easy to compile Hajime. First, download the files in the **source** section. Then, run this command:
 
-    sudo g++ -std=c++20 -Ofast -o hajime hajime.cpp
+    g++ -std=c++20 -Ofast -o hajime hajime.cpp
     
 Hajime requires at least C++17 to work.
    
