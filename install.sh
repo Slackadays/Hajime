@@ -1,6 +1,6 @@
 #!/bin/sh
 echo "\e[1mInstalling g++ and git...\e[0m"
-apt update && apt install -y g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
+sudo apt update && sudo apt install -y g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
 echo "\e[1mDownloading...\e[0m"
 git clone https://github.com/Slackadays/Hajime
 echo "\e[1mCompiling...\e[0m"
