@@ -1,6 +1,6 @@
 // (c) 2021 Slackadays on GitHub
 // compile command
-// sudo g++ -std=c++17 -o hajime hajime.cpp
+// sudo g++ -std=c++20 -o hajime hajime.cpp
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -23,12 +23,12 @@ using std::make_shared;
 
 string defaultServerConfFile = "server.conf";
 string hajDefaultConfFile = "hajime.conf";
-string sysdService = ""; // = "/etc/systemd/system/hajime.service"; //systemd service file location
+string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile;
 
 void readSettings();
 bool getYN();
-
+ 
 int main(int argn, char *args[]) {
 	Installer installer;
 	shared_ptr<Output> logObj = make_shared<Output>(); //smart pointer to the file output object
@@ -43,7 +43,7 @@ int main(int argn, char *args[]) {
 			logObj->out("-h  \e[3mor\e[0m --help \e[1;1m|\e[1;0m  Show this help message.");
 			logObj->out("-I  \e[3mor\e[0m --install \e[1;1m|\e[1;0m  Create a default server configuration file.");
 			logObj->out("-S  \e[3mor\e[0m --systemd \e[1;1m|\e[1;0m  Install a systemd service file to start Hajime automatically.");
-			logObj->out("\e[1;1m\e[1;32mNotes:\e[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \e[1m/\e[0m to specify otherwise.");
+			logObj->out("\e[1;1m\e[1;32mNotes:\e[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \e[1m/\e[0m to specify otherwise.", "none", 1);
 			return 0;
 		}
 		if (!strcmp(args[i], "-I") || !strcmp(args[i], "--install")) { //-I , --install = install a default server configuration file
@@ -53,25 +53,31 @@ int main(int argn, char *args[]) {
 		if (!strcmp(args[i], "-S") || !strcmp(args[i], "--systemd")) { //-S = systemd install
 			if (!fs::is_regular_file(hajDefaultConfFile)) {
 				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n] ";
-				if (getYN() == true){
-					cout << "Testing" << endl;
+				if (getYN()){
+					installer.installDefaultHajConfFile(hajDefaultConfFile);
+					return 0;
 				}
 			}
 			if (fs::is_regular_file(hajDefaultConfFile) && sysdService == "") {
 				readSettings();
 				installer.systemd(sysdService);
+				return 0;
 			}
 		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
                 readSettings();
                 if (logFile == "") {
-                        cout << "\e[1;46m[Info]\e[1;0mNo log file to be made; sending messages to console." << endl;
+                        logObj->out("No log file to be made; sending messages to console.", "info");
                 } else {
                         logObj->init(logFile);
                 }
         	} else {
-                cout << "\e[1;41m\e[1;33m[Error]\e[1;0m Config file doesn't exist!" << endl;
+                logObj->out("Config file doesn't exist!", "error");
+		logObj->out("Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n] ", "info", 0, 0);
+                	if (getYN()) {
+                	installer.installDefaultHajConfFile(hajDefaultConfFile);
+                }
         }
 	Server serverOne;
 	serverOne.startServer(defaultServerConfFile, logObj);
@@ -116,3 +122,4 @@ void readSettings() {
 	}
 	sconf.close(); 	//get rid of the file in memory
 }
+

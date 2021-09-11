@@ -12,17 +12,29 @@ class Installer {
 		void mainconfig(string conf);
 		void systemd(string sysdService);
 		void makeSconfig(string sconfFile);
+	        void installDefaultHajConfFile(string fileLocation);
 };
 
 void Installer::mainconfig(string conf) {
-	logObj.out("Installing config file...", "info");
+	logObj.out("Installing default server config file...", "info");
 	if (fs::is_regular_file(conf)){
 		logObj.out("The file is already here! To make a new one, delete the existing file.", "warning");
 		logObj.out("Would you like to create a new configuration file anyway? [y/n] ", "info", 0, 0); // don't keep endlines, don't add endline
-		if (getYN()) {logObj.out("Installing a new file...", "info"); Installer::installNewServerConfigFile(conf);}
+		if (getYN()) {
+			logObj.out("Installing a new server config file...", "info"); 
+			Installer::installNewServerConfigFile(conf);
+		}
 	} else {
 		Installer::installNewServerConfigFile(conf);
 	}
+}
+
+void Installer::installDefaultHajConfFile(string fileLocation) {
+	logObj.out("Installing default Hajime config file...", "info");
+	ofstream outConf(fileLocation);
+	outConf << "defaultserverconf=server.conf" << endl;	
+	outConf << "logfile=" << endl;
+	outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
 }
 
 void Installer::installNewServerConfigFile(string fileLocation) {

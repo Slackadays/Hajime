@@ -186,20 +186,20 @@ void Server::readSettings(string confFile) {
 
 	conf.open(confFile, std::fstream::in); //configuration file open for reading
 
-	int iter = 0;
-	int lineNum = 0;
+	//int iter = 0;
+	//int lineNum = 0;
 	string var[6], param[6], line;
-    string finished = "";
+    	string finished = "";
 	//checks if there's stuff left to read
-	while (conf.good() && lineNum < 6) { //linenum < 6 because otherwise, we get a segmentation fault
+	for (int lineNum, iter = 0; conf.good() && lineNum < 6; lineNum++) { //linenum < 6 because otherwise, we get a segmentation fault
 		getline(conf, line); //get a line and save it to line
 		
 		if (line == ""){
-			throw "Whoops! The config file doesn't have anything in it.";
+			throw "Whoops! The config file has nothing in it.";
 		}
 		//if we've reachd the end of the config section (#) then get out of the loop!
 		if (line[iter] == '#') {
-					break;
+			break;
 		}
 		param[lineNum] = "";
 		//skips past anything that isn't in a quote
@@ -212,7 +212,7 @@ void Server::readSettings(string confFile) {
 		iter++;
 		//append the finished product
 		while ((uint)iter < line.length()) {
-			finished = finished + line[iter];
+			finished =+ line[iter];
 			iter++;
 		}
 
@@ -225,7 +225,7 @@ void Server::readSettings(string confFile) {
 		if (param[lineNum] == "command") {command = var[lineNum];}
 		//if (param[lineNum] == "debug") {debug = stoi(var[lineNum]);} //stoi() converts the string result into an int
 		if (param[lineNum] == "device") {device = var[lineNum];}
-		lineNum++; 		//prep var[] for the next line
+		//lineNum++; 		//prep var[] for the next line
 	}
 	
 	if (device == "") {
