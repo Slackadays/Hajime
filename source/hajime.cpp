@@ -39,12 +39,12 @@ int main(int argn, char *args[]) {
 		}
 		if (flag("-h", "--help")) { //-h = --help = help
 			logObj->out("Hajime is a high-performance startup script that can start a Minecraft server from an external device.");
-			logObj->out("\e[1;1m\e[1;32mUsage:\e[1;0m " + (string)args[0] + " [the following flags]");
-			logObj->out("-f configuration-file \e[3mor\e[0m --server-file configuration-file \e[1;1m|\e[1;0m  Specify a server configuration file to use manually.");
-			logObj->out("-h  \e[3mor\e[0m --help \e[1;1m|\e[1;0m  Show this help message.");
-			logObj->out("-I  \e[3mor\e[0m --install \e[1;1m|\e[1;0m  Create a default server configuration file.");
-			logObj->out("-S  \e[3mor\e[0m --systemd \e[1;1m|\e[1;0m  Install a systemd service file to start Hajime automatically.");
-			logObj->out("\e[1;1m\e[1;32mNotes:\e[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \e[1m/\e[0m to specify otherwise.", "none", 1);
+			logObj->out("\033[1;1m\033[1;32mUsage:\033[1;0m " + (string)args[0] + " [the following flags]");
+			logObj->out("-f configuration-file \033[3mor\033[0m --server-file configuration-file \033[1;1m|\033[1;0m  Specify a server configuration file to use manually.");
+			logObj->out("-h  \033[3mor\033[0m --help \033[1;1m|\033[1;0m  Show this help message.");
+			logObj->out("-I  \033[3mor\033[0m --install \033[1;1m|\033[1;0m  Create a default server configuration file.");
+			logObj->out("-S  \033[3mor\033[0m --systemd \033[1;1m|\033[1;0m  Install a systemd service file to start Hajime automatically.");
+			logObj->out("\033[1;1m\033[1;32mNotes:\033[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \033[1m/\033[0m to specify otherwise.", "none", 1);
 			return 0;
 		}
 		if (flag("-I", "--install")) { //-I , --install = install a default server configuration file
@@ -88,7 +88,7 @@ int main(int argn, char *args[]) {
 void readSettings() {
 	std::fstream sconf; 	//conjure up a file stream, sconf = settings conf
 	sconf.open(hajDefaultConfFile, std::fstream::in); 	//configuration file open for reading
-	int iter = 0;
+	unsigned int iter = 0;
 	int lineNum = 0;
 	string var[4], param[4], line;
 	string finished = "";
@@ -104,13 +104,13 @@ void readSettings() {
 		param[lineNum] = "";
 		//single quotes mean a char, and escape the double quote with a backslash
 		while (line[iter] != '=') { //skips past anything that isn't in a quote
-			param[lineNum] = param[lineNum] + line[iter];
+			param[lineNum] += line[iter];
 			iter++;
 		}
 		iter++; //the current position is that of a quote, so increment it 1
 
-		while ((uint)iter < line.length()) {		//cast to a uint to prevent a warning
-			finished = finished + line[iter]; 		//append the finished product
+		while (iter < line.length()) {		//cast to a uint to prevent a warning
+			finished += line[iter]; 		//append the finished product
 			iter++;
 		}
 		var[lineNum] = finished; 	//make the var[] what the finished product is

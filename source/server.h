@@ -46,7 +46,7 @@ void Server::startServer(string confFile, shared_ptr<Output> tempObj) {
 			fileObj->out("Reading settings...");
 			readSettings(confFile);
 		} else {
-			fileObj->out("\e[1;41m\e[1;33m[Error]\e[1;0m The server's config file doesn't exist");
+			fileObj->out("The server's config file doesn't exist", "error");
 			return;
 		}
 			cout << "The file is: " << file << endl;
@@ -159,7 +159,7 @@ void Server::readSettings(string confFile) {
     	string finished = "";
 	bool skipLine = false;
 	//checks if there's stuff left to read
-	for (int lineNum, iter = 0; conf.good() && !conf.eof(); lineNum++) { //linenum < 6 because otherwise, we get a segmentation fault
+	for (int lineNum = 0, iter = 0; conf.good() && !conf.eof(); lineNum++) { //linenum < 6 because otherwise, we get a segmentation fault
 		getline(conf, line); //get a line and save it to line
 		if (line == ""){
 			throw "Whoops! The config file has nothing in it.";
