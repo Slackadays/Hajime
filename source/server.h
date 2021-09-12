@@ -3,10 +3,14 @@
 #include <fstream>
 #include <sys/mount.h>
 #include <cstring>
-#include <errno.h>
 #include <iostream>
 #include <string>
+#include <errno.h>
+
+#if defined(_win64) || defined (_WIN32)
+#else
 #include <unistd.h>
+#endif
 
 #include "output.h"
 
@@ -120,7 +124,10 @@ void Server::mountDrive() {
 		hasMounted = true;
 		systemi = 0; //reset in case it needs to mount again
 	} else {
+		#if defined(_WIN64)
+		#else
 		int errsv = errno; //errno is the POSIX error code, save errno to a dummy variable to stop it from getting tainted
+		#endif
 		if (systemi == 6) {
 			switch (errsv) {
 			case 1 : error = "Not permitted. Is the device correct?"; break;
@@ -202,6 +209,9 @@ void Server::readSettings(string confFile) {
 }
 
 int Server::getPID() {
+#if defined(_WIN64) || defined(_WIN32)
+	cout << "Testing Windows support!" << endl;
+#else
 	fs::directory_iterator Directory("/proc/"); //search /proc/
 	fs::directory_iterator End; //a dummy object to compare to
 	for (string dir = ""; Directory != End; Directory++) { 
@@ -219,4 +229,5 @@ int Server::getPID() {
 	file.close(); //erase the file from memory
 	}
 	return 0; //doesn't exist
+#endif
 }
