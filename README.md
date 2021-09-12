@@ -9,7 +9,7 @@ There are a couple prerequisites. You'll need a POSIX-compliant system such as L
 
 # Why C++?
 I decided to make this script in C++ to help me learn it, as well as get at least acceptable performance no matter how many features I add. 
-There's also a lot of standard libraries available for C++ and that might be an advantage over something like shell script.
+There's also a lot of standard libraries available for C++ and that might be an advantage over something like shell script. Plus, "Modern C++" features are great for memory safety and beautifying code.
 
 # What's up With That Name?
 "Hajime" is "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
