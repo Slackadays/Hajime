@@ -6,9 +6,9 @@ using std::string;
 
 bool getYN(){
         string response = "";
-        cout << "\e[1;1m";
+        cout << "\033[1;1m";
         cin >> response;
-        cout << "\e[1;0m";
+        cout << "\033[1;0m";
         if (response == "y" || response == "Y" || response == "yes" || response == "Yes" || response == "YES"){
                 return true;
         } else {
