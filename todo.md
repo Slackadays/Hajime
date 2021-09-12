@@ -2,6 +2,8 @@
 
 Add an interactive installation option
 
+Add multiple langage support
+
 Add compatibility to install.sh for non-apt repos
 
 Add checkers to install.sh for a friendlier experience
