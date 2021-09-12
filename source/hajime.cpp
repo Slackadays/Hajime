@@ -33,10 +33,11 @@ int main(int argn, char *args[]) {
 	Installer installer;
 	shared_ptr<Output> logObj = make_shared<Output>(); //smart pointer to the file output object
 	for (int i = 0; i < argn; i++) {
-		if (!strcmp(args[i], "-f") || !strcmp(args[i], "--server-file")) { //allow the user to choose a file preceded by -f, strcmp() compares a C pointer and a primitive type
+		auto flag = [&i, &args](string f1, string f2 = "#"){return (f1 == args[i]) || (f2 == args[i]);}; // # is purely a dummy variable so flag() can have 1 or 2 parameters
+		if (flag("-f", "--server-file")) {
 			defaultServerConfFile = args[(i + 1)];
 		}
-		if (!strcmp(args[i], "-h") || !strcmp(args[i], "--help")) { //-h = --help = help
+		if (flag("-h", "--help")) { //-h = --help = help
 			logObj->out("Hajime is a high-performance startup script that can start a Minecraft server from an external device.");
 			logObj->out("\e[1;1m\e[1;32mUsage:\e[1;0m " + (string)args[0] + " [the following flags]");
 			logObj->out("-f configuration-file \e[3mor\e[0m --server-file configuration-file \e[1;1m|\e[1;0m  Specify a server configuration file to use manually.");
@@ -46,11 +47,11 @@ int main(int argn, char *args[]) {
 			logObj->out("\e[1;1m\e[1;32mNotes:\e[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \e[1m/\e[0m to specify otherwise.", "none", 1);
 			return 0;
 		}
-		if (!strcmp(args[i], "-I") || !strcmp(args[i], "--install")) { //-I , --install = install a default server configuration file
+		if (flag("-I", "--install")) { //-I , --install = install a default server configuration file
 			installer.mainconfig(defaultServerConfFile);
 			return 0;
 		}
-		if (!strcmp(args[i], "-S") || !strcmp(args[i], "--systemd")) { //-S = systemd install
+		if (flag("-S", "--systemd")) { //-S = systemd install
 			if (!fs::is_regular_file(hajDefaultConfFile)) {
 				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n] ";
 				if (getYN()){
