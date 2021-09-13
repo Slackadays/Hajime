@@ -54,7 +54,7 @@ Server::Server(shared_ptr<Output> tempObj) {
 void Server::startServer(string confFile) {
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
-			logObj->out("Reading settings...");
+			logObj->out("Reading server settings...", "info");
 			readSettings(confFile);
 		} else {
 			logObj->out("The server's config file doesn't exist", "error");
@@ -68,12 +68,12 @@ void Server::startServer(string confFile) {
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				sleep(3);
-				logObj->out("Program is running!");
+				logObj->out("Program is running!", "info");
 				isRunning = true;
 				hasMounted = true;
 			} else {
 				isRunning = false;
-				logObj->out("isRunning is now false");
+				logObj->out("isRunning is now false", "warning");
 			}
 			try {
 				fs::current_path(path);
@@ -81,9 +81,9 @@ void Server::startServer(string confFile) {
 				logObj->out("Couldn't set the path.", "error");
 			}
 			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
-				logObj->out("Trying to start program");
+				logObj->out("Trying to start program", "info");
 				startProgram();
-				logObj->out("Program start completed");
+				logObj->out("Program start completed", "info");
 			}
 			sleep(2);
 			if (!fs::is_directory(path, ec)) { //if the desired path doesn't exist, make it
@@ -95,13 +95,13 @@ void Server::startServer(string confFile) {
 			}
 		}
 	} catch(...) { //error handling
-		logObj->out("Whoops! An unknown error occurred.");
+		logObj->out("Whoops! An unknown error occurred.", "error");
 	}
 }
 
 void Server::startProgram() {
 	if (!isRunning) {
-		logObj->out("Starting program!");
+		logObj->out("Starting server!", "info");
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
 		system(command.c_str()); //convert the command to a c-style string, execute the command
@@ -116,19 +116,19 @@ void Server::startProgram() {
 void Server::makeDir() {
 	logObj->out("No directory!");
 	if (!fs::create_directory(path, ec)) {
-		logObj->out("Error creating directory!");
+		logObj->out("Error creating directory!", "error");
 	}
 }
 
 void Server::mountDrive() {
-	logObj->out("Trying to mount.");
+	logObj->out("Trying to mount", "info");
 	if (!fs::is_empty(path, ec)) { //if there are files, then we don't want to mount there
-		logObj->out("There are files in the path");
+		logObj->out("There are files in the path", "error");
 		return;
 	} else {
 		string error;
 		if (mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "") == 0) { //brute-forces every possible filesystem because mount() depends on it being the right one
-			logObj->out("Device mounted!");
+			logObj->out("Device mounted!", "info");
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
 		} else {
@@ -157,11 +157,11 @@ void Server::mountDrive() {
 					hasOutputUSB = true;
 					systemi = 0;
 				}
-				logObj->out("Error code: " + to_string(errsv));
+				logObj->out("Error code: " + to_string(errsv), "error");
 				}
 			}
 			if (systemi < 6) {
-				logObj->out("Trying " + systems[systemi] + " filesystem");
+				logObj->out("Trying " + systems[systemi] + " filesystem", "info");
 				systemi++; //increment the filesystem
 			}
 	}
