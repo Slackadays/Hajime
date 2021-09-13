@@ -28,6 +28,8 @@ string logFile;
 
 void readSettings();
 bool getYN();
+
+shared_ptr<Output> logObj; // make this pointer global
  
 int main(int argn, char *args[]) {
 	Installer installer;
