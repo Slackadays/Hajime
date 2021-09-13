@@ -29,72 +29,79 @@ class Server {
 
 	std::error_code ec;
 
+	shared_ptr<Output> logObj;
+
 	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 	
-	void mountDrive(shared_ptr<Output> fileObj);
-	void makeDir(shared_ptr<Output> fileObj);
-	void startProgram(shared_ptr<Output> fileObj);
-	void readSettings(string confFile, shared_ptr<Output> fileObj);
+	void mountDrive();
+	void makeDir();
+	void startProgram();
+	void readSettings(string confFile);
 
 	string file, path, command, confFile, device = "";
 	
 	public:
+		Server(shared_ptr<Output> tempObj);
 		bool isRunning = false;
-		void startServer(string confFile, shared_ptr<Output> fileObj);
+		void startServer(string confFile);
 		int getPID();
 };
 
-void Server::startServer(string confFile, shared_ptr<Output> fileObj) {
+Server::Server(shared_ptr<Output> tempObj) {
+	logObj = tempObj;
+}
+
+void Server::startServer(string confFile) {
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
-			fileObj->out("Reading settings...");
-			readSettings(confFile, fileObj);
+			logObj->out("Reading settings...");
+			readSettings(confFile);
 		} else {
-			fileObj->out("The server's config file doesn't exist", "error");
+			logObj->out("The server's config file doesn't exist", "error");
 			return;
 		}
 			cout << "The file is: " << file << endl;
-			fileObj->out("The path is: " + path);
-			fileObj->out("Command: " + command);
-			//fileObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-			fileObj->out("Device: " + device);
+			logObj->out("The path is: " + path);
+			logObj->out("Command: " + command);
+			//logObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+			logObj->out("Device: " + device);
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				sleep(3);
-				fileObj->out("Program is running!");
+				logObj->out("Program is running!");
 				isRunning = true;
 				hasMounted = true;
 			} else {
 				isRunning = false;
-				fileObj->out("isRunning is now false");
+				logObj->out("isRunning is now false");
 			}
 			try {
 				fs::current_path(path);
 			} catch(...) {
-				fileObj->out("Couldn't set the path.", "error");
+				logObj->out("Couldn't set the path.", "error");
 			}
 			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
-				fileObj->out("Trying to start program");
-				startProgram(fileObj);
-				fileObj->out("Program start completed");
+				logObj->out("Trying to start program");
+				startProgram();
+				logObj->out("Program start completed");
 			}
 			sleep(2);
 			if (!fs::is_directory(path, ec)) { //if the desired path doesn't exist, make it
-				makeDir(fileObj);
+				makeDir();
 			}
 			fs::current_path(path, ec);
 			if (!hasMounted) {
-				mountDrive(fileObj);
+				mountDrive();
 			}
 		}
 	} catch(...) { //error handling
-		fileObj->out("Whoops! An unknown error occurred.");
+		logObj->out("Whoops! An unknown error occurred.");
 	}
 }
 
-void Server::startProgram(shared_ptr<Output> fileObj) {
+void Server::startProgram() {
 	if (!isRunning) {
-		fileObj->out("Starting program!");
+		logObj->out("Starting program!");
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
 		system(command.c_str()); //convert the command to a c-style string, execute the command
@@ -106,22 +113,22 @@ void Server::startProgram(shared_ptr<Output> fileObj) {
 	}
 }
 
-void Server::makeDir(shared_ptr<Output> fileObj) {
-	fileObj->out("No directory!");
+void Server::makeDir() {
+	logObj->out("No directory!");
 	if (!fs::create_directory(path, ec)) {
-		fileObj->out("Error creating directory!");
+		logObj->out("Error creating directory!");
 	}
 }
 
-void Server::mountDrive(shared_ptr<Output> fileObj) {
-	fileObj->out("Trying to mount.");
+void Server::mountDrive() {
+	logObj->out("Trying to mount.");
 	if (!fs::is_empty(path, ec)) { //if there are files, then we don't want to mount there
-		fileObj->out("There are files in the path");
+		logObj->out("There are files in the path");
 		return;
 	} else {
 		string error;
 		if (mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "") == 0) { //brute-forces every possible filesystem because mount() depends on it being the right one
-			fileObj->out("Device mounted!");
+			logObj->out("Device mounted!");
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
 		} else {
@@ -146,21 +153,21 @@ void Server::mountDrive(shared_ptr<Output> fileObj) {
 				default: error = "Unknown error.";
 				}	
 				if (!hasOutputUSB){
-					fileObj->out("An error occurred, but the script will keep trying to mount. Error: " + error);
+					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error);
 					hasOutputUSB = true;
 					systemi = 0;
 				}
-				fileObj->out("Error code: " + to_string(errsv));
+				logObj->out("Error code: " + to_string(errsv));
 				}
 			}
 			if (systemi < 6) {
-				fileObj->out("Trying " + systems[systemi] + " filesystem");
+				logObj->out("Trying " + systems[systemi] + " filesystem");
 				systemi++; //increment the filesystem
 			}
 	}
 }
 
-void Server::readSettings(string confFile, shared_ptr<Output> fileObj) {
+void Server::readSettings(string confFile) {
 	std::fstream conf; 	//conjure up a file stream
 	conf.open(confFile, std::fstream::in); //configuration file open for reading
 	string line = "";
@@ -208,7 +215,7 @@ void Server::readSettings(string confFile, shared_ptr<Output> fileObj) {
 		iter = 0;
 	}
 	if (device == "") {
-		fileObj->out("No device requested: No mounting this time!", "info");
+		logObj->out("No device requested: No mounting this time!", "info");
 		hasMounted = true;
 	}
 	conf.close(); //get rid of the file in memory

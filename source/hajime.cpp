@@ -29,11 +29,10 @@ string logFile;
 void readSettings();
 bool getYN();
 
-shared_ptr<Output> logObj; // make this pointer global
+shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
  
 int main(int argn, char *args[]) {
 	Installer installer;
-	shared_ptr<Output> logObj = make_shared<Output>(); //smart pointer to the file output object
 	for (int i = 0; i < argn; i++) {
 		auto flag = [&i, &args](string f1, string f2 = "#"){return (f1 == args[i]) || (f2 == args[i]);}; // # is purely a dummy variable so flag() can have 1 or 2 parameters
 		if (flag("-f", "--server-file")) {
@@ -82,8 +81,8 @@ int main(int argn, char *args[]) {
                 	installer.installDefaultHajConfFile(hajDefaultConfFile);
                 }
         }
-	Server serverOne;
-	serverOne.startServer(defaultServerConfFile, logObj);
+	Server serverOne(logObj);
+	serverOne.startServer(defaultServerConfFile);
 	return 0;
 }
 
