@@ -20,6 +20,7 @@ using std::cout;
 using std::endl;
 using std::shared_ptr;
 using std::make_shared;
+using std::vector;
 
 string defaultServerConfFile = "server.conf";
 string hajDefaultConfFile = "hajime.conf";
@@ -89,38 +90,32 @@ int main(int argn, char *args[]) {
 void readSettings() {
 	std::fstream sconf; 	//conjure up a file stream, sconf = settings conf
 	sconf.open(hajDefaultConfFile, std::fstream::in); 	//configuration file open for reading
-	unsigned int iter = 0;
-	int lineNum = 0;
-	string var[4], param[4], line;
-	string finished = "";
-	while (sconf.good() && lineNum < 3) { //this value is higher than the number of lines = segmentation fault!
+	vector<string> var, param;
+	string line = "", temp1 = "", temp2 = "";
+	for (unsigned int i = 0, lineNum = 0; sconf.good() && !sconf.eof(); lineNum++, i = 0, temp1 = "", temp2 = "") { //this value is higher than the number of lines = segmentation fault!
+		auto setting = [&](string name, string tempVar){if (param[lineNum] == name) {tempVar = var[lineNum];}};
 		getline(sconf, line); //get a line and save it to line
-		if (line == ""){
-			throw "Whoops! The config file doesn't have anything in it.";
-		}
-		//if we've reachd the end of the config section (#) then get out of the loop!
-		if (line[iter] == '#') {
+		if (line == "") {
 			break;
 		}
-		param[lineNum] = "";
-		//single quotes mean a char, and escape the double quote with a backslash
-		while (line[iter] != '=') { //skips past anything that isn't in a quote
-			param[lineNum] += line[iter];
-			iter++;
+		if (line[i] == '#') { //if we've reached the end of the config section (#) then get out of the loop!
+			break;
 		}
-		iter++; //the current position is that of a quote, so increment it 1
-
-		while (iter < line.length()) {		//cast to a uint to prevent a warning
-			finished += line[iter]; 		//append the finished product
-			iter++;
+		while (line[i] != '=') { //skips past anything that isn't in a quote
+			//param[lineNum] += line[i];
+			temp1 += line[i];
+			i++;
 		}
-		var[lineNum] = finished; 	//make the var[] what the finished product is
-		iter = 0; 	//reset for the next loop 
-		finished = "";
-		if (param[lineNum] == "defaultserverconf") {defaultServerConfFile = var[lineNum];}
-		if (param[lineNum] == "logfile") {logFile = var[lineNum];}
-		if (param[lineNum] == "systemdlocation") {sysdService = var[lineNum];}
-		lineNum++; 		//prep var[] for the next line
+		param.push_back(temp1);
+		i++; //the current position is that of a quote, so increment it 1
+		while (i < line.length()) {
+			temp2 += line[i]; //append the finished product
+			i++;
+		}
+		var.push_back(temp2);
+		setting("defaultserverconf", defaultServerConfFile);
+		setting("logfile", logFile);
+		setting("systemdlocation", sysdService);
 	}
 	sconf.close(); 	//get rid of the file in memory
 }
