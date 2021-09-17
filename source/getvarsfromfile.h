@@ -15,8 +15,8 @@ vector<string> getVarsFromFile(string filename, vector<string> inputVars) {
         string line= "", temp1 = "", temp2 = "";
  	for (unsigned int i = 0, lineNum = 0; file.good() && !file.eof(); lineNum++, i = 0, temp1 = "", temp2 = "") {
                 getline(file, line); //get a line from file and save it to line
-		if ((line[i] != '\0') && (line[i] != '#')) {
-                	for (;(line[i] != '=') && (line[i] != '#'); i++) { //skips past anything that isn't in a quote
+		if ((line[i] != '\0') && (line[i] != '#') && (line[i] != '=')) {
+                	for (;(line[i] != '\0') && (line[i] != '=') && (line[i] != '#'); i++) { //skips past anything that isn't in a quote
                 	        temp1 += line[i];
                 	}
                 	for (i++;(i < line.length()) && (line[i] != '#'); i++) { //increment i by 1 to skip the =
@@ -27,6 +27,8 @@ vector<string> getVarsFromFile(string filename, vector<string> inputVars) {
 					outputVars.push_back(temp2);
 				}
 			}
+		} else {
+			outputVars.push_back(temp2);
 		}
 	}
         file.close();  //get rid of the file in memory
