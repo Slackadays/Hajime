@@ -14,6 +14,7 @@
 #endif
 
 #include "output.h"
+#include "getvarsfromfile.h"
 
 using std::shared_ptr;
 using std::string;
@@ -21,6 +22,7 @@ using std::fstream;
 using std::to_string;
 using std::ofstream;
 using std::ios;
+using std::vector;
 
 class Server {
 	bool hasOutput, hasOutputUSB, hasMounted = false;
@@ -36,10 +38,12 @@ class Server {
 	void mountDrive();
 	void makeDir();
 	void startProgram();
-	void readSettings(string confFile);
+	void readSettings(string confFile, vector<string> settings);
 
 	string file, path, command, confFile, device = "";
 	
+	vector<string> serverConfigParams{"file", "path", "command", "device"};
+
 	public:
 		Server(shared_ptr<Output> tempObj);
 		bool isRunning = false;
@@ -55,7 +59,7 @@ void Server::startServer(string confFile) {
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
 			logObj->out("Reading server settings...", "info");
-			readSettings(confFile);
+			readSettings(confFile, serverConfigParams);
 		} else {
 			logObj->out("The server's config file doesn't exist", "error");
 			return;
@@ -167,58 +171,19 @@ void Server::mountDrive() {
 	}
 }
 
-void Server::readSettings(string confFile) {
-	std::fstream conf; 	//conjure up a file stream
-	conf.open(confFile, std::fstream::in); //configuration file open for reading
-	string line = "";
-	std::vector <string> param, var;
-    	string finished = "";
-	bool skipLine = false;
-	//checks if there's stuff left to read
-	for (int lineNum = 0, iter = 0; conf.good() && !conf.eof(); lineNum++) { //linenum < 6 because otherwise, we get a segmentation fault
-		getline(conf, line); //get a line and save it to line
-		if (line == ""){
-			break;
-		}
-		//skip lines when you get to a # character
-		if (line[iter] == '#') {
-			skipLine = true;
-		}
-		//skips past anything that isn't in a quote
-		//single quotes mean a char, and escape the double quote with a backslash
-		if (line[iter] == '\n' || line[iter] == '\0') {
-			skipLine = true;
-		}
-		if (!skipLine) {
-			while (line[iter] != '=') {
-				finished += line[iter];
-				iter++;
-				if (line[iter] == '#') {break;}
-			}
-			iter++;
-			param.push_back(finished);
-			finished = "";
-			while ((uint)iter < line.length()) {
-				if (line[iter] == '#') {break;}
-				finished += line[iter]; //append the finished product
-				iter++;
-			}
-			//make the var[] what the finished product is
-			var.push_back(finished);
-			finished = "";
-			if (param[lineNum] == "file") {file = var[lineNum];}
-			if (param[lineNum] == "path") {path = var[lineNum];}
-			if (param[lineNum] == "command") {command = var[lineNum];}
-			//if (param[lineNum] == "debug") {debug = stoi(var[lineNum]);} //stoi() converts the string result into an int
-			if (param[lineNum] == "device") {device = var[lineNum];}
-		}
-		iter = 0;
-	}
+void Server::readSettings(string confFile, vector<string> settings) {
+	vector<string> results = getVarsFromFile(confFile, settings);
+        for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+                auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+                setVar(settings[0], file);
+                setVar(settings[1], path);
+                setVar(settings[2], command);
+		setVar(settings[3], device);
+        }
 	if (device == "") {
 		logObj->out("No device requested: No mounting this time!", "info");
 		hasMounted = true;
 	}
-	conf.close(); //get rid of the file in memory
 }
 
 int Server::getPID() {

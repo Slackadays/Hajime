@@ -14,6 +14,7 @@ namespace fs = std::filesystem;
 #include "server.h"
 #include "output.h"
 #include "installer.h"
+#include "getvarsfromfile.h"
 
 using std::cin;
 using std::cout;
@@ -27,7 +28,9 @@ string hajDefaultConfFile = "hajime.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile;
 
-void readSettings();
+vector<string> hajimeConfParams{"defaultserverconf", "logfile", "systemdlocation"};
+
+void readSettings(vector<string> settings);
 bool getYN();
 
 shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
@@ -62,14 +65,14 @@ int main(int argn, char *args[]) {
 				}
 			}
 			if (fs::is_regular_file(hajDefaultConfFile) && sysdService == "") {
-				readSettings();
+				readSettings(hajimeConfParams);
 				installer.systemd(sysdService);
 				return 0;
 			}
 		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
-                readSettings();
+                readSettings(hajimeConfParams);
                 if (logFile == "") {
                         logObj->out("No log file to be made; sending messages to console.", "info");
                 } else {
@@ -87,36 +90,13 @@ int main(int argn, char *args[]) {
 	return 0;
 }
 
-void readSettings() {
-	std::fstream sconf; 	//conjure up a file stream, sconf = settings conf
-	sconf.open(hajDefaultConfFile, std::fstream::in); 	//configuration file open for reading
-	vector<string> var, param;
-	string line = "", temp1 = "", temp2 = "";
-	for (unsigned int i = 0, lineNum = 0; sconf.good() && !sconf.eof(); lineNum++, i = 0, temp1 = "", temp2 = "") { //this value is higher than the number of lines = segmentation fault!
-		auto setting = [&](string name, string tempVar){if (param[lineNum] == name) {tempVar = var[lineNum];}};
-		getline(sconf, line); //get a line and save it to line
-		if (line == "") {
-			break;
-		}
-		if (line[i] == '#') { //if we've reached the end of the config section (#) then get out of the loop!
-			break;
-		}
-		while (line[i] != '=') { //skips past anything that isn't in a quote
-			//param[lineNum] += line[i];
-			temp1 += line[i];
-			i++;
-		}
-		param.push_back(temp1);
-		i++; //the current position is that of a quote, so increment it 1
-		while (i < line.length()) {
-			temp2 += line[i]; //append the finished product
-			i++;
-		}
-		var.push_back(temp2);
-		setting("defaultserverconf", defaultServerConfFile);
-		setting("logfile", logFile);
-		setting("systemdlocation", sysdService);
+void readSettings(vector<string> settings) {
+	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
+	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+		setVar(settings[0], defaultServerConfFile);
+		setVar(settings[1], logFile);
+		setVar(settings[2], sysdService);
 	}
-	sconf.close(); 	//get rid of the file in memory
 }
 
