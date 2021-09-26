@@ -30,45 +30,51 @@ string logFile;
 
 vector<string> hajimeConfParams{"defaultserverconf", "logfile", "systemdlocation"};
 
-void readSettings(vector<string> settings);
-bool getYN();
+bool readSettings(vector<string> settings);
 
 shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
- 
+
 int main(int argc, char *argv[]) {
 	Installer installer;
+	if (!readSettings(hajimeConfParams)) {
+		logObj->out("Hajime config file not found", "error");
+		logObj->out("Would you like to make one now?", "info", 0, 0);
+		if (getYN("[y/n]")) {
+			installer.installDefaultHajConfFile(hajDefaultConfFile);
+		}
+	}
 	for (int i = 0; i < argc; i++) {
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		if (flag("-f", "--server-file")) {
-			defaultServerConfFile = argv[(i + 1)];
+			if (i == (argc - 1)) {
+				logObj->out("Not enough arguments provided", "error");
+				return 0;
+			} else {
+				defaultServerConfFile = argv[(i + 1)];
+				i++;
+			}
 		}
 		if (flag("-h", "--help")) { //-h = --help = help
 			logObj->out("Hajime is a high-performance startup script that can start a Minecraft server from an external device.");
-			logObj->out("\033[1;1m\033[1;32mUsage:\033[1;0m " + (string)argv[0] + " [the following flags]");
-			logObj->out("-f configuration-file \033[3mor\033[0m --server-file configuration-file \033[1;1m|\033[1;0m  Specify a server configuration file to use manually.");
-			logObj->out("-h  \033[3mor\033[0m --help \033[1;1m|\033[1;0m  Show this help message.");
-			logObj->out("-I  \033[3mor\033[0m --install \033[1;1m|\033[1;0m  Create a default server configuration file.");
-			logObj->out("-S  \033[3mor\033[0m --systemd \033[1;1m|\033[1;0m  Install a systemd service file to start Hajime automatically.");
+			logObj->out("\033[1m\033[32mUsage:\033[1;0m " + (string)argv[0] + " [the following flags]");
+			logObj->out("\033[1m-f \033[3mfile\033[0m or \033[1m--server-file \033[3mfile \033[0m\033[1;1m|\033[1;0m  Specify a server configuration file to use manually.");
+			logObj->out("\033[1m-h \033[0mor\033[1m --help |\033[1;0m  Show this help message.");
+			logObj->out("\033[1m-s  \033[0mor\033[1m --install-server \033[1m|\033[0m  Create a default server configuration file.");
+			logObj->out("\033[1m-S  \033[0mor\033[1m --systemd \033[1;1m|\033[1;0m  Install a systemd service file to start Hajime automatically.");
 			logObj->out("\033[1;1m\033[1;32mNotes:\033[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \033[1m/\033[0m to specify otherwise.", "none", 1);
 			return 0;
 		}
-		if (flag("-I", "--install")) { //-I , --install = install a default server configuration file
-			installer.mainconfig(defaultServerConfFile);
+		if (flag("-i", "--install-hajime")) {
+			installer.installDefaultHajConfFile(hajDefaultConfFile);
 			return 0;
 		}
-		if (flag("-S", "--systemd")) { //-S = systemd install
-			if (!fs::is_regular_file(hajDefaultConfFile)) {
-				cout << "Looks like there isn't a Hajime configuation file. Would you like to make one? [y/n] ";
-				if (getYN()){
-					installer.installDefaultHajConfFile(hajDefaultConfFile);
-					return 0;
-				}
-			}
-			if (fs::is_regular_file(hajDefaultConfFile) && sysdService == "") {
-				readSettings(hajimeConfParams);
-				installer.systemd(sysdService);
-				return 0;
-			}
+		if (flag("-s", "--install-server")) {
+			installer.installDefaultServerConfFile(defaultServerConfFile);
+			return 0;
+		}
+		if (flag("-S", "--install-systemd")) {
+			installer.installSystemdService(sysdService);
+			return 0;
 		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
@@ -90,7 +96,10 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void readSettings(vector<string> settings) {
+bool readSettings(vector<string> settings) {
+	if (!fs::is_regular_file(hajDefaultConfFile)) {
+		return 0;
+	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
@@ -98,5 +107,6 @@ void readSettings(vector<string> settings) {
 		setVar(settings[1], logFile);
 		setVar(settings[2], sysdService);
 	}
+	return 1;
 }
 

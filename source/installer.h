@@ -9,13 +9,12 @@ class Installer {
 	Output logObj;
 	void installNewServerConfigFile(string fileLocation);
 	public:
-		void mainconfig(string conf);
-		void systemd(string sysdService);
-		void makeSconfig(string sconfFile);
+		void installSystemdService(string sysdService);
 	        void installDefaultHajConfFile(string fileLocation);
+		void installDefaultServerConfFile(string conf);
 };
 
-void Installer::mainconfig(string conf) {
+void Installer::installDefaultServerConfFile(string conf) {
 	logObj.out("Installing default server config file...", "info");
 	if (fs::is_regular_file(conf)){
 		logObj.out("The file is already here! To make a new one, delete the existing file.", "warning");
@@ -31,10 +30,17 @@ void Installer::mainconfig(string conf) {
 
 void Installer::installDefaultHajConfFile(string fileLocation) {
 	logObj.out("Installing default Hajime config file...", "info");
-	ofstream outConf(fileLocation);
-	outConf << "defaultserverconf=server.conf" << endl;	
-	outConf << "logfile=" << endl;
-	outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
+	logObj.out("Checking for existing file...", "info");
+	if (fs::is_regular_file(fileLocation)) {
+                logObj.out("Hajime config file already present!", "warning");
+        } else {
+		ofstream outConf(fileLocation);
+		outConf << "defaultserverconf=server.conf" << endl;	
+		outConf << "logfile=" << endl;
+		outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
+		outConf.close();
+		logObj.out("Hajime config file made!", "info");
+	}
 }
 
 void Installer::installNewServerConfigFile(string fileLocation) {
@@ -45,28 +51,15 @@ void Installer::installNewServerConfigFile(string fileLocation) {
         outConf.close();
 }
 
-void Installer::makeSconfig(string sconfFile) {
-	if (fs::is_regular_file(sconfFile)) {
-		logObj.out("There is a config file here!", "warning");
-	} else {
-		ofstream outsConf(sconfFile);
-		outsConf << "defaultserverconf=server.conf" << endl 
-		<< "systemdlocation=/etc/systemd/system/hajime.service"<< endl 
-		<< "logfile=" << endl 
-		<< "#" << endl;
-		logObj.out("Config file made!", "info");
-		outsConf.close();
-	}
-}
-
-void Installer::systemd(string sysdService) {
+void Installer::installSystemdService(string sysdService) {
 	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
-		logObj.out("The systemd service is already here!", "warning");
+		logObj.out("Found an existing systemd service", "warning");
 	}
 	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysdService)) {
 		logObj.out("Making systemd service...", "info");
 		ofstream service(sysdService);
-		service << "[Unit]" << endl << "Description=Starts Hajime" << endl << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
+		service << "[Unit]" << endl << "Description=Starts Hajime" << endl;
+		cout << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 		service.close();
 	}
 	if (!fs::is_directory("/etc/systemd")) {
