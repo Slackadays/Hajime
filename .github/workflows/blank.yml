@@ -33,5 +33,5 @@ jobs:
           
       - uses: actions/upload-artifact@v2
         with: 
-          name: hajime-GHA-build
+          name: build-artifacts
           path: source/hajime
