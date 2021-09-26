@@ -35,9 +35,9 @@ bool getYN();
 
 shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
  
-int main(int argn, char *args[]) {
+int main(int argc, char *args[]) {
 	Installer installer;
-	for (int i = 0; i < argn; i++) {
+	for (int i = 0; i < argc; i++) {
 		auto flag = [&i, &args](auto ...fs){return (!strcmp(fs, args[i]) || ...);}; //compare flags with a parameter pack pattern
 		if (flag("-f", "--server-file")) {
 			defaultServerConfFile = args[(i + 1)];
