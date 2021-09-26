@@ -1,6 +1,9 @@
 # Hajime
 A versatile, high-performance Minecraft server startup script suite.
 
+# Discord
+For rapid support and announcements about Hajime, join our Discord at https://discord.gg/J6asnc3pEG.
+
 # The Big Problem
 Most other startup scripts are either bare-bones shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different because it provides way more features and is blazing fast thanks to its compiled nature.
 
