@@ -1,11 +1,11 @@
 # Hajime
 A versatile, high-performance Minecraft server startup script suite.
 
-# The Problem
-Most Minecraft server startup scripts are either overly simplistic shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different; it provides more features and is blazing fast thanks to its compiled nature.
+# The Big Problem
+Most other startup scripts are either bare-bones shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different because it provides way more features and is blazing fast thanks to its compiled nature.
 
 # Requirements
-There are a couple prerequisites. You'll need a POSIX-compliant system such as Linux or FreeBSD or MacOS. Hajime was originally designed to be used with servers that have all server info on an external mass storage device such as a USB flash drive, but this feature is optional. Also, to use the one-step installation option, your platform will need to support Git and G++.
+There are a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option, your platform will need to support Git and G++.
 
 # Why C++?
 I decided to make this script in C++ to help me learn it, as well as get at least acceptable performance no matter how many features I add. 
