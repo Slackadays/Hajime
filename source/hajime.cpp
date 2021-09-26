@@ -40,11 +40,11 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < argc; i++) {
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		if (flag("-f", "--server-file")) {
-			defaultServerConfFile = args[(i + 1)];
+			defaultServerConfFile = argv[(i + 1)];
 		}
 		if (flag("-h", "--help")) { //-h = --help = help
 			logObj->out("Hajime is a high-performance startup script that can start a Minecraft server from an external device.");
-			logObj->out("\033[1;1m\033[1;32mUsage:\033[1;0m " + (string)args[0] + " [the following flags]");
+			logObj->out("\033[1;1m\033[1;32mUsage:\033[1;0m " + (string)argv[0] + " [the following flags]");
 			logObj->out("-f configuration-file \033[3mor\033[0m --server-file configuration-file \033[1;1m|\033[1;0m  Specify a server configuration file to use manually.");
 			logObj->out("-h  \033[3mor\033[0m --help \033[1;1m|\033[1;0m  Show this help message.");
 			logObj->out("-I  \033[3mor\033[0m --install \033[1;1m|\033[1;0m  Create a default server configuration file.");
