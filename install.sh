@@ -6,7 +6,7 @@ git clone https://github.com/Slackadays/Hajime
 echo "\e[1mCompiling...\e[0m"
 echo "\e[1mThis may take from a few seconds to a few minutes depending on your system speed.\e[0m"
 cd Hajime/source
-g++ -Ofast -std=c++17 -o hajime hajime.cpp -lstdc++fs #lstdc++fs enables filsystem library in older installations
+g++ -Ofast -march=native -static -std=c++17 -o hajime hajime.cpp -lstdc++fs #lstdc++fs enables filsystem library in older installations
 echo "\e[1mCleaning up...\e[0m"
 chown -R $USER ../../Hajime/.git ../../Hajime/source/hajime #change perms for certain misbehaving files that come with git
 mv hajime ../../ #move the binary to the original folder where the script was started
