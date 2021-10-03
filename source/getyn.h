@@ -6,7 +6,7 @@ using std::string;
 
 bool getYN(string prompt);
 
-bool getYN(string prompt = ""){
+bool getYN(string prompt = "[y/n]"){
         string response = "";
 	if (prompt != "") {
 		prompt = " " + prompt + " ";
