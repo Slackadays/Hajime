@@ -12,6 +12,7 @@ class Installer {
 		void installSystemdService(string sysdService);
 	        void installDefaultHajConfFile(string fileLocation);
 		void installDefaultServerConfFile(string conf);
+		void installDefaultServersFile(string serversFile);
 };
 
 void Installer::installDefaultServerConfFile(string conf) {
@@ -28,8 +29,8 @@ void Installer::installDefaultServerConfFile(string conf) {
 	}
 }
 
-void Installer::installDefaultHajConfFile(string fileLocation) {
-	logObj.out("Installing default Hajime config file...", "info");
+void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
+	logObj.out("Installing default Hajime config file " + fileLocation + "...", "info");
 	logObj.out("Checking for existing file...", "info");
 	if (fs::is_regular_file(fileLocation)) {
                 logObj.out("Hajime config file already present!", "warning");
@@ -65,4 +66,17 @@ void Installer::installSystemdService(string sysdService) {
 	if (!fs::is_directory("/etc/systemd")) {
 		logObj.out("Looks like there is no systemd; use another installation option instead.", "error");
 	}
+}
+
+void Installer::installDefaultServersFile(string serversFile) {
+	logObj.out("Installing default servers file...", "info");
+        logObj.out("Checking for existing file...", "info");
+        if (fs::is_regular_file(serversFile)) {
+                logObj.out("Servers file already present!", "warning");
+        } else {
+                ofstream outConf(serversFile);
+		outConf << "server0.conf" << endl;
+                outConf.close();
+                logObj.out("Servers file made!", "info");
+        }
 }

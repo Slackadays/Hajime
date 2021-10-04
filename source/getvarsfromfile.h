@@ -8,11 +8,12 @@
 using std::vector;
 
 vector<string> getVarsFromFile(string filename, vector<string> inputVars);
+vector<string> getVarsFromFile(string filename);
 
 vector<string> getVarsFromFile(string filename, vector<string> inputVars) {
         std::fstream file(filename, std::fstream::in); //configuration file open for reading
 	vector <string> outputVars;
-        string line= "", temp1 = "", temp2 = "";
+        string line = "", temp1 = "", temp2 = "";
  	for (unsigned int i = 0, lineNum = 0; file.good() && !file.eof(); lineNum++, i = 0, temp1 = "", temp2 = "") {
                 getline(file, line); //get a line from file and save it to line
 		if ((line[i] != '\0') && (line[i] != '#') && (line[i] != '=')) {
@@ -32,5 +33,22 @@ vector<string> getVarsFromFile(string filename, vector<string> inputVars) {
 		}
 	}
         file.close();  //get rid of the file in memory
+	return outputVars;
+}
+
+vector<string> getVarsFromFile(string filename) {
+	std::fstream file(filename, std::fstream::in);
+	vector<string> outputVars;
+	string line = "", temp = "";
+	for (unsigned int i = 0, lineNum = 0; file.good() && !file.eof(); lineNum++, i = 0, temp = "") {
+                getline(file, line);
+                if ((line[i] != '\0') && (line[i] != '#')) {
+                        for (;(line[i] != '\0') && (line[i] != '#'); i++) { //skips past anything that isn't in a quote
+                                temp += line[i];
+                        }
+			outputVars.push_back(temp);
+                }
+        }
+	file.close();
 	return outputVars;
 }

@@ -61,7 +61,7 @@ void Server::startServer(string confFile) {
 			logObj->out("Reading server settings...", "info");
 			readSettings(confFile, serverConfigParams);
 		} else {
-			logObj->out("The server's config file doesn't exist", "error");
+			logObj->out("The server's config file (" + confFile + ") doesn't exist", "error");
 			return;
 		}
 			cout << "The file is: " << file << endl;
