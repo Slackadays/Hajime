@@ -1,5 +1,5 @@
 # Hajime
-A full-features, high-performance Minecraft server startup script suite.
+A fully-featured, high-performance Minecraft server startup script suite.
 
 # Discord
 For discussion, rapid support, and announcements about Hajime, join our Discord at https://discord.gg/J6asnc3pEG.
