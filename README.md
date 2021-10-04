@@ -2,20 +2,20 @@
 A fully-featured, high-performance Minecraft server startup script suite.
 
 # Discord
-For discussion, rapid support, and announcements about Hajime, join our Discord at https://discord.gg/J6asnc3pEG.
+For discussion, rapid support, development updates, and announcements about Hajime, join our Discord at https://discord.gg/J6asnc3pEG.
 
 # The Big Problem
 Most other startup scripts are either bare-bones shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different because it provides way more features and is always blazing fast thanks to being compiled C++.
 
 # Requirements
-There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and choose the compilation path, your platform will need to support the git and g++ packages.
+There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and its compilation path, your platform will need to support the git and g++ packages.
 
 # Why C++?
 I decided to make this script in C++ to help me learn it as well as get acceptable performance no matter how many features I add. 
 There's also a lot of standard libraries available for C++ and that might be an advantage over something like shell script. Plus, "Modern C++" features are great for memory safety and beautifying code.
 
 # What's up With That Name?
-"Hajime" is "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
+"Hajime" is simply "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
 
 # Quick Start
 Use this command to install Hajime in one step. It will download and compile the latest version available on GitHub.
