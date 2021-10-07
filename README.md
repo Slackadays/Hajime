@@ -16,6 +16,15 @@ Like with all shell scripts, check the install.sh file first for any potentially
 ## The Big Problem
 Most other startup scripts are either bare-bones shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different because it provides way more features and is always blazing fast thanks to being compiled C++.
 
+## Features
+- Easy installation (full installation wizard coming soon!).
+- Multiple server support through multithreading.
+- Works on most Linux (and soon Windows and Mac) systems.
+- Configure every setting exactly how you want it.
+- Many customizable log messages to see what exactly happened.
+- Help and support available in our Discord server.
+- Can be compiled for every installation to suit every server's capabilities.
+
 ## Requirements
 There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and its compilation path, your platform will need to support the git and g++ packages.
 
