@@ -1,28 +1,30 @@
 # Hajime
-A fully-featured, high-performance Minecraft server startup script suite.
+A fast and fully-featured Minecraft server startup script suite.
 
 # Discord
 For discussion, rapid support, development updates, and announcements about Hajime, join our Discord at https://discord.gg/J6asnc3pEG.
 
-# The Big Problem
-Most other startup scripts are either bare-bones shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different because it provides way more features and is always blazing fast thanks to being compiled C++.
-
-# Requirements
-There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and its compilation path, your platform will need to support the git and g++ packages.
-
-# Why C++?
-I decided to make this script in C++ to help me learn it as well as get acceptable performance no matter how many features I add. 
-There's also a lot of standard libraries available for C++ and that might be an advantage over something like shell script. Plus, "Modern C++" features are great for memory safety and beautifying code.
-
-# What's up With That Name?
-"Hajime" is simply "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
-
-# Quick Start
-Use this command to install Hajime in one step. It will download and compile the latest version available on GitHub.
+# Quick Installation
+Use this command to install Hajime in one step. It will download and automagically compile the latest version available on GitHub.
 ```
 curl https://raw.githubusercontent.com/Slackadays/Hajime/master/install.sh | sh
 ```
-Like with all shell scripts, before running, make sure to review the install.sh file to check for any potentially malicious commands.
+Like with all shell scripts, check the install.sh file first for any potentially malicious commands.
+
+# Why?
+
+## The Big Problem
+Most other startup scripts are either bare-bones shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different because it provides way more features and is always blazing fast thanks to being compiled C++.
+
+## Requirements
+There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and its compilation path, your platform will need to support the git and g++ packages.
+
+## Why C++?
+I decided to make this script in C++ to help me learn it as well as get acceptable performance no matter how many features I add. 
+There's also a lot of standard libraries available for C++ and that might be an advantage over something like shell script. Plus, "Modern C++" features are great for memory safety and beautifying code.
+
+## What's up With That Name?
+"Hajime" is simply "begin" in Japanese. I know this because I hear it every time I train with my judo instructor.
 
 # Instructions (WIP)
 
@@ -35,7 +37,7 @@ Now, run `sudo ./hajime -I` to install the initial configuration file.
 If you would like to make a systemd service, now run `sudo ./hajime -S`
 to make a systemd service file. By default, the file created is called **hajime.service**. If you would like a different name (for example, if you are running multiple servers) change the setting in the file **hajime.conf**. Now enable it using `sudo systemctl enable hajime`to run Hajime on startup. Before rebooting, you must change the settings in the **server.conf** and **hajime.conf** files. Make server.conf by running `sudo ./hajime -I` again. `server.conf` is the settings file for an individual server object. This is done for future-proofing for future versions that may implement multithreading. `hajime.conf` is the settings file for the main program.
 
-# Compiling Your Own
+## Compiling Your Own
 It's easy to compile Hajime. First, download the files in the [**source**]./source/) section. Then, run this command:
 ```
 g++ -std=c++20 -Ofast -o hajime hajime.cpp
