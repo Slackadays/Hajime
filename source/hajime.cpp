@@ -14,6 +14,7 @@ namespace fs = std::filesystem;
 #include "output.h"
 #include "installer.h"
 #include "getvarsfromfile.h"
+#include "languages.h"
 
 using std::cin;
 using std::cout;
@@ -28,27 +29,32 @@ string defaultServersFile = "servers.conf";
 string hajDefaultConfFile = "hajime.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile = "";
+string lang = "";
 
-vector<string> hajimeConfParams{"defaultserverconf", "logfile", "systemdlocation"};
+vector<string> hajimeConfParams{"serversfile", "logfile", "systemdlocation", "lang"};
 
 bool readSettings(vector<string> settings);
+bool readLanguage(vector<string> settings);
 
 shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
 
 int main(int argc, char *argv[]) {
 	Installer installer;
+	readLanguage(hajimeConfParams);
+	Text text(lang);
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
                 if (flag("-h", "--help")) { //-h = --help = help
-                        logObj->out("Hajime is a high-performance startup script that can start a Minecraft server from an external device.");
-                        logObj->out("\033[1m\033[32mUsage:\033[1;0m " + (string)argv[0] + " [the following flags]");
-                        logObj->out("\033[1m-f \033[3mfile\033[0m or \033[1m--server-file \033[3mfile \033[0m\033[1;1m|\033[1;0m  Specify a server configuration file to use manually.");
-                        logObj->out("\033[1m-h \033[0mor\033[1m --help |\033[1;0m  Show this help message.");
-			logObj->out("\033[1m--hajime-file\033[0m \033[1m\033[3mfile \033[0m \033[1m|\033[0m Manually specify the configuration file that Hajime uses.");
-                        logObj->out("\033[1m-s  \033[0mor\033[1m --install-server \033[1m|\033[0m  Create a default server configuration file.");
-                        logObj->out("\033[1m-S  \033[0mor\033[1m --systemd \033[1;1m|\033[1;0m  Install a systemd service file to start Hajime automatically.");
-                        logObj->out("\033[1;1m\033[1;32mNotes:\033[1;0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \033[1m/\033[0m to specify otherwise.", "none", 1);
-			logObj->out("\033[1;1m\033[1;32mNeed more help?\033[1;0m Join our Discord group at https:/\/discord.gg/J6asnc3pEG");
+                        logObj->out(text.help[0]);
+                        logObj->out(text.help[1] + (string)argv[0] + text.help[2]);
+                        logObj->out(text.help[3]);
+                        logObj->out(text.help[4]);
+			logObj->out(text.help[5]);
+                        logObj->out(text.help[6]);
+                        logObj->out(text.help[7]);
+			logObj->out(text.help[8]);
+                        logObj->out(text.help[9], "none", 1);
+			logObj->out(text.help[10]);
                         return 0;
                 }
 
@@ -130,10 +136,23 @@ bool readSettings(vector<string> settings) {
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-		setVar(settings[0], defaultServerConfFile);
+		setVar(settings[0], defaultServersFile);
 		setVar(settings[1], logFile);
 		setVar(settings[2], sysdService);
 	}
 	return 1;
 }
+
+bool readLanguage(vector<string> settings) {
+        if (!fs::is_regular_file(hajDefaultConfFile)) {
+                return 0;
+        }
+        vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
+        for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+                auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+                setVar(settings[3], lang);
+        }
+        return 1;
+}
+
 

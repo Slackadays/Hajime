@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <thread>
 
 #pragma once //this guards against g++ error "redefinition of class Output"
 
@@ -9,8 +10,10 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::ofstream;
+using std::thread;
 
 class Output {
+	thread::id main_thread = std::this_thread::get_id();
 	bool logToFile = false;
 	string logFilename;
 	ofstream fileObj;
@@ -28,16 +31,15 @@ void Output::init(string file) {
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 
-void Output::out(string data, string type = "none", bool keepEndlines = false, bool endLineAtEnd = true){
-	if (!logToFile){
-		if (endLineAtEnd) {
-                	cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
-		} else {
-			cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type);
-		}
-	} else {
-		fileObj << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
-	}
+void Output::out(string data, string type = "none", bool keepEndlines = false, bool endLineAtEnd = true) {
+        if (!logToFile) {
+                cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type);
+                if (endLineAtEnd) {
+                        cout << endl;
+                }
+        } else {
+                fileObj << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
+        }
 }
 
 void Output::end(){
@@ -57,9 +59,11 @@ string Output::removeEndlines(string input = "", bool keepEndlines = false){
 }
 
 string Output::addColorsByType(string input = "", string type = "none"){
+	string prefix = "";
 	if (type == "none"){return input;} //"none" is if you want to preserve input
-	if (type == "info"){return "\033[1;46m[Info]\033[1;0m " + input;} //cyan background
-	if (type == "error"){return "\033[1;41m\033[1;33m[Error]\033[1;0m " + input;} //red background, yellow text
-	if (type == "warning"){return "\033[1;33m[Warning]\033[1;0m " + input;} //yellow text
-	return input;
+	if (type == "info"){prefix = "\033[1;46m[Info ";} //cyan background
+	if (type == "error"){prefix = "\033[1;41m\033[1;33m[Error ";} //red background, yellow text
+	if (type == "warning"){prefix = "\033[1;33m[Warning ";} //yellow text
+	if (main_thread == std::this_thread::get_id()) {prefix += "| Main Thread]\033[1;0m ";} else {prefix += "| Worker Thread]\033[1;0m ";}
+	return (prefix + input);
 }

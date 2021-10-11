@@ -64,11 +64,11 @@ void Server::startServer(string confFile) {
 			logObj->out("The server's config file (" + confFile + ") doesn't exist", "error");
 			return;
 		}
-			cout << "The file is: " << file << endl;
-			logObj->out("The path is: " + path);
-			logObj->out("Command: " + command);
+			logObj->out("Server file: " + file, "info");
+			logObj->out("Server path: " + path, "info");
+			logObj->out("Server command: " + command, "info");
 			//logObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-			logObj->out("Device: " + device);
+			logObj->out("Device: " + device, "info");
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				sleep(3);
@@ -157,7 +157,7 @@ void Server::mountDrive() {
 				default: error = "Unknown error.";
 				}	
 				if (!hasOutputUSB){
-					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error);
+					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error, "error");
 					hasOutputUSB = true;
 					systemi = 0;
 				}
@@ -181,7 +181,7 @@ void Server::readSettings(string confFile, vector<string> settings) {
 		setVar(settings[3], device);
         }
 	if (device == "") {
-		logObj->out("No device requested: No mounting this time!", "info");
+		logObj->out("No device requested; no mounting this time!", "info");
 		hasMounted = true;
 	}
 }
