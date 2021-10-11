@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <cstring>
 #include <string>
+#include <unistd.h>
 
 #include "output.h"
 
@@ -53,6 +54,7 @@ void Installer::installNewServerConfigFile(string fileLocation) {
 }
 
 void Installer::installSystemdService(string sysdService) {
+	if (getuid()) {logObj.out("You need to be the root user to install a systemd service", "error");}
 	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
 		logObj.out("Found an existing systemd service", "warning");
 	}

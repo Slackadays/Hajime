@@ -122,9 +122,12 @@ int main(int argc, char *argv[]) {
 		serverVec.push_back(server); //add a copy of server to use
 		threadVec.push_back(thread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
-	while(true) { //dummy loop for thereads
-		cout << "Blah." << endl;
-		sleep(1);
+	while(true) {
+		string command;
+		cin >> command;
+		if (command == "test") {
+			cout << "Blah!" << endl;
+		}
 	}
 	return 0;
 }
