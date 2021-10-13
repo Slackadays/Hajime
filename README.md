@@ -54,7 +54,15 @@ g++ -std=c++20 -Ofast -o hajime hajime.cpp
 Hajime requires at least **C++17** to work.
    
 # Using Hajime
+
+## Enable the systemd Service 
 This script is a cinch to actually use. To check its status, run `sudo systemctl status hajime` (or substitute "hajime" if you have renamed the systemd service file). This will display the messages sent by Hajime. For debugging, you may also run it manually.
+
+## Configure the Server
+Once you run Hajime for the first time, create a "servers file" AND a "server file." Then, open server0.conf in a text editor and apply the needed settings.
+
+## Important Note
+You must use the command "screen" in the server execution command for Hajime to work. This limitation will be removed in a future update.
 
 # Troubleshooting
 If Hajime seems to not work after it's been running for a while, just restart it. This solves 99% of problems!
