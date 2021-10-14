@@ -11,7 +11,7 @@ class Installer {
 	void installNewServerConfigFile(string fileLocation);
 	public:
 		void installSystemdService(string sysdService);
-	        void installDefaultHajConfFile(string fileLocation);
+		void installDefaultHajConfFile(string fileLocation);
 		void installDefaultServerConfFile(string conf);
 		void installDefaultServersFile(string serversFile);
 };
@@ -34,8 +34,8 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
 	logObj.out("Installing default Hajime config file " + fileLocation + "...", "info");
 	logObj.out("Checking for existing file...", "info");
 	if (fs::is_regular_file(fileLocation)) {
-                logObj.out("Hajime config file already present!", "warning");
-        } else {
+		logObj.out("Hajime config file already present!", "warning");
+	} else {
 		ofstream outConf(fileLocation);
 		outConf << "serversfile=servers.conf" << endl;	
 		outConf << "logfile=" << endl;
@@ -47,10 +47,10 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
 
 void Installer::installNewServerConfigFile(string fileLocation) {
 	ofstream outConf(fileLocation);
-        outConf << "file=SERVER-FILE" << endl << "path=PATH-TO-DEVICE" << endl << "command=SERVER-EXECUTION-COMMAND" << endl << "debug=1" << endl << "device=DEVICE" << endl;
-        outConf << "#" << endl << "This is the comment section. Anything after the # is a comment. \nThe first line is the file of the server that needs to be executed. The second line is the path to the device." << endl; 
+	outConf << "file=SERVER-FILE" << endl << "path=PATH-TO-DEVICE" << endl << "command=SERVER-EXECUTION-COMMAND" << endl << "debug=1" << endl << "device=DEVICE" << endl;
+	outConf << "#" << endl << "This is the comment section. Anything after the # is a comment. \nThe first line is the file of the server that needs to be executed. The second line is the path to the device." << endl; 
 	cout << "The config file (" << fileLocation << ") has been created and is now ready for your settings." << endl;
-        outConf.close();
+	outConf.close();
 }
 
 void Installer::installSystemdService(string sysdService) {
@@ -72,13 +72,13 @@ void Installer::installSystemdService(string sysdService) {
 
 void Installer::installDefaultServersFile(string serversFile) {
 	logObj.out("Installing default servers file...", "info");
-        logObj.out("Checking for existing file...", "info");
-        if (fs::is_regular_file(serversFile)) {
-                logObj.out("Servers file already present!", "warning");
-        } else {
-                ofstream outConf(serversFile);
+	logObj.out("Checking for existing file...", "info");
+	if (fs::is_regular_file(serversFile)) {
+		logObj.out("Servers file already present!", "warning");
+	} else {
+		ofstream outConf(serversFile);
 		outConf << "server0.conf" << endl;
-                outConf.close();
-                logObj.out("Servers file made!", "info");
-        }
+		outConf.close();
+		logObj.out("Servers file made!", "info");
+	}
 }

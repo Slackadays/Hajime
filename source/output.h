@@ -32,14 +32,14 @@ void Output::init(string file) {
 }
 
 void Output::out(string data, string type = "none", bool keepEndlines = false, bool endLineAtEnd = true) {
-        if (!logToFile) {
-                cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type);
-                if (endLineAtEnd) {
-                        cout << endl;
-                }
-        } else {
-                fileObj << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
-        }
+	if (!logToFile) {
+		cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type);
+		if (endLineAtEnd) {
+			cout << endl;
+		}
+	} else {
+		fileObj << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
+	}
 }
 
 void Output::end(){
@@ -64,6 +64,6 @@ string Output::addColorsByType(string input = "", string type = "none"){
 	if (type == "info"){prefix = "\033[1;46m[Info ";} //cyan background
 	if (type == "error"){prefix = "\033[1;41m\033[1;33m[Error ";} //red background, yellow text
 	if (type == "warning"){prefix = "\033[1;33m[Warning ";} //yellow text
-	if (main_thread == std::this_thread::get_id()) {prefix += "| Main Thread]\033[1;0m ";} else {prefix += "| Worker Thread]\033[1;0m ";}
+	if (main_thread == std::this_thread::get_id()) {prefix += "| Main ]\033[1;0m ";} else {prefix += "| Worker ]\033[1;0m ";}
 	return (prefix + input);
 }
