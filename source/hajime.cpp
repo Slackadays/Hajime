@@ -44,9 +44,9 @@ int main(int argc, char *argv[]) {
 	Text text(lang);
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
-                if (flag("-h", "--help")) { //-h = --help = help
-                        logObj->out(text.help[0]);
-                        logObj->out(text.help[1] + (string)argv[0] + text.help[2]);
+		if (flag("-h", "--help")) { //-h = --help = help
+			logObj->out(text.help[0]);
+			logObj->out(text.help[1] + (string)argv[0] + text.help[2]);
 			logObj->out(text.help[3]);
 			logObj->out(text.help[4]);
 			logObj->out(text.help[5]);
@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
 			logObj->out(text.help[8]);
 			logObj->out(text.help[9], "none", 1);
 			logObj->out(text.help[10]);
-                        return 0;
-                }
+			return 0;
+		}
 
 	}
 	if (!readSettings(hajimeConfParams)) {
@@ -69,12 +69,12 @@ int main(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++)  {//start at i = 1 to improve performance because we will never find a flag at 0
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
-                if (flag("-f", "--server-file")) {
-                       	if (!assignNextToVar(defaultServerConfFile)) {
+		if (flag("-f", "--server-file")) {
+		       	if (!assignNextToVar(defaultServerConfFile)) {
 				logObj->out("Not enough arguments provided", "error");
 				return 0;
 			}
-                }
+		}
 		if (flag("-hf", "--hajime-file")) {
 			if (!assignNextToVar(hajDefaultConfFile)) {
 				logObj->out("Not enough arguments provided", "error");
@@ -102,19 +102,19 @@ int main(int argc, char *argv[]) {
 		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
-                readSettings(hajimeConfParams);
-                if (logFile == "") {
-                        logObj->out("No log file to be made; sending messages to console.", "info");
-                } else {
-                        logObj->init(logFile);
-                }
-        	} else {
-                logObj->out("Config file " + hajDefaultConfFile + " doesn't exist!", "error");
+		readSettings(hajimeConfParams);
+		if (logFile == "") {
+			logObj->out("No log file to be made; sending messages to console.", "info");
+		} else {
+			logObj->init(logFile);
+		}
+		} else {
+		logObj->out("Config file " + hajDefaultConfFile + " doesn't exist!", "error");
 		logObj->out("Looks like there isn't a Hajime configuation file. Would you like to make one?", "info", 0, 0);
-                	if (getYN()) {
-                	installer.installDefaultHajConfFile(hajDefaultConfFile);
-                }
-        }
+			if (getYN()) {
+			installer.installDefaultHajConfFile(hajDefaultConfFile);
+		}
+	}
 	vector<Server> serverVec;
 	vector<thread> threadVec;
 	Server server(logObj); //create a template object
@@ -147,15 +147,15 @@ bool readSettings(vector<string> settings) {
 }
 
 bool readLanguage(vector<string> settings) {
-        if (!fs::is_regular_file(hajDefaultConfFile)) {
-                return 0;
-        }
-        vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
-        for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-                auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-                setVar(settings[3], lang);
-        }
-        return 1;
+	if (!fs::is_regular_file(hajDefaultConfFile)) {
+		return 0;
+	}
+	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
+	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+		setVar(settings[3], lang);
+	}
+	return 1;
 }
 
 
