@@ -47,13 +47,13 @@ int main(int argc, char *argv[]) {
                 if (flag("-h", "--help")) { //-h = --help = help
                         logObj->out(text.help[0]);
                         logObj->out(text.help[1] + (string)argv[0] + text.help[2]);
-                        logObj->out(text.help[3]);
-                        logObj->out(text.help[4]);
+			logObj->out(text.help[3]);
+			logObj->out(text.help[4]);
 			logObj->out(text.help[5]);
-                        logObj->out(text.help[6]);
-                        logObj->out(text.help[7]);
+			logObj->out(text.help[6]);
+			logObj->out(text.help[7]);
 			logObj->out(text.help[8]);
-                        logObj->out(text.help[9], "none", 1);
+			logObj->out(text.help[9], "none", 1);
 			logObj->out(text.help[10]);
                         return 0;
                 }
