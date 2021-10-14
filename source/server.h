@@ -26,7 +26,7 @@ using std::vector;
 
 class Server {
 	bool hasOutput, hasOutputUSB, hasMounted = false;
-	
+
 	int systemi = 0;
 
 	std::error_code ec;
@@ -142,19 +142,19 @@ void Server::mountDrive() {
 			#endif
 			if (systemi == 6) {
 				switch (errsv) {
-				case 1 : error = "Not permitted. Is the device correct?"; break;
-				case 2 : error = "No such file or directory."; break;
-				case 13: error = "Permission denied. Is Hajime being run under root?"; break;
-				case 5 : error = "Input/output error. Is the drive OK?"; break;
-				case 12: error = "Not enough memory. Is there a shortage of it?"; break;
-				case 11: error = "Resource unavailable."; break;
-				case 14: error = "Bad address."; break;
-				case 15: error = "Not a block device. Did you make sure you're mounting a mass storage device?"; break;
-				case 16: error = "Busy. Is the device being accessed right now?"; break;
-				case 21: error = "It's a directory. Did you make sure you're mounting a mass stoage device?"; break;
-				case 22: error = "Bad arguments. Is the configuration set correctly?"; break;
-				case 19: error = "Unknown device. Is the filesystem supported?"; break;
-				default: error = "Unknown error.";
+				case 1 : error = text.errnoNotPermitted; break;
+				case 2 : error = text.errnoNoFileOrDir; break;
+				case 13: error = text.errnoPermissionDenied; break;
+				case 5 : error = text.errnoInOut; break;
+				case 12: error = text.errnoMemory; break;
+				case 11: error = text.errnoUnavailable; break;
+				case 14: error = text.errnoAddress; break;
+				case 15: error = text.errnoBlockDev; break;
+				case 16: error = text.errnoBusy; break;
+				case 21: error = text.errnoDirectory; break;
+				case 22: error = text.errnoBadArgs; break;
+				case 19: error = text.errnoUnknownDev; break;
+				default: error = text.errnoUnknownGeneric;
 				}	
 				if (!hasOutputUSB){
 					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error, "error");

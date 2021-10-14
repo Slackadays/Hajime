@@ -10,11 +10,15 @@
 namespace fs = std::filesystem;
 
 #include "getyn.h"
-#include "server.h"
 #include "output.h"
 #include "installer.h"
-#include "getvarsfromfile.h"
 #include "languages.h"
+
+string hajDefaultConfFile = "hajime.conf";
+Text text(hajDefaultConfFile);
+
+#include "server.h"
+#include "getvarsfromfile.h"
 
 using std::cin;
 using std::cout;
@@ -26,22 +30,17 @@ using std::thread;
 
 string defaultServerConfFile = "server0.conf";
 string defaultServersFile = "servers.conf";
-string hajDefaultConfFile = "hajime.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile = "";
-string lang = "";
 
-vector<string> hajimeConfParams{"serversfile", "logfile", "systemdlocation", "lang"};
+vector<string> hajimeConfParams{"serversfile", "logfile", "systemdlocation"};
 
 bool readSettings(vector<string> settings);
-bool readLanguage(vector<string> settings);
 
 shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
 
 int main(int argc, char *argv[]) {
 	Installer installer;
-	readLanguage(hajimeConfParams);
-	Text text(lang);
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		if (flag("-h", "--help")) { //-h = --help = help
@@ -142,18 +141,6 @@ bool readSettings(vector<string> settings) {
 		setVar(settings[0], defaultServersFile);
 		setVar(settings[1], logFile);
 		setVar(settings[2], sysdService);
-	}
-	return 1;
-}
-
-bool readLanguage(vector<string> settings) {
-	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		return 0;
-	}
-	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
-	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-		setVar(settings[3], lang);
 	}
 	return 1;
 }
