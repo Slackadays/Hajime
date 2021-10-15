@@ -2,7 +2,11 @@
 #include <filesystem>
 #include <cstring>
 #include <string>
+
+#if defined(_win64) || defined (_WIN32)
+#else
 #include <unistd.h>
+#endif
 
 #include "output.h"
 
@@ -53,6 +57,11 @@ void Installer::installNewServerConfigFile(string fileLocation) {
 	outConf.close();
 }
 
+#if defined(_win64) || defined (_WIN32)
+void Installer::installSystemdService(string sysdService) {
+	logObj.out("This feature only works on Linux.", "error");
+}
+#else
 void Installer::installSystemdService(string sysdService) {
 	if (getuid()) {logObj.out("You need to be the root user to install a systemd service", "error");}
 	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
@@ -69,6 +78,7 @@ void Installer::installSystemdService(string sysdService) {
 		logObj.out("Looks like there is no systemd; use another installation option instead.", "error");
 	}
 }
+#endif
 
 void Installer::installDefaultServersFile(string serversFile) {
 	logObj.out("Installing default servers file...", "info");
