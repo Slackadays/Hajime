@@ -9,19 +9,17 @@
 
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
-
 #endif
 
 namespace fs = std::filesystem;
 
 #include "getyn.h"
-#include "output.h"
-#include "installer.h"
 #include "languages.h"
 
 string hajDefaultConfFile = "hajime.conf";
 Text text(hajDefaultConfFile);
-
+#include "output.h"
+#include "installer.h"
 #include "server.h"
 #include "getvarsfromfile.h"
 
@@ -64,8 +62,9 @@ int main(int argc, char *argv[]) {
 			logObj->out(text.help[6]);
 			logObj->out(text.help[7]);
 			logObj->out(text.help[8]);
-			logObj->out(text.help[9], "none", 1);
-			logObj->out(text.help[10]);
+			logObj->out(text.help[9]);
+			logObj->out(text.help[10], "none", 1);
+			logObj->out(text.help[11]); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0;
 		}
 
@@ -119,11 +118,13 @@ int main(int argc, char *argv[]) {
 		} else {
 			logObj->init(logFile);
 		}
-		} else {
+	} else {
 		logObj->out("Config file " + hajDefaultConfFile + " doesn't exist!", "error");
 		logObj->out("Looks like there isn't a Hajime configuation file. Would you like to make one?", "info", 0, 0);
-			if (getYN()) {
+		if (getYN()) {
 			installer.installDefaultHajConfFile(hajDefaultConfFile);
+		} else {
+			return 0;
 		}
 	}
 	vector<Server> serverVec;
@@ -156,5 +157,3 @@ bool readSettings(vector<string> settings) {
 	}
 	return 1;
 }
-
-

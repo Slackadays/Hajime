@@ -1,20 +1,20 @@
+#if defined(_win64) || defined (_WIN32)
+#include <Windows.h>
+#define sleep(int) Sleep(1000 * int) //convert sleep statements to Windows-style
+#else
+#include <unistd.h>
+#include <sys/mount.h>
+#include <sys/types.h>
+#include <signal.h>
+#endif
+#include <iostream>
 #include <filesystem>
 #include <stdlib.h>
 #include <fstream>
-#include <sys/mount.h>
 #include <cstring>
-#include <iostream>
 #include <string>
 #include <errno.h>
 #include <vector>
-
-#if defined(_win64) || defined (_WIN32)
-#else
-#include <unistd.h>
-#endif
-
-#include "output.h"
-#include "getvarsfromfile.h"
 
 using std::shared_ptr;
 using std::string;
@@ -23,6 +23,7 @@ using std::to_string;
 using std::ofstream;
 using std::ios;
 using std::vector;
+using std::cout;
 
 class Server {
 	bool hasOutput, hasOutputUSB, hasMounted = false;
@@ -34,21 +35,24 @@ class Server {
 	shared_ptr<Output> logObj;
 
 	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
-	
+
 	void mountDrive();
 	void makeDir();
-	void startProgram();
+	void startProgram(string method);
 	void readSettings(string confFile, vector<string> settings);
+	int getPID(int pid = 0, string method = "new");
+	vector<string> toArray(string input);
+	auto toPointerArray(vector<string> &strings);
 
-	string file, path, command, confFile, device = "";
-	
-	vector<string> serverConfigParams{"file", "path", "command", "device"};
+	string file, path, command, flags, confFile, device = "";
+	string method = "new";
+
+	vector<string> serverConfigParams{"file", "path", "command", "flags", "method", "device"};
 
 	public:
 		Server(shared_ptr<Output> tempObj);
 		bool isRunning = false;
 		void startServer(string confFile);
-		int getPID();
 };
 
 Server::Server(shared_ptr<Output> tempObj) {
@@ -86,7 +90,7 @@ void Server::startServer(string confFile) {
 			}
 			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
 				logObj->out("Trying to start program", "info");
-				startProgram();
+				startProgram(method);
 				logObj->out("Program start completed", "info");
 			}
 			sleep(2);
@@ -103,12 +107,70 @@ void Server::startServer(string confFile) {
 	}
 }
 
-void Server::startProgram() {
+vector<string> Server::toArray(string input) {
+	vector<string> flagVector;
+	string temp = "";
+	string execFile = path + '/' + file;
+	flagVector.push_back(execFile.c_str());
+	for (int i = 0; i < input.length(); temp = "") {
+    while (input[i] == ' ' && i < input.length()) { //blah
+      i++;
+    }
+		while (input[i] != ' ' && i < input.length()) {
+			temp += input[i];
+			i++;
+		}
+		while (input[i] == ' ' && i < input.length()) {
+			i++;
+		}
+		flagVector.push_back(temp);
+		logObj->out("flagVector[0] in For loop =" + flagVector[0], "debug");
+	}
+	logObj->out("flagVector[0] outside of For loop =" + flagVector[0], "debug");
+	return flagVector;
+}
+
+auto Server::toPointerArray(vector<string> &strings) {
+	vector<char*> pointers;
+	for (auto &string : strings) {
+		pointers.push_back(string.data());
+	}
+	pointers.push_back(nullptr);
+	return pointers;
+}
+
+void Server::startProgram(string method = "new") {
 	if (!isRunning) {
 		logObj->out("Starting server!", "info");
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
-		system(command.c_str()); //convert the command to a c-style string, execute the command
+		if (method == "old") {
+			logObj->out("Using the old method", "debug");
+			int returnVal = system(command.c_str()); //convert the command to a c-style string, execute the command
+		} else if (method == "new") {
+			logObj->out("Using the new method", "debug");
+			#if defined(_WIN64) || defined (_WIN32)
+			ShellExecuteA(NULL, "open", file.c_str(), flags.c_str(), NULL, SW_NORMAL);
+			#else
+			logObj->out("Flags =" + flags, "debug");
+			auto flagTemp = toArray(flags);
+      auto flagArray = toPointerArray(flagTemp);
+			int pid = fork();
+			if (pid == 0) {
+				logObj->out("flagArray[0] =" + (string)flagArray[0], "debug");
+				logObj->out("flagArray[1] =" + (string)flagArray[1], "debug");
+				execv(file.c_str(), flagArray.data());
+			} else {
+				sleep(1);
+				if (getPID() != 0) { //check for the PID of the program we just started
+      		isRunning = true; //isRunning disables a lot of checks
+          hasMounted = true;
+		    }
+			}
+			#endif
+		} else {
+			logObj->out("The method isn't a valid type", "error");
+		}
 		sleep(1);
 		if (getPID() != 0) { //check for the PID of the program we just started
 			isRunning = true; //isRunning disables a lot of checks
@@ -124,14 +186,19 @@ void Server::makeDir() {
 	}
 }
 
+
 void Server::mountDrive() {
+	#if defined(_WIN64) || defined(_WIN32)
+	logObj->out("Drive mounting is only needed on Linux", "info");
+	hasMounted = true;
+	#else
 	logObj->out("Trying to mount", "info");
 	if (!fs::is_empty(path, ec)) { //if there are files, then we don't want to mount there
 		logObj->out("There are files in the path", "error");
 		return;
 	} else {
 		string error;
-		if (mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "") == 0) { //brute-forces every possible filesystem because mount() depends on it being the right one
+		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) { //brute-forces every possible filesystem because mount() depends on it being the right one
 			logObj->out("Device mounted!", "info");
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
@@ -155,7 +222,7 @@ void Server::mountDrive() {
 				case 22: error = text.errnoBadArgs; break;
 				case 19: error = text.errnoUnknownDev; break;
 				default: error = text.errnoUnknownGeneric;
-				}	
+				}
 				if (!hasOutputUSB){
 					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error, "error");
 					hasOutputUSB = true;
@@ -169,30 +236,41 @@ void Server::mountDrive() {
 				systemi++; //increment the filesystem
 			}
 	}
+	#endif
 }
 
 void Server::readSettings(string confFile, vector<string> settings) {
 	vector<string> results = getVarsFromFile(confFile, settings);
-        for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-                auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-                setVar(settings[0], file);
-                setVar(settings[1], path);
-                setVar(settings[2], command);
-		setVar(settings[3], device);
-        }
+    for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+    	auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+        setVar(settings[0], file);
+        setVar(settings[1], path);
+        setVar(settings[2], command);
+	    	setVar(settings[3], flags);
+	    	setVar(settings[4], device);
+    }
 	if (device == "") {
 		logObj->out("No device requested; no mounting this time!", "info");
 		hasMounted = true;
 	}
 }
 
-int Server::getPID() {
+int Server::getPID(int pid, string method) {
 #if defined(_WIN64) || defined(_WIN32)
-	cout << "Testing Windows support!" << endl;
+logObj->out("Testing Windows support!", "warning");
+return 0;
 #else
+if (method == "new") {
+		if (!kill(pid, 0)) {
+			return pid;
+		} else {
+			int errnum = errno;
+			return 0;
+		}
+} else {
 	fs::directory_iterator Directory("/proc/"); //search /proc/
 	fs::directory_iterator End; //a dummy object to compare to
-	for (string dir = ""; Directory != End; Directory++) { 
+	for (string dir = ""; Directory != End; Directory++) {
 		dir = Directory->path(); //assigns a formatted directory string to dir
 		fstream file; //create a file object
 		file.open(dir + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
@@ -207,5 +285,6 @@ int Server::getPID() {
 	file.close(); //erase the file from memory
 	}
 	return 0; //doesn't exist
+}
 #endif
 }
