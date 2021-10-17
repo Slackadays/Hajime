@@ -52,7 +52,7 @@ It's easy to compile Hajime. First, download the files in the [**source**]./sour
 ```
 g++ -std=c++20 -Ofast -o hajime hajime.cpp
 ```
-Hajime requires at least **C++17** to work.
+Hajime requires at least **C++20** to work.
    
 # Using Hajime
 
