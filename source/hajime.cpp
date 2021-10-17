@@ -29,7 +29,7 @@ using std::endl;
 using std::shared_ptr;
 using std::make_shared;
 using std::vector;
-using std::thread;
+using std::jthread;
 
 string defaultServerConfFile = "server0.conf";
 string defaultServersFile = "servers.conf";
@@ -128,11 +128,11 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	vector<Server> serverVec;
-	vector<thread> threadVec;
+	vector<jthread> threadVec;
 	Server server(logObj); //create a template object
 	for (const auto &serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
 		serverVec.push_back(server); //add a copy of server to use
-		threadVec.push_back(thread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		threadVec.push_back(jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 	while(true) {
 		string command;

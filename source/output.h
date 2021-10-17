@@ -3,6 +3,7 @@
 #include <string>
 #include <filesystem>
 #include <thread>
+#include <mutex>
 
 #pragma once //this guards against g++ error "redefinition of class Output"
 
@@ -11,8 +12,10 @@ using std::cout;
 using std::endl;
 using std::ofstream;
 using std::thread;
+using std::mutex;
 
 class Output {
+	mutex outMutex;
 	thread::id main_thread = std::this_thread::get_id();
 	bool logToFile = false;
 	bool debug = true;
@@ -37,13 +40,16 @@ void Output::out(string data, string type = "none", bool keepEndlines = false, b
 	if (!debug && type == "debug") {
 		return;
 	}
+	outMutex.lock();
 	if (!logToFile) {
 		cout << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type);
 		if (endLineAtEnd) {
 			cout << endl;
 		}
+		outMutex.unlock();
 	} else {
 		fileObj << Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type) << endl;
+		outMutex.unlock();
 	}
 }
 

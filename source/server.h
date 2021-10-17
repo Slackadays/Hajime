@@ -1,6 +1,5 @@
 #if defined(_win64) || defined (_WIN32)
 #include <Windows.h>
-#define sleep(int) Sleep(1000 * int) //convert sleep statements to Windows-style
 #else
 #include <unistd.h>
 #include <sys/mount.h>
@@ -15,6 +14,7 @@
 #include <string>
 #include <errno.h>
 #include <vector>
+#include <chrono>
 
 using std::shared_ptr;
 using std::string;
@@ -75,7 +75,7 @@ void Server::startServer(string confFile) {
 			logObj->out("Device: " + device, "info");
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
-				sleep(3);
+				std::this_thread::sleep_for(std::chrono::seconds(3));
 				logObj->out("Program is running!", "info");
 				isRunning = true;
 				hasMounted = true;
@@ -93,7 +93,7 @@ void Server::startServer(string confFile) {
 				startProgram(method);
 				logObj->out("Program start completed", "info");
 			}
-			sleep(2);
+			std::this_thread::sleep_for(std::chrono::seconds(2));
 			if (!fs::is_directory(path, ec)) { //if the desired path doesn't exist, make it
 				makeDir();
 			}
@@ -161,7 +161,7 @@ void Server::startProgram(string method = "new") {
 				logObj->out("flagArray[1] =" + (string)flagArray[1], "debug");
 				execv(file.c_str(), flagArray.data());
 			} else {
-				sleep(1);
+				std::this_thread::sleep_for(std::chrono::seconds(1));
 				if (getPID() != 0) { //check for the PID of the program we just started
       		isRunning = true; //isRunning disables a lot of checks
           hasMounted = true;
@@ -171,7 +171,7 @@ void Server::startProgram(string method = "new") {
 		} else {
 			logObj->out("The method isn't a valid type", "error");
 		}
-		sleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (getPID() != 0) { //check for the PID of the program we just started
 			isRunning = true; //isRunning disables a lot of checks
 			hasMounted = true;
