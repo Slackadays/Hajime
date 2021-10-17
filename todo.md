@@ -2,7 +2,7 @@
 
 Add an interactive installation option
 
-Add multiple langage support
+~~Add multiple langage support~~ DONE
 
 Add compatibility to install.sh for non-apt repos
 
@@ -10,7 +10,7 @@ Add checkers to install.sh for a friendlier experience
 
 Make it a true daemon (to not depend on systemd) by using std::thread
 
-Try to move away from system() to compensate for non-Bash shells
+~~Try to move away from system() to compensate for non-Bash shells~~ DONE
 
 Add a start.sh compatibility option (offer to be middleware for existing scripts or programs that depend on start.sh)
 
@@ -24,7 +24,7 @@ Add compatibility for sysVinit
 
 ~~Add one-step installation from command line (curl, wget?)~~ DONE: see command in readme
 
-Add multi-server support with multithreading (tricky, requires dynamic allocation of objects)
+~~Add multi-server support with multithreading (tricky, requires dynamic allocation of objects)~~ DONE
 
 Add bStats support (create a dummy Java file just for bStats and run it upon startup)
 
