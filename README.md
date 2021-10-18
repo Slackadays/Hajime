@@ -1,4 +1,5 @@
-# Hajime
+# Hajime 
+<img src="HJ.png" alt="Hajime logo" width="100"/>
 A fully-featured Minecraft server startup script suite that offers a friendly user interface, blazing fast speeds, and wide compatibility.
 
 # Discord
