@@ -1,5 +1,5 @@
 # Hajime
-A fast and fully-featured Minecraft server startup script suite.
+A fully-featured Minecraft server startup script suite that offers a friendly user interface, blazing fast speeds, and wide compatibility.
 
 # Discord
 For discussion, rapid support, development updates, and announcements about Hajime, join our Discord at https://discord.gg/J6asnc3pEG.
@@ -25,6 +25,7 @@ Most other startup scripts are either bare-bones shell scripts or systemd servic
 - Many customizable log messages to see what exactly happened.
 - Help and support available in our Discord server.
 - Can be compiled for every installation to suit every server's capabilities.
+- Uses memory-safe modern C++ features and true cross-platform compatibility.
 
 ## Requirements
 There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and its compilation path, your platform will need to support the git and g++ packages.
