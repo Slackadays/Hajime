@@ -2,7 +2,15 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+
+#if __cplusplus > 201703L
 #include <filesystem>
+namespace fs = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#endif
+
 #include <fstream>
 #include <memory>
 #include <thread>
@@ -10,8 +18,6 @@
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #endif
-
-namespace fs = std::filesystem;
 
 #include "getyn.h"
 #include "languages.h"
@@ -128,11 +134,19 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	vector<Server> serverVec;
-	vector<jthread> threadVec;
+	#if __cplusplus > 201703L
+	vector<std::jthread> threadVec;
+	#else
+	vector<std::thread> threadVec;
+	#endif
 	Server server(logObj); //create a template object
 	for (const auto &serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
 		serverVec.push_back(server); //add a copy of server to use
-		threadVec.push_back(jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		#if __cplusplus > 201703L
+		threadVec.push_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		#else
+		threadVec.push_back(std::thread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		#endif
 	}
 	while(true) {
 		string command;
