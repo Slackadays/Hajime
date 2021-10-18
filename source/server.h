@@ -198,7 +198,13 @@ void Server::mountDrive() {
 		return;
 	} else {
 		string error;
+		#if defined(OSTYPE)
+			#if OSTYPE==FreeBSD
+			if (!mount(systems[systemi].c_str(), path.c_str(), 0, const_cast<char*>(device.c_str()))) {
+			#endif
+		#else
 		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) { //brute-forces every possible filesystem because mount() depends on it being the right one
+		#endif
 			logObj->out("Device mounted!", "info");
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
