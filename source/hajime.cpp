@@ -3,7 +3,7 @@
 #include <cstring>
 #include <string>
 
-#if __cplusplus > 201703L
+#if __cplusplus > 201703L //implementations older than C++20 often have the filesystem library in the experimental category
 #include <filesystem>
 namespace fs = std::filesystem;
 #else
@@ -15,7 +15,7 @@ namespace fs = std::experimental::filesystem;
 #include <memory>
 #include <thread>
 
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
 #endif
 
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	vector<Server> serverVec;
-	#if __cplusplus > 201703L
+	#if __cplusplus > 201703L //jthreads are only in C++20 and up
 	vector<std::jthread> threadVec;
 	#else
 	vector<std::thread> threadVec;
