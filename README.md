@@ -20,7 +20,7 @@ Most other startup scripts are either bare-bones shell scripts or systemd servic
 - 100% FLOSS with the LGPL license!
 - Easy installation (full installation wizard coming soon).
 - Multiple server support through multithreading.
-- Works on most Linux, Windows, and FreeBSD (and soon Mac) systems.
+- Compiles and works on most Linux, Windows, FreeBSD, and OpenBSD (and soon Mac) systems. Hajime currently does not compile on NetBSD, but binaries may run.
 - Configure every setting exactly how you want it.
 - Many customizable log messages to see what exactly happened.
 - Help and support available in our Discord server.
