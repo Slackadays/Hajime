@@ -6,8 +6,8 @@
 #include <sys/types.h>
 #include <signal.h>
 #endif
+
 #include <iostream>
-#include <filesystem>
 #include <stdlib.h>
 #include <fstream>
 #include <cstring>
@@ -154,7 +154,7 @@ void Server::startProgram(string method = "new") {
 			#else
 			logObj->out("Flags =" + flags, "debug");
 			auto flagTemp = toArray(flags);
-      auto flagArray = toPointerArray(flagTemp);
+     			auto flagArray = toPointerArray(flagTemp);
 			int pid = fork();
 			if (pid == 0) {
 				logObj->out("flagArray[0] =" + (string)flagArray[0], "debug");
@@ -188,7 +188,7 @@ void Server::makeDir() {
 
 
 void Server::mountDrive() {
-	#if defined(_WIN64) || defined(_WIN32)
+	#if defined(_WIN64) || defined(_WIN32) //Windows doesn't need drives to be mounted manually
 	logObj->out("Drive mounting is only needed on Linux", "info");
 	hasMounted = true;
 	#else
@@ -198,7 +198,7 @@ void Server::mountDrive() {
 		return;
 	} else {
 		string error;
-		#if defined(__FreeBSD__) || defined(__OpenBSD__)
+		#if defined(__FreeBSD__) || defined(__OpenBSD__) //BSDs have different mount() parameters
 		if (!mount(systems[systemi].c_str(), path.c_str(), 0, const_cast<char*>(device.c_str()))) {
 		#else
 		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) { //brute-forces every possible filesystem because mount() depends on it being the right one
