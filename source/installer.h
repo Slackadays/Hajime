@@ -49,8 +49,8 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
 
 void Installer::installNewServerConfigFile(string fileLocation) {
 	ofstream outConf(fileLocation);
-	outConf << "file=FILE" << endl << "path=PATH-TO-DEVICE" << endl << "command=COMMAND" << endl << "flags=FLAGS" << endl << "debug=1" << endl << "device=DEVICE" << endl;
-	outConf << "#" << endl << "This is the comment section. Anything after the # is a comment. \nThe first line is the file of the server that needs to be executed. The second line is the path to the device." << endl;
+	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=FLAGS" << endl << "debug=1" << endl << "device=" << endl;
+	outConf << "# Anything after a # is a comment." << endl;
 	cout << "The config file (" << fileLocation << ") has been created and is now ready for your settings." << endl;
 	outConf.close();
 }
