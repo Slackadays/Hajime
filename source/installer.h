@@ -64,7 +64,6 @@ void Installer::installNewServerConfigFile(string fileLocation) {
 void Installer::installStartupService(string sysService) {
 	logObj.out("Installing Windows startup service", Info);
 	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\Hajime.exe";
-	cout << command << endl;
 	int result = system(command.c_str());
 	if (!IsUserAnAdmin()) {
 		logObj.out("You need to run Hajime as the administrator to install a startup service.", Error);
