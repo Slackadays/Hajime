@@ -73,12 +73,12 @@ void Installer::installStartupService(string sysService) {
 #else
 void Installer::installStartupService(string sysService) {
 	if (getuid()) {logObj.out("You need to be the root user to install a systemd service", Error);}
-	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
+	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysService)) {
 		logObj.out("Found an existing systemd service", Warning);
 	}
-	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysdService)) {
+	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
 		logObj.out("Making systemd service...", Info);
-		ofstream service(sysdService);
+		ofstream service(sysService);
 		service << "[Unit]" << endl << "Description=Starts Hajime" << endl;
 		service << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 		service.close();
