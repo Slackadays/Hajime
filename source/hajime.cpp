@@ -35,7 +35,6 @@ using std::endl;
 using std::shared_ptr;
 using std::make_shared;
 using std::vector;
-using std::jthread;
 
 string defaultServerConfFile = "server0.conf";
 string defaultServersFile = "servers.conf";
