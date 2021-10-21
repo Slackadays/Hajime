@@ -68,15 +68,15 @@ int main(int argc, char *argv[]) {
 			logObj->out(text.help[7]);
 			logObj->out(text.help[8]);
 			logObj->out(text.help[9]);
-			logObj->out(text.help[10], "none", 1);
+			logObj->out(text.help[10], None, 1);
 			logObj->out(text.help[11]); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0;
 		}
 
 	}
 	if (!readSettings(hajimeConfParams)) {
-		logObj->out("Default Hajime config file not found", "error");
-		logObj->out("Would you like to make it now?", "info", 0, 0);
+		logObj->out("Default Hajime config file not found", Error);
+		logObj->out("Would you like to make it now?", Info, 0, 0);
 		if (getYN()) {
 			installer.installDefaultHajConfFile(hajDefaultConfFile);
 		}
@@ -86,13 +86,13 @@ int main(int argc, char *argv[]) {
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
 		if (flag("-f", "--server-file")) {
 		       	if (!assignNextToVar(defaultServerConfFile)) {
-				logObj->out("Not enough arguments provided", "error");
+				logObj->out("Not enough arguments provided", Error);
 				return 0;
 			}
 		}
 		if (flag("-hf", "--hajime-file")) {
 			if (!assignNextToVar(hajDefaultConfFile)) {
-				logObj->out("Not enough arguments provided", "error");
+				logObj->out("Not enough arguments provided", Error);
 				return 0;
 			}
 		}
@@ -119,13 +119,13 @@ int main(int argc, char *argv[]) {
  	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings(hajimeConfParams);
 		if (logFile == "") {
-			logObj->out("No log file to be made; sending messages to console.", "info");
+			logObj->out("No log file to be made; sending messages to console.", Info);
 		} else {
 			logObj->init(logFile);
 		}
 	} else {
-		logObj->out("Config file " + hajDefaultConfFile + " doesn't exist!", "error");
-		logObj->out("Looks like there isn't a Hajime configuation file. Would you like to make one?", "info", 0, 0);
+		logObj->out("Config file " + hajDefaultConfFile + " doesn't exist!", Error);
+		logObj->out("Looks like there isn't a Hajime configuation file. Would you like to make one?", Info, 0, 0);
 		if (getYN()) {
 			installer.installDefaultHajConfFile(hajDefaultConfFile);
 		} else {

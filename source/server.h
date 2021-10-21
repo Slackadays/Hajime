@@ -62,36 +62,36 @@ Server::Server(shared_ptr<Output> tempObj) {
 void Server::startServer(string confFile) {
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
-			logObj->out("Reading server settings...", "info");
+			logObj->out("Reading server settings...", Info);
 			readSettings(confFile, serverConfigParams);
 		} else {
-			logObj->out("The server's config file (" + confFile + ") doesn't exist", "error");
+			logObj->out("The server's config file (" + confFile + ") doesn't exist", Error);
 			return;
 		}
-			logObj->out("Server file: " + file, "info");
-			logObj->out("Server path: " + path, "info");
-			logObj->out("Server command: " + command, "info");
+			logObj->out("Server file: " + file, Info);
+			logObj->out("Server path: " + path, Info);
+			logObj->out("Server command: " + command, Info);
 			//logObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-			logObj->out("Device: " + device, "info");
+			logObj->out("Device: " + device, Info);
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				std::this_thread::sleep_for(std::chrono::seconds(3));
-				logObj->out("Program is running!", "info");
+				logObj->out("Program is running!", Info);
 				isRunning = true;
 				hasMounted = true;
 			} else {
 				isRunning = false;
-				logObj->out("isRunning is now false", "warning");
+				logObj->out("isRunning is now false", Warning);
 			}
 			try {
 				fs::current_path(path);
 			} catch(...) {
-				logObj->out("Couldn't set the path.", "error");
+				logObj->out("Couldn't set the path.", Error);
 			}
 			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
-				logObj->out("Trying to start program", "info");
+				logObj->out("Trying to start program", Info);
 				startProgram(method);
-				logObj->out("Program start completed", "info");
+				logObj->out("Program start completed", Info);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
 			if (!fs::is_directory(path, ec)) { //if the desired path doesn't exist, make it
@@ -103,7 +103,7 @@ void Server::startServer(string confFile) {
 			}
 		}
 	} catch(...) { //error handling
-		logObj->out("Whoops! An unknown error occurred.", "error");
+		logObj->out("Whoops! An unknown error occurred.", Error);
 	}
 }
 
@@ -124,9 +124,9 @@ vector<string> Server::toArray(string input) {
 			i++;
 		}
 		flagVector.push_back(temp);
-		logObj->out("flagVector[0] in For loop =" + flagVector[0], "debug");
+		logObj->out("flagVector[0] in For loop =" + flagVector[0], Debug);
 	}
-	logObj->out("flagVector[0] outside of For loop =" + flagVector[0], "debug");
+	logObj->out("flagVector[0] outside of For loop =" + flagVector[0], Debug);
 	return flagVector;
 }
 
@@ -141,24 +141,24 @@ auto Server::toPointerArray(vector<string> &strings) {
 
 void Server::startProgram(string method = "new") {
 	if (!isRunning) {
-		logObj->out("Starting server!", "info");
+		logObj->out("Starting server!", Info);
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
 		if (method == "old") {
-			logObj->out("Using the old method", "debug");
+			logObj->out("Using the old method", Debug);
 			int returnVal = system(command.c_str()); //convert the command to a c-style string, execute the command
 		} else if (method == "new") {
-			logObj->out("Using the new method", "debug");
+			logObj->out("Using the new method", Debug);
 			#if defined(_WIN64) || defined (_WIN32)
 			ShellExecuteA(NULL, "open", file.c_str(), flags.c_str(), NULL, SW_NORMAL);
 			#else
-			logObj->out("Flags =" + flags, "debug");
+			logObj->out("Flags =" + flags, Debug);
 			auto flagTemp = toArray(flags);
      			auto flagArray = toPointerArray(flagTemp);
 			int pid = fork();
 			if (pid == 0) {
-				logObj->out("flagArray[0] =" + (string)flagArray[0], "debug");
-				logObj->out("flagArray[1] =" + (string)flagArray[1], "debug");
+				logObj->out("flagArray[0] =" + (string)flagArray[0], Debug);
+				logObj->out("flagArray[1] =" + (string)flagArray[1], Debug);
 				execv(file.c_str(), flagArray.data());
 			} else {
 				std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -169,7 +169,7 @@ void Server::startProgram(string method = "new") {
 			}
 			#endif
 		} else {
-			logObj->out("The method isn't a valid type", "error");
+			logObj->out("The method isn't a valid type", Error);
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (getPID() != 0) { //check for the PID of the program we just started
@@ -182,19 +182,19 @@ void Server::startProgram(string method = "new") {
 void Server::makeDir() {
 	logObj->out("No directory!");
 	if (!fs::create_directory(path, ec)) {
-		logObj->out("Error creating directory!", "error");
+		logObj->out("Error creating directory!", Error);
 	}
 }
 
 
 void Server::mountDrive() {
 	#if defined(_WIN64) || defined(_WIN32) //Windows doesn't need drives to be mounted manually
-	logObj->out("Drive mounting is only needed on Linux", "info");
+	logObj->out("Drive mounting is only needed on Linux", Info);
 	hasMounted = true;
 	#else
-	logObj->out("Trying to mount", "info");
+	logObj->out("Trying to mount", Info);
 	if (!fs::is_empty(path, ec)) { //if there are files, then we don't want to mount there
-		logObj->out("There are files in the path", "error");
+		logObj->out("There are files in the path", Error);
 		return;
 	} else {
 		string error;
@@ -203,7 +203,7 @@ void Server::mountDrive() {
 		#else
 		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) { //brute-forces every possible filesystem because mount() depends on it being the right one
 		#endif
-			logObj->out("Device mounted!", "info");
+			logObj->out("Device mounted!", Info);
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
 		} else {
@@ -228,15 +228,15 @@ void Server::mountDrive() {
 				default: error = text.errnoUnknownGeneric;
 				}
 				if (!hasOutputUSB){
-					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error, "error");
+					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error, Error);
 					hasOutputUSB = true;
 					systemi = 0;
 				}
-				logObj->out("Error code: " + to_string(errsv), "error");
+				logObj->out("Error code: " + to_string(errsv), Error);
 				}
 			}
 			if (systemi < 6) {
-				logObj->out("Trying " + systems[systemi] + " filesystem", "info");
+				logObj->out("Trying " + systems[systemi] + " filesystem", Info);
 				systemi++; //increment the filesystem
 			}
 	}
@@ -254,14 +254,14 @@ void Server::readSettings(string confFile, vector<string> settings) {
 	    	setVar(settings[4], device);
     }
 	if (device == "") {
-		logObj->out("No device requested; no mounting this time!", "info");
+		logObj->out("No device requested; no mounting this time!", Info);
 		hasMounted = true;
 	}
 }
 
 int Server::getPID(int pid, string method) {
 #if defined(_WIN64) || defined(_WIN32)
-logObj->out("Testing Windows support!", "warning");
+logObj->out("Testing Windows support!", Warning);
 return 0;
 #else
 if (method == "new") {
