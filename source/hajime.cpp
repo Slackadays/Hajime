@@ -17,6 +17,7 @@ namespace fs = std::experimental::filesystem;
 
 #if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
+
 #endif
 
 #include "getyn.h"
@@ -49,7 +50,8 @@ shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
 
 
 int main(int argc, char *argv[]) {
-	#if defined(_win64) || defined (_WIN32)
+	#if defined(_WIN64) || defined (_WIN32)
+
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
@@ -111,8 +113,8 @@ int main(int argc, char *argv[]) {
 			installer.installDefaultServerConfFile(defaultServerConfFile);
 			return 0;
 		}
-		if (flag("-S", "--install-systemd")) {
-			installer.installSystemdService(sysdService);
+		if (flag("-S", "--install-service")) {
+			installer.installStartupService(sysdService);
 			return 0;
 		}
 	}

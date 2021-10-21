@@ -4,6 +4,8 @@
 #include <string>
 
 #if defined(_win64) || defined (_WIN32)
+#include <Windows.h>
+#include <shlobj_core.h>
 #else
 #include <unistd.h>
 #endif
@@ -15,7 +17,7 @@ class Installer {
 	Output logObj;
 	void installNewServerConfigFile(string fileLocation);
 	public:
-		void installSystemdService(string sysdService);
+		void installStartupService(string sysService);
 		void installDefaultHajConfFile(string fileLocation);
 		void installDefaultServerConfFile(string conf);
 		void installDefaultServersFile(string serversFile);
@@ -59,11 +61,18 @@ void Installer::installNewServerConfigFile(string fileLocation) {
 }
 
 #if defined(_win64) || defined (_WIN32)
-void Installer::installSystemdService(string sysdService) {
-	logObj.out("This feature only works on Linux", Error);
+void Installer::installStartupService(string sysService) {
+	logObj.out("Installing Windows startup service", Info);
+	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\Hajime.exe";
+	cout << command << endl;
+	int result = system(command.c_str());
+	if (!IsUserAnAdmin()) {
+		logObj.out("You need to run Hajime as the administrator to install a startup service.", Error);
+		logObj.out("Tip: Right click the terminal icon and then click \"Run as administrator\"", Info);
+	}
 }
 #else
-void Installer::installSystemdService(string sysdService) {
+void Installer::installStartupService(string sysService) {
 	if (getuid()) {logObj.out("You need to be the root user to install a systemd service", Error);}
 	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
 		logObj.out("Found an existing systemd service", Warning);
