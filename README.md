@@ -3,7 +3,7 @@
 A fully-featured Minecraft server startup script suite that offers a friendly user interface, blazing fast speeds, and wide compatibility.
 
 # Discord
-For discussion, rapid support, development updates, and announcements about Hajime, join our Discord at https://discord.gg/J6asnc3pEG.
+For discussion and development updates about Hajime, join our Discord at https://discord.gg/J6asnc3pEG!
 
 # Quick Installation
 Use this command to install Hajime in one step. It will download and automagically compile the latest version available on GitHub.
