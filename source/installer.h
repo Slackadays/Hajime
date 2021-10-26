@@ -60,10 +60,11 @@ void Installer::installNewServerConfigFile(string fileLocation) {
 	outConf.close();
 }
 
-#if defined(_win64) || defined (_WIN32)
+#if defined(_WIN64) || defined (_WIN32)
 void Installer::installStartupService(string sysService) {
 	logObj.out("Installing Windows startup service", Info);
 	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\Hajime.exe";
+	cout << command << endl;
 	int result = system(command.c_str());
 	if (!IsUserAnAdmin()) {
 		logObj.out("You need to run Hajime as the administrator to install a startup service.", Error);
@@ -73,12 +74,12 @@ void Installer::installStartupService(string sysService) {
 #else
 void Installer::installStartupService(string sysService) {
 	if (getuid()) {logObj.out("You need to be the root user to install a systemd service", Error);}
-	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysService)) {
+	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
 		logObj.out("Found an existing systemd service", Warning);
 	}
-	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
+	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysdService)) {
 		logObj.out("Making systemd service...", Info);
-		ofstream service(sysService);
+		ofstream service(sysdService);
 		service << "[Unit]" << endl << "Description=Starts Hajime" << endl;
 		service << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 		service.close();

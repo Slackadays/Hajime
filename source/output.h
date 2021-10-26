@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <algorithm>
+#include <regex>
 
 using std::string;
 using std::ofstream;
@@ -21,11 +22,12 @@ class Output {
 	string logFilename;
 	ofstream fileObj;
 	string removeEndlines(string input, bool keepEndlines);
-	string addColorsByType(string data, Type type);
+	string addPrefixByType(string data, Type type);
 	public:
 		void out(string data, Type type, bool keepEndlines, bool endLineAtEnd);
 		void init(string file, bool debugOrNot);
 		void end();
+		bool noColors = false;
 };
 
 void Output::init(string file, bool debugOrNot = true) {
@@ -39,7 +41,10 @@ void Output::out(string data, Type type = None, bool keepEndlines = false, bool 
 	if (!debug && type == Debug) {
 		return;
 	}
-	string outputString = Output::addColorsByType(Output::removeEndlines(data, keepEndlines), type);
+	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
+	if (noColors) {
+		outputString = std::regex_replace(outputString, std::regex("(\033\\[(.|..)m)|(\033\\[1;(.|..)m)"), "");
+	}
 	if (!logToFile) {
 		std::lock_guard<std::mutex> lock(outMutex);
 		std::cout << outputString;
@@ -65,7 +70,7 @@ string Output::removeEndlines(string input, bool keepEndlines = false){
 	return input;
 }
 
-string Output::addColorsByType(string input = "", Type type = None){
+string Output::addPrefixByType(string input = "", Type type = None){
 	string prefix = "";
 	if (type == None){return input;} //None is if you want to preserve input
 	if (type == Info){prefix = text.prefixInfo;} //cyan background
