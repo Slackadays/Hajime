@@ -54,11 +54,10 @@ int main(int argc, char *argv[]) {
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
 	if (!SetConsoleMode(hOut, (dwMode += ENABLE_VIRTUAL_TERMINAL_PROCESSING))) {
-
+		logObj->noColors = true;
 	}
-	logObj->noColors = true;
 	#endif
-	Installer installer;
+	Installer installer(logObj);
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		if (flag("-h", "--help")) { //-h = --help = help
