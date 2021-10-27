@@ -25,6 +25,7 @@ class Output {
 	string addPrefixByType(string data, Type type);
 	public:
 		void out(string data, Type type, bool keepEndlines, bool endLineAtEnd);
+		bool getYN(string prompt);
 		void init(string file, bool debugOrNot);
 		void end();
 		bool noColors = false;
@@ -43,7 +44,7 @@ void Output::out(string data, Type type = None, bool keepEndlines = false, bool 
 	}
 	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
 	if (noColors) {
-		outputString = std::regex_replace(outputString, std::regex("(\033\\[(.|..)m)|(\033\\[1;(.|..)m)"), "");
+		outputString = std::regex_replace(outputString, std::regex("(\033\\[([0-9]|[0-9][0-9]|[0-9][0-9][0-9])m)"), ""); //I hate this
 	}
 	if (!logToFile) {
 		std::lock_guard<std::mutex> lock(outMutex);
@@ -54,6 +55,22 @@ void Output::out(string data, Type type = None, bool keepEndlines = false, bool 
 	} else {
 		std::lock_guard<std::mutex> lock(outMutex);
 		fileObj << outputString << std::endl;
+	}
+}
+
+bool Output::getYN(string prompt = "[y/n]") {
+	string response = "";
+	if (prompt != "") {
+		prompt = " " + prompt + " ";
+	}
+	this->out("\033[1m" + prompt, None, 0, 0);
+	std::cin >> response;
+	this->out("\033[0m", None, 0, 0);
+	if (response == "y" || response == "Y" || response == "yes" || response == "Yes" || response == "YES" || response == "YEs") {
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 

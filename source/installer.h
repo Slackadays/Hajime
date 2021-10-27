@@ -28,7 +28,7 @@ void Installer::installDefaultServerConfFile(string conf) {
 	if (fs::is_regular_file(conf)){
 		logObj.out("The file is already here! To make a new one, delete the existing file.", Warning);
 		logObj.out("Would you like to create a new configuration file anyway?", Info, 0, 0); // don't keep endlines, don't add endline
-		if (getYN()) {
+		if (logObj.getYN()) {
 			logObj.out("Installing a new server config file...", Info);
 			Installer::installNewServerConfigFile(conf);
 		}
@@ -60,8 +60,9 @@ void Installer::installNewServerConfigFile(string fileLocation) {
 	outConf.close();
 }
 
-#if defined(_WIN64) || defined (_WIN32)
+
 void Installer::installStartupService(string sysService) {
+	#if defined(_WIN64) || defined (_WIN32)
 	logObj.out("Installing Windows startup service", Info);
 	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\Hajime.exe";
 	cout << command << endl;
@@ -70,16 +71,14 @@ void Installer::installStartupService(string sysService) {
 		logObj.out("You need to run Hajime as the administrator to install a startup service.", Error);
 		logObj.out("Tip: Right click the terminal icon and then click \"Run as administrator\"", Info);
 	}
-}
-#else
-void Installer::installStartupService(string sysService) {
+	#else
 	if (getuid()) {logObj.out("You need to be the root user to install a systemd service", Error);}
-	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysdService)) {
+	if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysService)) {
 		logObj.out("Found an existing systemd service", Warning);
 	}
-	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysdService)) {
+	if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
 		logObj.out("Making systemd service...", Info);
-		ofstream service(sysdService);
+		ofstream service(sysService);
 		service << "[Unit]" << endl << "Description=Starts Hajime" << endl;
 		service << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 		service.close();
@@ -87,8 +86,9 @@ void Installer::installStartupService(string sysService) {
 	if (!fs::is_directory("/etc/systemd")) {
 		logObj.out("Looks like there is no systemd; use another installation option instead.", Error);
 	}
+	#endif
 }
-#endif
+
 
 void Installer::installDefaultServersFile(string serversFile) {
 	logObj.out("Installing default servers file...", Info);

@@ -20,7 +20,6 @@ namespace fs = std::experimental::filesystem;
 
 #endif
 
-#include "getyn.h"
 #include "languages.h"
 
 string hajDefaultConfFile = "hajime.conf";
@@ -81,7 +80,7 @@ int main(int argc, char *argv[]) {
 	if (!readSettings(hajimeConfParams)) {
 		logObj->out("Default Hajime config file not found", Error);
 		logObj->out("Would you like to make it now?", Info, 0, 0);
-		if (getYN()) {
+		if (logObj->getYN()) {
 			installer.installDefaultHajConfFile(hajDefaultConfFile);
 		}
 	}
@@ -130,7 +129,7 @@ int main(int argc, char *argv[]) {
 	} else {
 		logObj->out("Config file " + hajDefaultConfFile + " doesn't exist!", Error);
 		logObj->out("Looks like there isn't a Hajime configuation file. Would you like to make one?", Info, 0, 0);
-		if (getYN()) {
+		if (logObj->getYN()) {
 			installer.installDefaultHajConfFile(hajDefaultConfFile);
 		} else {
 			return 0;
