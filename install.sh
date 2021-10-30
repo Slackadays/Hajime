@@ -12,8 +12,8 @@ then
         pkg upgrade
 else
         echo "Linux detected"
-        sudo apt update && sudo apt install -y g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
-        sudo apt upgrade
+        sudo apt update && sudo apt -y install -y g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
+        sudo apt -y upgrade
 fi
 echo "\033[1mDownloading...\033[0m"
 git clone https://github.com/Slackadays/Hajime
