@@ -11,20 +11,19 @@
 using std::string;
 using std::ofstream;
 
-enum Type {None, Info, Error, Warning, Debug};
+enum outType {None, Info, Error, Warning, Debug, Question};
 
 class Output {
 	std::mutex outMutex;
-	std::mutex endMutex;
 	std::thread::id main_thread = std::this_thread::get_id();
 	bool logToFile = false;
 	bool debug = true;
 	string logFilename;
 	ofstream fileObj;
 	string removeEndlines(string input, bool keepEndlines);
-	string addPrefixByType(string data, Type type);
+	string addPrefixByType(string data, outType type);
 	public:
-		void out(string data, Type type, bool keepEndlines, bool endLineAtEnd);
+		void out(string data, outType type, bool keepEndlines, bool endLineAtEnd);
 		bool getYN(string prompt);
 		void init(string file, bool debugOrNot);
 		void end();
@@ -38,13 +37,13 @@ void Output::init(string file, bool debugOrNot = true) {
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 
-void Output::out(string data, Type type = None, bool keepEndlines = false, bool endLineAtEnd = true) {
+void Output::out(string data, outType type = None, bool keepEndlines = false, bool endLineAtEnd = true) {
 	if (!debug && type == Debug) {
 		return;
 	}
 	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
 	if (noColors) {
-		outputString = std::regex_replace(outputString, std::regex("\\\033\\[\\d*m", std::regex_constants::optimize), ""); //I hate this
+		outputString = std::regex_replace(outputString, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 	}
 	if (!logToFile) {
 		std::lock_guard<std::mutex> lock(outMutex);
@@ -75,7 +74,7 @@ bool Output::getYN(string prompt = "[y/n]") {
 }
 
 void Output::end(){
-	std::lock_guard<std::mutex> lock(endMutex);
+	std::lock_guard<std::mutex> lock(outMutex);
 	fileObj.close();
 	logToFile = false;
 }
@@ -87,13 +86,34 @@ string Output::removeEndlines(string input, bool keepEndlines = false){
 	return input;
 }
 
-string Output::addPrefixByType(string input = "", Type type = None){
+string Output::addPrefixByType(string input = "", outType type = None){
 	string prefix = "";
-	if (type == None){return input;} //None is if you want to preserve input
-	if (type == Info){prefix = text.prefixInfo;} //cyan background
-	if (type == Error){prefix = text.prefixError;} //red background, yellow text
-	if (type == Warning){prefix = text.prefixWarning;} //yellow text
-	if ((type == Debug) && debug){prefix = text.prefixDebug;} //magenta background
-	if (main_thread == std::this_thread::get_id()) {prefix += "| Main ]\033[0m ";} else {prefix += "| Worker ]\033[0m ";}
+	switch (type) {
+		case None:
+			return input; //None is if you want to preserve input
+			break;
+		case Info:
+			prefix = text.prefixInfo; //cyan background
+			break;
+		case Error:
+			prefix = text.prefixError; //red background, yellow text
+			break;
+		case Warning:
+			prefix = text.prefixWarning; //yellow text
+			break;
+		case Question:
+			prefix = text.prefixQuestion; //green background
+			break;
+		case Debug:
+			if (debug) {
+				prefix = text.prefixDebug;
+			} //magenta background
+			break;
+		default:
+			break;
+	}
+	if (main_thread == std::this_thread::get_id()) {
+		prefix += "| Main]\033[0m ";} else {prefix += "| Worker]\033[0m ";
+	}
 	return (prefix + input);
 }

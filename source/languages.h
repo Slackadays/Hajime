@@ -29,6 +29,7 @@ class Text {
 		string prefixError;
 		string prefixWarning;
 		string prefixDebug;
+		string prefixQuestion;
 };
 
 void Text::applyLang(string lang) {
@@ -62,6 +63,11 @@ void Text::applyLang(string lang) {
 		prefixError = "\033[41m\033[33m[Error ";
 		prefixWarning = "\033[33m[Warning ";
 		prefixDebug = "\033[105m[Debug ";
+		#if defined(_WIN64) || defined (_WIN32)
+		prefixQuestion = "\033[102m[Question "; //Windows doesn't support 24 bit terminal colors
+		#else
+		prefixQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[Question ";
+		#endif
 	}
 }
 

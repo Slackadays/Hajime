@@ -47,7 +47,6 @@ bool readSettings(vector<string> settings);
 
 shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
 
-
 int main(int argc, char *argv[]) {
 	#if defined(_WIN64) || defined (_WIN32)
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
