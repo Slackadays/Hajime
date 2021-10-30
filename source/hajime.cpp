@@ -1,8 +1,4 @@
 // (c) 2021 Slackadays on GitHub
-#include <iostream>
-#include <cstring>
-#include <string>
-
 #if __cplusplus > 201703L //implementations older than C++20 often have the filesystem library in the experimental category
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -10,20 +6,21 @@ namespace fs = std::filesystem;
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 #endif
-
+#if defined(_WIN64) || defined(_WIN32) //Windows compatibility
+#include <Windows.h>
+#endif
 #include <fstream>
 #include <memory>
 #include <thread>
-
-#if defined(_WIN64) || defined(_WIN32) //Windows compatibility
-#include <Windows.h>
-
-#endif
+#include <iostream>
+#include <cstring>
+#include <string>
 
 #include "languages.h"
 
 string hajDefaultConfFile = "hajime.conf";
 Text text(hajDefaultConfFile);
+
 #include "output.h"
 #include "installer.h"
 #include "server.h"
@@ -37,11 +34,12 @@ using std::make_shared;
 using std::vector;
 
 string defaultServerConfFile = "server0.conf";
-string defaultServersFile = "servers.conf";
-string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
+string defaultServersFile = "";
+string sysdService = ""; //systemd service file location
+string optFlags = "";
 string logFile = "";
 
-vector<string> hajimeConfParams{"serversfile", "logfile", "systemdlocation"};
+vector<string> hajimeConfParams{"serversfile", "defserverconf", "logfile", "systemdlocation", "optflags"};
 
 bool readSettings(vector<string> settings);
 
@@ -61,7 +59,7 @@ int main(int argc, char *argv[]) {
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		if (flag("-h", "--help")) { //-h = --help = help
 			logObj->out(text.help[0]);
-			logObj->out(text.help[1] + (string)argv[0] + text.help[2]);
+			logObj->out(text.help[1] + (string)argv[0] + text.help[2]); //show example of hajime and include its executed file
 			logObj->out(text.help[3]);
 			logObj->out(text.help[4]);
 			logObj->out(text.help[5]);
@@ -73,11 +71,10 @@ int main(int argc, char *argv[]) {
 			logObj->out(text.help[11]); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0;
 		}
-
 	}
 	if (!readSettings(hajimeConfParams)) {
-		logObj->out("Default Hajime config file not found", Error);
-		logObj->out("Would you like to make it now?", Info, 0, 0);
+		logObj->out(text.errorNoHajimeConfig, Error);
+		logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
 		if (logObj->getYN()) {
 			installer.installDefaultHajConfFile(hajDefaultConfFile);
 		}
@@ -86,8 +83,8 @@ int main(int argc, char *argv[]) {
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
 		if (flag("-f", "--server-file")) {
-		       	if (!assignNextToVar(defaultServerConfFile)) {
-				logObj->out("Not enough arguments provided", Error);
+		  if (!assignNextToVar(defaultServerConfFile)) {
+				logObj->out(text.errorNotEnoughArgs, Error);
 				return 0;
 			}
 		}
@@ -125,8 +122,8 @@ int main(int argc, char *argv[]) {
 			logObj->init(logFile);
 		}
 	} else {
-		logObj->out("Config file " + hajDefaultConfFile + " doesn't exist!", Error);
-		logObj->out("Looks like there isn't a Hajime configuation file. Would you like to make one?", Info, 0, 0);
+		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
+		logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
 		if (logObj->getYN()) {
 			installer.installDefaultHajConfFile(hajDefaultConfFile);
 		} else {
@@ -161,13 +158,18 @@ int main(int argc, char *argv[]) {
 bool readSettings(vector<string> settings) {
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		return 0;
+		logObj->out("Tried to read settings from " + hajDefaultConfFile + " but it doesn't exist", Debug);
 	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
-	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+		logObj->out("Reading settings at readSettings()", Debug);
 		setVar(settings[0], defaultServersFile);
-		setVar(settings[1], logFile);
-		setVar(settings[2], sysdService);
+		setVar(settings[1], defaultServerConfFile);
+		setVar(settings[2], logFile);
+		setVar(settings[3], sysdService);
+		setVar(settings[4], optFlags);
 	}
 	return 1;
+	logObj->out("Successfully read settings from " + hajDefaultConfFile, Debug);
 }

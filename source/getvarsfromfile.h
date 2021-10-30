@@ -15,10 +15,11 @@ vector<string> getVarsFromFile(string filename, vector<string> inputVars) {
 	vector <string> outputVars;
 	string line = "", temp1 = "", temp2 = "";
  	for (unsigned int i = 0, lineNum = 0; file.good() && !file.eof(); lineNum++, i = 0, temp1 = "", temp2 = "") {
+		auto checkBadChars = [](auto ch){return (ch != '\0') && (ch != '#') && (ch != '=');};
 		getline(file, line); //get a line from file and save it to line
-		if ((line[i] != '\0') && (line[i] != '#') && (line[i] != '=')) {
-			for (;(line[i] != '\0') && (line[i] != '=') && (line[i] != '#'); i++) { //skips past anything that isn't in a quote
-				temp1 += line[i];
+		if (checkBadChars(line[i])) {
+			for (;checkBadChars(line[i]); i++) { //skips past anything that isn't in a quote
+				temp1 += line[i]; //append the thing to look for with a known-good character
 			}
 			for (i++;(i < line.length()) && (line[i] != '#'); i++) { //increment i by 1 to skip the =
 				temp2 += line[i];

@@ -30,11 +30,21 @@ class Text {
 		string prefixWarning;
 		string prefixDebug;
 		string prefixQuestion;
+		string errorNotEnoughArgs;
+		string errorConfDoesNotExist1;
+		string errorConfDoesNotExist2;
+		string errorNoHajimeConfig;
+		string errorStartupServiceWindowsAdmin;
+		string errorSystemdRoot;
+		string errorNoSystemd;
+		string errorServersFilePresent;
+		string questionMakeHajimeConfig;
+		string questionMakeServerConfig;
 };
 
 void Text::applyLang(string lang) {
 	if (lang[0] == 'e' && lang[1] == 'n') {
-		help.push_back("Hajime is a high-performance startup script that can start a Minecraft server from an external device.");
+		help.push_back("Welcome to Hajime, the ultimate Minecraft server startup script!");
 		help.push_back("\033[1m\033[32mUsage:\033[0m ");
 		help.push_back(" [the following flags]"); //1 and 2 sandwich a variable
 		help.push_back("\033[1m-f \033[3mfile\033[0m or \033[1m--server-file \033[3mfile \033[0m\033[1m|\033[0m  Specify a server configuration file to use manually.");
@@ -68,6 +78,16 @@ void Text::applyLang(string lang) {
 		#else
 		prefixQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[Question ";
 		#endif
+		errorNotEnoughArgs = "Not enough arguments provided";
+		errorConfDoesNotExist1 = "Config file ";
+		errorConfDoesNotExist2 = " doesn't exist!";
+		errorNoHajimeConfig = "Default Hajime config file not found";
+		errorStartupServiceWindowsAdmin = "You need to run Hajime as the administrator to install a startup service.";
+		errorSystemdRoot = "You need to be the root user to install a systemd service";
+		errorNoSystemd = "Looks like there is no systemd; use another installation option instead.";
+		errorServersFilePresent = "Servers file already present!";
+		questionMakeHajimeConfig = "Looks like there isn't a Hajime configuation file. Would you like to make one?";
+		questionMakeServerConfig = "Would you like to create a new configuration file anyway?";
 	}
 }
 
