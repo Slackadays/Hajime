@@ -14,19 +14,20 @@ Like with all shell scripts, check the install.sh file first for any potentially
 
 # Why?
 
-## The Big Problem
-Most other startup scripts are either bare-bones shell scripts or systemd services. Some utilities let you create a custom shell script for your server, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yuck! This "script" is a little different because it provides way more features and is always blazing fast thanks to being compiled C++.
+## The Problem
+Many other startup scripts are bare-bones shell scripts or systemd services. Some utilities let you create a shell script, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yucky! This "script" is different because it provides many more features and is always blazing fast thanks to being compiled C++.
 
 ## Features
-- 100% FLOSS with the LGPL license!
+- Supports Aikar's Flags out of the box.
 - Easy installation (full installation wizard coming soon).
 - Multiple server support through multithreading.
 - Compiles and works on most Linux, Windows, FreeBSD, and OpenBSD (and soon Mac) systems. Hajime currently does not compile on NetBSD, but binaries may run.
 - Configure every setting exactly how you want it.
-- Many customizable log messages to see what exactly happened.
+- Many customizable log and debug messages to see what exactly happened.
 - Help and support available in our Discord server.
 - Can be compiled for every installation to suit every server's capabilities.
 - Uses memory-safe modern C++ features and true cross-platform compatibility.
+- 100% FLOSS!
 
 ## Requirements
 There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and its compilation path, your platform will need to support the git and g++ packages.
@@ -41,8 +42,14 @@ There's also a lot of standard libraries available for C++ and that might be an 
 # Instructions (WIP)
 
 ## Pre-compiled binaries (from the [Releases](https://github.com/Slackadays/Hajime/releases) page)
-If you are using a precompiled binary, stay in this section. If you are compiling, skip this section. Download the latest version for your platform. Next, place it in a simple, memorable location. In my own server, I use `./media`. 
-Now, run `sudo ./hajime -I` to install the initial configuration file. 
+We offer binaries for Windows systems that are as easy as a quick download.
+
+## Setup
+0. Install Hajime using either the provided binaries or the install script, and put the file in any suitable location.
+1. Once you install Hajime using either a downloaded binary or the install script, use `-i` s a flag to set up the initial Hajime confguration file.
+2. Do `-ss` next to set up what we call a "servers" file.
+3. Next, do `-s` to set up the first server file.
+4. Edit the created server file (`server0.conf`) with the desired settings.
 
 ### Using `systemd` to make Hajime a service 
 
@@ -57,12 +64,6 @@ g++ -std=c++20 -Ofast -o hajime hajime.cpp
 Hajime requires at least **C++17** to work and C++20 for future compatibility.
    
 # Using Hajime
-
-## Enable the systemd Service 
-This script is a cinch to actually use. To check its status, run `sudo systemctl status hajime` (or substitute "hajime" if you have renamed the systemd service file). This will display the messages sent by Hajime. For debugging, you may also run it manually.
-
-## Configure the Server
-Once you run Hajime for the first time, create a "servers file" AND a "server file." Then, open server0.conf in a text editor and apply the needed settings.
 
 ## Important Note
 You must use the command "screen" in the server execution command for Hajime to work. This limitation will be removed in a future update.
