@@ -26,15 +26,13 @@ Many other startup scripts are bare-bones shell scripts or systemd services. Som
 - Easy installation (full installation wizard coming soon).
 - Multiple server support through multithreading.
 - Compiles and works on most Linux, Windows, FreeBSD, and OpenBSD (and soon Mac) systems. Hajime currently does not compile on NetBSD, but binaries may run.
+- Hardware agnostic, so Hajime will compile and run on just about any processor you throw at it.
 - Configure every setting exactly how you want it.
 - Many customizable log and debug messages to see what exactly happened.
 - Help and support available in our Discord server.
-- Can be compiled for every installation to suit every server's capabilities.
-- Uses memory-safe modern C++ features and true cross-platform compatibility.
+- Can be compiled for every single installation to suit every server's instruction capabilities.
+- Uses memory-safe modern C++ features.
 - 100% FLOSS!
-
-## Requirements
-There are currently a couple prerequisites. You'll need a POSIX-compliant system, so this means Linux or FreeBSD or MacOS. Also, to use the one-step installation option and its compilation path, your platform will need to support the git and g++ packages.
 
 ## Why C++?
 I decided to make this script in C++ to help me learn it as well as get acceptable performance no matter how many features I add. 
