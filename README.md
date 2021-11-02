@@ -6,11 +6,15 @@ A fully-featured Minecraft server startup script suite that offers a friendly us
 For discussion and development updates about Hajime, join our Discord at https://discord.gg/J6asnc3pEG!
 
 # Quick Installation
+## Linux/BSD
 Use this command to install Hajime in one step. It will download and automagically compile the latest version available on GitHub.
 ```
 curl https://raw.githubusercontent.com/Slackadays/Hajime/master/install.sh | sh
 ```
 Like with all shell scripts, check the install.sh file first for any potentially malicious commands.
+
+## Windows
+Download the latest version available in the Releases page or from Discord. If you'd like to compile Hajime yourself, the code will work with the Visual C++ compiler.
 
 # Why?
 
