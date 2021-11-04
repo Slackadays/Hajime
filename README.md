@@ -73,3 +73,7 @@ You must use the command "screen" in the server execution command for Hajime to 
 # Troubleshooting
 If Hajime seems to not work after it's been running for a while, just restart it. This solves 99% of problems!
 You may also open an issue in the repository if you find functionality you don't believe is intentional
+
+# Proudly Supported by MacStadium
+To develop Hajime for MacOS, MacStadium provides a Mac Mini to help support open source projects like this one.
+<img src="MacStadium-developerlogo.png" alt="Hajime logo" width="300px"/>
