@@ -16,12 +16,8 @@ namespace fs = std::experimental::filesystem;
 #include <cstring>
 #include <string>
 
-#include "languages.h"
-
-string hajDefaultConfFile = "hajime.conf";
-Text text(hajDefaultConfFile);
-
 #include "output.h"
+#include "languages.h"
 #include "installer.h"
 #include "server.h"
 #include "getvarsfromfile.h"
@@ -43,7 +39,7 @@ vector<string> hajimeConfParams{"serversfile", "defserverconf", "logfile", "syst
 
 bool readSettings(vector<string> settings);
 
-shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
+//shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
 
 int main(int argc, char *argv[]) {
 	#if defined(_WIN64) || defined (_WIN32)
