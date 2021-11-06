@@ -9,7 +9,7 @@ For discussion and development updates about Hajime, join our Discord at https:/
 ## Linux/BSD
 Use this command to install Hajime in one step. It will download and automagically compile the latest version available on GitHub.
 ```
-curl https://raw.githubusercontent.com/Slackadays/Hajime/master/install.sh | sh
+curl -L https://gethaji.me | sh
 ```
 Like with all shell scripts, check the install.sh file first for any potentially malicious commands.
 
