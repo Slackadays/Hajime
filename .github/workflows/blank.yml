@@ -29,7 +29,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          g++-10 -std=c++20 -Ofast -c *.cpp
+          parallel -j 6 g++-10 -c -std=c++20 -Ofast -- hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp
           g++-10 -static -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o -pthread
           
       - uses: actions/upload-artifact@v2
