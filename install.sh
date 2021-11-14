@@ -18,18 +18,18 @@ then
 fi
 if [ "$OSTYPE" = "linux-gnu" ]
 then
-  echo "Linux detected"
-  sudo apt update && sudo apt -y install g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
-  sudo apt -y upgrade
-  sudo yum install -y clang
-  sudo yum install -y git
-  echo "Downloading..."
-  git clone https://github.com/Slackadays/Hajime
-  echo "Compiling..."
-  echo "This may take from a few seconds to a few minutes depending on your system speed."
-  cd Hajime/source
-  echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp | xargs -n 1 -P 6 g++ -c -Ofast -std=c++17 #lstdc++fs enables filsystem library in older installations
-  g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o -pthread -lstdc++fs
+        echo "Linux detected"
+        sudo apt update && sudo apt -y install g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
+        sudo apt -y upgrade
+        sudo yum install -y clang
+        sudo yum install -y git
+        echo "Downloading..."
+        git clone https://github.com/Slackadays/Hajime
+        echo "Compiling..."
+        echo "This may take from a few seconds to a few minutes depending on your system speed."
+        cd Hajime/source
+        echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp | xargs -n 1 -P 6 g++ -c -Ofast -std=c++17 #lstdc++fs enables filsystem library in older installations
+        g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o -pthread -lstdc++fs
 fi
 echo "Cleaning up..."
 chown -R $USER ../../Hajime/.git #change perms for certain misbehaving files that come with git
