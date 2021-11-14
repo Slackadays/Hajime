@@ -17,7 +17,6 @@ using std::endl;
 #include "output.h"
 #include "languages.h"
 #include "installer.h"
-
 namespace fs = std::filesystem;
 
 Installer::Installer(std::shared_ptr<Output> log) {
@@ -76,61 +75,83 @@ void Installer::installStartupService(string sysService) {
 	#else
 	if (fs::is_directory("/etc/init.d") && !fs::is_regular_file("/lib/systemd/systemd")) {
 		logObj->out("Installing sysVinit service", Info);
-		ofstream service("/etc/init.d/hajime.sh");
-		service << "#!/bin/sh\n"
-		"### BEGIN INIT INFO\n"
-		"# Provides: 		hajime\n"
-		"# Required-Start:\n"
-		"# Required-Stop:\n"
-		"# Default-Start:	3\n"
-		"# Default-Stop:\n"
-		"# Short-Description:	Starts Hajime\n"
-		"# Description:		SysVinit service to start the Hajime startup script.\n"
-		"### END INIT INFO\n"
-		"NAME=\"hajime\"\n"
-		"PATH=\"/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\"\n"
-		"APPDIR=\"/root/Downloads/hajime/source\"\n"
-		"APPBIN=\"/root/Downloads/hajime/source/hajime\"\n"
-		"APPARGS=\"-h\"\n"
-		"USER=\"vm\"\n"
-		"GROUP=\"vm\"\n"
-		"set -e\n"
-		". /lib/lsb/init-functions\n"
-		"start() {\n"
-		"	printf \"Starting Hajime... \"\n"
-		"	start-stop-daemon --start --chuid \"$USER:$GROUP\" --background --make-pidfile --pidfile /var/run/$NAME.pid --chdir \"$APPDIR\" --exec \"$APPBIN\" -- $APPARGS || true\n"
-		"	printf \"done!\n\"\n"
-		"}\n"
-		"stop() {\n"
-		"	printf \"Stopping Hajime!\n\"\n"
-		"	[ -z `cat /var/run/$NAME.pid 2>/dev/null` ] || \\\n"
-		"	kill -9 $(cat /var/run/$NAME.pid)\n"
-		"	[ -z `cat /var/run/$NAME.pid 2>/dev/null` ] || rm /var/run/$NAME.pid\n"
-		"	printf \"Stopped Hajime!\n\"\n"
-		"}\n"
-		"status() {\n"
-		"	status_of_proc -p /var/run/$NAME.pid \"\" $NAME && exit 0 || exit $?\n"
-		"}\n"
-		"case \"$1\" in\n"
-		"	start)\n"
-		"		start\n"
-		"		;;\n"
-		"	stop)\n"
-		"		stop\n"
-		"		;;\n"
-		"		stop\n"
-		"	restart)\n"
-		"		start\n"
-		"		;;\n"
-		"	status)\n"
-		"		status\n"
-		"		;;\n"
-		"	*)\n"
-		"		echo \"Usage: $NAME (start|stop|restart|status)\" >&2\n"
-		"		exit 1\n"
-		"esac\n"
-		"exit 0\n" << endl;
-	service.close();
+		bool continueInstall = true;
+		if (fs::is_regular_file("/etc/init.d/hajime.sh")) {
+			logObj->out("Found a sysVinit service already installed", Warning);
+			logObj->out("Would you like to install a new service?", Question, 0, 0);
+			if (logObj->getYN()) {
+				continueInstall = true;
+				logObj->out("Installing new sysVinit service", Info);
+			} else {
+				continueInstall = false;
+			}
+		}
+		if (continueInstall) {
+			ofstream service("/etc/init.d/hajime.sh");
+			string user;
+			logObj->out("Please enter the USER you want Hajime to run under. ", Question, 0, 0);
+			std::cin >> user;
+			string group;
+			logObj->out("Please enter the GROUP of the user you entered. ", Question, 0, 0);
+			std::cin >> group;
+			service << "#!/bin/sh\n"
+			"### BEGIN INIT INFO\n"
+			"# Provides: 		hajime\n"
+			"# Required-Start:\n"
+			"# Required-Stop:\n"
+			"# Default-Start:	3\n"
+			"# Default-Stop:\n"
+			"# Short-Description:	Starts Hajime\n"
+			"# Description:		sysVinit startup service to start the Hajime startup script.\n"
+			"### END INIT INFO\n"
+			"NAME=\"hajime\"\n"
+			"PATH=\"/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\"\n"
+			"APPDIR=" << fs::current_path() << "\n"
+			"APPBIN=\"" << fs::current_path().string() << "/hajime\"\n"
+			"APPARGS=\"\"\n"
+			"USER=\"" << user << "\"\n"
+			"GROUP=\"" << group << "\"\n"
+			"set -e\n"
+			". /lib/lsb/init-functions\n"
+			"start() {\n"
+			"	printf \"Starting Hajime... \"\n"
+			"	start-stop-daemon --start --chuid \"$USER:$GROUP\" --background --make-pidfile --pidfile /var/run/$NAME.pid --chdir \"$APPDIR\" --exec \"$APPBIN\" -- $APPARGS || true\n"
+			"	printf \"done!\n\"\n"
+			"}\n"
+			"stop() {\n"
+			"	printf \"Stopping Hajime!\n\"\n"
+			"	[ -z `cat /var/run/$NAME.pid 2>/dev/null` ] || \\\n"
+			"	kill -9 $(cat /var/run/$NAME.pid)\n"
+			"	[ -z `cat /var/run/$NAME.pid 2>/dev/null` ] || rm /var/run/$NAME.pid\n"
+			"	printf \"Stopped Hajime!\n\"\n"
+			"}\n"
+			"status() {\n"
+			"	status_of_proc -p /var/run/$NAME.pid \"\" $NAME && exit 0 || exit $?\n"
+			"}\n"
+			"case \"$1\" in\n"
+			"	start)\n"
+			"		start\n"
+			"		;;\n"
+			"	stop)\n"
+			"		stop\n"
+			"		;;\n"
+			"		stop\n"
+			"	restart)\n"
+			"		start\n"
+			"		;;\n"
+			"	status)\n"
+			"		status\n"
+			"		;;\n"
+			"	*)\n"
+			"		echo \"Usage: $NAME (start|stop|restart|status)\" >&2\n"
+			"		exit 1\n"
+			"esac\n"
+			"exit 0\n" << endl;
+			service.close();
+			logObj->out("Installed sysVinit service at /etc/init.d/hajime.sh", Info);
+		} else {
+			logObj->out("Aborting sysVinit service installation", Info);
+		}
 	} else {
 		if (getuid()) {
 			logObj->out(text.errorSystemdRoot, Error);
