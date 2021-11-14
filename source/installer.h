@@ -5,7 +5,7 @@
 
 #if defined(_win64) || defined (_WIN32)
 #include <Windows.h>
-#include <shlobj_core.h>
+#include <shlobj.h>
 #else
 #include <unistd.h>
 #endif
