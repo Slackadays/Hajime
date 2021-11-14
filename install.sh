@@ -11,11 +11,6 @@ then
         pkg install gcc10 git
         pkg upgrade
 fi
-if [ "$OSTYPE" = "OpenBSD" ]
-then
-        echo "FreeBSD detected"
-        pkg_add git
-fi
 if [ "$OSTYPE" = "linux-gnu" ]
 then
         echo "Linux detected"
@@ -23,6 +18,7 @@ then
         sudo apt -y upgrade
         sudo yum install -y clang
         sudo yum install -y git
+        pkg_add git
         echo "Downloading..."
         git clone https://github.com/Slackadays/Hajime
         echo "Compiling..."
