@@ -77,7 +77,7 @@ void Installer::installStartupService(string sysService) {
 		logObj->out(text.infoInstallingSysvinit, Info);
 		bool continueInstall = true;
 		if (fs::is_regular_file("/etc/init.d/hajime.sh")) {
-			logObj->out(text.FoundSysvinitService, Warning);
+			logObj->out(text.warningFoundSysvinitService, Warning);
 			logObj->out(text.questionMakeNewSysvinitService, Question, 0, 0);
 			if (logObj->getYN()) {
 				continueInstall = true;
