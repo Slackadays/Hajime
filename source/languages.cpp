@@ -53,8 +53,17 @@ void Text::applyLang(string lang) {
                 errorSystemdRoot = "You need to be the root user to install a systemd service";
                 errorNoSystemd = "Looks like there is no systemd; use another installation option instead.";
                 errorServersFilePresent = "Servers file already present!";
+		warningFoundSysvinitService = "Found a sysVinit service already installed";
+		warningFoundSystemdService = "Found an existing systemd service";
                 questionMakeHajimeConfig = "Looks like there isn't a Hajime configuation file. Would you like to make one?";
                 questionMakeServerConfig = "Would you like to create a new configuration file anyway?";
+		questionMakeNewSysvinitService = "Would you like to install a new service?";
+		questionSysvinitUser = "Please enter the USER you want Hajime to run under. ";
+		questionSysvinitGroup = "Please enter the GROUP of the user you entered. ";
+		infoInstallingSysvinit = "Installing sysVinit service";
+		infoInstallingNewSysvinit = "Installing new sysVinit service";
+		infoInstalledSysvinit = "Installed sysVinit service at /etc/init.d/hajime.sh";
+		infoAbortedSysvinit = "Aborting sysVinit service installation";
         }
 }
 

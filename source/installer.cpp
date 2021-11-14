@@ -74,14 +74,14 @@ void Installer::installStartupService(string sysService) {
 	}
 	#else
 	if (fs::is_directory("/etc/init.d") && !fs::is_regular_file("/lib/systemd/systemd")) {
-		logObj->out("Installing sysVinit service", Info);
+		logObj->out(text.infoInstallingSysvinit, Info);
 		bool continueInstall = true;
 		if (fs::is_regular_file("/etc/init.d/hajime.sh")) {
-			logObj->out("Found a sysVinit service already installed", Warning);
-			logObj->out("Would you like to install a new service?", Question, 0, 0);
+			logObj->out(text.FoundSysvinitService, Warning);
+			logObj->out(text.questionMakeNewSysvinitService, Question, 0, 0);
 			if (logObj->getYN()) {
 				continueInstall = true;
-				logObj->out("Installing new sysVinit service", Info);
+				logObj->out(text.infoInstallingNewSysvinit, Info);
 			} else {
 				continueInstall = false;
 			}
@@ -89,10 +89,10 @@ void Installer::installStartupService(string sysService) {
 		if (continueInstall) {
 			ofstream service("/etc/init.d/hajime.sh");
 			string user;
-			logObj->out("Please enter the USER you want Hajime to run under. ", Question, 0, 0);
+			logObj->out(text.questionSysvinitUser, Question, 0, 0);
 			std::cin >> user;
 			string group;
-			logObj->out("Please enter the GROUP of the user you entered. ", Question, 0, 0);
+			logObj->out(text.questionSysvinitGroup, Question, 0, 0);
 			std::cin >> group;
 			service << "#!/bin/sh\n"
 			"### BEGIN INIT INFO\n"
@@ -148,16 +148,16 @@ void Installer::installStartupService(string sysService) {
 			"esac\n"
 			"exit 0\n" << endl;
 			service.close();
-			logObj->out("Installed sysVinit service at /etc/init.d/hajime.sh", Info);
+			logObj->out(text.infoInstalledSysvinit, Info);
 		} else {
-			logObj->out("Aborting sysVinit service installation", Info);
+			logObj->out(text.infoAbortedSysvinit, Info);
 		}
 	} else {
 		if (getuid()) {
 			logObj->out(text.errorSystemdRoot, Error);
 		}
 		if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysService)) {
-			logObj->out("Found an existing systemd service", Warning);
+			logObj->out(text.warningFoundSystemdService, Warning);
 		}
 		if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
 			logObj->out("Making systemd service at " + sysService + "...", Info);
