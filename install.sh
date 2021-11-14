@@ -16,7 +16,7 @@ then
         echo "FreeBSD detected"
         pkg_add git
 fi
-if [ "$OSTYPE" = "linux-gnu"]
+if [ "$OSTYPE" = "linux-gnu" ]
 then
   echo "Linux detected"
   sudo apt update && sudo apt -y install g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
