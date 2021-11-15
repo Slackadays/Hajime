@@ -4,7 +4,7 @@ Add an interactive installation option
 
 ~~Add multiple langage support~~ DONE
 
-Add compatibility to install.sh for non-apt repos
+~~Add compatibility to install.sh for non-apt repos~~ DONE
 
 Add checkers to install.sh for a friendlier experience
 
@@ -20,7 +20,7 @@ Add "intelligent configuration" which detects for existing server .jar files and
 
 Add more file logging features (log rotation, auto-zip)
 
-Add compatibility for sysVinit
+~~Add compatibility for sysVinit~~ DONE
 
 ~~Add one-step installation from command line (curl, wget?)~~ DONE: see command in readme
 
