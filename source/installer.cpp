@@ -146,11 +146,47 @@ void Installer::installStartupService(string sysService) {
 			"		echo \"Usage: $NAME (start|stop|restart|status)\" >&2\n"
 			"		exit 1\n"
 			"esac\n"
-			"exit 0\n" << endl;
+			"exit 0" << endl;
 			service.close();
 			logObj->out(text.infoInstalledSysvinit, Info);
 		} else {
 			logObj->out(text.infoAbortedSysvinit, Info);
+		}
+	} else if (fs::is_directory("/Library/LaunchAgents")) { //macOS agent directory
+		logObj->out("Installing launchd service", Info);
+		bool continueInstall = true;
+                if (fs::is_regular_file("/Library/LaunchAgents/Hajime.plist")) {
+                        logObj->out("Found an existing launchd service", Warning);
+                        logObj->out("Would you like to make a new one anyway?", Question, 0, 0);
+                        if (logObj->getYN()) {
+                                continueInstall = true;
+                                logObj->out("Installing new launchd service", Info);
+                        } else {
+                                continueInstall = false;
+                        }
+                }
+                if (continueInstall) {
+                        ofstream service("/Library/LaunchAgents/Hajime.plist");
+			service << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+			"<!DOCTYPE plist PUBLIC \"-\/\/Apple\/\/DTD PLIST 1.0\/\/EN\" \"http:\/\/www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
+			"<plist version=\"1.0\">\n"
+			"	<dict>\n"
+			"		<key>Label</key>\n"
+			"		<string>Hajime</string>\n"
+			"		<key>Program</key>\n"
+			"		<string>" << fs::current_path().string() << "/hajime</string>\n"
+			"		<key>WorkingDirectory</key>\n"
+			"		<string>" << fs::current_path().string() << "</string>\n"
+			"		<key>RunAtLoad</key>\n"
+			"		<true/>\n"
+			"		<key>KeepAlive</key>\n"
+			"		<true/>\n"
+			"	</dict>\n"
+			"</plist>" << endl;
+			service.close();
+			logObj->out("Installed launchd service", Info);
+		} else {
+			logObj->out("Aborted launchd service installation", Info);
 		}
 	} else {
 		if (getuid()) {
