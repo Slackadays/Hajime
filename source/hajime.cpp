@@ -16,6 +16,10 @@ namespace fs = std::experimental::filesystem;
 #include <cstring>
 #include <string>
 
+#if (__cplusplus <= 201703L || defined(__APPLE__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
+	#define jthread thread
+#endif
+
 #include "output.h"
 #include "languages.h"
 #include "installer.h"
@@ -127,19 +131,11 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	vector<Server> serverVec;
-	#if __cplusplus > 201703L //jthreads are only in C++20 and up
 	vector<std::jthread> threadVec;
-	#else
-	vector<std::thread> threadVec;
-	#endif
 	Server server(logObj); //create a template object
 	for (const auto &serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
 		serverVec.push_back(server); //add a copy of server to use
-		#if __cplusplus > 201703L
 		threadVec.push_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
-		#else
-		threadVec.push_back(std::thread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
-		#endif
 	}
 	while(true) {
 		string command;

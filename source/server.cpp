@@ -174,7 +174,7 @@ void Server::mountDrive() {
 		return;
 	} else {
 		string error;
-		#if defined(__FreeBSD__) || defined(__OpenBSD__) //BSDs have different mount() parameters
+		#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__) //BSDs have different mount() parameters
 		if (!mount(systems[systemi].c_str(), path.c_str(), 0, const_cast<char*>(device.c_str()))) {
 		#else
 		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) { //brute-forces every possible filesystem because mount() depends on it being the right one
