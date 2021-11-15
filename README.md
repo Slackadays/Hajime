@@ -2,6 +2,16 @@
 <img src="HJ.png" alt="Hajime logo" width="100"/>
 A fully-featured Minecraft server startup script suite that offers a friendly user interface, blazing fast speeds, and wide compatibility.
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Slackadays/Hajime/CI)
+![GitHub top language](https://img.shields.io/github/languages/top/Slackadays/Hajime)
+![Discord](https://img.shields.io/discord/891817791525629952?color=blue&logo=Discord)
+![GitHub all releases](https://img.shields.io/github/downloads/slackadays/hajime/total)
+![GitHub](https://img.shields.io/github/license/slackadays/hajime)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/slackadays/hajime)
+![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/slackadays/hajime/latest)
+![GitHub contributors](https://img.shields.io/github/contributors/slackadays/hajime)
+![GitHub Repo stars](https://img.shields.io/github/stars/slackadays/hajime?style=social)
+
 # Discord
 For discussion and development updates about Hajime, join our Discord at https://discord.gg/J6asnc3pEG!
 
@@ -58,18 +68,12 @@ We offer binaries for Windows systems that are as easy as a quick download.
 If you would like to make a systemd service, now run `sudo ./hajime -S`
 to make a systemd service file. By default, the file created is called **hajime.service**. If you would like a different name (for example, if you are running multiple servers) change the setting in the file **hajime.conf**. Now enable it using `sudo systemctl enable hajime`to run Hajime on startup. Before rebooting, you must change the settings in the **server.conf** and **hajime.conf** files. Make server.conf by running `sudo ./hajime -I` again. `server.conf` is the settings file for an individual server object. This is done for future-proofing for future versions that may implement multithreading. `hajime.conf` is the settings file for the main program.
 
-## Compiling Your Own
-It's easy to compile Hajime. First, download the files in the [**source**]./source/) section. Then, run this command:
-```
-g++ -std=c++20 -Ofast -o hajime hajime.cpp
-```
+## Compiling 
+
+Compile all the .cpp files any way you like, with two requirements: the C++ version has to be a minimum C++17 and you cannot link the files (this means adding `-std=c++17` or `-std=c++20` and `-c` to g++). Then, link all the new .o files together, using `-pthread` to add multithreading on POSIX systems.
+
 Hajime requires at least **C++17** to work and C++20 for future compatibility.
    
-# Using Hajime
-
-## Important Note
-You must use the command "screen" in the server execution command for Hajime to work. This limitation will be removed in a future update.
-
 # Troubleshooting
 If Hajime seems to not work after it's been running for a while, just restart it. This solves 99% of problems!
 You may also open an issue in the repository if you find functionality you don't believe is intentional
