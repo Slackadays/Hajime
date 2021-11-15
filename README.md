@@ -6,7 +6,6 @@ A fully-featured Minecraft server startup script suite that offers a friendly us
 ![GitHub top language](https://img.shields.io/github/languages/top/Slackadays/Hajime)
 ![Discord](https://img.shields.io/discord/891817791525629952?color=blue&logo=Discord)
 ![GitHub all releases](https://img.shields.io/github/downloads/slackadays/hajime/total)
-![GitHub](https://img.shields.io/github/license/slackadays/hajime)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/slackadays/hajime)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/slackadays/hajime/latest)
 ![GitHub contributors](https://img.shields.io/github/contributors/slackadays/hajime)
