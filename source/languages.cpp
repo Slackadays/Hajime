@@ -12,6 +12,7 @@ using std::string;
 void Text::applyLang(string lang) {
         if (lang[0] == 'e' && lang[1] == 'n') {
                 help.push_back("Welcome to Hajime, the ultimate Minecraft server startup script!");
+		help.push_back("This version of Hajime was compiled on " __DATE__ ".");
                 help.push_back("\033[1m\033[32mUsage:\033[0m ");
                 help.push_back(" [the following flags]"); //1 and 2 sandwich a variable
                 help.push_back("\033[1m-f \033[3mfile\033[0m or \033[1m--server-file \033[3mfile \033[0m\033[1m|\033[0m  Specify a server configuration file to use manually.");

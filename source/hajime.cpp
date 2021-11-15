@@ -59,16 +59,17 @@ int main(int argc, char *argv[]) {
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		if (flag("-h", "--help")) { //-h = --help = help
 			logObj->out(text.help[0]);
-			logObj->out(text.help[1] + (string)argv[0] + text.help[2]); //show example of hajime and include its executed file
-			logObj->out(text.help[3]);
+			logObj->out(text.help[1]);
+			logObj->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
 			logObj->out(text.help[4]);
 			logObj->out(text.help[5]);
 			logObj->out(text.help[6]);
 			logObj->out(text.help[7]);
 			logObj->out(text.help[8]);
 			logObj->out(text.help[9]);
-			logObj->out(text.help[10], None, 1);
-			logObj->out(text.help[11]); //note: Linux doesn't put an endline at the end upon exit, but Windows does
+			logObj->out(text.help[10]);
+			logObj->out(text.help[11], None, 1);
+			logObj->out(text.help[12]); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0;
 		}
 	}
