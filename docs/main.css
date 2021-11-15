@@ -80,11 +80,9 @@ div.downloadbox > div.code {
 	border-radius: 10px;
 	border-width: 1px;
 	border-color: rgb(245, 245, 255);
-	padding-top: 2px;
 	padding-bottom: 2px;
 	padding-left: 5px;
 	padding-right: 5px;
-	display: inline;
 }
 a {
 	color: rgb(0, 168, 149);
