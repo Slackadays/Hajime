@@ -28,7 +28,7 @@ Download the latest version available in the Releases page or from Discord. If y
 # Why?
 
 ## The Problem
-Many other startup scripts are bare-bones shell scripts or systemd services. Some utilities let you create a shell script, but then you have to go a website and enter your server's information, copy that script, download it to the server, and more. Yucky! This "script" is different because it provides many more features and is always blazing fast thanks to being compiled C++.
+Please see "Why Hajime" at [the Hajime website.](https://slackadays.github.io/Hajime/)
 
 ## Features
 - Supports Aikar's Flags out of the box.
