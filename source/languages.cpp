@@ -22,7 +22,7 @@ void Text::applyLang(string lang) {
                 help.push_back("\033[1m-i  \033[0mor\033[1m --install-hajime \033[1m\033[3mfile \033[0m\033[1m|\033[0m Install the default Hajime configuration file.");
                 help.push_back("\033[1m-S  \033[0mor\033[1m --install-service \033[1m|\033[0m  Install a startup service file for your platform to start Hajime automatically.");
                 help.push_back("\033[1m-ss \033[0mor\033[1m --install-servers-file \033[1m|\033[0m Install a server listing file.");
-                help.push_back("\033[1m\033[32mNotes:\033[0m\nUse -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \033[1m/\033[0m to specify otherwise.");
+                help.push_back("\033[1m\033[32mNotes:\033[0m\n Use -f in conjunction with a custom config file. A plain filename is treated as being in the same directory Hajime is located in, so use a \033[1m/\033[0m to specify otherwise.");
                 help.push_back("\033[1m\033[32mNeed more help?\033[0m Join our Discord group at https://discord.gg/J6asnc3pEG");
                 errnoNotPermitted = "Not permitted. Is the device correct?";
                 errnoNoFileOrDir = "No such file or directory.";

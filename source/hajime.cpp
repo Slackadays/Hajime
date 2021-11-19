@@ -39,15 +39,11 @@ string sysdService = ""; //systemd service file location
 string optFlags = "";
 string logFile = "";
 
-vector<string> hajimeConfParams{"serversfile", "defserverconf", "logfile", "systemdlocation", "optflags"};
-
-bool readSettings(vector<string> settings);
-
-//shared_ptr<Output> logObj = make_shared<Output>(); // make this pointer global
+bool readSettings();
 
 int main(int argc, char *argv[]) {
 	#if defined(_WIN64) || defined (_WIN32)
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal compatibility
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
 	if (!SetConsoleMode(hOut, (dwMode += ENABLE_VIRTUAL_TERMINAL_PROCESSING))) {
@@ -57,23 +53,15 @@ int main(int argc, char *argv[]) {
 	Installer installer(logObj);
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
+		auto helpOut = [](auto ...num){(logObj->out(text.help[num]), ...);};
 		if (flag("-h", "--help")) { //-h = --help = help
-			logObj->out(text.help[0]);
-			logObj->out(text.help[1]);
+			helpOut(0, 1);
 			logObj->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
-			logObj->out(text.help[4]);
-			logObj->out(text.help[5]);
-			logObj->out(text.help[6]);
-			logObj->out(text.help[7]);
-			logObj->out(text.help[8]);
-			logObj->out(text.help[9]);
-			logObj->out(text.help[10]);
-			logObj->out(text.help[11], None, 1);
-			logObj->out(text.help[12]); //note: Linux doesn't put an endline at the end upon exit, but Windows does
+			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0;
 		}
 	}
-	if (!readSettings(hajimeConfParams)) {
+	if (!readSettings()) {
 		logObj->out(text.errorNoHajimeConfig, Error);
 		logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
 		if (logObj->getYN()) {
@@ -116,7 +104,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
-		readSettings(hajimeConfParams);
+		readSettings();
 		if (logFile == "") {
 			logObj->out("No log file to be made; sending messages to console.", Info);
 		} else {
@@ -148,10 +136,11 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-bool readSettings(vector<string> settings) {
+bool readSettings() {
+	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "optflags"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		return 0;
 		logObj->out("Tried to read settings from " + hajDefaultConfFile + " but it doesn't exist", Debug);
+		return 0;
 	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
@@ -163,6 +152,6 @@ bool readSettings(vector<string> settings) {
 		setVar(settings[3], sysdService);
 		setVar(settings[4], optFlags);
 	}
-	return 1;
 	logObj->out("Successfully read settings from " + hajDefaultConfFile, Debug);
+	return 1;
 }
