@@ -56,7 +56,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
 
 void Installer::installNewServerConfigFile(string fileLocation) {
 	ofstream outConf(fileLocation);
-	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=FLAGS" << endl << "debug=1" << endl << "device=" << endl;
+	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=FLAGS" << endl << "method=new" << endl << "device=" << endl << "debug=1" << endl ;
 	outConf << "# Anything after a # is a comment." << endl;
 	cout << "The config file (" << fileLocation << ") has been created" << endl;
 	outConf.close();

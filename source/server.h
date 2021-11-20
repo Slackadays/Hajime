@@ -40,18 +40,19 @@ class Server {
 
         const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
+        int debug = 0;
+
         void mountDrive();
         void makeDir();
         void startProgram(string method);
-        void readSettings(string confFile, vector<string> settings);
+        void readSettings(string confFile);
+        void removeSlashesFromEnd(string& var);
         int getPID(int pid = 0, string method = "new");
         vector<string> toArray(string input);
         auto toPointerArray(vector<string> &strings);
 
         string file, path, command, flags, confFile, device = "";
-        string method = "new";
-
-        vector<string> serverConfigParams{"file", "path", "command", "flags", "method", "device"};
+        string method;
 
         public:
                 Server(shared_ptr<Output> tempObj);

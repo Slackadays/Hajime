@@ -11,8 +11,8 @@ using std::string;
 
 void Text::applyLang(string lang) {
         if (lang[0] == 'e' && lang[1] == 'n') {
-                help.push_back("Welcome to Hajime, the ultimate Minecraft server startup script!");
-		help.push_back("This version of Hajime was compiled on " __DATE__ ".");
+                help.push_back("\033[1mWelcome to Hajime, the ultimate Minecraft server startup script!\033[0m");
+		            help.push_back("This version of Hajime was compiled on " __DATE__ ".");
                 help.push_back("\033[1m\033[32mUsage:\033[0m ");
                 help.push_back(" [the following flags]"); //1 and 2 sandwich a variable
                 help.push_back("\033[1m-f \033[3mfile\033[0m or \033[1m--server-file \033[3mfile \033[0m\033[1m|\033[0m  Specify a server configuration file to use manually.");
@@ -54,17 +54,59 @@ void Text::applyLang(string lang) {
                 errorSystemdRoot = "You need to be the root user to install a systemd service";
                 errorNoSystemd = "Looks like there is no systemd; use another installation option instead.";
                 errorServersFilePresent = "Servers file already present!";
-		warningFoundSysvinitService = "Found a sysVinit service already installed";
-		warningFoundSystemdService = "Found an existing systemd service";
+                errorServerFileNotPresent1 = "The server's config file (";
+                errorServerFileNotPresent2 = ") doesn't exist";
+                errorCouldntSetPath = "Couldn't set the path.";
+                errorGeneric = "Whoops! An unknown error occurred.";
+                errorMethodNotValid = "The method isn't a valid type";
+                errorCreatingDirectory = "Error creating directory!";
+                errorFilesInPath = "There are files in the path";
+                errorMount = "An error occurred, but the script will keep trying to mount. Error: ";
+                errorCode = "Error code: ";
+		            warningFoundSysvinitService = "Found a sysVinit service already installed";
+		            warningFoundSystemdService = "Found an existing systemd service";
+                warningIsRunningFalse = "isRunning is now false";
+                warningTestingWindowsSupport = "Testing Windows support!";
                 questionMakeHajimeConfig = "Looks like there isn't a Hajime configuation file. Would you like to make one?";
                 questionMakeServerConfig = "Would you like to create a new configuration file anyway?";
-		questionMakeNewSysvinitService = "Would you like to install a new service?";
-		questionSysvinitUser = "Please enter the USER you want Hajime to run under. ";
-		questionSysvinitGroup = "Please enter the GROUP of the user you entered. ";
-		infoInstallingSysvinit = "Installing sysVinit service";
-		infoInstallingNewSysvinit = "Installing new sysVinit service";
-		infoInstalledSysvinit = "Installed sysVinit service at /etc/init.d/hajime.sh";
-		infoAbortedSysvinit = "Aborting sysVinit service installation";
+		            questionMakeNewSysvinitService = "Would you like to install a new service?";
+		            questionSysvinitUser = "Please enter the USER you want Hajime to run under. ";
+		            questionSysvinitGroup = "Please enter the GROUP of the user you entered. ";
+		            infoInstallingSysvinit = "Installing sysVinit service";
+		            infoInstallingNewSysvinit = "Installing new sysVinit service";
+		            infoInstalledSysvinit = "Installed sysVinit service at /etc/init.d/hajime.sh";
+		            infoAbortedSysvinit = "Aborting sysVinit service installation";
+                infoNoLogFile = "No log file to be made; sending messages to console.";
+                infoReadingServerSettings = "Reading server settings...";
+                infoServerFile = "Server file: ";
+                infoServerPath = "Server path: ";
+                infoServerCommand = "Server command: ";
+                infoServerMethod =  "Server start method: ";
+                infoServerDevice = "Device: ";
+                infoServerDebug = "Debug value: ";
+                infoServerIsRunning = "Program is running!";
+                infoTryingToStartProgram = "Trying to start program";
+                infoStartingServer = "Starting server!";
+                infoServerStartCompleted = "Program start completed";
+                infoPOSIXdriveMount = "Drive mounting is only needed on Linux";
+                infoTryingFilesystem1 = "Trying ";
+                infoTryingFilesystem2 = " filesystem";
+                infoTryingMount = "Trying to mount";
+                infoCreatingDirectory = "Makeing a new directory";
+                infoNoMount = "No device requested; no mounting this time!";
+                infoDeviceMounted = "Device mounted!";
+                debugHajDefConfNoExist1 = "Tried to read settings from ";
+                debugHajDefConfNoExist2 = " but it doesn't exist";
+                debugReadingReadsettings = "Reading settings at readSettings()";
+                debugReadReadsettings = "Successfully read settings from ";
+                debugFlagVecInFor = "flagVector[0] in For loop =";
+                debugFlagVecOutFor = "flagVector[0] outside of For loop =";
+                debugUsingOldMethod = "Using the old method";
+                debugUsingNewMethod = "Using the new method";
+                debugFlags = "Flags =";
+                debugFlagArray0 = "flagArray[0] =";
+                debugFlagArray0 = "flagArray[1] =";
+                debugValidatingSettings = "Checking the server's settings";
         }
 }
 

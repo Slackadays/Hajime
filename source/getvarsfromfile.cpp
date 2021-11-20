@@ -18,18 +18,21 @@ vector<string> getVarsFromFile(string filename, vector<string> inputVars) {
                 getline(file, line); //get a line from file and save it to line
                 if (checkBadChars(line[i])) {
                         for (;checkBadChars(line[i]); i++) { //skips past anything that isn't in a quote
-                                key += line[i]; //append the thing to look for with a known-good character
+                          key += line[i]; //append the thing to look for with a known-good character
                         }
                         for (i++;(i < line.length()) && (line[i] != '#'); i++) { //increment i by 1 to skip the =
                                 value += line[i];
                         }
+                        bool success = false;
                         for (const auto &iteratorVal : inputVars) {
                                 if (key == iteratorVal) {
                                         outputVars.push_back(value);
+                                        success = true;
                                 }
                         }
-                } else {
-                        outputVars.push_back(value);
+                        if (!success) {
+                          outputVars.push_back("");
+                        }
                 }
         }
         file.close();  //get rid of the file in memory

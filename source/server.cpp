@@ -38,36 +38,37 @@ Server::Server(shared_ptr<Output> tempObj) {
 void Server::startServer(string confFile) {
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
-			logObj->out("Reading server settings...", Info);
-			readSettings(confFile, serverConfigParams);
+			logObj->out(text.infoReadingServerSettings, Info);
+			readSettings(confFile);
 		} else {
-			logObj->out("The server's config file (" + confFile + ") doesn't exist", Error);
+			logObj->out(text.errorServerFileNotPresent1 + confFile + text.errorServerFileNotPresent2, Error);
 			return;
 		}
-			logObj->out("Server file: " + file, Info);
-			logObj->out("Server path: " + path, Info);
-			logObj->out("Server command: " + command, Info);
-			//logObj->out("Debug value: " + to_string(debug)); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-			logObj->out("Device: " + device, Info);
+			logObj->out(text.infoServerFile + file, Info);
+			logObj->out(text.infoServerPath + path, Info);
+			logObj->out(text.infoServerCommand + command, Info);
+			logObj->out(text.infoServerMethod + method, Info);
+			logObj->out(text.infoServerDebug + to_string(debug), Info); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+			logObj->out(text.infoServerDevice + device, Info);
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				std::this_thread::sleep_for(std::chrono::seconds(3));
-				logObj->out("Program is running!", Info);
+				logObj->out(text.infoServerIsRunning, Info);
 				isRunning = true;
 				hasMounted = true;
 			} else {
 				isRunning = false;
-				logObj->out("isRunning is now false", Warning);
+				logObj->out(text.warningIsRunningFalse, Warning);
 			}
 			try {
 				fs::current_path(path);
 			} catch(...) {
-				logObj->out("Couldn't set the path.", Error);
+				logObj->out(text.errorCouldntSetPath, Error);
 			}
 			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
-				logObj->out("Trying to start program", Info);
+				logObj->out(text.infoStartingServer, Info);
 				startProgram(method);
-				logObj->out("Program start completed", Info);
+				logObj->out(text.infoServerStartCompleted, Info);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
 			if (!fs::is_directory(path, ec)) { //if the desired path doesn't exist, make it
@@ -79,62 +80,62 @@ void Server::startServer(string confFile) {
 			}
 		}
 	} catch(...) { //error handling
-		logObj->out("Whoops! An unknown error occurred.", Error);
+		logObj->out(text.errorGeneric, Error);
 	}
 }
 
 vector<string> Server::toArray(string input) {
 	vector<string> flagVector;
 	string temp = "";
-	string execFile = path + '/' + file;
-	flagVector.push_back(execFile.c_str());
+	string execFile = path + '/' + file; //make an absolute executable path for the thing we're executing
+	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
 	for (int i = 0; i < input.length(); temp = "") {
-    while (input[i] == ' ' && i < input.length()) { //blah
-      i++;
+  	while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
+    	i++;
     }
-		while (input[i] != ' ' && i < input.length()) {
+		while (input[i] != ' ' && i < input.length()) { //add characters to a temp variable that will go into the vector
 			temp += input[i];
 			i++;
 		}
-		while (input[i] == ' ' && i < input.length()) {
+		while (input[i] == ' ' && i < input.length()) { //skip any trailing whitespace
 			i++;
 		}
-		flagVector.push_back(temp);
-		logObj->out("flagVector[0] in For loop =" + flagVector[0], Debug);
+		flagVector.push_back(temp); //add the finished flag to the vector of flags
+		logObj->out(text.debugFlagVecInFor + flagVector[0], Debug);
 	}
-	logObj->out("flagVector[0] outside of For loop =" + flagVector[0], Debug);
+	logObj->out(text.debugFlagVecOutFor + flagVector[0], Debug);
 	return flagVector;
 }
 
 auto Server::toPointerArray(vector<string> &strings) {
-	vector<char*> pointers;
-	for (auto &string : strings) {
-		pointers.push_back(string.data());
+	vector<char*> pointers; //the pointer array that we will pass to the exec command
+	for (auto &string : strings) { //loop over the whole flag string vector
+		pointers.push_back(string.data()); //give the pointer array an address to a c-style string from the flag array
 	}
-	pointers.push_back(nullptr);
+	pointers.push_back(nullptr); //add a null pointer to the end because the exec command is from c
 	return pointers;
 }
 
 void Server::startProgram(string method = "new") {
 	if (!isRunning) {
-		logObj->out("Starting server!", Info);
+		logObj->out(text.infoTryingToStartProgram, Info);
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
 		if (method == "old") {
-			logObj->out("Using the old method", Debug);
+			logObj->out(text.debugUsingOldMethod, Debug);
 			int returnVal = system(command.c_str()); //convert the command to a c-style string, execute the command
 		} else if (method == "new") {
-			logObj->out("Using the new method", Debug);
+			logObj->out(text.debugUsingNewMethod, Debug);
 			#if defined(_WIN64) || defined (_WIN32)
 			ShellExecuteA(NULL, "open", file.c_str(), flags.c_str(), NULL, SW_NORMAL);
 			#else
-			logObj->out("Flags =" + flags, Debug);
+			logObj->out(text.debugFlags + flags, Debug);
 			auto flagTemp = toArray(flags);
      			auto flagArray = toPointerArray(flagTemp);
 			int pid = fork();
 			if (pid == 0) {
-				logObj->out("flagArray[0] =" + (string)flagArray[0], Debug);
-				logObj->out("flagArray[1] =" + (string)flagArray[1], Debug);
+				logObj->out(text.debugFlagArray0 + (string)flagArray[0], Debug);
+				logObj->out(text.debugFlagArray1 + (string)flagArray[1], Debug);
 				execv(file.c_str(), flagArray.data());
 			} else {
 				std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -145,7 +146,7 @@ void Server::startProgram(string method = "new") {
 			}
 			#endif
 		} else {
-			logObj->out("The method isn't a valid type", Error);
+			logObj->out(text.errorMethodNotValid, Error);
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (getPID() != 0) { //check for the PID of the program we just started
@@ -156,30 +157,31 @@ void Server::startProgram(string method = "new") {
 }
 
 void Server::makeDir() {
-	logObj->out("No directory!");
+	logObj->out(text.infoCreatingDirectory, Info);
 	if (!fs::create_directory(path, ec)) {
-		logObj->out("Error creating directory!", Error);
+		logObj->out(text.errorCreatingDirectory, Error);
 	}
 }
 
-
 void Server::mountDrive() {
 	#if defined(_WIN64) || defined(_WIN32) //Windows doesn't need drives to be mounted manually
-	logObj->out("Drive mounting is only needed on Linux", Info);
+	logObj->out(text.infoPOSIXdriveMount, Info);
 	hasMounted = true;
 	#else
-	logObj->out("Trying to mount", Info);
+	logObj->out(text.infoTryingMount, Info);
 	if (!fs::is_empty(path, ec)) { //if there are files, then we don't want to mount there
-		logObj->out("There are files in the path", Error);
+		logObj->out(text.errorFilesInPath, Error);
 		return;
 	} else {
 		string error;
-		#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__) //BSDs have different mount() parameters
-		if (!mount(systems[systemi].c_str(), path.c_str(), 0, const_cast<char*>(device.c_str()))) {
+		#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
+		//BSDs have different mount() parameters
+		if (!mount(systems[systemi].c_str(), path.c_str(), 0, const_cast<char*>(device.c_str()))) { //cast a c-style device string to a constant char*
 		#else
-		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) { //brute-forces every possible filesystem because mount() depends on it being the right one
+		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) {
+		//brute-forces every possible filesystem because mount() depends on it being the right one
 		#endif
-			logObj->out("Device mounted!", Info);
+			logObj->out(text.infoDeviceMounted, Info);
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
 		} else {
@@ -204,40 +206,57 @@ void Server::mountDrive() {
 				default: error = text.errnoUnknownGeneric;
 				}
 				if (!hasOutputUSB){
-					logObj->out("An error occurred, but the script will keep trying to mount. Error: " + error, Error);
+					logObj->out(text.errorMount + error, Error);
 					hasOutputUSB = true;
 					systemi = 0;
 				}
-				logObj->out("Error code: " + to_string(errsv), Error);
+				logObj->out(text.errorCode + to_string(errsv), Error);
 				}
 			}
 			if (systemi < 6) {
-				logObj->out("Trying " + systems[systemi] + " filesystem", Info);
+				logObj->out(text.infoTryingFilesystem1 + systems[systemi] + text.infoTryingFilesystem2, Info);
 				systemi++; //increment the filesystem
 			}
 	}
 	#endif
 }
 
-void Server::readSettings(string confFile, vector<string> settings) {
+void Server::removeSlashesFromEnd(string& var) {
+	while ((var[var.length() - 1] == '/') || (var[var.length() - 1] == '\\')) {
+		var.pop_back();
+	}
+}
+
+void Server::readSettings(string confFile) {
+	vector<string> settings {"file", "path", "command", "flags", "method", "device", "debug"};
 	vector<string> results = getVarsFromFile(confFile, settings);
+	for (const auto& it : results) {
+		logObj->out(it, Debug);
+	}
     for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-    	auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-        setVar(settings[0], file);
-        setVar(settings[1], path);
-        setVar(settings[2], command);
-	    	setVar(settings[3], flags);
-	    	setVar(settings[4], device);
+			auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+			auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {tempVar = stoi(*secondSetIterator);}};
+      setVar(settings[0], file);
+      setVar(settings[1], path);
+      setVar(settings[2], command);
+	    setVar(settings[3], flags);
+			setVar(settings[4], method);
+	    setVar(settings[5], device);
+			setVari(settings[6], debug);
+			logObj->out(text.debugReadingReadsettings, Info);
     }
 	if (device == "") {
-		logObj->out("No device requested; no mounting this time!", Info);
+		logObj->out(text.infoNoMount, Info);
 		hasMounted = true;
 	}
+	logObj->out(text.debugValidatingSettings, Debug);
+	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
+	remSlash(file, path, device);
 }
 
 int Server::getPID(int pid, string method) {
 #if defined(_WIN64) || defined(_WIN32)
-logObj->out("Testing Windows support!", Warning);
+logObj->out(text.warningTestingWindowsSupport, Warning);
 return 0;
 #else
 if (method == "new") {

@@ -53,15 +53,15 @@ int main(int argc, char *argv[]) {
 	Installer installer(logObj);
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
-		auto helpOut = [](auto ...num){(logObj->out(text.help[num]), ...);};
+		auto helpOut = [](auto ...num){(logObj->out(text.help[num]), ...);}; //print multiple strings pointed to by text.help[] at once by using a parameter pack
 		if (flag("-h", "--help")) { //-h = --help = help
 			helpOut(0, 1);
 			logObj->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
 			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12); //note: Linux doesn't put an endline at the end upon exit, but Windows does
-			return 0;
+			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
 		}
 	}
-	if (!readSettings()) {
+	if (!readSettings()) { //check for a valid Hajime config file by checking if we can read the settings from it
 		logObj->out(text.errorNoHajimeConfig, Error);
 		logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
 		if (logObj->getYN()) {
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 	}
 	for (int i = 1; i < argc; i++)  {//start at i = 1 to improve performance because we will never find a flag at 0
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
-		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
+		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
 		if (flag("-f", "--server-file")) {
 		  if (!assignNextToVar(defaultServerConfFile)) {
 				logObj->out(text.errorNotEnoughArgs, Error);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 		}
 		if (flag("-hf", "--hajime-file")) {
 			if (!assignNextToVar(hajDefaultConfFile)) {
-				logObj->out("Not enough arguments provided", Error);
+				logObj->out(text.errorNotEnoughArgs, Error);
 				return 0;
 			}
 		}
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
  	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
 		if (logFile == "") {
-			logObj->out("No log file to be made; sending messages to console.", Info);
+			logObj->out(text.infoNoLogFile, Info);
 		} else {
 			logObj->init(logFile);
 		}
@@ -119,18 +119,20 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 	}
-	vector<Server> serverVec;
-	vector<std::jthread> threadVec;
+	vector<Server> serverVec; //create an array of individual server objects
+	vector<std::jthread> threadVec; //create an array of thread objects
 	Server server(logObj); //create a template object
 	for (const auto &serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
 		serverVec.push_back(server); //add a copy of server to use
 		threadVec.push_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
-	while(true) {
+	while(true) { //future command processing
 		string command;
 		cin >> command;
 		if (command == "test") {
 			cout << "Blah!" << endl;
+		} else {
+			cout << "This feature isn't implemented yet." << endl;
 		}
 	}
 	return 0;
@@ -139,19 +141,19 @@ int main(int argc, char *argv[]) {
 bool readSettings() {
 	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "optflags"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		logObj->out("Tried to read settings from " + hajDefaultConfFile + " but it doesn't exist", Debug);
+		logObj->out(text.debugHajDefConfNoExist1 + hajDefaultConfFile + text.debugHajDefConfNoExist2, Debug);
 		return 0;
 	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-		logObj->out("Reading settings at readSettings()", Debug);
+		logObj->out(text.debugReadingReadsettings, Debug);
 		setVar(settings[0], defaultServersFile);
 		setVar(settings[1], defaultServerConfFile);
 		setVar(settings[2], logFile);
 		setVar(settings[3], sysdService);
 		setVar(settings[4], optFlags);
 	}
-	logObj->out("Successfully read settings from " + hajDefaultConfFile, Debug);
+	logObj->out(text.debugReadReadsettings + hajDefaultConfFile, Debug);
 	return 1;
 }
