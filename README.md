@@ -2,6 +2,7 @@
 <img src="HJ.png" alt="Hajime logo" width="100"/>
 A fully-featured Minecraft server startup script suite that offers a friendly user interface, blazing fast speeds, and wide compatibility.
 
+[![CodeFactor](https://www.codefactor.io/repository/github/slackadays/hajime/badge)](https://www.codefactor.io/repository/github/slackadays/hajime)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Slackadays/Hajime/CI)
 ![GitHub top language](https://img.shields.io/github/languages/top/Slackadays/Hajime)
 ![Discord](https://img.shields.io/discord/891817791525629952?color=blue&logo=Discord)
