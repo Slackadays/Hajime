@@ -25,6 +25,7 @@ namespace fs = std::experimental::filesystem;
 #include "installer.h"
 #include "server.h"
 #include "getvarsfromfile.h"
+#include "wizard.h"
 
 using std::cin;
 using std::cout;
@@ -34,10 +35,11 @@ using std::make_shared;
 using std::vector;
 
 string defaultServerConfFile = "server0.conf";
-string defaultServersFile = "";
-string sysdService = ""; //systemd service file location
+string defaultServersFile = "servers.conf";
+string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string optFlags = "";
 string logFile = "";
+string hajConfFile = "";
 
 bool readSettings();
 
@@ -50,7 +52,6 @@ int main(int argc, char *argv[]) {
 		logObj->noColors = true;
 	}
 	#endif
-	Installer installer(logObj);
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		auto helpOut = [](auto ...num){(logObj->out(text.help[num]), ...);}; //print multiple strings pointed to by text.help[] at once by using a parameter pack
@@ -59,13 +60,6 @@ int main(int argc, char *argv[]) {
 			logObj->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
 			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
-		}
-	}
-	if (!readSettings()) { //check for a valid Hajime config file by checking if we can read the settings from it
-		logObj->out(text.errorNoHajimeConfig, Error);
-		logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
-		if (logObj->getYN()) {
-			installer.installDefaultHajConfFile(hajDefaultConfFile);
 		}
 	}
 	for (int i = 1; i < argc; i++)  {//start at i = 1 to improve performance because we will never find a flag at 0
@@ -83,7 +77,7 @@ int main(int argc, char *argv[]) {
 				return 0;
 			}
 		}
-		if (flag("-i", "--install-hajime")) { //can accept either no added file or an added file
+		if (flag("-ih", "--install-hajime-config")) { //can accept either no added file or an added file
 			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
 				hajDefaultConfFile = var;
 			}
@@ -102,6 +96,13 @@ int main(int argc, char *argv[]) {
 			installer.installStartupService(sysdService);
 			return 0;
 		}
+		if (flag("-v", "--verbose")) {
+			logObj->verbose = true;
+		}
+		if (flag("-i", "--install-hajime")) {
+			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
+			return 0;
+		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
@@ -112,12 +113,16 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
-		logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
+		logObj->out("Bleh", Question, 0, 0);
 		if (logObj->getYN()) {
-			installer.installDefaultHajConfFile(hajDefaultConfFile);
+			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 		} else {
 			return 0;
 		}
+	}
+	if (!fs::is_regular_file(defaultServersFile)) {
+		logObj->out("No servers file found", Error);
+		return 0;
 	}
 	vector<Server> serverVec; //create an array of individual server objects
 	vector<std::jthread> threadVec; //create an array of thread objects
@@ -127,6 +132,7 @@ int main(int argc, char *argv[]) {
 		threadVec.push_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 	while(true) { //future command processing
+		cout << "Enter a command..." << endl;
 		string command;
 		cin >> command;
 		if (command == "test") {

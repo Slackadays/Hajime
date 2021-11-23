@@ -25,3 +25,5 @@ class Installer {
                 void installDefaultServersFile(string serversFile);
                 Installer(std::shared_ptr<Output> log);
 };
+
+extern Installer installer;

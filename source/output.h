@@ -25,10 +25,11 @@ class Output {
         string addPrefixByType(string data = "", outType type = None);
         public:
                 void out(string data, outType type = None, bool keepEndlines = false, bool endLineAtEnd = true);
-		bool getYN(string prompt = "[y/n]");
+		            bool getYN(string prompt = "[y/n]");
                 void init(string file, bool debugOrNot = true);
                 void end();
                 bool noColors = false;
+                bool verbose = false;
 };
 
 extern std::shared_ptr<Output> logObj; // make this pointer global

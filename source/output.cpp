@@ -23,6 +23,10 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 	if (!debug && type == Debug) {
 		return;
 	}
+	if (type == Question) {
+		keepEndlines = false;
+		endLineAtEnd = false;
+	}
 	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
 	if (noColors) {
 		outputString = std::regex_replace(outputString, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
@@ -70,32 +74,73 @@ string Output::removeEndlines(string input, bool keepEndlines){
 
 string Output::addPrefixByType(string input, outType type){
 	string prefix = "";
-	switch (type) {
-		case None:
-			return input; //None is if you want to preserve input
-			break;
-		case Info:
-			prefix = text.prefixInfo; //cyan background
-			break;
-		case Error:
-			prefix = text.prefixError; //red background, yellow text
-			break;
-		case Warning:
-			prefix = text.prefixWarning; //yellow text
-			break;
-		case Question:
-			prefix = text.prefixQuestion; //green background
-			break;
-		case Debug:
-			if (debug) {
-				prefix = text.prefixDebug;
-			} //magenta background
-			break;
-		default:
-			break;
+	bool blank = false;
+	if (verbose) {
+		switch (type) {
+			case None:
+				blank = true; //None is if you want to preserve input
+				break;
+			case Info:
+				prefix = text.prefixVInfo; //cyan background
+				break;
+			case Error:
+				prefix = text.prefixVError; //red background, yellow text
+				break;
+			case Warning:
+				prefix = text.prefixVWarning; //yellow text
+				break;
+			case Question:
+				prefix = text.prefixVQuestion; //green background
+				break;
+			case Debug:
+				if (debug) {
+					prefix = text.prefixVDebug;
+				} //magenta background
+				break;
+			default:
+				break;
+		}
+	} else {
+		switch (type) {
+			case None:
+				blank = true; //None is if you want to preserve input
+				break;
+			case Info:
+				prefix = text.prefixInfo; //cyan background
+				break;
+			case Error:
+				prefix = text.prefixError; //red background, yellow text
+				break;
+			case Warning:
+				prefix = text.prefixWarning; //yellow text
+				break;
+			case Question:
+				prefix = text.prefixQuestion; //green background
+				break;
+			case Debug:
+				if (debug) {
+					prefix = text.prefixDebug;
+				} //magenta background
+				break;
+			default:
+				break;
+		}
+	}
+	if (blank) {
+		return input;
 	}
 	if (main_thread == std::this_thread::get_id()) {
-		prefix += "| Main]\033[0m ";} else {prefix += "| Worker]\033[0m ";
+		if (verbose) {
+			prefix += "| Main]\033[0m ";
+		} else {
+			prefix += "|M]\033[0m ";
+		}
+	} else {
+		if (verbose) {
+			prefix += "| Worker]\033[0m ";
+		} else {
+			prefix += "|W]\033[0m ";
+		}
 	}
 	return (prefix + input);
 }

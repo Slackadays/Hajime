@@ -58,7 +58,7 @@ void Installer::installNewServerConfigFile(string fileLocation) {
 	ofstream outConf(fileLocation);
 	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=FLAGS" << endl << "method=new" << endl << "device=" << endl << "debug=1" << endl ;
 	outConf << "# Anything after a # is a comment." << endl;
-	cout << "The config file (" << fileLocation << ") has been created" << endl;
+	logObj->out("The config file (" + fileLocation + ") has been created", Info);
 	outConf.close();
 }
 
@@ -209,7 +209,6 @@ void Installer::installStartupService(string sysService) {
 		#endif
 }
 
-
 void Installer::installDefaultServersFile(string serversFile) {
 	logObj->out("Installing default servers file at " + serversFile + "...", Info);
 	logObj->out("Checking for existing file...", Info);
@@ -222,3 +221,5 @@ void Installer::installDefaultServersFile(string serversFile) {
 		logObj->out("Servers file made!", Info);
 	}
 }
+
+Installer installer(logObj);

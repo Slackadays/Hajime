@@ -27,6 +27,11 @@ class Text {
     string prefixWarning;
     string prefixDebug;
     string prefixQuestion;
+    string prefixVInfo;
+    string prefixVError;
+    string prefixVWarning;
+    string prefixVDebug;
+    string prefixVQuestion;
     string errorNotEnoughArgs;
     string errorConfDoesNotExist1;
     string errorConfDoesNotExist2;
@@ -89,8 +94,6 @@ class Text {
     string debugFlagArray1;
     string debugValidatingSettings;
 };
-
-
 
 extern string hajDefaultConfFile;
 extern Text text;

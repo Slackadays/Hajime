@@ -5,7 +5,6 @@
 namespace fs = std::filesystem;
 using std::string;
 
-
 #include "getvarsfromfile.h"
 #include "languages.h"
 
@@ -37,14 +36,20 @@ void Text::applyLang(string lang) {
                 errnoBadArgs = "Bad arguments. Is the configuration set correctly?";
                 errnoUnknownDev = "Unknown device. Is the filesystem supported?";
                 errnoUnknownGeneric = "Unknown error.";
-                prefixInfo = "\033[46m[Info ";
-                prefixError = "\033[41m\033[33m[Error ";
-                prefixWarning = "\033[33m[Warning ";
-                prefixDebug = "\033[105m[Debug ";
+                prefixInfo = "\033[46m[*";
+                prefixError = "\033[41m\033[33m[X";
+                prefixWarning = "\033[33m[!";
+                prefixDebug = "\033[105m[+";
+                prefixVInfo = "\033[46m[Info ";
+                prefixVError = "\033[41m\033[33m[Error ";
+                prefixVWarning = "\033[33m[Warning ";
+                prefixVDebug = "\033[105m[Debug ";
                 #if defined(_WIN64) || defined (_WIN32)
-                prefixQuestion = "\033[102m[Question "; //Windows doesn't support 24 bit terminal colors
+                prefixVQuestion = "\033[102m[Question "; //Windows doesn't support 24 bit terminal colors
+                prefixQuestion = "\033[102m[?";
                 #else
-                prefixQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[Question ";
+                prefixVQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[Question ";
+                prefixQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[?";
                 #endif
                 errorNotEnoughArgs = "Not enough arguments provided";
                 errorConfDoesNotExist1 = "Config file ";
