@@ -21,7 +21,7 @@ class Installer {
         public:
                 void installStartupService(string sysService);
                 void installDefaultHajConfFile(string fileLocation);
-                void installDefaultServerConfFile(string conf);
+                bool installDefaultServerConfFile(string conf);
                 void installDefaultServersFile(string serversFile);
                 Installer(std::shared_ptr<Output> log);
 };

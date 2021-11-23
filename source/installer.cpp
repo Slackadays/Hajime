@@ -23,7 +23,7 @@ Installer::Installer(std::shared_ptr<Output> log) {
 	logObj = log;
 }
 
-void Installer::installDefaultServerConfFile(string conf) {
+bool Installer::installDefaultServerConfFile(string conf) {
 	logObj->out("Installing default server config file at " + conf + "...", Info);
 	if (fs::is_regular_file(conf)){
 		logObj->out("The file is already here! To make a new one, delete the existing file.", Warning);
@@ -31,9 +31,14 @@ void Installer::installDefaultServerConfFile(string conf) {
 		if (logObj->getYN()) {
 			logObj->out("Installing a new server config file with name " + conf + "...", Info);
 			Installer::installNewServerConfigFile(conf);
+			return 1;
+		} else {
+			return 0;
 		}
 	} else {
 		Installer::installNewServerConfigFile(conf);
+		logObj->out("Installing a new server config file with name " + conf + "...", Info);
+		return 1;
 	}
 }
 

@@ -113,9 +113,13 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
-		logObj->out("Bleh", Question, 0, 0);
+		logObj->out("It looks like it's your first time using Hajime. Do you want to do the setup installer?", Question);
 		if (logObj->getYN()) {
 			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
+			logObj->out("Do you want to start Hajime now? Enter \"n\" to exit.", Question);
+			if (!logObj->getYN()) {
+				return 0;
+			}
 		} else {
 			return 0;
 		}

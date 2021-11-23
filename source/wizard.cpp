@@ -7,10 +7,8 @@
 namespace fs = std::filesystem;
 
 void initialHajimeSetup(string confFile, string serversFile, string serverFile, string sysdService) {
-  logObj->out("Welcome to the Hajime installer!", Info);
-  logObj->out("Would you like to get started now?", Question, 0, 0);
-  if (logObj->getYN()) {
-    logObj->out("Great! Let's start with creating the file that Hajime will use for its basic settings.", Info);
+    bool installedS = false;
+    logObj->out("Let's start with creating the file that Hajime will use for its basic settings.", Info);
     logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
     if (logObj->getYN()) {
       installer.installDefaultHajConfFile(confFile);
@@ -23,12 +21,17 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
     logObj->out("Now we need a server file to define one of your servers to run.", Info);
     logObj->out("Do you want to make a server file now?", Question);
     if (logObj->getYN()) {
-      installer.installDefaultServerConfFile(serverFile);
+      if (installer.installDefaultServerConfFile(serverFile)) {
+      	installedS = true;
+      }
     }
     logObj->out("Finally, we need to make Hajime start upon the host booting.", Info);
     logObj->out("Do you want to install a startup service?", Question);
     if (logObj->getYN()) {
       installer.installStartupService(sysdService);
     }
-  }
+    logObj->out("Setup complete!", Info);
+    if (installedS) {
+	    logObj->out("Next Steps: Enter your server settings in " + serverFile + ".", Info);
+    }
 }
