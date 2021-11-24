@@ -22,11 +22,12 @@ git clone https://github.com/Slackadays/Hajime
 echo "Compiling..."
 echo "This may take from a few seconds to a few minutes depending on your system speed."
 cd Hajime/source
-echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp | xargs -n 1 -P 6 g++ -c -Ofast -std=c++17 #lstdc++fs enables filsystem library in older installations
-g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o -pthread -lstdc++fs
-echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp | xargs -n 1 -P 6 eg++ -c -Ofast -std=c++17
-eg++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o -pthread -lstdc++fs
+echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++ -c -Ofast -std=c++17 #lstdc++fs enables filsystem library in older installations
+g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread -lstdc++fs
+echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 6 eg++ -c -Ofast -std=c++17
+eg++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread -lstdc++fs
 echo "Cleaning up..."
 chown -R $USER ../../Hajime/.git #change perms for certain misbehaving files that come with git
 mv hajime ../../ #move the binary to the original folder where the script was started
 rm -rf ../../Hajime #remove the cloned directory, ignore junk files from .git
+./hajime
