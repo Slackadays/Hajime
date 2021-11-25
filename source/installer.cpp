@@ -14,9 +14,9 @@
 using std::cout;
 using std::endl;
 
-#include "output.h"
-#include "languages.h"
-#include "installer.h"
+#include "output.hpp"
+#include "languages.hpp"
+#include "installer.hpp"
 namespace fs = std::filesystem;
 
 Installer::Installer(std::shared_ptr<Output> log) {

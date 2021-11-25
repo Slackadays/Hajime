@@ -9,8 +9,8 @@
 using std::string;
 using std::ofstream;
 
-#include "output.h"
-#include "languages.h"
+#include "output.hpp"
+#include "languages.hpp"
 
 void Output::init(string file, bool debugOrNot) {
 	logToFile = true;

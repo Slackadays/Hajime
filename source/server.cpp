@@ -17,8 +17,8 @@
 #include <chrono>
 #include <filesystem>
 
-#include "getvarsfromfile.h"
-#include "server.h"
+#include "getvarsfromfile.hpp"
+#include "server.hpp"
 
 using std::shared_ptr;
 using std::string;

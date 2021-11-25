@@ -20,12 +20,12 @@ namespace fs = std::experimental::filesystem;
 	#define jthread thread
 #endif
 
-#include "output.h"
-#include "languages.h"
-#include "installer.h"
-#include "server.h"
-#include "getvarsfromfile.h"
-#include "wizard.h"
+#include "output.hpp"
+#include "languages.hpp"
+#include "installer.hpp"
+#include "server.hpp"
+#include "getvarsfromfile.hpp"
+#include "wizard.hpp"
 
 using std::cin;
 using std::cout;

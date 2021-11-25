@@ -1,8 +1,8 @@
 #include <iostream>
 #include <filesystem>
 
-#include "output.h"
-#include "installer.h"
+#include "output.hpp"
+#include "installer.hpp"
 
 namespace fs = std::filesystem;
 
