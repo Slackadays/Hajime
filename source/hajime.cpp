@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 		if (flag("-h", "--help")) { //-h = --help = help
 			helpOut(0, 1);
 			logObj->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
-			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12); //note: Linux doesn't put an endline at the end upon exit, but Windows does
+			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
 		}
 	}
@@ -98,6 +98,12 @@ int main(int argc, char *argv[]) {
 		}
 		if (flag("-v", "--verbose")) {
 			logObj->verbose = true;
+		}
+		if (flag("-m", "--monochrome", "--no-colors")) {
+			logObj->noColors = true;
+		}
+		if (flag("-d", "--debug")) {
+			logObj->debug = true;
 		}
 		if (flag("-i", "--install-hajime")) {
 			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);

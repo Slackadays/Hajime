@@ -28,7 +28,7 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 		endLineAtEnd = false;
 	}
 	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
-	if (noColors) {
+	if (noColors || logToFile) {
 		outputString = std::regex_replace(outputString, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 	}
 	if (!logToFile) {
@@ -39,7 +39,10 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 		}
 	} else {
 		std::lock_guard<std::mutex> lock(outMutex);
-		fileObj << outputString << std::endl;
+		fileObj << outputString;
+		if (endLineAtEnd) {
+			std::cout << std::endl;
+		}
 	}
 }
 

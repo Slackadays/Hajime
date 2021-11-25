@@ -18,7 +18,6 @@ class Output {
         std::mutex outMutex;
         std::thread::id main_thread = std::this_thread::get_id();
         bool logToFile = false;
-        bool debug = true;
         string logFilename;
         ofstream fileObj;
         string removeEndlines(string input, bool keepEndlines = false);
@@ -30,6 +29,7 @@ class Output {
                 void end();
                 bool noColors = false;
                 bool verbose = false;
+                bool debug = false;
 };
 
 extern std::shared_ptr<Output> logObj; // make this pointer global
