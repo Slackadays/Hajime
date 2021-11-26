@@ -55,11 +55,20 @@ int main(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		auto helpOut = [](auto ...num){(logObj->out(text.help[num]), ...);}; //print multiple strings pointed to by text.help[] at once by using a parameter pack
+		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
 		if (flag("-h", "--help")) { //-h = --help = help
 			helpOut(0, 1);
 			logObj->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
-			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); //note: Linux doesn't put an endline at the end upon exit, but Windows does
+			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
+		}
+		if (flag("-l", "--language")) {
+			if ((i < (argc - 1)) && string(argv[i + 1]).front() != '-') {
+				text.applyLang(argv[i + 1]);
+			} else {
+				logObj->out(text.errorNotEnoughArgs, Error);
+				return 0;
+			}
 		}
 	}
 	for (int i = 1; i < argc; i++)  {//start at i = 1 to improve performance because we will never find a flag at 0
@@ -108,14 +117,6 @@ int main(int argc, char *argv[]) {
 		if (flag("-i", "--install-hajime")) {
 			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			return 0;
-		}
-		if (flag("-l", "--language")) {
-			if (string var = "-"; assignNextToVar(var) && var[0] != '-') {
-				text.applyLang(argv[i]);
-			} else {
-				logObj->out(text.errorNotEnoughArgs, Error);
-				return 0;
-			}
 		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
