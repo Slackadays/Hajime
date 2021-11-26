@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 }
 
 bool readSettings() {
-	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "optflags"};
+	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "optflags", "debug"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		logObj->out(text.debugHajDefConfNoExist1 + hajDefaultConfFile + text.debugHajDefConfNoExist2, Debug);
 		return 0;
@@ -172,12 +172,14 @@ bool readSettings() {
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
 		logObj->out(text.debugReadingReadsettings, Debug);
 		setVar(settings[0], defaultServersFile);
 		setVar(settings[1], defaultServerConfFile);
 		setVar(settings[2], logFile);
 		setVar(settings[3], sysdService);
 		setVar(settings[4], optFlags);
+		setVari(settings[5], logObj->debug);
 	}
 	logObj->out(text.debugReadReadsettings + hajDefaultConfFile, Debug);
 	return 1;

@@ -48,7 +48,7 @@ void Server::startServer(string confFile) {
 			logObj->out(text.infoServerPath + path, Info);
 			logObj->out(text.infoServerCommand + command, Info);
 			logObj->out(text.infoServerMethod + method, Info);
-			logObj->out(text.infoServerDebug + to_string(debug), Info); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+			logObj->out(text.infoServerDebug + to_string(logObj->debug), Info); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 			logObj->out(text.infoServerDevice + device, Info);
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
@@ -228,21 +228,19 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(string confFile) {
-	vector<string> settings {"file", "path", "command", "flags", "method", "device", "debug"};
+	vector<string> settings {"file", "path", "command", "flags", "method", "device"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		logObj->out(it, Debug);
 	}
     for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 			auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-			auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {tempVar = stoi(*secondSetIterator);}};
       setVar(settings[0], file);
       setVar(settings[1], path);
       setVar(settings[2], command);
 	    setVar(settings[3], flags);
 			setVar(settings[4], method);
 	    setVar(settings[5], device);
-			setVari(settings[6], debug);
 			logObj->out(text.debugReadingReadsettings, Info);
     }
 	if (device == "") {

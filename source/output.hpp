@@ -31,7 +31,7 @@ class Output {
                 void end();
                 bool noColors = false;
                 bool verbose = false;
-                bool debug = false;
+                int debug = 0;
 };
 
 extern std::shared_ptr<Output> logObj; // make this pointer global

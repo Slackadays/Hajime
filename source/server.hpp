@@ -40,8 +40,6 @@ class Server {
 
         const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
-        int debug = 0;
-
         void mountDrive();
         void makeDir();
         void startProgram(string method);
