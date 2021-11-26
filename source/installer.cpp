@@ -24,12 +24,12 @@ Installer::Installer(std::shared_ptr<Output> log) {
 }
 
 bool Installer::installDefaultServerConfFile(string conf) {
-	logObj->out("Installing default server config file at " + conf + "...", Info);
+	logObj->out(text.infoInstallingDefServConf + conf + "...", Info);
 	if (fs::is_regular_file(conf)){
-		logObj->out("The file is already here! To make a new one, delete the existing file.", Warning);
+		logObj->out(text.warningFoundServerConf, Warning);
 		logObj->out(text.questionMakeServerConfig, Question, 0, 0); // don't keep endlines, don't add endline
 		if (logObj->getYN()) {
-			logObj->out("Installing a new server config file with name " + conf + "...", Info);
+			logObj->out(text.infoInstallingNewServConf + conf + "...", Info);
 			Installer::installNewServerConfigFile(conf);
 			return 1;
 		} else {
@@ -37,16 +37,16 @@ bool Installer::installDefaultServerConfFile(string conf) {
 		}
 	} else {
 		Installer::installNewServerConfigFile(conf);
-		logObj->out("Installing a new server config file with name " + conf + "...", Info);
+		logObj->out(text.infoInstallingNewServConf + conf + "...", Info);
 		return 1;
 	}
 }
 
 void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
-	logObj->out("Installing default Hajime config file " + fileLocation + "...", Info);
-	logObj->out("Checking for existing file...", Info);
+	logObj->out(text.infoInstallingDefHajConf + fileLocation + "...", Info);
+	logObj->out(text.infoCheckingExistingFile, Info);
 	if (fs::is_regular_file(fileLocation)) {
-		logObj->out("Hajime config file already present!", Warning);
+		logObj->out(text.warningFoundHajConf, Warning);
 	} else {
 		ofstream outConf(fileLocation);
 		outConf << "serversfile=servers.conf" << endl;
@@ -56,27 +56,27 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
 		outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
 		outConf << "optflags=-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem  XX:MaxTenuringThreshold=1 -Daikars.new.flags=true -Dusing.aikars.flags=https://mcflags.emc.gs" << endl;
 		outConf.close();
-		logObj->out("Hajime config file (" + fileLocation + ") made!", Info);
+		logObj->out(text.infoHajConfigMade1 + fileLocation + text.infoHajConfigMade2, Info);
 	}
 }
 
 void Installer::installNewServerConfigFile(string fileLocation) {
 	ofstream outConf(fileLocation);
 	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=FLAGS" << endl << "method=new" << endl << "device=" << endl << "debug=1" << endl ;
-	outConf << "# Anything after a # is a comment." << endl;
-	logObj->out("The config file (" + fileLocation + ") has been created", Info);
+	outConf << text.fileServerConfComment << endl;
+	logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
 	outConf.close();
 }
 
 void Installer::installStartupService(string sysService) {
 	#if defined(_WIN64) || defined (_WIN32)
-	logObj->out("Installing Windows startup service", Info);
+	logObj->out(text.infoInstallingWStartServ, Info);
 	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\Hajime.exe";
 	cout << command << endl;
 	int result = system(command.c_str());
 	if (!IsUserAnAdmin()) {
 		logObj->out(text.errorStartupServiceWindowsAdmin, Error);
-		logObj->out("Tip: Right click the terminal icon and then click \"Run as administrator\"", Info);
+		logObj->out(text.infoTipAdministrator, Info);
 	}
 	#else
 	if (fs::is_directory("/etc/init.d") && !fs::is_regular_file("/lib/systemd/systemd")) {
@@ -159,14 +159,14 @@ void Installer::installStartupService(string sysService) {
 			logObj->out(text.infoAbortedSysvinit, Info);
 		}
 	} else if (fs::is_directory("/Library/LaunchAgents")) { //macOS agent directory
-		logObj->out("Installing launchd service", Info);
+		logObj->out(text.infoInstallingLaunchdServ, Info);
 		bool continueInstall = true;
                 if (fs::is_regular_file("/Library/LaunchAgents/Hajime.plist")) {
-                        logObj->out("Found an existing launchd service", Warning);
-                        logObj->out("Would you like to make a new one anyway?", Question, 0, 0);
+                        logObj->out(text.warningLaunchdServPresent, Warning);
+                        logObj->out(text.questionMakeLaunchdServ, Question, 0, 0);
                         if (logObj->getYN()) {
                                 continueInstall = true;
-                                logObj->out("Installing new launchd service", Info);
+                                logObj->out(text.infoInstallingNewLaunchdServ, Info);
                         } else {
                                 continueInstall = false;
                         }
@@ -190,9 +190,9 @@ void Installer::installStartupService(string sysService) {
 			"	</dict>\n"
 			"</plist>" << endl;
 			service.close();
-			logObj->out("Installed launchd service", Info);
+			logObj->out(text.infoInstalledLaunchServ, Info);
 		} else {
-			logObj->out("Aborted launchd service installation", Info);
+			logObj->out(text.infoAbortedLaunchServ, Info);
 		}
 	} else {
 		if (getuid()) {
@@ -202,7 +202,7 @@ void Installer::installStartupService(string sysService) {
 			logObj->out(text.warningFoundSystemdService, Warning);
 		}
 		if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
-			logObj->out("Making systemd service at " + sysService + "...", Info);
+			logObj->out(text.infoMakingSystemdServ + sysService + "...", Info);
 			ofstream service(sysService);
 			service << "[Unit]" << endl << "Description=Starts Hajime" << endl;
 			service << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
@@ -216,15 +216,15 @@ void Installer::installStartupService(string sysService) {
 }
 
 void Installer::installDefaultServersFile(string serversFile) {
-	logObj->out("Installing default servers file at " + serversFile + "...", Info);
-	logObj->out("Checking for existing file...", Info);
+	logObj->out(text.infoInstallingServersFile + serversFile + "...", Info);
+	logObj->out(text.infoCheckingExistingServersFile, Info);
 	if (fs::is_regular_file(serversFile)) {
 		logObj->out(text.errorServersFilePresent, Warning);
 	} else {
 		ofstream outConf(serversFile);
 		outConf << "server0.conf" << endl;
 		outConf.close();
-		logObj->out("Servers file made!", Info);
+		logObj->out(text.infoMadeServersFile, Info);
 	}
 }
 

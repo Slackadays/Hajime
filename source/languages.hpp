@@ -5,8 +5,8 @@ using std::string;
 #pragma once
 
 class Text {
-  void applyLang(string lang);
   public:
+    void applyLang(string lang);
     Text(string lang);
     std::vector<string> help;
     string errnoNotPermitted;
@@ -47,17 +47,29 @@ class Text {
     string errorMethodNotValid;
     string errorCreatingDirectory;
     string errorFilesInPath;
+    string errorNoServersFile;
     string errorMount;
     string errorCode;
 		string warningFoundSysvinitService;
 		string warningFoundSystemdService;
+    string warningFoundServerConf;
+    string warningFoundHajConf;
     string warningIsRunningFalse;
     string warningTestingWindowsSupport;
+    string warningHajConfPresent;
+    string warningLaunchdServPresent;
+    string questionMakeLaunchdServ;
+    string questionPrompt;
     string questionMakeHajimeConfig;
     string questionMakeServerConfig;
 		string questionMakeNewSysvinitService;
+    string questionWizardServersFile;
+    string questionWizardServerFile;
+    string questionWizardStartupService;
 		string questionSysvinitUser;
 		string questionSysvinitGroup;
+    string questionDoSetupInstaller;
+    string questionStartHajime;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;
@@ -71,6 +83,8 @@ class Text {
     string infoServerDevice;
     string infoServerDebug;
     string infoServerIsRunning;
+    string infoCreatedServerConfig1;
+    string infoCreatedServerConfig2;
     string infoTryingToStartProgram;
     string infoStartingServer;
     string infoServerStartCompleted;
@@ -81,6 +95,29 @@ class Text {
     string infoCreatingDirectory;
     string infoDeviceMounted;
     string infoNoMount;
+    string infoWizardHajimeFile;
+    string infoWizardServersFile;
+    string infoWizardServerFile;
+    string infoWizardStartupService;
+    string infoWizardComplete;
+    string infoWizardNextStepServerFile1;
+    string infoWizardNextStepServerFile2;
+    string infoInstallingDefServConf;
+    string infoInstallingNewServConf;
+    string infoInstallingDefHajConf;
+    string infoCheckingExistingFile;
+    string infoHajConfigMade1;
+    string infoHajConfigMade2;
+    string infoInstallingWStartServ;
+    string infoTipAdministrator;
+    string infoInstallingLaunchdServ;
+    string infoInstallingNewLaunchdServ;
+    string infoInstalledLaunchServ;
+    string infoAbortedLaunchServ;
+    string infoMakingSystemdServ;
+    string infoInstallingServersFile;
+    string infoCheckingExistingServersFile;
+    string infoMadeServersFile;
     string debugHajDefConfNoExist1;
     string debugHajDefConfNoExist2;
     string debugReadingReadsettings;
@@ -93,6 +130,7 @@ class Text {
     string debugFlagArray0;
     string debugFlagArray1;
     string debugValidatingSettings;
+    string fileServerConfComment;
 };
 
 extern string hajDefaultConfFile;

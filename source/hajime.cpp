@@ -109,6 +109,14 @@ int main(int argc, char *argv[]) {
 			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			return 0;
 		}
+		if (flag("-l", "--language")) {
+			if (string var = "-"; assignNextToVar(var) && var[0] != '-') {
+				text.applyLang(argv[i]);
+			} else {
+				logObj->out(text.errorNotEnoughArgs, Error);
+				return 0;
+			}
+		}
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
@@ -119,10 +127,10 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
-		logObj->out("It looks like it's your first time using Hajime. Do you want to do the setup installer?", Question);
+		logObj->out(text.questionDoSetupInstaller, Question);
 		if (logObj->getYN()) {
 			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
-			logObj->out("Do you want to start Hajime now? Enter \"n\" to exit.", Question);
+			logObj->out(text.questionStartHajime, Question);
 			if (!logObj->getYN()) {
 				return 0;
 			}
@@ -131,7 +139,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	if (!fs::is_regular_file(defaultServersFile)) {
-		logObj->out("No servers file found", Error);
+		logObj->out(text.errorNoServersFile, Error);
 		return 0;
 	}
 	vector<Server> serverVec; //create an array of individual server objects

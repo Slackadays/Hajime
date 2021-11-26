@@ -9,6 +9,8 @@
 #include <regex>
 #include <memory>
 
+#include "languages.hpp"
+
 using std::string;
 using std::ofstream;
 
@@ -24,7 +26,7 @@ class Output {
         string addPrefixByType(string data = "", outType type = None);
         public:
                 void out(string data, outType type = None, bool keepEndlines = false, bool endLineAtEnd = true);
-		            bool getYN(string prompt = "[y/n]");
+		            bool getYN(string prompt = text.questionPrompt);
                 void init(string file, bool debugOrNot = true);
                 void end();
                 bool noColors = false;

@@ -47,14 +47,14 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 }
 
 bool Output::getYN(string prompt) {
-	string response = "";
+	string response;
 	if (prompt != "") {
 		prompt = " " + prompt + " ";
 	}
 	this->out("\033[1m" + prompt, None, 0, 0);
 	std::cin >> response;
 	this->out("\033[0m", None, 0, 0);
-	if (response == "y" || response == "Y" || response == "yes" || response == "Yes" || response == "YES" || response == "YEs") {
+	if (std::regex_match(text.questionPrompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
 		return true;
 	}
 	else {
