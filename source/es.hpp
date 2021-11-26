@@ -2,9 +2,9 @@ help.push_back("\033[1m¡Bienvenido a Hajime, el programa definitivo para el enc
 help.push_back("Esta versión de Hajime fue compilada esta fecha: " __DATE__ ".");
 help.push_back("\033[1m\033[32mUso:\033[0m ");
 help.push_back(" [los siguientes indicadores]");
-help.push_back("\033[1m-f \033[3marchivo\033[0m o \033[1m--server-file \033[3marchivo \033[0m\033[1m|\033[0m Precisar un archivo para usar.");
+help.push_back("\033[1m-f \033[3marchivo\033[0m o \033[1m--server-file \033[3marchivo \033[0m\033[1m|\033[0m Especificar un archivo para usar.");
 help.push_back("\033[1m-h \033[0mo\033[1m --help |\033[0m Mostrar este mensaje de ayuda.");
-help.push_back("\033[1m-hf \033[1m\033[3marchivo \033[0mo\033[1m --hajime-file\033[0m \033[1m\033[3marchivo \033[0m\033[1m|\033[0mPrecisar el archivo de configuración que usa Hajime.");
+help.push_back("\033[1m-hf \033[1m\033[3marchivo \033[0mo\033[1m --hajime-file\033[0m \033[1m\033[3marchivo \033[0m\033[1m|\033[0mEspecificar el archivo de configuración que usa Hajime.");
 help.push_back("\033[1m-s  \033[0mu\033[1m --install-server \033[1m|\033[0m Crear un archivo estándar para la configuración de un servidor.");
 help.push_back("\033[1m-ih \033[1m\033[3marchivo \033[0mu\033[1m --install-hajime-config \033[1m\033[3marchivo \033[0m\033[1m|\033[0m Instalar el archivo estándar que usa Hajime.");
 help.push_back("\033[1m-S  \033[0mu\033[1m --install-service \033[1m|\033[0m Instalar un archivo de encendido para empezar Hajime.");
@@ -19,7 +19,7 @@ errnoNotPermitted = "No es permitido. ¿Es correcto el aparato?";
 errnoNoFileOrDir = "No hay ese tipo de archivo ni directorio.";
 errnoPermissionDenied = "No tiene el permiso necesario. ¿Estás ejecutando Hajime como el usuario root?";
 errnoInOut = "Error de entra/salida. ¿Está OK el lector?";
-errnoMemory = "No hay bastante memoria.";
+errnoMemory = "No hay suficiente memoria.";
 errnoUnavailable = "El recurso no está disponible.";
 errnoAddress = "La dirección está mala.";
 prefixVInfo = "\033[46m[Info ";
@@ -31,7 +31,7 @@ prefixVQuestion = "\033[102m[Pregunta "; //Windows doesn't support 24 bit termin
 #else
 prefixVQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[Pregunta ";
 #endif
-errorNotEnoughArgs = "No hay bastante indicadores";
+errorNotEnoughArgs = "No hay suficientes argumentos";
 errorConfDoesNotExist1 = "¡El archivo de configuración ";
 errorConfDoesNotExist2 = " no existe!";
 errorNoHajimeConfig = "Archivo estándar de configuation de Hajime no existe";
@@ -44,7 +44,7 @@ errorServerFileNotPresent2 = ") no existe";
 errorCouldntSetPath = "No pudo cambiar la dirección";
 errorGeneric = "Ocurrió un error desconocido.";
 errorMethodNotValid = "El método no es válido";
-errorCreatingDirectory = "Error de crear el directorio";
+errorCreatingDirectory = "Error al crear el directorio";
 errorFilesInPath = "Hay archivos en la dirección";
 errorNoServersFile = "No hay nada archivo de servidor";
 errorMount = "Ocurrió un error, pero Hajime tratará a continuar. El error: ";
@@ -80,7 +80,7 @@ infoServerFile = "Archivo del servidor: ";
 infoServerPath = "Dirección del servidor: ";
 infoServerCommand = "Comando del servidor: ";
 infoServerMethod =  "Método del encendido del servidor: ";
-infoServerDevice = "Aparato: ";
+infoServerDevice = "Dispositivo: ";
 infoServerDebug = "Número de depurar: ";
 infoServerIsRunning = "¡Está ejecutando el programa!";
 infoTryingToStartProgram = "Está tratando a ejecutar el programa";
