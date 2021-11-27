@@ -11,6 +11,18 @@ then
         pkg install gcc10 git
         pkg upgrade
 fi
+if [ "$(uname -s)" = "Darwin" ]
+then
+	echo "macOS detected"
+	if [ "$(uname -m)" = "arm64" ] 
+	then
+		echo "Downloading Hajime for macOS ARM directly"
+		curl -o hajime -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime
+		chmod +x hajime
+		./hajime
+	fi
+	exit 0
+fi
 if [ "$(uname -s)" = "Linux" ]
 then
 	echo "Linux detected"
