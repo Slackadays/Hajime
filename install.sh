@@ -30,4 +30,5 @@ echo "Cleaning up..."
 chown -R $USER ../../Hajime/.git #change perms for certain misbehaving files that come with git
 mv hajime ../../ #move the binary to the original folder where the script was started
 rm -rf ../../Hajime #remove the cloned directory, ignore junk files from .git
+cd ../../
 ./hajime
