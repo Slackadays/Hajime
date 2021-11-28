@@ -1,11 +1,6 @@
 // (c) 2021 Slackadays on GitHub
-#if __cplusplus > 201703L //implementations older than C++20 often have the filesystem library in the experimental category
 #include <filesystem>
 namespace fs = std::filesystem;
-#else
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#endif
 #if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
 #endif
