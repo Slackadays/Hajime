@@ -70,8 +70,8 @@ jobs:
         shell: bash
         run: |
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++ -c -Ofast -std=c++17
-          g++ -o Hajime.exe -static -static-libgcc -static-libstdc++ hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++ -c -Ofast -std=c++17 -lstdc++fs
+          g++ -o Hajime.exe -static -static-libgcc -static-libstdc++ hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -lstdc++fs
           
       - uses: actions/upload-artifact@v2
         with: 
