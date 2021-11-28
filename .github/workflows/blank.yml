@@ -56,26 +56,3 @@ jobs:
         with: 
           name: hajime-macos-amd64
           path: source/hajime
-  build-windows-amd64:
-    # The type of runner that the job will run on
-    runs-on: windows-2022
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        shell: bash
-        run: |
-          choco install msys2
-          cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 clang++ -c -Ofast -std=c++20
-          clang++ -o Hajime.exe -static -static-libgcc -static-libstdc++ hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o
-          
-      - uses: actions/upload-artifact@v2
-        with: 
-          name: hajime-windows-amd64
-          path: source/hajime
-
