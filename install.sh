@@ -17,15 +17,34 @@ then
 	if [ "$(uname -m)" = "arm64" ] 
 	then
 		echo "Downloading Hajime for macOS ARM directly"
-		curl -o hajime -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime
-		chmod +x hajime
-		./hajime
+		curl -o hajime -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime-macos-arm64.zip
+		unzip hajime-macos-arm64.zip
+                if [ -e hajime ]
+                then
+                        chmod +x hajime
+			rm hajime-macos-arm64.zip
+                        ./hajime
+                        exit 0
+                fi
 	fi
-	exit 0
 fi
 if [ "$(uname -s)" = "Linux" ]
 then
 	echo "Linux detected"
+	if [ "$(uname -m)" = "x86_64" ]
+	then
+		echo "Trying to download Hajime for Linux amd64 directly"
+		curl -o hajime-linux-amd64.zip -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime-linux-amd64.zip
+		unzip hajime-linux-amd64.zip
+		if [ -e hajime ]
+		then
+			chmod +x hajime
+			rm hajime-linux-amd64.zip
+			./hajime
+			exit 0
+		fi
+	fi
+	echo "Compiling Hajime now"
 	sudo apt update && sudo apt -y install g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
 	sudo apt -y upgrade
 	sudo yum install -y clang
