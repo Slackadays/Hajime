@@ -17,12 +17,12 @@ using std::endl;
 #include "languages.hpp"
 
 class Installer {
-        void installNewServerConfigFile(string fileLocation);
+        void installNewServerConfigFile(string fileLocation, string flags);
         public:
                 void installStartupService(string sysService);
-                void installDefaultHajConfFile(string fileLocation);
-                bool installDefaultServerConfFile(string conf);
-                void installDefaultServersFile(string serversFile);
+                void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false);
+                void installDefaultServerConfFile(string conf, bool skipFileCheck = false, string flags = "");
+                void installDefaultServersFile(string serversFile, bool skipFileCheck = false);
                 Installer(std::shared_ptr<Output> log);
 };
 

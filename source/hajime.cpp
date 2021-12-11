@@ -32,7 +32,6 @@ using std::vector;
 string defaultServerConfFile = "server0.conf";
 string defaultServersFile = "servers.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
-string optFlags = "";
 string logFile = "";
 string hajConfFile = "";
 
@@ -159,7 +158,7 @@ int main(int argc, char *argv[]) {
 }
 
 bool readSettings() {
-	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "optflags", "debug"};
+	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "debug"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		logObj->out(text.debugHajDefConfNoExist1 + hajDefaultConfFile + text.debugHajDefConfNoExist2, Debug);
 		return 0;
@@ -173,8 +172,7 @@ bool readSettings() {
 		setVar(settings[1], defaultServerConfFile);
 		setVar(settings[2], logFile);
 		setVar(settings[3], sysdService);
-		setVar(settings[4], optFlags);
-		setVari(settings[5], logObj->debug);
+		setVari(settings[4], logObj->debug);
 	}
 	logObj->out(text.debugReadReadsettings + hajDefaultConfFile, Debug);
 	return 1;

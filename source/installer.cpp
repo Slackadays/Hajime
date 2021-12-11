@@ -23,30 +23,24 @@ Installer::Installer(std::shared_ptr<Output> log) {
 	logObj = log;
 }
 
-bool Installer::installDefaultServerConfFile(string conf) {
+void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck, string flags) {
 	logObj->out(text.infoInstallingDefServConf + conf + "...", Info);
-	if (fs::is_regular_file(conf)){
-		logObj->out(text.warningFoundServerConf, Warning);
-		logObj->out(text.questionMakeServerConfig, Question, 0, 0); // don't keep endlines, don't add endline
-		if (logObj->getYN()) {
-			logObj->out(text.infoInstallingNewServConf + conf + "...", Info);
-			Installer::installNewServerConfigFile(conf);
-			return 1;
-		} else {
-			return 0;
-		}
+	if (fs::is_regular_file(conf) && !skipFileCheck) {
+		throw 0;
 	} else {
-		Installer::installNewServerConfigFile(conf);
+		Installer::installNewServerConfigFile(conf, flags);
 		logObj->out(text.infoInstallingNewServConf + conf + "...", Info);
-		return 1;
+		if (!fs::is_regular_file(conf)) {
+			throw 1;
+		}
 	}
 }
 
-void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
+void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck) {
 	logObj->out(text.infoInstallingDefHajConf + fileLocation + "...", Info);
 	logObj->out(text.infoCheckingExistingFile, Info);
-	if (fs::is_regular_file(fileLocation)) {
-		logObj->out(text.warningFoundHajConf, Warning);
+	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
+		throw 0;
 	} else {
 		ofstream outConf(fileLocation);
 		outConf << "serversfile=servers.conf" << endl;
@@ -55,15 +49,17 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)") {
 		outConf << "lang=en" << endl;
 		outConf << "debug=0" << endl;
 		outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
-		outConf << "optflags=-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem  XX:MaxTenuringThreshold=1 -Daikars.new.flags=true -Dusing.aikars.flags=https://mcflags.emc.gs" << endl;
 		outConf.close();
 		logObj->out(text.infoHajConfigMade1 + fileLocation + text.infoHajConfigMade2, Info);
+		if (!fs::is_regular_file(fileLocation)) {
+			throw 1;
+		}
 	}
 }
 
-void Installer::installNewServerConfigFile(string fileLocation) {
+void Installer::installNewServerConfigFile(string fileLocation, string flags) {
 	ofstream outConf(fileLocation);
-	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=FLAGS" << endl << "method=new" << endl << "device=" << endl;
+	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=" + flags << endl << "method=new" << endl << "device=" << endl;
 	outConf << text.fileServerConfComment << endl;
 	logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
 	outConf.close();
@@ -216,16 +212,19 @@ void Installer::installStartupService(string sysService) {
 		#endif
 }
 
-void Installer::installDefaultServersFile(string serversFile) {
+void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck) {
 	logObj->out(text.infoInstallingServersFile + serversFile + "...", Info);
 	logObj->out(text.infoCheckingExistingServersFile, Info);
-	if (fs::is_regular_file(serversFile)) {
-		logObj->out(text.errorServersFilePresent, Warning);
+	if (fs::is_regular_file(serversFile) && !skipFileCheck) {
+		throw 0;
 	} else {
 		ofstream outConf(serversFile);
 		outConf << "server0.conf" << endl;
 		outConf.close();
 		logObj->out(text.infoMadeServersFile, Info);
+		if (!fs::is_regular_file(serversFile)) {
+			throw 1;
+		}
 	}
 }
 

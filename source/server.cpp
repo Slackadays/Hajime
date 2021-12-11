@@ -241,7 +241,7 @@ void Server::readSettings(string confFile) {
 	    setVar(settings[3], flags);
 			setVar(settings[4], method);
 	    setVar(settings[5], device);
-			logObj->out(text.debugReadingReadsettings, Info);
+			logObj->out(text.debugReadingReadsettings, Debug);
     }
 	if (device == "") {
 		logObj->out(text.infoNoMount, Info);
