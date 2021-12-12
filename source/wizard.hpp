@@ -2,3 +2,5 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
 
 template<typename Fn>
 void wizardStep(string filename, Fn func, string foundFile, string fileNotMade);
+
+extern const string optFlags;

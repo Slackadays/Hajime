@@ -1,12 +1,11 @@
 #include <iostream>
 #include <filesystem>
+#include <optional>
 
 #include "output.hpp"
 #include "installer.hpp"
 
 namespace fs = std::filesystem;
-
-std::string optFlags = "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem  XX:MaxTenuringThreshold=1 -Daikars.new.flags=true -Dusing.aikars.flags=https://mcflags.emc.gs";
 
 template<typename Fn>
 void wizardStep(string filename, Fn func, string foundFile, string fileNotMade) {
@@ -50,35 +49,8 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
     logObj->out(text.infoWizardServerFile, Info);
     logObj->out(text.questionWizardServerFile, Question);
     if (logObj->getYN()) {
-      for (bool skipFileCheck, useFlags, askedForFlags = false; true;) {
-        try {
-          if (!askedForFlags) {
-            logObj->out("Would you like to apply Aikar's Flags to the server?", Question);
-            useFlags = logObj->getYN();
-            askedForFlags = true;
-          }
-          useFlags ? installer.installDefaultServerConfFile(serverFile, skipFileCheck, optFlags) : installer.installDefaultServerConfFile(serverFile, skipFileCheck);
-          installedS = true;
-          break;
-        }
-        catch (int i) {
-          if (i == 0) {
-            logObj->out("Found an existing server file with name " + serverFile, Warning);
-            logObj->out("Do you want to install a new one?", Question);
-            if (logObj->getYN()) {
-              skipFileCheck = true;
-            } else {
-              break;
-            }
-          } else if (i == 1) {
-            logObj->out("Server config file not created", Error);
-            logObj->out("Do you want to try creating one again?", Question);
-            if (!logObj->getYN()) {
-              break;
-            }
-          }
-        }
-      }
+      wizardStep(serverFile, installer.installDefaultServerConfFile, "Found an existing server file with name " + serverFile, "Server config file not created");
+      installedS = true;
     }
     logObj->out(text.infoWizardStartupService, Info);
     logObj->out(text.questionWizardStartupService, Question);
