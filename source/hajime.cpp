@@ -115,11 +115,7 @@ int main(int argc, char *argv[]) {
 	}
  	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
-		if (logFile == "") {
-			logObj->out(text.infoNoLogFile, Info);
-		} else {
-			logObj->init(logFile);
-		}
+		empty(logFile) ? logObj->out(text.infoNoLogFile, Info) : logObj->init(logFile);
 	} else {
 		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
 		logObj->out(text.questionDoSetupInstaller, Question);

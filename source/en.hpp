@@ -127,6 +127,7 @@ infoAbortedLaunchServ = "Aborted launchd service installation";
 infoInstallingServersFile = "Installing default servers file at ";
 infoCheckingExistingServersFile = "Checking for existing file...";
 infoMadeServersFile = "Servers file made!";
+infoMakingSystemdServ = "Making a systemd service at ";
 debugHajDefConfNoExist1 = "Tried to read settings from ";
 debugHajDefConfNoExist2 = " but it doesn't exist";
 debugReadingReadsettings = "Reading settings at readSettings()";

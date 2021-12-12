@@ -192,14 +192,14 @@ void Installer::installStartupService(string sysService) {
 			logObj->out(text.infoAbortedLaunchServ, Info);
 		}
 	} else {
-		if (getuid()) {
-			logObj->out(text.errorSystemdRoot, Error);
-		}
 		if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysService)) {
 			logObj->out(text.warningFoundSystemdService, Warning);
 		}
 		if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
 			logObj->out(text.infoMakingSystemdServ + sysService + "...", Info);
+			if (getuid()) {
+				logObj->out(text.errorSystemdRoot, Error);
+			}
 			ofstream service(sysService);
 			service << "[Unit]" << endl << "Description=Starts Hajime" << endl;
 			service << endl << "[Service]\nType=simple\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=" << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
