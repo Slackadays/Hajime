@@ -6,7 +6,7 @@ Add an interactive installation option
 
 ~~Add compatibility to install.sh for non-apt repos~~ DONE
 
-Add checkers to install.sh for a friendlier experience
+~~Add checkers to install.sh for a friendlier experience~~ DONE
 
 Make it a true daemon (to not depend on systemd) by using std::thread
 
