@@ -1,3 +1,5 @@
+module Hajime:Output;
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -9,8 +11,8 @@
 using std::string;
 using std::ofstream;
 
-#include "output.hpp"
-#include "languages.hpp"
+import Output;
+import Languages;
 
 void Output::init(string file, bool debugOrNot) {
 	logToFile = true;

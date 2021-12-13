@@ -1,6 +1,6 @@
 // (c) 2021 Slackadays on GitHub
-#include <filesystem>
-namespace fs = std::filesystem;
+module;
+
 #if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
 #endif
@@ -10,17 +10,23 @@ namespace fs = std::filesystem;
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <vector>
+#include <filesystem>
 
 #if (__cplusplus <= 201703L || defined(__APPLE__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
 	#define jthread thread
 #endif
 
-#include "output.hpp"
-#include "languages.hpp"
-#include "installer.hpp"
-#include "server.hpp"
-#include "getvarsfromfile.hpp"
-#include "wizard.hpp"
+export module Hajime;
+
+export import :Output;
+export import :Languages;
+export import :Installer;
+export import :Server;
+export import :Getvarsfromfile;
+export import :Wizard;
+
+namespace fs = std::filesystem;
 
 using std::cin;
 using std::cout;
@@ -28,6 +34,7 @@ using std::endl;
 using std::shared_ptr;
 using std::make_shared;
 using std::vector;
+using std::string;
 
 string defaultServerConfFile = "server0.conf";
 string defaultServersFile = "servers.conf";

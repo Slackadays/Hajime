@@ -1,9 +1,11 @@
+module Hajime:Wizard;
+
 #include <iostream>
 #include <filesystem>
 #include <optional>
 
-#include "output.hpp"
-#include "installer.hpp"
+import Output;
+import Installer;
 
 namespace fs = std::filesystem;
 

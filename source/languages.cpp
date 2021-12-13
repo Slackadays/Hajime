@@ -1,3 +1,5 @@
+module Hajime:Languages;
+
 #include <string>
 #include <vector>
 #include <filesystem>
@@ -5,8 +7,8 @@
 namespace fs = std::filesystem;
 using std::string;
 
-#include "getvarsfromfile.hpp"
-#include "languages.hpp"
+import Getvarsfromfile;
+import Languages;
 
 void Text::applyLang(string lang) {
               //the fallack is English

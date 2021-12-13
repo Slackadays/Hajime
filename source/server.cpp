@@ -1,3 +1,5 @@
+module Hajime:Server;
+
 #if defined(_win64) || defined (_WIN32)
 #include <Windows.h>
 #else
@@ -17,8 +19,8 @@
 #include <chrono>
 #include <filesystem>
 
-#include "getvarsfromfile.hpp"
-#include "server.hpp"
+import Getvarsfromfile;
+import Server;
 
 using std::shared_ptr;
 using std::string;
