@@ -62,7 +62,7 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
         wizardStep(serverFile, installer.installDefaultServerConfFile, "Found an existing server file with name " + serverFile, "Server config file not created");
         logObj->out("Do you want to create another server file?", Question);
         if (logObj->getYN()) {
-          logObj->out("Enter a new name for the next server file (the previous one was " + serverFile + "): \033[1m", Info, 0, 0);
+          logObj->out("Enter a new name for the next server file (the previous one was " + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + "): \033[1m", Info, 0, 0);
           std::cin >> serverFile;
           std::cout << "\033[0m";
         } else {

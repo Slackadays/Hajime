@@ -26,6 +26,9 @@ Installer::Installer(std::shared_ptr<Output> log) {
 }
 
 void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
+	if (!std::regex_match(conf, std::regex(".+\\..+", std::regex_constants::optimize))) {
+		conf += ".conf";
+	}
 	logObj->out("Would you like to apply Aikar's Flags to the server?", Question);
 	string flags;
 	if (logObj->getYN()) {
@@ -68,7 +71,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 
 void Installer::installNewServerConfigFile(string fileLocation, string flags) {
 	ofstream outConf(fileLocation);
-	outConf << "file=server.jar" << endl << "path=PATH" << endl << "command=COMMAND" << endl << "flags=" + flags << endl << "method=new" << endl << "device=" << endl;
+	outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "file=server.jar" << endl << "path=" << fs::current_path().string() << endl << "command=COMMAND" << endl << "flags=" + flags << endl << "method=new" << endl << "device=" << endl;
 	outConf << text.fileServerConfComment << endl;
 	logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
 	outConf.close();
