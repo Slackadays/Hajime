@@ -17,7 +17,7 @@ then
 	if [ "$(uname -m)" = "arm64" ]
 	then
 		echo "Downloading Hajime for macOS ARM directly"
-		curl -o hajime -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime-macos-arm64.zip
+		curl -o hajime-macos-arm64.zip -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime-macos-arm64.zip
 		unzip hajime-macos-arm64.zip
                 if [ -e hajime ]
                 then
@@ -30,7 +30,7 @@ then
   if [ "$(uname -m)" = "x86_64" ]
 	then
 		echo "Downloading Hajime for macOS x86_64 directly"
-		curl -o hajime -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime-macos-amd64.zip
+		curl -o hajime-macos-amd64.zip -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime-macos-amd64.zip
 		unzip hajime-macos-amd64.zip
                 if [ -e hajime ]
                 then
