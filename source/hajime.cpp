@@ -29,7 +29,7 @@ using std::shared_ptr;
 using std::make_shared;
 using std::vector;
 
-string defaultServerConfFile = "server0.conf";
+string defaultServerConfFile = "MyServer.conf";
 string defaultServersFile = "servers.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile = "";
