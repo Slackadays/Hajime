@@ -134,16 +134,21 @@ string Output::addPrefixByType(string input, outType type){
 	}
 	if (main_thread == std::this_thread::get_id()) {
 		if (verbose) {
-			prefix += "| Main]\033[0m ";
+			prefix += "| Main]";
 		} else {
-			prefix += "|M]\033[0m ";
+			prefix += "|M]";
 		}
 	} else {
 		if (verbose) {
-			prefix += "| Worker]\033[0m ";
+			prefix += "| Worker]";
 		} else {
-			prefix += "|W]\033[0m ";
+			prefix += "|W]";
 		}
+	}
+	if (reduceColors) {
+		prefix += "\033[0m ";
+	} else {
+		input += "\033[0m";
 	}
 	return (prefix + input);
 }

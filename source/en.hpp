@@ -28,20 +28,20 @@ errnoDirectory = "It's a directory. Did you make sure you're mounting a mass sto
 errnoBadArgs = "Bad arguments. Is the configuration set correctly?";
 errnoUnknownDev = "Unknown device. Is the filesystem supported?";
 errnoUnknownGeneric = "Unknown error.";
-prefixInfo = "\033[46m[*";
+prefixInfo = "\033[36m[*";
 prefixError = "\033[41m\033[33m[X";
 prefixWarning = "\033[33m[!";
-prefixDebug = "\033[105m[+";
-prefixVInfo = "\033[46m[Info ";
+prefixDebug = "\033[95m[+";
+prefixVInfo = "\033[36m[Info ";
 prefixVError = "\033[41m\033[33m[Error ";
 prefixVWarning = "\033[33m[Warning ";
-prefixVDebug = "\033[105m[Debug ";
+prefixVDebug = "\033[95m[Debug ";
 #if defined(_WIN64) || defined (_WIN32)
-prefixVQuestion = "\033[102m[Question "; //Windows doesn't support 24 bit terminal colors
-prefixQuestion = "\033[102m[?";
+prefixVQuestion = "\033[92m[Question "; //Windows doesn't support 24 bit terminal colors
+prefixQuestion = "\033[92m[?";
 #else
-prefixVQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[Question ";
-prefixQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[?";
+prefixVQuestion = "\033[38;2;0;255;0m\033[38;2;108;104;161m[Question ";
+prefixQuestion = "\033[38;2;0;255;0m[?";
 #endif
 errorNotEnoughArgs = "Not enough arguments provided";
 errorConfDoesNotExist1 = "Config file ";

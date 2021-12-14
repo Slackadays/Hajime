@@ -84,15 +84,15 @@ int main(int argc, char *argv[]) {
 			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
 				hajDefaultConfFile = var;
 			}
-			installer.installDefaultHajConfFile(hajDefaultConfFile);
+			wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, "Hajime config file not created");
 			return 0;
 		}
 		if (flag("-ss", "--install-servers-file")) {
-			installer.installDefaultServersFile(defaultServersFile);
+			wizardStep(defaultServersFile, installer.installDefaultServersFile, "Found an existing servers file", "Servers file not created");
 			return 0;
 		}
 		if (flag("-s", "--install-default-server")) {
-			installer.installDefaultServerConfFile(defaultServerConfFile);
+			wizardStep(defaultServerConfFile, installer.installDefaultServerConfFile, "Found an existing server file with name " + defaultServerConfFile, "Server config file not created");
 			return 0;
 		}
 		if (flag("-S", "--install-service")) {
@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
 			logObj->debug = true;
 		}
 		if (flag("-i", "--install-hajime")) {
+			logObj->out("--------------------");
 			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			return 0;
 		}
@@ -120,6 +121,7 @@ int main(int argc, char *argv[]) {
 		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
 		logObj->out(text.questionDoSetupInstaller, Question);
 		if (logObj->getYN()) {
+			logObj->out("--------------------");
 			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			logObj->out(text.questionStartHajime, Question);
 			if (!logObj->getYN()) {

@@ -15,6 +15,7 @@ using std::string;
 using std::ofstream;
 
 enum outType {None, Info, Error, Warning, Debug, Question};
+enum lines {Def = 2, True = 1, False = 0};
 
 class Output {
         std::mutex outMutex;
@@ -30,6 +31,7 @@ class Output {
                 void init(string file, bool debugOrNot = true);
                 void end();
                 bool noColors = false;
+                bool reduceColors = true;
                 bool verbose = false;
                 int debug = 0;
 };
