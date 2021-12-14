@@ -22,7 +22,7 @@ then
                 if [ -e hajime ]
                 then
                         chmod +x hajime
-			                  rm hajime-macos-arm64.zip
+			rm hajime-macos-arm64.zip
                         ./hajime
                         exit 0
                 fi
@@ -35,7 +35,7 @@ then
                 if [ -e hajime ]
                 then
                         chmod +x hajime
-			                  rm hajime-macos-arm64.zip
+			rm hajime-macos-amd64.zip
                         ./hajime
                         exit 0
                 fi
