@@ -42,6 +42,7 @@ class Text {
     string errorServersFilePresent;
     string errorServerFileNotPresent1;
     string errorServerFileNotPresent2;
+    string errorServersFileNotCreated;
     string errorCouldntSetPath;
     string errorGeneric;
     string errorMethodNotValid;
@@ -50,6 +51,7 @@ class Text {
     string errorNoServersFile;
     string errorMount;
     string errorCode;
+    string errorHajFileNotMade;
 		string warningFoundSysvinitService;
 		string warningFoundSystemdService;
     string warningFoundServerConf;
@@ -70,6 +72,9 @@ class Text {
 		string questionSysvinitGroup;
     string questionDoSetupInstaller;
     string questionStartHajime;
+    string questionUseFlags;
+    string questionInstallNewOne;
+    string questionInstallNewOneAgain;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;

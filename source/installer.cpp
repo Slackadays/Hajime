@@ -29,12 +29,12 @@ void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
 	if (!std::regex_match(conf, std::regex(".+\\..+", std::regex_constants::optimize))) {
 		conf += ".conf";
 	}
-	logObj->out("Would you like to apply Aikar's Flags to the server?", Question);
+	logObj->out(text.questionUseFlags, Question);
 	string flags;
 	if (logObj->getYN()) {
-		string flags = optFlags;
+		flags = optFlags;
 	} else {
-		string flags = "";
+		flags = "";
 	}
 	logObj->out(text.infoInstallingDefServConf + conf + "...", Info);
 	if (fs::is_regular_file(conf) && !skipFileCheck) {

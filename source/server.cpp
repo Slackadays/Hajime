@@ -71,7 +71,7 @@ void Server::startServer(string confFile) {
 				logObj->out(text.infoServerStartCompleted, Info);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
-			if (!fs::is_directory(path, ec)) { //if the desired path doesn't exist, make it
+			if (!fs::is_directory(path, ec) && !fs::is_directory(fs::current_path().string() + '/' + path, ec)) { //if the desired path doesn't exist, make it
 				makeDir();
 			}
 			fs::current_path(path, ec);

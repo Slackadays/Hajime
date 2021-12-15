@@ -17,7 +17,7 @@ void wizardStep(string filename, Fn func, string foundFile, string fileNotMade) 
     catch (int i) {
       if (i == 0) {
         logObj->out(foundFile, Warning);
-        logObj->out("Do you want to install a new one?", Question);
+        logObj->out(text.questionInstallNewOne, Question);
         if (logObj->getYN()) {
           skipFileCheck = true;
         } else {
@@ -25,7 +25,7 @@ void wizardStep(string filename, Fn func, string foundFile, string fileNotMade) 
         }
       } else if (i == 1) {
         logObj->out(fileNotMade, Error);
-        logObj->out("Do you want to try creating one again?", Question);
+        logObj->out(text.questionInstallNewOneAgain, Question);
         if (!logObj->getYN()) {
           break;
         }
@@ -42,7 +42,7 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
     logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
     if (logObj->getYN()) {
       pause(500);
-      wizardStep(confFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, "Hajime config file not created");
+      wizardStep(confFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, text.errorHajFileNotMade);
     }
     pause(500);
     logObj->out("--------------------");
@@ -50,7 +50,7 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
     logObj->out(text.questionWizardServersFile, Question);
     if (logObj->getYN()) {
       pause(500);
-      wizardStep(serversFile, installer.installDefaultServersFile, "Found an existing servers file", "Servers file not created");
+      wizardStep(serversFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated);
     }
     pause(500);
     logObj->out("--------------------");

@@ -84,20 +84,24 @@ string Output::addPrefixByType(string input, outType type){
 				blank = true; //None is if you want to preserve input
 				break;
 			case Info:
-				prefix = text.prefixVInfo; //cyan background
+				prefix = "\033[36m" + text.prefixVInfo; //cyan background
 				break;
 			case Error:
-				prefix = text.prefixVError; //red background, yellow text
+				prefix = "\033[41m\033[33m" + text.prefixVError; //red background, yellow text
 				break;
 			case Warning:
-				prefix = text.prefixVWarning; //yellow text
+				prefix = "\033[33m" + text.prefixVWarning; //yellow text
 				break;
 			case Question:
-				prefix = text.prefixVQuestion; //green background
+				#if defined(_WIN64) || defined (_WIN32)
+				prefix = "\033[92m" + text.prefixVQuestion; //green background
+				#else
+				prefix = "\033[38;2;0;255;0m" + text.prefixVQuestion; //green background
+				#endif
 				break;
 			case Debug:
 				if (debug) {
-					prefix = text.prefixVDebug;
+					prefix = "\033[95m" + text.prefixVDebug;
 				} //magenta background
 				break;
 			default:
@@ -109,20 +113,24 @@ string Output::addPrefixByType(string input, outType type){
 				blank = true; //None is if you want to preserve input
 				break;
 			case Info:
-				prefix = text.prefixInfo; //cyan background
+				prefix = "\033[36m" + text.prefixInfo; //cyan background
 				break;
 			case Error:
-				prefix = text.prefixError; //red background, yellow text
+				prefix = "\033[41m\033[33m" + text.prefixError; //red background, yellow text
 				break;
 			case Warning:
-				prefix = text.prefixWarning; //yellow text
+				prefix = "\033[33m" + text.prefixWarning; //yellow text
 				break;
 			case Question:
-				prefix = text.prefixQuestion; //green background
+				#if defined(_WIN64) || defined (_WIN32)
+				prefix = "\033[92m" + text.prefixQuestion; //green background
+				#else
+				prefix = "\033[38;2;0;255;0m" + text.prefixQuestion; //green background
+				#endif
 				break;
 			case Debug:
 				if (debug) {
-					prefix = text.prefixDebug;
+					prefix = "\033[95m" + text.prefixDebug;
 				} //magenta background
 				break;
 			default:
