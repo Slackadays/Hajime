@@ -56,7 +56,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 	} else {
 		ofstream outConf(fileLocation);
 		outConf << "serversfile=servers.conf" << endl;
-		outConf << "defserverconf=server0.conf" << endl;
+		outConf << "defserverconf=MyServer.conf" << endl;
 		outConf << "logfile=" << endl;
 		outConf << "lang=en" << endl;
 		outConf << "debug=0" << endl;
