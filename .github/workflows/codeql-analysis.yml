@@ -63,10 +63,8 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       cp fakemake source
        cd source
-       sed 's/g++/g++-10/g' fakemake
-       sh fakemake
+       echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++-10 -c -Ofast -std=c++20 && g++-10 -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
