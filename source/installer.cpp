@@ -231,7 +231,7 @@ void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck
 		throw 0;
 	} else {
 		ofstream outConf(serversFile);
-		outConf << "server0.conf" << endl;
+		outConf << "MyServer.conf" << endl;
 		outConf.close();
 		logObj->out(text.infoMadeServersFile, Info);
 		if (!fs::is_regular_file(serversFile)) {

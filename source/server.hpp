@@ -49,7 +49,7 @@ class Server {
         vector<string> toArray(string input);
         auto toPointerArray(vector<string> &strings);
 
-        string file, path, command, flags, confFile, device = "";
+        string name, file, path, command, flags, confFile, device = "";
         string method;
 
         public:

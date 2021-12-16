@@ -44,12 +44,13 @@ void Server::startServer(string confFile) {
 			logObj->out(text.errorServerFileNotPresent1 + confFile + text.errorServerFileNotPresent2, Error);
 			return;
 		}
-			logObj->out(text.infoServerFile + file, Info);
-			logObj->out(text.infoServerPath + path, Info);
-			logObj->out(text.infoServerCommand + command, Info);
-			logObj->out(text.infoServerMethod + method, Info);
-			logObj->out(text.infoServerDebug + to_string(logObj->debug), Info); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-			logObj->out(text.infoServerDevice + device, Info);
+			logObj->out("----" + name + "----", Info);
+			logObj->out(text.infoServerFile + file + " | ", Info, 0, 0);
+			logObj->out(text.infoServerPath + path, None);
+			logObj->out(text.infoServerCommand + command + " | ", Info, 0, 0);
+			logObj->out(text.infoServerMethod + method, None);
+			logObj->out(text.infoServerDebug + to_string(logObj->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+			logObj->out(text.infoServerDevice + device, None);
 		while(true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -65,13 +66,13 @@ void Server::startServer(string confFile) {
 			} catch(...) {
 				logObj->out(text.errorCouldntSetPath, Error);
 			}
-			if (fs::current_path() == path && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
+			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(\/||\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
 				logObj->out(text.infoStartingServer, Info);
 				startProgram(method);
 				logObj->out(text.infoServerStartCompleted, Info);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
-			if (!fs::is_directory(path, ec) && !fs::is_directory(fs::current_path().string() + '/' + path, ec)) { //if the desired path doesn't exist, make it
+			if (!fs::is_directory(path, ec) && !fs::is_directory(fs::current_path().string() + '/' + path, ec) && !fs::is_directory(fs::current_path().string() + '\\' + path, ec)) { //if the desired path doesn't exist, make it
 				makeDir();
 			}
 			fs::current_path(path, ec);
@@ -228,19 +229,20 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(string confFile) {
-	vector<string> settings {"file", "path", "command", "flags", "method", "device"};
+	vector<string> settings {"name", "file", "path", "command", "flags", "method", "device"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		logObj->out(it, Debug);
 	}
     for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 			auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-      setVar(settings[0], file);
-      setVar(settings[1], path);
-      setVar(settings[2], command);
-	    setVar(settings[3], flags);
-			setVar(settings[4], method);
-	    setVar(settings[5], device);
+			setVar(settings[0], name);
+			setVar(settings[1], file);
+      setVar(settings[2], path);
+      setVar(settings[3], command);
+	    setVar(settings[4], flags);
+			setVar(settings[5], method);
+	    setVar(settings[6], device);
 			logObj->out(text.debugReadingReadsettings, Debug);
     }
 	if (device == "") {
