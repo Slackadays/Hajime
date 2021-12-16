@@ -1,3 +1,0 @@
-echo "\033[1mMaking Hajime...\033[0m"
-echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++ -c -Ofast -std=c++20 -march=native && g++ -o hajime -static hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
-exit 0
