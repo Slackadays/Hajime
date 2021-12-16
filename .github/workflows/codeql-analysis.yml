@@ -65,6 +65,7 @@ jobs:
     - run: |
        cp fakemake source
        cd source
+       sed 's/g++/g++-10' fakemake
        sh fakemake
 
     - name: Perform CodeQL Analysis
