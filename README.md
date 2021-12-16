@@ -24,7 +24,7 @@ curl -L https://gethaji.me | sh
 Like with all shell scripts, check the install.sh file first for any potentially malicious commands.
 
 ## Windows
-Download the latest version available in the Releases page or from Discord. If you'd like to compile Hajime yourself, the code will work with the Visual C++ compiler.
+Download the latest version available in the Releases page or from Discord. If you'd like to compile Hajime yourself, the code will work with the msys2 package.
 
 # Why?
 
@@ -57,20 +57,16 @@ There's also a lot of standard libraries available for C++ and that might be an 
 We offer binaries for Windows systems that are as easy as a quick download.
 
 ## Setup
-0. Install Hajime using either the provided binaries or the install script, and put the file in any suitable location.
-1. Once you install Hajime using either a downloaded binary or the install script, use `-i` s a flag to set up the initial Hajime confguration file.
-2. Do `-ss` next to set up what we call a "servers" file.
-3. Next, do `-s` to set up the first server file.
-4. Edit the created server file (`server0.conf`) with the desired settings.
+Hajime will automtically start the installation wizard if it cannot find the configuation file. This is automatically the case when you download Hajime. To do the installer manually, use `-i` as a flag option.
 
 ### Using `systemd` to make Hajime a service 
 
-If you would like to make a systemd service, now run `sudo ./hajime -S`
+If you would like to make a systemd service yourself, run `sudo ./hajime -S`
 to make a systemd service file. By default, the file created is called **hajime.service**. If you would like a different name (for example, if you are running multiple servers) change the setting in the file **hajime.conf**. Now enable it using `sudo systemctl enable hajime`to run Hajime on startup. Before rebooting, you must change the settings in the **server.conf** and **hajime.conf** files. Make server.conf by running `sudo ./hajime -I` again. `server.conf` is the settings file for an individual server object. This is done for future-proofing for future versions that may implement multithreading. `hajime.conf` is the settings file for the main program.
 
 ## Compiling 
 
-Compile all the .cpp files any way you like, with two requirements: the C++ version has to be a minimum C++17 and you cannot link the files (this means adding `-std=c++17` or `-std=c++20` and `-c` to g++). Then, link all the new .o files together, using `-pthread` to add multithreading on POSIX systems.
+You can compile Hajime with a one-liner command. To make it easier, you can also do `sh fakemake` in the root folder if you clone this repo. `fakemake` is simple shell script that contains that one-liner command and a couple messages for clarity.
 
 Hajime requires at least **C++17** to work and C++20 for future compatibility.
    
