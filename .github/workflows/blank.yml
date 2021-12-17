@@ -69,12 +69,12 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 '$(brew --prefix llvm)/bin/clang' -target arm64-apple-macos -c -Ofast -std=c++20
-          '$(brew --prefix llvm)/bin/clang' -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
+          clang++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o
           
       - uses: actions/upload-artifact@v2
         with: 
-          name: hajime-macos-amd64
+          name: hajime-macos-arm64
           path: source/hajime
   build-linux-arm32:
     # The type of runner that the job will run on
