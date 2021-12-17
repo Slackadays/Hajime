@@ -71,8 +71,8 @@ jobs:
           cd source
           sudo apt-get update
           sudo apt-get install -y g++-arm-linux-gnueabihf
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 arm-linux-gnueabihf-g++-11 -c -Ofast -std=c++20
-          arm-linux-gnueabihf-g++-11 -static -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 arm-linux-gnueabihf-g++-10 -c -Ofast -std=c++20
+          arm-linux-gnueabihf-g++-10 -static -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
           
       - uses: actions/upload-artifact@v2
         with: 
