@@ -98,3 +98,23 @@ jobs:
         with: 
           name: hajime-linux-arm32
           path: source/hajime
+  build-windows-amd64:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v2
+      - uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+      - name: Run a multi-line script
+        run: |
+          cd source
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++ -c -Ofast -std=c++2a
+          g++ -static -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
+          
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: hajime-windows-amd64
+          path: source/hajime
