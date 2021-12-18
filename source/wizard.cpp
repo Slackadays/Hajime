@@ -45,6 +45,7 @@ void doServerStep(bool &installedS, string &serverFile, std::vector<string> &ser
 }
 
 void doServersStep(string &serversFile, std::vector<string> &servers) {
+  auto pause = [](int ms){std::this_thread::sleep_for(std::chrono::milliseconds(ms));};
   logObj->out(text.infoWizardServersFile, Info);
   logObj->out(text.questionWizardServersFile, Question);
   if (logObj->getYN()) {
@@ -54,6 +55,7 @@ void doServersStep(string &serversFile, std::vector<string> &servers) {
 }
 
 void doStartupStep(string &sysdService) {
+  auto pause = [](int ms){std::this_thread::sleep_for(std::chrono::milliseconds(ms));};
   logObj->out(text.infoWizardStartupService, Info);
   logObj->out(text.questionWizardStartupService, Question);
   if (logObj->getYN()) {
