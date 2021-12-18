@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 #include <cstring>
 #include <string>
 
-#if (__cplusplus <= 201703L || defined(__APPLE__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
+#if (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
 	#define jthread thread
 #endif
 
