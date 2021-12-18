@@ -8,6 +8,7 @@
 #if defined(_win64) || defined (_WIN32)
 #include <Windows.h>
 #include <shlobj.h>
+#pragma comment (lib, "Shell32")
 #else
 #include <unistd.h>
 #endif

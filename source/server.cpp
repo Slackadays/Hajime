@@ -1,5 +1,7 @@
 #if defined(_win64) || defined (_WIN32)
 #include <Windows.h>
+#include <shellapi.h>
+#pragma comment (lib, "Shell32")
 #else
 #include <unistd.h>
 #include <sys/mount.h>
