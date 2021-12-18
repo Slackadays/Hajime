@@ -84,15 +84,15 @@ int main(int argc, char *argv[]) {
 			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
 				hajDefaultConfFile = var;
 			}
-			wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, "Hajime config file not created");
+			wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, text.errorHajFileNotMade);
 			return 0;
 		}
 		if (flag("-ss", "--install-servers-file")) {
-			wizardStep(defaultServersFile, installer.installDefaultServersFile, "Found an existing servers file", "Servers file not created");
+			wizardStep(defaultServersFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated, std::vector<string>{defaultServerConfFile});
 			return 0;
 		}
 		if (flag("-s", "--install-default-server")) {
-			wizardStep(defaultServerConfFile, installer.installDefaultServerConfFile, "Found an existing server file with name " + defaultServerConfFile, "Server config file not created");
+			wizardStep(defaultServerConfFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + defaultServerConfFile, text.errorServerConfNotCreated);
 			return 0;
 		}
 		if (flag("-S", "--install-service")) {

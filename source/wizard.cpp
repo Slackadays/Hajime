@@ -1,38 +1,12 @@
 #include <iostream>
 #include <filesystem>
-#include <optional>
+#include <vector>
 
 #include "output.hpp"
 #include "installer.hpp"
+#include "wizard.hpp"
 
 namespace fs = std::filesystem;
-
-template<typename Fn>
-void wizardStep(string filename, Fn func, string foundFile, string fileNotMade) {
-  for (bool skipFileCheck = false; true;) {
-    try {
-      func(filename, skipFileCheck);
-      break;
-    }
-    catch (int i) {
-      if (i == 0) {
-        logObj->out(foundFile, Warning);
-        logObj->out(text.questionInstallNewOne, Question);
-        if (logObj->getYN()) {
-          skipFileCheck = true;
-        } else {
-          break;
-        }
-      } else if (i == 1) {
-        logObj->out(fileNotMade, Error);
-        logObj->out(text.questionInstallNewOneAgain, Question);
-        if (!logObj->getYN()) {
-          break;
-        }
-      }
-    }
-  }
-}
 
 void initialHajimeSetup(string confFile, string serversFile, string serverFile, string sysdService) {
     auto pause = [](int ms){std::this_thread::sleep_for(std::chrono::milliseconds(ms));};
@@ -46,23 +20,21 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
     }
     pause(500);
     logObj->out("--------------------");
-    logObj->out(text.infoWizardServersFile, Info);
-    logObj->out(text.questionWizardServersFile, Question);
-    if (logObj->getYN()) {
-      pause(500);
-      wizardStep(serversFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated);
-    }
-    pause(500);
-    logObj->out("--------------------");
+    std::vector<string> servers;
     logObj->out(text.infoWizardServerFile, Info);
     logObj->out(text.questionWizardServerFile, Question);
     if (logObj->getYN()) {
       while (true) {
         pause(500);
-        wizardStep(serverFile, installer.installDefaultServerConfFile, "Found an existing server file with name " + serverFile, "Server config file not created");
-        logObj->out("Do you want to create another server file?", Question);
+        if (!std::regex_match(serverFile, std::regex(".+\\..+", std::regex_constants::optimize))) { //check for lack file extension
+          serverFile += ".conf";
+        }
+        if (wizardStep(serverFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + serverFile, text.errorServerConfNotCreated)) {
+          servers.push_back(serverFile);
+        }
+        logObj->out(text.questionCreateAnotherServerFile, Question);
         if (logObj->getYN()) {
-          logObj->out("Enter a new name for the next server file (the previous one was " + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + "): \033[1m", Info, 0, 0);
+          logObj->out(text.infoEnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.infoEnterNewNameForServer2, Info, 0, 0);
           std::cin >> serverFile;
           std::cout << "\033[0m";
         } else {
@@ -70,6 +42,14 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
         }
       }
       installedS = true;
+    }
+    pause(500);
+    logObj->out("--------------------");
+    logObj->out(text.infoWizardServersFile, Info);
+    logObj->out(text.questionWizardServersFile, Question);
+    if (logObj->getYN()) {
+      pause(500);
+      wizardStep(serversFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated, servers);
     }
     pause(500);
     logObj->out("--------------------");
@@ -83,6 +63,17 @@ void initialHajimeSetup(string confFile, string serversFile, string serverFile, 
     logObj->out("--------------------");
     logObj->out(text.infoWizardComplete, Info);
     if (installedS) {
-	    logObj->out(text.infoWizardNextStepServerFile1 + serverFile + text.infoWizardNextStepServerFile2, Info);
+      if (servers.size() == 1) {
+        logObj->out(text.infoWizardNextStepServerFile1 + servers[0] + text.infoWizardNextStepServerFile2, Info);
+      } else if (servers.size() == 2) {
+        logObj->out(text.infoWizardNextStepServerFile1 + servers[0] + " and " + servers[1] + text.infoWizardNextStepServerFile2, Info);
+      } else if (servers.size() > 2) {
+        logObj->out(text.infoWizardNextStepServerFile1, Info, 0, 0);
+        for (int i = 0; i < servers.size(); i++) {
+          logObj->out(servers[i] + ", ", None, 0, 0);
+        }
+        logObj->out("and " + servers.back() + text.infoWizardNextStepServerFile2, None);
+      }
+
     }
 }

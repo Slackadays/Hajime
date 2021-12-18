@@ -3,6 +3,7 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <vector>
 
 #if defined(_win64) || defined (_WIN32)
 #include <Windows.h>
@@ -26,9 +27,6 @@ Installer::Installer(std::shared_ptr<Output> log) {
 }
 
 void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
-	if (!std::regex_match(conf, std::regex(".+\\..+", std::regex_constants::optimize))) {
-		conf += ".conf";
-	}
 	logObj->out(text.questionUseFlags, Question);
 	string flags;
 	if (logObj->getYN()) {
@@ -224,14 +222,16 @@ void Installer::installStartupService(string sysService) {
 		#endif
 }
 
-void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck) {
+void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck, std::vector<string> servers) {
 	logObj->out(text.infoInstallingServersFile + serversFile + "...", Info);
 	logObj->out(text.infoCheckingExistingServersFile, Info);
 	if (fs::is_regular_file(serversFile) && !skipFileCheck) {
 		throw 0;
 	} else {
 		ofstream outConf(serversFile);
-		outConf << "MyServer.conf" << endl;
+		for (const auto& it : servers) {
+			outConf << it << endl;
+		}
 		outConf.close();
 		logObj->out(text.infoMadeServersFile, Info);
 		if (!fs::is_regular_file(serversFile)) {

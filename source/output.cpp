@@ -33,15 +33,23 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 	}
 	if (!logToFile) {
 		std::lock_guard<std::mutex> lock(outMutex);
-		std::cout << outputString;
+		if (type == Error) {
+			std::cerr << outputString;
+		} else {
+			std::cout << outputString;
+		}
 		if (endLineAtEnd) {
-			std::cout << std::endl;
+			if (type == Error) {
+				std::cerr << std::endl;
+			} else {
+				std::cout << std::endl;
+			}
 		}
 	} else {
 		std::lock_guard<std::mutex> lock(outMutex);
 		fileObj << outputString;
 		if (endLineAtEnd) {
-			std::cout << std::endl;
+			fileObj << std::endl;
 		}
 	}
 }

@@ -52,6 +52,7 @@ class Text {
     string errorMount;
     string errorCode;
     string errorHajFileNotMade;
+    string errorServerConfNotCreated;
 		string warningFoundSysvinitService;
 		string warningFoundSystemdService;
     string warningFoundServerConf;
@@ -60,6 +61,7 @@ class Text {
     string warningTestingWindowsSupport;
     string warningHajConfPresent;
     string warningLaunchdServPresent;
+    string warningFoundServerConfPlusFile;
     string questionMakeLaunchdServ;
     string questionPrompt;
     string questionMakeHajimeConfig;
@@ -75,6 +77,7 @@ class Text {
     string questionUseFlags;
     string questionInstallNewOne;
     string questionInstallNewOneAgain;
+    string questionCreateAnotherServerFile;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;
@@ -123,6 +126,8 @@ class Text {
     string infoInstallingServersFile;
     string infoCheckingExistingServersFile;
     string infoMadeServersFile;
+    string infoEnterNewNameForServer1;
+    string infoEnterNewNameForServer2;
     string debugHajDefConfNoExist1;
     string debugHajDefConfNoExist2;
     string debugReadingReadsettings;
