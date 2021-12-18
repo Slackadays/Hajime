@@ -69,13 +69,13 @@ void doNextStepStep (bool &installedS, std::vector<string> &servers) {
     if (servers.size() == 1) {
       logObj->out(text.infoWizardNextStepServerFile1 + servers[0] + text.infoWizardNextStepServerFile2, Info);
     } else if (servers.size() == 2) {
-      logObj->out(text.infoWizardNextStepServerFile1 + servers[0] + " and " + servers[1] + text.infoWizardNextStepServerFile2, Info);
+      logObj->out(text.infoWizardNextStepServerFile1 + servers[0] + " & " + servers[1] + text.infoWizardNextStepServerFile2, Info);
     } else if (servers.size() > 2) {
       logObj->out(text.infoWizardNextStepServerFile1, Info, 0, 0);
       for (int i = 0; i < servers.size(); i++) {
         logObj->out(servers[i] + ", ", None, 0, 0);
       }
-      logObj->out("and " + servers.back() + text.infoWizardNextStepServerFile2, None);
+      logObj->out("& " + servers.back() + text.infoWizardNextStepServerFile2, None);
     }
   }
 }
