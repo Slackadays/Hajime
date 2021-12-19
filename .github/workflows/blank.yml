@@ -114,3 +114,19 @@ jobs:
         with: 
           name: hajime-windows-amd64
           path: source\Hajime.exe
+  build-windows-arm64:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.10.0
+      - name: Run a multi-line script
+        run: |
+          cd source
+          cl.exe /FeHajime.exe /MACHINE:ARM /EHsc /O2 /std:c++20 hajime.cpp installer.cpp output.cpp server.cpp wizard.cpp languages.cpp getvarsfromfile.cpp
+          
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: hajime-windows-arm64
+          path: source\Hajime.exe
