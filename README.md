@@ -24,8 +24,7 @@ curl -L https://gethaji.me | sh
 Like with all shell scripts, check the install.sh file first for any potentially malicious commands.
 
 ## Windows
-Download the latest version available in the Releases page or from Discord. If you'd like to compile Hajime yourself, the code will work with the msys2 package.
-
+Download the latest version available in the Releases page or from Discord. If you'd like to compile Hajime yourself, the code will work with MSVC.
 # Why?
 
 ## The Problem
