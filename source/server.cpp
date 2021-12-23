@@ -139,7 +139,7 @@ void Server::startProgram(string method = "new") {
 			if (pid == 0) {
 				logObj->out(text.debugFlagArray0 + (string)flagArray[0], Debug);
 				logObj->out(text.debugFlagArray1 + (string)flagArray[1], Debug);
-				execv(file.c_str(), flagArray.data());
+				execvp(file.c_str(), flagArray.data());
 			} else {
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 				if (getPID() != 0) { //check for the PID of the program we just started
