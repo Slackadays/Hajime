@@ -144,10 +144,10 @@ int main(int argc, char *argv[]) {
 	}
 	while(true) { //future command processing
 		cout << "Enter a command..." << endl;
-		string command;
-		cin >> command;
-		if (command == "test") {
-			cout << "Blah!" << endl;
+		string command = "";
+		std::getline(std::cin, command);
+		if (command == "watch") {
+			serverVec[0].terminalAccessWrapper();
 		} else {
 			cout << "This feature isn't implemented yet." << endl;
 		}

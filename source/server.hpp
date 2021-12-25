@@ -8,13 +8,22 @@
 #endif
 
 #include <iostream>
+#include <unistd.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 #include <fstream>
+#include <thread>
+#include <list>
+#include <atomic>
+#include <signal.h>
 #include <cstring>
 #include <string>
 #include <errno.h>
 #include <vector>
 #include <chrono>
+#include <filesystem>
 
 #include "getvarsfromfile.hpp"
 #include "output.hpp"
@@ -45,6 +54,7 @@ class Server {
         void startProgram(string method);
         void readSettings(string confFile);
         void removeSlashesFromEnd(string& var);
+        void readFd();
         int getPID(int pid = 0, string method = "new");
         vector<string> toArray(string input);
         auto toPointerArray(vector<string> &strings);
@@ -52,8 +62,18 @@ class Server {
         string name, file, path, command, flags, confFile, device = "";
         string method;
 
+        inline static int slave_fd, fd, pid;
+
+        bool startedRfdThread = false;
+
+        inline static bool wantsLiveOutput = false;
+
+        inline static std::list<string> lines; //make this inline static so the program only has one copy of lines available
+        //super duper important!!
+
         public:
                 Server(shared_ptr<Output> tempObj);
                 bool isRunning = false;
                 void startServer(string confFile);
+                void terminalAccessWrapper();
 };

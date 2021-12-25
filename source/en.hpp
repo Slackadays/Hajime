@@ -143,6 +143,6 @@ debugUsingOldMethod = "Using the old method";
 debugUsingNewMethod = "Using the new method";
 debugFlags = "Flags =";
 debugFlagArray0 = "flagArray[0] =";
-debugFlagArray0 = "flagArray[1] =";
+debugFlagArray1 = "flagArray[1] =";
 debugValidatingSettings = "Checking the server's settings";
 fileServerConfComment = "# Anything after a # is a comment.";

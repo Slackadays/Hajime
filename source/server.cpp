@@ -10,14 +10,23 @@
 #endif
 
 #include <iostream>
+#include <unistd.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 #include <fstream>
+#include <thread>
+#include <list>
+#include <atomic>
+#include <signal.h>
 #include <cstring>
 #include <string>
 #include <errno.h>
 #include <vector>
 #include <chrono>
 #include <filesystem>
+#include <errno.h>
 
 #include "getvarsfromfile.hpp"
 #include "server.hpp"
@@ -35,6 +44,48 @@ namespace fs = std::filesystem;
 
 Server::Server(shared_ptr<Output> tempObj) {
 	logObj = tempObj;
+}
+
+void Server::readFd() {
+	while (true) {
+		int length;
+		char input[1000];
+		length = read(fd, input, sizeof(input));
+		if (length == -1) {
+			logObj->out("errno = " + errno, Debug);
+		}
+		std::string output = "";
+		for (int i = 0; i < length; i++) {
+			output += input[i];
+		}
+		if (lines.size() >= 80) {
+			//std::cout << "Popping" << std::endl;
+			lines.pop_front();
+		}
+		//std::cout << "Pushing back" << std::endl;
+		lines.push_back(output);
+		if (wantsLiveOutput) {
+			std::cout << output << std::flush;
+		}
+	}
+}
+
+void Server::terminalAccessWrapper() {
+	wantsLiveOutput = true;
+	for (const auto& it : lines) {
+		std::cout << it << std::flush;
+	}
+	while (true) {
+		std::string user_input = "";
+		std::getline(std::cin, user_input); //getline allows for spaces
+		if (user_input == "hajex") {
+			wantsLiveOutput = false;
+			break;
+		}
+		user_input += "\n";
+		write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
+	}
+	std::cout << "Exited the server console" << std::endl;
 }
 
 void Server::startServer(string confFile) {
@@ -134,18 +185,51 @@ void Server::startProgram(string method = "new") {
 			#else
 			logObj->out(text.debugFlags + flags, Debug);
 			auto flagTemp = toArray(flags);
-     			auto flagArray = toPointerArray(flagTemp);
-			int pid = fork();
+     	auto flagArray = toPointerArray(flagTemp);
+			logObj->out(text.debugFlagArray0 + (string)flagArray[0], Debug);
+			logObj->out(text.debugFlagArray1 + (string)flagArray[1], Debug);
+			wantsLiveOutput = false;
+			fd = posix_openpt(O_RDWR);
+			grantpt(fd);
+			unlockpt(fd);
+			slave_fd = open(ptsname(fd), O_RDWR);
+			pid = fork();
 			if (pid == 0) {
-				logObj->out(text.debugFlagArray0 + (string)flagArray[0], Debug);
-				logObj->out(text.debugFlagArray1 + (string)flagArray[1], Debug);
+				logObj->out("This is the child.", Debug);
+				close(fd);
+				struct termios old_sets; //something to save the old settings to
+				struct termios new_sets;
+				tcgetattr(slave_fd, &old_sets); //save current temrinal settings to old_sets
+				new_sets = old_sets;
+				cfmakeraw (&new_sets); //set terminal to raw mode (disable character preprocessing)
+				tcsetattr (slave_fd, TCSANOW, &new_sets); //assign the new settings to the terminal
+				close(0); //get rid of the old cin
+				close(1); //get rid of the old cout
+				close(2); //get rid of the old cerr
+				dup2(slave_fd, 0); //assign the slave fd to cin
+				dup2(slave_fd, 1); //ditto, cout
+				dup2(slave_fd, 2); //ditto, cerr
+				close(slave_fd); //close out the fd we used just for assigning to new fds
+				setsid(); //create a new session without a terminal
+				ioctl(slave_fd, TIOCSCTTY, 0); //assign the terminal of to the current program
+				//ioctl(0, TIOCSCTTY, 0); etc
 				execvp(file.c_str(), flagArray.data());
+				//execlp("bc", "/bc", NULL); //use this for testing
 			} else {
-				std::this_thread::sleep_for(std::chrono::seconds(1));
+				logObj->out("This is the parent.", Debug);
+				int length = 0;
+				if (!startedRfdThread) {
+					std::jthread rfd(&Server::readFd, this);
+					rfd.detach();
+					startedRfdThread = true;
+				}
+				close(slave_fd);
 				if (getPID() != 0) { //check for the PID of the program we just started
       		isRunning = true; //isRunning disables a lot of checks
           hasMounted = true;
 		    }
+				isRunning = true;
+				//std::cout << "Trying to get output from lines..." << std::endl;
 			}
 			#endif
 		} else {
