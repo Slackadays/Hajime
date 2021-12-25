@@ -147,7 +147,11 @@ int main(int argc, char *argv[]) {
 		string command = "";
 		std::getline(std::cin, command);
 		if (command == "watch") {
+			#if !defined(_WIN64) && !defined (_WIN32)
 			serverVec[0].terminalAccessWrapper();
+			#else
+			cout << "Windows doesn't support this feature." << endl;
+			#endif
 		} else {
 			cout << "This feature isn't implemented yet." << endl;
 		}
