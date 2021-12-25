@@ -7,26 +7,27 @@
 #include <sys/mount.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <sys/ioctl.h>
 #endif
 
 #include <iostream>
-#include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <termios.h>
-#include <sys/ioctl.h>
 #include <fstream>
 #include <thread>
 #include <list>
 #include <atomic>
-#include <signal.h>
 #include <cstring>
 #include <string>
-#include <errno.h>
 #include <vector>
 #include <chrono>
 #include <filesystem>
 #include <errno.h>
+
+#if (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
+	#define jthread thread
+#endif
 
 #include "getvarsfromfile.hpp"
 #include "server.hpp"
