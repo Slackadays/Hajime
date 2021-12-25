@@ -73,6 +73,7 @@ void Server::readFd() {
 }
 
 void Server::terminalAccessWrapper() {
+	std::cout << "--->" << name << "<---" << std::endl;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {
 		std::cout << it << std::flush;
@@ -87,7 +88,7 @@ void Server::terminalAccessWrapper() {
 		user_input += "\n";
 		write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
 	}
-	std::cout << "Exited the server console" << std::endl;
+	std::cout << "--->Hajime<---" << std::endl;
 }
 #endif
 
@@ -122,7 +123,10 @@ void Server::startServer(string confFile) {
 			} catch(...) {
 				logObj->out(text.errorCouldntSetPath, Error);
 			}
-			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(\/||\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && fs::is_regular_file(file) && !isRunning) { //checks if we're in the right place and if the server file is there
+			if (!fs::is_regular_file(file)) {
+				logObj->out(file + " doesn't exist, but this may not matter.", Warning);
+			}
+			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(\/||\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
 				logObj->out(text.infoStartingServer, Info);
 				startProgram(method);
 				logObj->out(text.infoServerStartCompleted, Info);

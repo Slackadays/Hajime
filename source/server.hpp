@@ -59,14 +59,13 @@ class Server {
         vector<string> toArray(string input);
         auto toPointerArray(vector<string> &strings);
 
-        string name, file, path, command, flags, confFile, device = "";
-        string method;
+        inline static string name, file, path, command, flags, confFile, device, method = "";
 
         inline static int slave_fd, fd, pid;
 
         bool startedRfdThread = false;
 
-        inline static bool wantsLiveOutput = false;
+        inline static std::atomic<bool> wantsLiveOutput; //you can't assign a value to this yet, so we give it a value before we use it
 
         inline static std::list<string> lines; //make this inline static so the program only has one copy of lines available
         //super duper important!!
@@ -75,7 +74,5 @@ class Server {
                 Server(shared_ptr<Output> tempObj);
                 bool isRunning = false;
                 void startServer(string confFile);
-                #if !defined(_WIN64) && !defined (_WIN32)
                 void terminalAccessWrapper();
-                #endif
 };

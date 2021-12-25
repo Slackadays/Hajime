@@ -148,12 +148,14 @@ int main(int argc, char *argv[]) {
 		std::getline(std::cin, command);
 		if (command == "watch") {
 			#if !defined(_WIN64) && !defined (_WIN32)
+			logObj->normalDisabled = true;
 			serverVec[0].terminalAccessWrapper();
+			logObj->normalDisabled = false;
 			#else
 			cout << "Windows doesn't support this feature." << endl;
 			#endif
 		} else {
-			cout << "This feature isn't implemented yet." << endl;
+			cout << "Invalid command; try \"watch\" to access the server terminal." << endl;
 		}
 	}
 	return 0;
