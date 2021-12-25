@@ -8,12 +8,12 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <sys/ioctl.h>
+#include <termios.h>
 #endif
 
 #include <iostream>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <termios.h>
 #include <fstream>
 #include <thread>
 #include <list>
