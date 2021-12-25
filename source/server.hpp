@@ -75,5 +75,7 @@ class Server {
                 Server(shared_ptr<Output> tempObj);
                 bool isRunning = false;
                 void startServer(string confFile);
+                #if !defined(_WIN64) && !defined (_WIN32)
                 void terminalAccessWrapper();
+                #endif
 };

@@ -47,6 +47,7 @@ Server::Server(shared_ptr<Output> tempObj) {
 	logObj = tempObj;
 }
 
+#if !defined(_WIN64) && !defined (_WIN32)
 void Server::readFd() {
 	while (true) {
 		int length;
@@ -88,6 +89,7 @@ void Server::terminalAccessWrapper() {
 	}
 	std::cout << "Exited the server console" << std::endl;
 }
+#endif
 
 void Server::startServer(string confFile) {
 	try {
