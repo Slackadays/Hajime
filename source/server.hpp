@@ -1,29 +1,29 @@
 #if defined(_win64) || defined (_WIN32)
 #include <Windows.h>
+#include <shellapi.h>
+#pragma comment (lib, "Shell32")
 #else
 #include <unistd.h>
 #include <sys/mount.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <sys/ioctl.h>
+#include <termios.h>
 #endif
 
 #include <iostream>
-#include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <termios.h>
-#include <sys/ioctl.h>
 #include <fstream>
 #include <thread>
 #include <list>
 #include <atomic>
-#include <signal.h>
 #include <cstring>
 #include <string>
-#include <errno.h>
 #include <vector>
 #include <chrono>
 #include <filesystem>
+#include <errno.h>
 
 #include "getvarsfromfile.hpp"
 #include "output.hpp"
