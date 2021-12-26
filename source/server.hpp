@@ -1,4 +1,4 @@
-#if defined(_win64) || defined (_WIN32)
+#if defined(_WIN64) || defined (_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
 #pragma comment (lib, "Shell32")
@@ -65,7 +65,7 @@ class Server {
 
 	#if defined(_WIN64) || defined(_WIN32)
 	inline static STARTUPINFO si;
-	inline static PROCESS_INFORMATION pi;
+	inline static PROCESS_INFORMATION pi; // can get process handle and pid from this
 	#endif
 
 	bool startedRfdThread = false;
