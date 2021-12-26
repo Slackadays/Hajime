@@ -123,6 +123,10 @@ void Server::startServer(string confFile) {
 			} else {
 				isRunning = false;
 				logObj->out(text.warningIsRunningFalse, Warning);
+				#if defined(_WIN64) || defined(_WIN32)
+				CloseHandle(pi);
+				CloseHandle(si);
+				#endif
 			}
 			try {
 				fs::current_path(path);
