@@ -202,14 +202,14 @@ void Server::startProgram(string method = "new") {
 		} else if (method == "new") {
 			logObj->out(text.debugUsingNewMethod, Debug);
 			#if defined(_WIN64) || defined (_WIN32)
-			ZeroMemory(&si, sizeof(si));
-			si.cb = sizeof(si);
-			ZeroMemory(&pi, sizeof(pi));
+			ZeroMemory(&si, sizeof(si)); //ZeroMemory fills si with zeroes
+			si.cb = sizeof(si); //si.cb = size of si
+			ZeroMemory(&pi, sizeof(pi)); 
 			// createprocessa might cause an error if commandline is const
 			char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
-			strcpy(tempflags, flags.c_str());
+			strcpy(tempflags, flags.c_str()); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
 			CreateProcessA(file.c_str(), tempflags, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
-			delete[] tempflags;
+			delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
 			#else
 			logObj->out(text.debugFlags + flags, Debug);
 			auto flagTemp = toArray(flags);
