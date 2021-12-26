@@ -9,7 +9,7 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL"
+name: "Security Checks"
 
 on:
   push:
@@ -22,7 +22,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
+    name: CodeQL
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -68,3 +68,21 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
+  lint:
+    name: DevSkim
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run DevSkim scanner
+        uses: microsoft/DevSkim-Action@v1
+        
+      - name: Upload DevSkim scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: devskim-results.sarif
