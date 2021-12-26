@@ -207,7 +207,7 @@ void Server::startProgram(string method = "new") {
 			ZeroMemory(&pi, sizeof(pi)); 
 			// createprocessa might cause an error if commandline is const
 			char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
-			strcpy(tempflags, flags.c_str()); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
+			strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
 			CreateProcessA(file.c_str(), tempflags, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
 			delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
 			#else
