@@ -55,12 +55,11 @@ class Server {
 	void readSettings(string confFile);
 	void removeSlashesFromEnd(string& var);
 	void readFd();
-	int getPID(int pid = 0, string method = "new");
+	int getPID();
 	vector<string> toArray(string input);
 	auto toPointerArray(vector<string> &strings);
 
-	string name, file, path, command, flags, confFile, device = "";
-	string method;
+	inline static string name, file, path, command, flags, confFile, device, method, cmdline = "";
 
 	inline static int slave_fd, fd, pid;
 
@@ -71,7 +70,7 @@ class Server {
 
 	bool startedRfdThread = false;
 
-	inline static bool wantsLiveOutput = false;
+	inline static std::atomic<bool> wantsLiveOutput; //you can't assign a value to this yet, so we give it a value before we use it
 
 	inline static std::list<string> lines; //make this inline static so the program only has one copy of lines available
 	//super duper important!!

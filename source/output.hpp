@@ -14,7 +14,7 @@
 using std::string;
 using std::ofstream;
 
-enum outType {None, Info, Error, Warning, Debug, Question};
+enum outType {None = 0, Info = 1, Error = 2, Warning = 3, Debug = 4, Question = 5, Force = 6};
 enum lines {Def = 2, True = 1, False = 0};
 
 class Output {
@@ -30,6 +30,7 @@ class Output {
 		bool getYN(string prompt = text.questionPrompt);
 		void init(string file, bool debugOrNot = true);
 		void end();
+		bool normalDisabled = false;
 		bool noColors = false;
 		bool reduceColors = true;
 		bool verbose = false;
