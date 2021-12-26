@@ -1,4 +1,4 @@
-#if defined(_win64) || defined (_WIN32)
+#if defined(_WIN64) || defined (_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
 #pragma comment (lib, "Shell32")
@@ -25,7 +25,10 @@
 #include <filesystem>
 #include <errno.h>
 
-#if (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
+#ifdef _MSC_VER
+#if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
+	#define jthread thread
+#elif (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
 	#define jthread thread
 #endif
 
@@ -100,14 +103,14 @@ void Server::startServer(string confFile) {
 			logObj->out(text.errorServerFileNotPresent1 + confFile + text.errorServerFileNotPresent2, Error);
 			return;
 		}
-			logObj->out("----" + name + "----", Info);
-			logObj->out(text.infoServerFile + file + " | ", Info, 0, 0);
-			logObj->out(text.infoServerPath + path, None);
-			logObj->out(text.infoServerCommand + command + " | ", Info, 0, 0);
-			logObj->out(text.infoServerMethod + method, None);
-			logObj->out(text.infoServerDebug + to_string(logObj->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-			logObj->out(text.infoServerDevice + device, None);
-		while(true) {
+		logObj->out("----" + name + "----", Info);
+		logObj->out(text.infoServerFile + file + " | ", Info, 0, 0);
+		logObj->out(text.infoServerPath + path, None);
+		logObj->out(text.infoServerCommand + command + " | ", Info, 0, 0);
+		logObj->out(text.infoServerMethod + method, None);
+		logObj->out(text.infoServerDebug + to_string(logObj->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+		logObj->out(text.infoServerDevice + device, None);
+		while (true) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 				std::this_thread::sleep_for(std::chrono::seconds(3));
 				logObj->out(text.infoServerIsRunning, Info);
@@ -147,9 +150,9 @@ vector<string> Server::toArray(string input) {
 	string execFile = path + '/' + file; //make an absolute executable path for the thing we're executing
 	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
 	for (int i = 0; i < input.length(); temp = "") {
-  	while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
-    	i++;
-    }
+		while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
+			i++;
+		}
 		while (input[i] != ' ' && i < input.length()) { //add characters to a temp variable that will go into the vector
 			temp += input[i];
 			i++;
@@ -188,7 +191,7 @@ void Server::startProgram(string method = "new") {
 			#else
 			logObj->out(text.debugFlags + flags, Debug);
 			auto flagTemp = toArray(flags);
-     	auto flagArray = toPointerArray(flagTemp);
+			auto flagArray = toPointerArray(flagTemp);
 			logObj->out(text.debugFlagArray0 + (string)flagArray[0], Debug);
 			logObj->out(text.debugFlagArray1 + (string)flagArray[1], Debug);
 			wantsLiveOutput = false;
@@ -228,9 +231,9 @@ void Server::startProgram(string method = "new") {
 				}
 				close(slave_fd);
 				if (getPID() != 0) { //check for the PID of the program we just started
-      		isRunning = true; //isRunning disables a lot of checks
-          hasMounted = true;
-		    }
+					isRunning = true; //isRunning disables a lot of checks
+					hasMounted = true;
+				}
 				isRunning = true;
 				//std::cout << "Trying to get output from lines..." << std::endl;
 			}
@@ -275,38 +278,35 @@ void Server::mountDrive() {
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
 		} else {
-			#if defined(_WIN64)
-			#else
 			int errsv = errno; //errno is the POSIX error code, save errno to a dummy variable to stop it from getting tainted
-			#endif
 			if (systemi == 6) {
 				switch (errsv) {
-				case 1 : error = text.errnoNotPermitted; break;
-				case 2 : error = text.errnoNoFileOrDir; break;
-				case 13: error = text.errnoPermissionDenied; break;
-				case 5 : error = text.errnoInOut; break;
-				case 12: error = text.errnoMemory; break;
-				case 11: error = text.errnoUnavailable; break;
-				case 14: error = text.errnoAddress; break;
-				case 15: error = text.errnoBlockDev; break;
-				case 16: error = text.errnoBusy; break;
-				case 21: error = text.errnoDirectory; break;
-				case 22: error = text.errnoBadArgs; break;
-				case 19: error = text.errnoUnknownDev; break;
-				default: error = text.errnoUnknownGeneric;
+					case 1 : error = text.errnoNotPermitted; break;
+					case 2 : error = text.errnoNoFileOrDir; break;
+					case 13: error = text.errnoPermissionDenied; break;
+					case 5 : error = text.errnoInOut; break;
+					case 12: error = text.errnoMemory; break;
+					case 11: error = text.errnoUnavailable; break;
+					case 14: error = text.errnoAddress; break;
+					case 15: error = text.errnoBlockDev; break;
+					case 16: error = text.errnoBusy; break;
+					case 21: error = text.errnoDirectory; break;
+					case 22: error = text.errnoBadArgs; break;
+					case 19: error = text.errnoUnknownDev; break;
+					default: error = text.errnoUnknownGeneric;
 				}
-				if (!hasOutputUSB){
+				if (!hasOutputUSB) {
 					logObj->out(text.errorMount + error, Error);
 					hasOutputUSB = true;
 					systemi = 0;
 				}
 				logObj->out(text.errorCode + to_string(errsv), Error);
-				}
 			}
-			if (systemi < 6) {
-				logObj->out(text.infoTryingFilesystem1 + systems[systemi] + text.infoTryingFilesystem2, Info);
-				systemi++; //increment the filesystem
-			}
+		}
+		if (systemi < 6) {
+			logObj->out(text.infoTryingFilesystem1 + systems[systemi] + text.infoTryingFilesystem2, Info);
+			systemi++; //increment the filesystem
+		}
 	}
 	#endif
 }
@@ -323,17 +323,17 @@ void Server::readSettings(string confFile) {
 	for (const auto& it : results) {
 		logObj->out(it, Debug);
 	}
-    for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-			auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-			setVar(settings[0], name);
-			setVar(settings[1], file);
-      setVar(settings[2], path);
-      setVar(settings[3], command);
-	    setVar(settings[4], flags);
-			setVar(settings[5], method);
-	    setVar(settings[6], device);
+	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+		setVar(settings[0], name);
+		setVar(settings[1], file);
+		setVar(settings[2], path);
+		setVar(settings[3], command);
+		setVar(settings[4], flags);
+		setVar(settings[5], method);
+		setVar(settings[6], device);
 			logObj->out(text.debugReadingReadsettings, Debug);
-    }
+	}
 	if (device == "") {
 		logObj->out(text.infoNoMount, Info);
 		hasMounted = true;
@@ -344,35 +344,35 @@ void Server::readSettings(string confFile) {
 }
 
 int Server::getPID(int pid, string method) {
-#if defined(_WIN64) || defined(_WIN32)
-logObj->out(text.warningTestingWindowsSupport, Warning);
-return 0;
-#else
-if (method == "new") {
+	#if defined(_WIN64) || defined(_WIN32)
+	logObj->out(text.warningTestingWindowsSupport, Warning);
+	return 0;
+	#else
+	if (method == "new") {
 		if (!kill(pid, 0)) {
 			return pid;
 		} else {
 			int errnum = errno;
 			return 0;
 		}
-} else {
-	fs::directory_iterator Directory("/proc/"); //search /proc/
-	fs::directory_iterator End; //a dummy object to compare to
-	for (string dir = ""; Directory != End; Directory++) {
-		dir = Directory->path(); //assigns a formatted directory string to dir
-		fstream file; //create a file object
-		file.open(dir + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
-		string str = ""; //reset string
-		getline(file, str); //read cmdline (it is only 1 line)
-		if (str.length() > 0){ //if a cmdline is not used, there will be nothing
-			if (str.find("SCREEN") != string::npos){ //look for a keyword in cmdline, string::npos is a special value (-1) that needs to be used
-				file.close(); //erase from memory
-				return stoi(dir.erase(0, 6)); 	//return the PID of the known good process
+	} else {
+		fs::directory_iterator Directory("/proc/"); //search /proc/
+		fs::directory_iterator End; //a dummy object to compare to
+		for (string dir = ""; Directory != End; Directory++) {
+			dir = Directory->path(); //assigns a formatted directory string to dir
+			fstream file; //create a file object
+			file.open(dir + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
+			string str = ""; //reset string
+			getline(file, str); //read cmdline (it is only 1 line)
+			if (str.length() > 0) { //if a cmdline is not used, there will be nothing
+				if (str.find("SCREEN") != string::npos) { //look for a keyword in cmdline, string::npos is a special value (-1) that needs to be used
+					file.close(); //erase from memory
+					return stoi(dir.erase(0, 6)); 	//return the PID of the known good process
+				}
 			}
+			file.close(); //erase the file from memory
 		}
-	file.close(); //erase the file from memory
+		return 0; //doesn't exist
 	}
-	return 0; //doesn't exist
-}
-#endif
+	#endif
 }
