@@ -64,7 +64,7 @@ class Server {
 	inline static int slave_fd, fd, pid;
 
 	#if defined(_WIN64) || defined(_WIN32)
-	inline static STARTUPINFO si;
+	inline static STARTUPINFO si; // a variable that can specify parameters for windows created with it
 	inline static PROCESS_INFORMATION pi; // can get process handle and pid from this
 	#endif
 
