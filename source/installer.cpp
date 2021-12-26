@@ -169,18 +169,18 @@ void Installer::installStartupService(string sysService) {
 	} else if (fs::is_directory("/Library/LaunchAgents")) { //macOS agent directory
 		logObj->out(text.infoInstallingLaunchdServ, Info);
 		bool continueInstall = true;
-                if (fs::is_regular_file("/Library/LaunchAgents/Hajime.plist")) {
-                        logObj->out(text.warningLaunchdServPresent, Warning);
-                        logObj->out(text.questionMakeLaunchdServ, Question, 0, 0);
-                        if (logObj->getYN()) {
-                                continueInstall = true;
-                                logObj->out(text.infoInstallingNewLaunchdServ, Info);
-                        } else {
-                                continueInstall = false;
-                        }
-                }
-                if (continueInstall) {
-                        ofstream service("/Library/LaunchAgents/Hajime.plist");
+		if (fs::is_regular_file("/Library/LaunchAgents/Hajime.plist")) {
+			logObj->out(text.warningLaunchdServPresent, Warning);
+			logObj->out(text.questionMakeLaunchdServ, Question, 0, 0);
+			if (logObj->getYN()) {
+					continueInstall = true;
+					logObj->out(text.infoInstallingNewLaunchdServ, Info);
+			} else {
+					continueInstall = false;
+			}
+		}
+		if (continueInstall) {
+			ofstream service("/Library/LaunchAgents/Hajime.plist");
 			service << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			"<!DOCTYPE plist PUBLIC \"-\/\/Apple\/\/DTD PLIST 1.0\/\/EN\" \"http:\/\/www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
 			"<plist version=\"1.0\">\n"
@@ -220,7 +220,7 @@ void Installer::installStartupService(string sysService) {
 			logObj->out(text.errorNoSystemd, Error);
 		}
 	}
-		#endif
+	#endif
 }
 
 void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck, std::vector<string> servers) {

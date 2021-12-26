@@ -11,8 +11,12 @@ namespace fs = std::filesystem;
 #include <cstring>
 #include <string>
 
-#if (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
-	#define jthread thread
+#ifdef _MSC_VER
+#if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
+#define jthread thread
+#endif
+#elif (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
+#define jthread thread
 #endif
 
 #include "output.hpp"
@@ -65,11 +69,11 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-	for (int i = 1; i < argc; i++)  {//start at i = 1 to improve performance because we will never find a flag at 0
+	for (int i = 1; i < argc; i++) {//start at i = 1 to improve performance because we will never find a flag at 0
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
 		if (flag("-f", "--server-file")) {
-		  if (!assignNextToVar(defaultServerConfFile)) {
+			if (!assignNextToVar(defaultServerConfFile)) {
 				logObj->out(text.errorNotEnoughArgs, Error);
 				return 0;
 			}
@@ -114,7 +118,7 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 	}
- 	if (fs::is_regular_file(hajDefaultConfFile)) {
+	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
 		empty(logFile) ? logObj->out(text.infoNoLogFile, Info) : logObj->init(logFile);
 	} else {

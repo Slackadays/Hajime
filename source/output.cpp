@@ -19,7 +19,7 @@ void Output::init(string file, bool debugOrNot) {
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 
-void Output::out(string data, outType type, int keepEndlines, int endLineAtEnd) {
+void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd) {
 	if (normalDisabled && !debug) {
 		return;
 	}
@@ -73,20 +73,20 @@ bool Output::getYN(string prompt) {
 	}
 }
 
-void Output::end(){
+void Output::end() {
 	std::lock_guard<std::mutex> lock(outMutex);
 	fileObj.close();
 	logToFile = false;
 }
 
-string Output::removeEndlines(string input, bool keepEndlines){
-	if (!keepEndlines){
+string Output::removeEndlines(string input, bool keepEndlines) {
+	if (!keepEndlines) {
 		input.erase(std::remove(input.begin(), input.end(), '\n'), input.end());
 	}
 	return input;
 }
 
-string Output::addPrefixByType(string input, outType type){
+string Output::addPrefixByType(string input, outType type) {
 	string prefix = "";
 	bool blank = false;
 	if (verbose) {
