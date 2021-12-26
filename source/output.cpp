@@ -19,7 +19,7 @@ void Output::init(string file, bool debugOrNot) {
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 
-void Output::out(string data, outType type, int keepEndlines, int endLineAtEnd) {
+void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd) {
 	if (normalDisabled && !debug) {
 		return;
 	}
