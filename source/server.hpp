@@ -64,6 +64,11 @@ class Server {
 
 	inline static int slave_fd, fd, pid;
 
+	#if defined(_WIN64) || defined(_WIN32)
+	inline static STARTUPINFO si;
+	inline static PROCESS_INFORMATION pi;
+	#endif
+
 	bool startedRfdThread = false;
 
 	inline static bool wantsLiveOutput = false;

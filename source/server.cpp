@@ -111,7 +111,11 @@ void Server::startServer(string confFile) {
 		logObj->out(text.infoServerDebug + to_string(logObj->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		logObj->out(text.infoServerDevice + device, None);
 		while (true) {
+			#if defined(_WIN64) || defined(_WIN32)
+			if (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, 0) {
+			#else
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
+			#endif
 				std::this_thread::sleep_for(std::chrono::seconds(3));
 				logObj->out(text.infoServerIsRunning, Info);
 				isRunning = true;
@@ -187,7 +191,10 @@ void Server::startProgram(string method = "new") {
 		} else if (method == "new") {
 			logObj->out(text.debugUsingNewMethod, Debug);
 			#if defined(_WIN64) || defined (_WIN32)
-			ShellExecuteA(NULL, "open", file.c_str(), flags.c_str(), NULL, SW_NORMAL);
+			ZeroMemory(&si, sizeof(si));
+			si.cb = sizeof(si);
+			ZeroMemory(&pi, sizeof(pi));
+			CreateProcessA(file.c_str(), flags.c_str(), NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
 			#else
 			logObj->out(text.debugFlags + flags, Debug);
 			auto flagTemp = toArray(flags);
@@ -241,8 +248,12 @@ void Server::startProgram(string method = "new") {
 		} else {
 			logObj->out(text.errorMethodNotValid, Error);
 		}
+		#if defined(_WIN64) || defined(_WIN32)
+		if (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, 1000) { // might as well do this since we can
+		#else
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (getPID() != 0) { //check for the PID of the program we just started
+		#endif
 			isRunning = true; //isRunning disables a lot of checks
 			hasMounted = true;
 		}
@@ -346,7 +357,7 @@ void Server::readSettings(string confFile) {
 int Server::getPID(int pid, string method) {
 	#if defined(_WIN64) || defined(_WIN32)
 	logObj->out(text.warningTestingWindowsSupport, Warning);
-	return 0;
+	return pi.dwProcessId; // honestly I don't think this is necessary but whatever
 	#else
 	if (method == "new") {
 		if (!kill(pid, 0)) {
