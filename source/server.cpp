@@ -54,7 +54,8 @@ void Server::readFd() {
 		char input[1000];
 		length = read(fd, input, sizeof(input));
 		if (length == -1) {
-			logObj->out("errno = " + errno, Debug);
+			logObj->out("read() errno = " + to_string(errno), Debug);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 		std::string output = "";
 		for (int i = 0; i < length; i++) {
@@ -73,7 +74,7 @@ void Server::readFd() {
 }
 
 void Server::terminalAccessWrapper() {
-	std::cout << "--->" << name << "<---" << std::endl;
+	std::cout << "----->" << name << std::endl;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {
 		std::cout << it << std::flush;
@@ -88,7 +89,7 @@ void Server::terminalAccessWrapper() {
 		user_input += "\n";
 		write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
 	}
-	std::cout << "--->Hajime<---" << std::endl;
+	std::cout << "Hajime<-----" << std::endl;
 }
 #endif
 
@@ -108,23 +109,14 @@ void Server::startServer(string confFile) {
 			logObj->out(text.infoServerMethod + method, None);
 			logObj->out(text.infoServerDebug + to_string(logObj->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 			logObj->out(text.infoServerDevice + device, None);
-		while(true) {
-			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
-				std::this_thread::sleep_for(std::chrono::seconds(3));
-				logObj->out(text.infoServerIsRunning, Info);
-				isRunning = true;
-				hasMounted = true;
-			} else {
-				isRunning = false;
-				logObj->out(text.warningIsRunningFalse, Warning);
+			if (!fs::is_regular_file(file)) {
+				logObj->out(file + " doesn't exist, but this may not matter.", Warning);
 			}
+		while(true) {
 			try {
 				fs::current_path(path);
 			} catch(...) {
 				logObj->out(text.errorCouldntSetPath, Error);
-			}
-			if (!fs::is_regular_file(file)) {
-				logObj->out(file + " doesn't exist, but this may not matter.", Warning);
 			}
 			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(\/||\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
 				logObj->out(text.infoStartingServer, Info);
@@ -138,6 +130,15 @@ void Server::startServer(string confFile) {
 			fs::current_path(path, ec);
 			if (!hasMounted) {
 				mountDrive();
+			}
+			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
+				std::this_thread::sleep_for(std::chrono::seconds(3));
+				logObj->out(text.infoServerIsRunning, Info);
+				isRunning = true;
+				hasMounted = true;
+			} else {
+				isRunning = false;
+				logObj->out(text.warningIsRunningFalse, Warning);
 			}
 		}
 	} catch(...) { //error handling
@@ -222,6 +223,7 @@ void Server::startProgram(string method = "new") {
 				//ioctl(0, TIOCSCTTY, 0); etc
 				execvp(file.c_str(), flagArray.data());
 				//execlp("bc", "/bc", NULL); //use this for testing
+				exit(0);
 			} else {
 				logObj->out("This is the parent.", Debug);
 				int length = 0;
@@ -231,11 +233,17 @@ void Server::startProgram(string method = "new") {
 					startedRfdThread = true;
 				}
 				close(slave_fd);
+				std::this_thread::sleep_for(std::chrono::seconds(4));
+				std::fstream cmdl;
+				cmdl.open("/proc/" + to_string(pid) + "/cmdline", std::fstream::in);
+				//std::cout << "opening cmdline file for pid " << pid << " at /proc/" << to_string(pid) << "/cmdline" << std::endl;
+				getline(cmdl, cmdline);
+				//std::cout << "cmdline = " << cmdline << std::endl;
+				cmdl.close();
 				if (getPID() != 0) { //check for the PID of the program we just started
       		isRunning = true; //isRunning disables a lot of checks
           hasMounted = true;
 		    }
-				isRunning = true;
 				//std::cout << "Trying to get output from lines..." << std::endl;
 			}
 			#endif
@@ -347,14 +355,24 @@ void Server::readSettings(string confFile) {
 	remSlash(file, path, device);
 }
 
-int Server::getPID(int pid, string method) {
+int Server::getPID() {
 #if defined(_WIN64) || defined(_WIN32)
 logObj->out(text.warningTestingWindowsSupport, Warning);
 return 0;
 #else
 if (method == "new") {
 		if (!kill(pid, 0)) {
-			return pid;
+			std::fstream cmdl;
+			cmdl.open("/proc/" + to_string(pid) + "/cmdline", std::fstream::in);
+			string temp = "";
+			getline(cmdl, temp);
+			//std::cout << "temp is " << temp << std::endl;
+			cmdl.close();
+			if (temp == cmdline) {
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
 			int errnum = errno;
 			return 0;

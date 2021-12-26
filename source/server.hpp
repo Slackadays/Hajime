@@ -55,11 +55,11 @@ class Server {
         void readSettings(string confFile);
         void removeSlashesFromEnd(string& var);
         void readFd();
-        int getPID(int pid = 0, string method = "new");
+        int getPID();
         vector<string> toArray(string input);
         auto toPointerArray(vector<string> &strings);
 
-        inline static string name, file, path, command, flags, confFile, device, method = "";
+        inline static string name, file, path, command, flags, confFile, device, method, cmdline = "";
 
         inline static int slave_fd, fd, pid;
 
