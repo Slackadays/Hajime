@@ -57,6 +57,19 @@ then
 			exit 0
 		fi
 	fi
+	if [ -n "$(uname -m | grep armv7l)" ] || [ -n "$(uname -m | grep aarch64)" ]
+	then
+		echo "Trying to download Hajime for Linux arm32hf directly"
+		curl -o hajime-linux-arm32.zip -L https://github.com/Slackadays/Hajime/releases/latest/download/hajime-linux-arm32.zip
+		unzip hajime-linux-arm32.zip
+		if [ -e hajime ]
+		then
+			chmod +x hajime
+			rm hajime-linux-arm32.zip
+			./hajime
+			exit 0
+		fi
+	fi
 	echo "Compiling Hajime now"
 	sudo apt update && sudo apt -y install g++ git #g++-10 or the otherwise latest version of g++ that supports c++17
 	sudo apt -y upgrade
@@ -69,17 +82,15 @@ then
 	pkg_add git
 fi
 echo "Downloading..."
-git clone https://github.com/Slackadays/Hajime
+git clone https://github.com/slackadays/hajime
 echo "Compiling..."
 echo "This may take from a few seconds to a few minutes depending on your system speed."
-cd Hajime/source
-echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++ -c -Ofast -std=c++17 #lstdc++fs enables filsystem library in older installations
-g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread -lstdc++fs
+cd hajime
 if [ "$OSTYPE" = "OpenBSD" ]
 then
-	echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 6 eg++ -c -Ofast -std=c++17
-	eg++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread -lstdc++fs
+	sed -i s/g++/eg++/g fakemake
 fi
+sh fakemake
 echo "Cleaning up..."
 chown -R $USER ../../Hajime/.git #change perms for certain misbehaving files that come with git
 mv hajime ../../ #move the binary to the original folder where the script was started
