@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <vector>
 #include <random>
+#include <thread>
 
 #include "output.hpp"
 #include "installer.hpp"
@@ -13,7 +14,23 @@ void Wizard::pause(float mean, float stdev) {
 	if (doArtificialPauses) {
 		std::random_device rand;
 		std::normal_distribution<float> normal(mean, stdev);
+		bool spinnerRunning = true;
+		std::thread spinner([&spinnerRunning](){
+			while (spinnerRunning) {
+				std::cout << "\b|" << std::flush;
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				std::cout << "\b/" << std::flush;
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				std::cout << "\b-" << std::flush;
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				std::cout << "\b\\" << std::flush;
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			std::cout << "\b" << std::flush;
+		});
 		std::this_thread::sleep_for(std::chrono::milliseconds((int)abs(normal(rand))));
+		spinnerRunning = false;
+		spinner.join();
 	}
 }
 
