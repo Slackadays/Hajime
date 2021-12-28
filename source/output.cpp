@@ -245,7 +245,7 @@ string Output::getColorByID() {
 		default:
 			break;
 		}
-		switch ((int)round(bgID * 15.0)) {
+	switch ((int)round(bgID * 15.0)) {
 		case 0:
 			returnedColor += "\033[41m"; //dark red background
 			break;
