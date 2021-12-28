@@ -189,7 +189,7 @@ string Output::getColorByID() {
 	std::hash<string> hasher;
 	int colorID;
 	if (threadToNameMap.count(std::this_thread::get_id())) { //do not access threadtonamemap directly because doing so would add the thread id as a key
-		colorID = hasher(threadToNameMap[std::this_thread::get_id()]) % 15;
+		colorID = hasher(threadToNameMap[std::this_thread::get_id()]) % 29;
 	} else if (std::this_thread::get_id() == main_thread) {
 		colorID = 13;
 	} else {
@@ -197,33 +197,61 @@ string Output::getColorByID() {
 	}
 	switch (colorID) {
 		case 1:
-			return "\033[31m";
+			return "\033[31m"; //dark red text
 		case 2:
-			return "\033[32m";
+			return "\033[32m"; //dark green text
 		case 3:
-			return "\033[33m";
+			return "\033[33m"; //dark yellow text
 		case 4:
-			return "\033[34m";
+			return "\033[34m"; //dark blue text
 		case 5:
-			return "\033[35m";
+			return "\033[35m"; //dark magenta text
 		case 6:
-			return "\033[36m";
+			return "\033[36m"; //dark cyan text
 		case 7:
-			return "\033[37m";
+			return "\033[37m"; //dark white text
 		case 8:
-			return "\033[90m";
+			return "\033[90m"; //bright black text
 		case 9:
-			return "\033[91m";
+			return "\033[91m"; //bright red text
 		case 10:
-			return "\033[92m";
+			return "\033[92m"; //bright green text
 		case 11:
-			return "\033[93m";
+			return "\033[93m"; //bright yellow text
 		case 12:
-			return "\033[94m";
+			return "\033[94m"; //bright blue text
 		case 13:
-			return "\033[95m";
+			return "\033[95m"; //bright magenta text
 		case 14:
-			return "\033[96m";
+			return "\033[96m"; //bright cyan text
+		case 15:
+			return "\033[41m"; //dark red background
+		case 16:
+			return "\033[42m"; //gark green bg
+		case 17:
+			return "\033[43m"; //dy bg
+		case 18:
+			return "\033[44m"; //db bg
+		case 19:
+			return "\033[45m"; //dm bg
+		case 20:
+			return "\033[46m"; //dc bg
+		case 21:
+			return "\033[47m"; //dw bg
+		case 22:
+			return "\033[100m"; //bb bg
+		case 23:
+			return "\033[101m"; //br bg
+		case 24:
+			return "\033[102m"; //bg bg
+		case 25:
+			return "\033[103m"; //by bg
+		case 26:
+			return "\033[104m"; //bb bg
+		case 27:
+			return "\033[105m"; //bm bg
+		case 28:
+			return "\033[106m"; //bc bg
 		default:
 			return "";
 	}

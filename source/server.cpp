@@ -106,7 +106,6 @@ void Server::startServer(string confFile) {
 			logObj->out(text.errorServerFileNotPresent1 + confFile + text.errorServerFileNotPresent2, Error);
 			return;
 		}
-		logObj->addServerName(name); //send the name of the server name to logObj so that it can associate a name with a thread id
 		logObj->out("----" + name + "----", Info);
 		logObj->out(text.infoServerFile + file + " | ", Info, 0, 0);
 		logObj->out(text.infoServerPath + path, None);
@@ -371,6 +370,7 @@ void Server::readSettings(string confFile) {
 		setVar(settings[6], device);
 			logObj->out(text.debugReadingReadsettings, Debug);
 	}
+	logObj->addServerName(name); //send the name of the server name to logObj so that it can associate a name with a thread id
 	if (device == "") {
 		logObj->out(text.infoNoMount, Info);
 		hasMounted = true;
