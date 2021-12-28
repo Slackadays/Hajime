@@ -155,9 +155,9 @@ string Output::addPrefixByType(string input, outType type) {
 	}
 	if (main_thread == std::this_thread::get_id()) {
 		if (verbose) {
-			prefix += "Main]";
+			prefix += "Hajime]";
 		} else {
-			prefix += "M]";
+			prefix += "H]";
 		}
 	} else {
 		if (verbose) {
