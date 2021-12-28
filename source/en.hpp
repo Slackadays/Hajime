@@ -14,6 +14,9 @@ help.push_back("\033[1m-i \033[0mor\033[1m --install-hajime \033[1m|\033[0m Run 
 help.push_back("\033[1m-m \033[0mor\033[1m --monochrome \033[0mor\033[1m --no-colors \033[1m|\033[0m Disable color output.");
 help.push_back("\033[1m-d \033[0mor\033[1m --debug \033[1m|\033[0m Enable debug messages.");
 help.push_back("\033[1m-l \033[0mor\033[1m --language \033[1m|\033[0m Manually choose a language to use.");
+help.push_back("\033[1m-np \033[0mor\033[1m --no-pauses \033[1m|\033[0m Disable artifical pauses.");
+help.push_back("\033[1m-tc \033[0mor\033[1m --thread-colors \033[1m|\033[0m Show colors by thread ID instead of message type.");
+help.push_back("\033[1m-it \033[0mor\033[1m --show-info-type \033[1m|\033[0m Explicitly display the type of information in log messages.");
 help.push_back("\033[1m\033[32mNeed more help?\033[0m Join our Discord group at https://discord.gg/J6asnc3pEG");
 errnoNotPermitted = "Not permitted. Is the device correct?";
 errnoNoFileOrDir = "No such file or directory.";

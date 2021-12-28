@@ -36,7 +36,7 @@ class Output {
 		void init(string file, bool debugOrNot = true);
 		void addServerName(string name);
 		void end();
-		bool showThreadsAsColors = true;
+		bool showThreadsAsColors = false;
 		bool showExplicitInfoType = false;
 		bool normalDisabled = false;
 		bool noColors = false;

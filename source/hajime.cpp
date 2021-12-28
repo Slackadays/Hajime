@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 		if (flag("-h", "--help")) { //-h = --help = help
 			helpOut(0, 1);
 			logObj->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
-			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16); //note: Linux doesn't put an endline at the end upon exit, but Windows does
+			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19); //note: Linux doesn't put an endline at the end upon exit, but Windows does
 			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
 		}
 		if (flag("-l", "--language")) {
@@ -119,6 +119,12 @@ int main(int argc, char *argv[]) {
 		}
 		if (flag("-np", "--no-pauses")) {
 			wizard.doArtificialPauses = false;
+		}
+		if (flag("-tc", "--thread-colors")) {
+			logObj->showThreadsAsColors = true;
+		}
+		if (flag("-it", "--show-info-type")) {
+			logObj->showExplicitInfoType = true;
 		}
 	}
 	if (fs::is_regular_file(hajDefaultConfFile)) {

@@ -14,6 +14,9 @@ help.push_back("\033[1m-i \033[0mu\033[1m --install-hajime \033[1m|\033[0m Proce
 help.push_back("\033[1m-m \033[0mo\033[1m --monochrome \033[0mor\033[1m --no-colors \033[1m|\033[0m Desactivar los colores de los registros.");
 help.push_back("\033[1m-d \033[0mo\033[1m --debug \033[1m|\033[0m Activar los registros de depurar.");
 help.push_back("\033[1m-l \033[0mo\033[1m --language \033[1m|\033[0m Escoger el lenguaje que usará Hajime.");
+help.push_back("\033[1m-np \033[0mo\033[1m --no-pauses \033[1m|\033[0m Desactivar las pausas artificiales.");
+help.push_back("\033[1m-tc \033[0mo\033[1m --thread-colors \033[1m|\033[0m Fijar los colores por la identificación de los threads en lugar del tipo del mensaje.");
+help.push_back("\033[1m-it \033[0mo\033[1m --show-info-type \033[1m|\033[0m Fijar el tipo de información en los registros explícitamente.");
 help.push_back("\033[1m\033[32m¿Necesitas más ayuda?\033[0m Únete nuestro grupo de Discord aquí: https://discord.gg/J6asnc3pEG");
 errnoNotPermitted = "No es permitido. ¿Es correcto el aparato?";
 errnoNoFileOrDir = "No hay ese tipo de archivo ni directorio.";
