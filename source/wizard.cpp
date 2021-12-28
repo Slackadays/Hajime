@@ -19,19 +19,21 @@ void Wizard::pause(float mean, float stdev) {
 
 void Wizard::doHajimeStep(string &confFile) {
 	logObj->out(text.infoWizardHajimeFile, Info);
+	pause(200, 200);
 	logObj->out(text.questionMakeHajimeConfig, Question, 0, 0);
 	if (logObj->getYN()) {
-		pause(500, 800);
+		pause(400, 400);
 		wizardStep(confFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, text.errorHajFileNotMade);
 	}
 }
 
 void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<string> &servers) {
 	logObj->out(text.infoWizardServerFile, Info);
+	pause(200, 200);
 	logObj->out(text.questionWizardServerFile, Question);
 	if (logObj->getYN()) {
 		while (true) {
-			pause(500, 800);
+			pause(400, 400);
 			if (!std::regex_match(serverFile, std::regex(".+\\..+", std::regex_constants::optimize))) { //check for lack of file extension
 				serverFile += ".conf";
 			}
@@ -43,6 +45,7 @@ void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<stri
 				logObj->out(text.infoEnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.infoEnterNewNameForServer2, Info, 0, 0);
 				std::cin >> serverFile;
 				std::cout << "\033[0m";
+				pause(200, 200);
 			} else {
 				break;
 			}
@@ -62,9 +65,10 @@ void Wizard::doServersStep(string &serversFile, std::vector<string> &servers) {
 
 void Wizard::doStartupStep(string &sysdService) {
 	logObj->out(text.infoWizardStartupService, Info);
+	pause(200, 200);
 	logObj->out(text.questionWizardStartupService, Question);
 	if (logObj->getYN()) {
-		pause(500, 800);
+		pause(400, 400);
 		installer.installStartupService(sysdService);
 	}
 }
@@ -88,22 +92,23 @@ void Wizard::doNextStepStep(bool &installedS, std::vector<string> &servers) {
 void Wizard::initialHajimeSetup(string confFile, string serversFile, string serverFile, string sysdService) {
 	std::vector<string> servers;
 	bool installedS = false;
-	pause(500, 800);
+	pause(400, 400);
 	doHajimeStep(confFile);
-	pause(500, 800);
+	pause(400, 400);
 	logObj->out("--------------------");
 	doServerStep(installedS, serverFile, servers);
-	pause(500, 800);
+	pause(400, 400);
 	logObj->out("--------------------");
 	doServersStep(serversFile, servers);
-	pause(500, 800);
+	pause(400, 400);
 	logObj->out("--------------------");
 	doStartupStep(sysdService);
-	pause(500, 800);
+	pause(400, 400);
 	logObj->out("--------------------");
 	logObj->out(text.infoWizardComplete, Info);
+	pause(200, 200);
 	doNextStepStep(installedS, servers);
-	pause(500, 800);
+	pause(400, 400);
 }
 
 Wizard wizard;
