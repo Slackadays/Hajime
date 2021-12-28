@@ -88,15 +88,15 @@ int main(int argc, char *argv[]) {
 			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
 				hajDefaultConfFile = var;
 			}
-			wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, text.errorHajFileNotMade);
+			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, text.errorHajFileNotMade);
 			return 0;
 		}
 		if (flag("-ss", "--install-servers-file")) {
-			wizardStep(defaultServersFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated, std::vector<string>{defaultServerConfFile});
+			wizard.wizardStep(defaultServersFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated, std::vector<string>{defaultServerConfFile});
 			return 0;
 		}
 		if (flag("-s", "--install-default-server")) {
-			wizardStep(defaultServerConfFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + defaultServerConfFile, text.errorServerConfNotCreated);
+			wizard.wizardStep(defaultServerConfFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + defaultServerConfFile, text.errorServerConfNotCreated);
 			return 0;
 		}
 		if (flag("-S", "--install-service")) {
@@ -114,8 +114,11 @@ int main(int argc, char *argv[]) {
 		}
 		if (flag("-i", "--install-hajime")) {
 			logObj->out("--------------------");
-			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
+			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			return 0;
+		}
+		if (flag("-np", "--no-pauses")) {
+			wizard.doArtificialPauses = false;
 		}
 	}
 	if (fs::is_regular_file(hajDefaultConfFile)) {
@@ -126,7 +129,7 @@ int main(int argc, char *argv[]) {
 		logObj->out(text.questionDoSetupInstaller, Question);
 		if (logObj->getYN()) {
 			logObj->out("--------------------");
-			initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
+			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			logObj->out(text.questionStartHajime, Question);
 			if (!logObj->getYN()) {
 				return 0;
