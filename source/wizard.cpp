@@ -11,8 +11,7 @@ namespace fs = std::filesystem;
 
 void Wizard::pause(float mean, float stdev) {
 	if (doArtificialPauses) {
-		std::random_device rd;
-		std::mt19937 rand(rd());
+		std::random_device rand;
 		std::normal_distribution<float> normal(mean, stdev);
 		std::this_thread::sleep_for(std::chrono::milliseconds((int)abs(normal(rand))));
 	}
