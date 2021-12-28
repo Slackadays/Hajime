@@ -197,9 +197,9 @@ string Output::getColorByID() {
 		return "";
 	}
 	float dummy;
- 	float bgID = std::modf(selection / 15.0, &dummy);
+ 	float bgID = std::modf(selection / 14.0, &dummy);
 	string returnedColor;
-	switch ((int)ceil(selection / 14.0)) {
+	switch ((int)ceil(selection / 15.0)) {
 		case 1:
 			returnedColor += "\033[31m"; //dark red text
 			break;
