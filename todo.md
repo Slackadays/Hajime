@@ -1,6 +1,6 @@
 ~~Finish transition to installer.h~~ DONE
 
-Add an interactive installation option
+~~Add an interactive installation option~~ DONE
 
 ~~Add multiple langage support~~ DONE
 
