@@ -24,14 +24,14 @@ errnoUnavailable = "El recurso no está disponible.";
 errnoAddress = "La dirección está mala.";
 errnoBlockDev = "No es un dispositivo de bloques. ¿Estás accediendo un dispositivo de almacenamiento masivo?";
 errnoBusy = "Está ocupado. ¿Se está accediendo ahora mismo?";
-prefixVInfo = "\033[36m[Info ";
-prefixVError = "\033[41m\033[33m[Error ";
-prefixVWarning = "\033[33m[Aviso ";
-prefixVDebug = "\033[95m[Depurar ";
+prefixVInfo = "Info";
+prefixVError = "Error";
+prefixVWarning = "Aviso";
+prefixVDebug = "Depurar";
 #if defined(_WIN64) || defined (_WIN32)
-prefixVQuestion = "\033[92m[Pregunta "; //Windows doesn't support 24 bit terminal colors
+prefixVQuestion = "Pregunta"; //Windows doesn't support 24 bit terminal colors
 #else
-prefixVQuestion = "\033[48;2;0;255;0m\033[38;2;108;104;161m[Pregunta ";
+prefixVQuestion = "Pregunta";
 #endif
 errorNotEnoughArgs = "No hay suficientes argumentos";
 errorConfDoesNotExist1 = "¡El archivo de configuración ";

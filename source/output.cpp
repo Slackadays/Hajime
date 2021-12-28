@@ -5,6 +5,8 @@
 #include <mutex>
 #include <algorithm>
 #include <regex>
+#include <functional>
+#include <unordered_map>
 
 using std::string;
 using std::ofstream;
@@ -95,24 +97,24 @@ string Output::addPrefixByType(string input, outType type) {
 				blank = true; //None is if you want to preserve input
 				break;
 			case Info:
-				prefix = "\033[36m" + text.prefixVInfo; //cyan background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[36m[") + "[" + (showExplicitInfoType ? text.prefixVInfo + "|" : ""); //cyan background
 				break;
 			case Error:
-				prefix = "\033[41m\033[33m" + text.prefixVError; //red background, yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[41m\033[33m[") + "[" + (showExplicitInfoType ? text.prefixVError + "|" : ""); //red background, yellow text
 				break;
 			case Warning:
-				prefix = "\033[33m" + text.prefixVWarning; //yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[33m[") + "[" + (showExplicitInfoType ? text.prefixVWarning + "|" : ""); //yellow text
 				break;
 			case Question:
 				#if defined(_WIN64) || defined (_WIN32)
-				prefix = "\033[92m" + text.prefixVQuestion; //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[92m[") + "[" + (showExplicitInfoType ? text.prefixVQuestion + "|" : ""); //green background
 				#else
-				prefix = "\033[38;2;0;255;0m" + text.prefixVQuestion; //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[38;2;0;255;0m[") + "[" + (showExplicitInfoType ? text.prefixVQuestion + "|" : ""); //green background
 				#endif
 				break;
 			case Debug:
 				if (debug) {
-					prefix = "\033[95m" + text.prefixVDebug;
+					prefix = (showThreadsAsColors ? getColorByID() : "\033[95m[") + "[" + (showExplicitInfoType ? text.prefixVDebug + "|" : "");
 				} //magenta background
 				break;
 			default:
@@ -124,25 +126,25 @@ string Output::addPrefixByType(string input, outType type) {
 				blank = true; //None is if you want to preserve input
 				break;
 			case Info:
-				prefix = "\033[36m" + text.prefixInfo; //cyan background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[36m") + "[" + (showExplicitInfoType ? text.prefixInfo + "|" : ""); //cyan background(showThreadsAsColors ? getColorByID() :  )
 				break;
 			case Error:
-				prefix = "\033[41m\033[33m" + text.prefixError; //red background, yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[41m\033[33m") + "[" + (showExplicitInfoType ? text.prefixError + "|" : ""); //red background, yellow text
 				break;
 			case Warning:
-				prefix = "\033[33m" + text.prefixWarning; //yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[33m") + "[" + (showExplicitInfoType ? text.prefixWarning + "|" : ""); //yellow text
 				break;
 			case Question:
 				#if defined(_WIN64) || defined (_WIN32)
-				prefix = "\033[92m" + text.prefixQuestion; //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[92m") + "[" + (showExplicitInfoType ? text.prefixQuestion + "|" : ""); //green background
 				#else
-				prefix = "\033[38;2;0;255;0m" + text.prefixQuestion; //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[38;2;0;255;0m") + "[" + (showExplicitInfoType ? text.prefixQuestion + "|" : ""); //green background
 				#endif
 				break;
 			case Debug:
 				if (debug) {
-					prefix = "\033[95m" + text.prefixDebug;
-				} //magenta background
+					prefix = (showThreadsAsColors ? getColorByID() : "\033[95m") + "[" + (showExplicitInfoType ? text.prefixDebug + "|" : ""); //magenta background
+				}
 				break;
 			default:
 				break;
@@ -153,16 +155,19 @@ string Output::addPrefixByType(string input, outType type) {
 	}
 	if (main_thread == std::this_thread::get_id()) {
 		if (verbose) {
-			prefix += "| Main]";
+			prefix += "Main]";
 		} else {
-			prefix += "|M]";
+			prefix += "M]";
 		}
 	} else {
 		if (verbose) {
-			prefix += "| Worker]";
-		} else {
-			prefix += "|W]";
+			prefix += "Thread ";
 		}
+		if (threadToNumMap.count(std::this_thread::get_id()) == 0) { // thread id does not exist in threadtonummap
+			threadToNumMap[std::this_thread::get_id()] = ++threadCounter;
+		}
+		prefix += std::to_string(threadToNumMap[std::this_thread::get_id()]);
+		prefix += "]";
 	}
 	if (reduceColors) {
 		prefix += "\033[0m ";
@@ -171,4 +176,57 @@ string Output::addPrefixByType(string input, outType type) {
 	}
 	return (prefix + input);
 }
+
+void Output::addServerName(string serverName) {
+	if (!threadToNameMap.count(std::this_thread::get_id())) {
+		threadToNameMap[std::this_thread::get_id()] = serverName;
+	} else {
+		throw "Server name conflict";
+	}
+}
+
+string Output::getColorByID() {
+	std::hash<string> hasher;
+	int colorID;
+	if (threadToNameMap.count(std::this_thread::get_id())) { //do not access threadtonamemap directly because doing so would add the thread id as a key
+		colorID = hasher(threadToNameMap[std::this_thread::get_id()]) % 15;
+	} else if (std::this_thread::get_id() == main_thread) {
+		colorID = 13;
+	} else {
+		colorID = 0;
+	}
+	switch (colorID) {
+		case 1:
+			return "\033[31m";
+		case 2:
+			return "\033[32m";
+		case 3:
+			return "\033[33m";
+		case 4:
+			return "\033[34m";
+		case 5:
+			return "\033[35m";
+		case 6:
+			return "\033[36m";
+		case 7:
+			return "\033[37m";
+		case 8:
+			return "\033[90m";
+		case 9:
+			return "\033[91m";
+		case 10:
+			return "\033[92m";
+		case 11:
+			return "\033[93m";
+		case 12:
+			return "\033[94m";
+		case 13:
+			return "\033[95m";
+		case 14:
+			return "\033[96m";
+		default:
+			return "";
+	}
+}
+
 std::shared_ptr<Output> logObj = std::make_shared<Output>();

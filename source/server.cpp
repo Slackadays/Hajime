@@ -106,6 +106,7 @@ void Server::startServer(string confFile) {
 			logObj->out(text.errorServerFileNotPresent1 + confFile + text.errorServerFileNotPresent2, Error);
 			return;
 		}
+		logObj->addServerName(name); //send the name of the server name to logObj so that it can associate a name with a thread id
 		logObj->out("----" + name + "----", Info);
 		logObj->out(text.infoServerFile + file + " | ", Info, 0, 0);
 		logObj->out(text.infoServerPath + path, None);
@@ -154,7 +155,10 @@ void Server::startServer(string confFile) {
 				#endif
 			}
 		}
-	} catch(...) { //error handling
+	} catch(string s) {
+		logObj->out(s);
+	}
+ catch(...) { //error handling
 		logObj->out(text.errorGeneric, Error);
 	}
 }
@@ -204,7 +208,7 @@ void Server::startProgram(string method = "new") {
 			#if defined(_WIN64) || defined (_WIN32)
 			ZeroMemory(&si, sizeof(si)); //ZeroMemory fills si with zeroes
 			si.cb = sizeof(si); //si.cb = size of si
-			ZeroMemory(&pi, sizeof(pi)); 
+			ZeroMemory(&pi, sizeof(pi));
 			// createprocessa might cause an error if commandline is const
 			char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
 			strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
