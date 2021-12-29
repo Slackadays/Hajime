@@ -16,20 +16,18 @@ namespace fs = std::filesystem;
 void Wizard::dividerLine() {
 	#if defined(_WIN64) || defined(_WIN32)
 	CONSOLE_SCREEN_BUFFER_INFO w;
-	int ret;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
 		logObj->out("―", None, 0, 0);
 	}
-	std::cout << std::endl;
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
 		logObj->out("―", None, 0, 0);
 	}
-	std::cout << std::endl;
 	#endif
+	std::cout << std::endl;
 }
 
 void Wizard::pause(float mean, float stdev) {
@@ -73,27 +71,35 @@ void Wizard::doHajimeStep(string &confFile) {
 void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<string> &servers) {
 	logObj->out(text.infoWizardServerFile, Info);
 	pause(200, 200);
-	logObj->out(text.questionWizardServerFile, Question);
-	if (logObj->getYN()) {
-		while (true) {
-			pause(400, 400);
-			if (!std::regex_match(serverFile, std::regex(".+\\..+", std::regex_constants::optimize))) { //check for lack of file extension
-				serverFile += ".conf";
+	logObj->out(text.questionWizardServerFile, Question, 1, 1);
+	int choice = logObj->getYN(text.optionMakeServerFileManually, "Let hajime deduce the files", "Skip this step");
+	switch (choice) {
+		case 1:
+			while (true) {
+				pause(400, 400);
+				if (!std::regex_match(serverFile, std::regex(".+\\..+", std::regex_constants::optimize))) { //check for lack of file extension
+					serverFile += ".conf";
+				}
+				if (wizardStep(serverFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + serverFile, text.errorServerConfNotCreated)) {
+					servers.push_back(serverFile);
+				}
+				logObj->out(text.questionCreateAnotherServerFile, Question);
+				if (logObj->getYN()) {
+					logObj->out(text.infoEnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.infoEnterNewNameForServer2, Info, 0, 0);
+					std::cin >> serverFile;
+					std::cout << "\033[0m";
+					pause(200, 200);
+				} else {
+					break;
+				}
 			}
-			if (wizardStep(serverFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + serverFile, text.errorServerConfNotCreated)) {
-				servers.push_back(serverFile);
-			}
-			logObj->out(text.questionCreateAnotherServerFile, Question);
-			if (logObj->getYN()) {
-				logObj->out(text.infoEnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.infoEnterNewNameForServer2, Info, 0, 0);
-				std::cin >> serverFile;
-				std::cout << "\033[0m";
-				pause(200, 200);
-			} else {
-				break;
-			}
-		}
-		installedS = true;
+			installedS = true;
+			break;
+		case 2:
+			logObj->out("Sorry, this option isn't available yet.", Error);
+			break;
+		case 3:
+			break;
 	}
 }
 

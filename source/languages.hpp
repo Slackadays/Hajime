@@ -78,6 +78,8 @@ class Text {
 		string questionInstallNewOne;
 		string questionInstallNewOneAgain;
 		string questionCreateAnotherServerFile;
+		string optionMakeServerFileManually;
+
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;

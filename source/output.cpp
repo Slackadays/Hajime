@@ -30,7 +30,6 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 		return;
 	}
 	if (type == Question) {
-		keepEndlines = false;
 		endLineAtEnd = false;
 	}
 	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
@@ -57,22 +56,6 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 		if (endLineAtEnd) {
 			fileObj << std::endl;
 		}
-	}
-}
-
-bool Output::getYN(string prompt) {
-	string response;
-	if (prompt != "") {
-		prompt = " " + prompt + " ";
-	}
-	this->out("\033[1m" + prompt, None, 0, 0);
-	std::cin >> response;
-	this->out("\033[0m", None, 0, 0);
-	if (std::regex_match(text.questionPrompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
-		return true;
-	}
-	else {
-		return false;
 	}
 }
 

@@ -9,6 +9,7 @@
 #include <regex>
 #include <memory>
 #include <unordered_map>
+#include <type_traits>
 
 #include "languages.hpp"
 
@@ -32,7 +33,46 @@ class Output {
 	inline static std::unordered_map<std::thread::id, string> threadToNameMap;
 	public:
 		void out(string data, outType type = None, bool keepEndlines = false, bool endLineAtEnd = true);
-		bool getYN(string prompt = text.questionPrompt);
+
+		template<typename ...T>
+		int getYN(T ...options) { //c++20 lets us use auto as a function parameter and it automatically makes a template, so we have to put it here
+			string response;
+			bool isComplex = false;
+			int i = 0;
+			if constexpr ((std::is_same_v<string, T> || ...)) {
+				isComplex = true;
+				this->out("\n\033[1m" + string("Choose an option below."), None, 1, 1);
+				(this->out(("\033[1m" + std::to_string(++i) + ".\033[0m " + options), None), ...);
+				this->out("\033[1m" + string("Your choice: "), None, 0, 0);
+			} else {
+				this->out("\033[1m " + text.questionPrompt + ' ', None, 0, 0);
+			}
+			std::getline(std::cin, response);
+			this->out("\033[0m", None, 0, 0);
+			if (!isComplex) {
+				if (std::regex_match(text.questionPrompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
+					return true;
+				}
+				else {
+					return false;
+				}
+			} else {
+				while (true) {
+					try {
+						if ((stoi(response) > i) || (stoi(response) < 1)) {
+							throw 1;
+						}
+						return stoi(response);
+					} catch(...) {
+						this->out("Answer not valid", Error);
+						this->out("\033[1mYour choice: ", None, 0, 0);
+						std::getline(std::cin, response);
+						this->out("\033[0m", None, 0, 0);
+					}
+				}
+			}
+		}
+
 		void init(string file, bool debugOrNot = true);
 		void addServerName(string name);
 		void end();

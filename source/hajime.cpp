@@ -19,7 +19,7 @@ namespace fs = std::filesystem;
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
 #define jthread thread
 #endif
-#elif (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
+#elif (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__) || defined(__clang__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
 #define jthread thread
 #endif
 
@@ -205,18 +205,16 @@ bool readSettings() {
 void dividerLine() {
 	#if defined(_WIN64) || defined(_WIN32)
 	CONSOLE_SCREEN_BUFFER_INFO w;
-	int ret;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
 		logObj->out("―", None, 0, 0);
 	}
-	std::cout << std::endl;
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
 		logObj->out("―", None, 0, 0);
 	}
-	std::cout << std::endl;
 	#endif
+	std::cout << std::endl;
 }

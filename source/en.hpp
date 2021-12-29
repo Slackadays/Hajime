@@ -86,6 +86,7 @@ questionUseFlags = "Would you like to apply Aikar's Flags to the server?";
 questionInstallNewOne = "Do you want to install a new one?";
 questionInstallNewOneAgain = "Do you want to try creating one again?";
 questionCreateAnotherServerFile = "Do you want to create another server file?";
+optionMakeServerFileManually = "Enter a server file manually";
 infoInstallingSysvinit = "Installing sysVinit service";
 infoInstallingNewSysvinit = "Installing new sysVinit service";
 infoInstalledSysvinit = "Installed sysVinit service at /etc/init.d/hajime.sh";
