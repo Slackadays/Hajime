@@ -14,15 +14,21 @@
 namespace fs = std::filesystem;
 
 void Wizard::dividerLine() {
-	#if !defined(_WIN64) && !defined(_WIN32)
+	#if defined(_WIN64) || defined(_WIN32)
+	CONSOLE_SCREEN_BUFFER_INFO w;
+	int ret;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
+	for (int i = 0; i < w.dwSize.X; i++) {
+		logObj->out("―", None, 0, 0);
+	}
+	std::cout << std::endl;
+	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
 		logObj->out("―", None, 0, 0);
 	}
 	std::cout << std::endl;
-	#else
-	logObj->out("-----------------------");
 	#endif
 }
 

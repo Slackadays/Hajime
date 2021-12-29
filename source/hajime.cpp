@@ -49,12 +49,13 @@ void dividerLine();
 int main(int argc, char *argv[]) {
 	atexit(dividerLine);
 	#if defined(_WIN64) || defined (_WIN32)
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal compatibility
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal color compatibility
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
 	if (!SetConsoleMode(hOut, (dwMode += ENABLE_VIRTUAL_TERMINAL_PROCESSING))) {
 		logObj->noColors = true;
 	}
+	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
 	#endif
 	dividerLine();
 	for (int i = 1; i < argc; i++) { //search for the help flag first
@@ -202,14 +203,20 @@ bool readSettings() {
 }
 
 void dividerLine() {
-	#if !defined(_WIN64) && !defined(_WIN32)
+	#if defined(_WIN64) || defined(_WIN32)
+	CONSOLE_SCREEN_BUFFER_INFO w;
+	int ret;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
+	for (int i = 0; i < w.dwSize.X; i++) {
+		logObj->out("―", None, 0, 0);
+	}
+	std::cout << std::endl;
+	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
 		logObj->out("―", None, 0, 0);
 	}
 	std::cout << std::endl;
-	#else
-	logObj->out("-----------------------");
 	#endif
 }
