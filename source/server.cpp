@@ -1,4 +1,4 @@
-#if defined(_WIN64) || defined (_WIN32)
+#if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
 #pragma comment (lib, "Shell32")

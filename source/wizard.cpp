@@ -2,12 +2,29 @@
 #include <filesystem>
 #include <vector>
 #include <random>
+#if !defined(_WIN64) && !defined (_WIN32)
+#include <sys/ioctl.h>
+#include <unistd.h>
+#endif
 
 #include "output.hpp"
 #include "installer.hpp"
 #include "wizard.hpp"
 
 namespace fs = std::filesystem;
+
+void Wizard::dividerLine() {
+	#if !defined(_WIN64) && !defined(_WIN32)
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	for (int i = 0; i < w.ws_col; i++) {
+		logObj->out("―", None, 0, 0);
+	}
+	std::cout << std::endl;
+	#else
+	logObj->out("-----------------------");
+	#endif
+}
 
 void Wizard::pause(float mean, float stdev) {
 	if (doArtificialPauses) {
@@ -115,16 +132,16 @@ void Wizard::initialHajimeSetup(string confFile, string serversFile, string serv
 	pause(400, 400);
 	doHajimeStep(confFile);
 	pause(400, 400);
-	logObj->out("--------------------");
+	dividerLine();
 	doServerStep(installedS, serverFile, servers);
 	pause(400, 400);
-	logObj->out("--------------------");
+	dividerLine();
 	doServersStep(serversFile, servers);
 	pause(400, 400);
-	logObj->out("--------------------");
+	dividerLine();
 	doStartupStep(sysdService);
 	pause(400, 400);
-	logObj->out("--------------------");
+	dividerLine();
 	logObj->out(text.infoWizardComplete, Info);
 	pause(200, 200);
 	doNextStepStep(installedS, servers);

@@ -3,6 +3,9 @@
 namespace fs = std::filesystem;
 #if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
+#else
+#include <sys/ioctl.h>
+#include <unistd.h>
 #endif
 #include <fstream>
 #include <memory>
@@ -10,6 +13,7 @@ namespace fs = std::filesystem;
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <stdlib.h>
 
 #ifdef _MSC_VER
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
@@ -40,8 +44,10 @@ string logFile = "";
 string hajConfFile = "";
 
 bool readSettings();
+void dividerLine();
 
 int main(int argc, char *argv[]) {
+	atexit(dividerLine);
 	#if defined(_WIN64) || defined (_WIN32)
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal compatibility
 	DWORD dwMode = 0;
@@ -50,6 +56,7 @@ int main(int argc, char *argv[]) {
 		logObj->noColors = true;
 	}
 	#endif
+	dividerLine();
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		auto helpOut = [](auto ...num){(logObj->out(text.help[num]), ...);}; //print multiple strings pointed to by text.help[] at once by using a parameter pack
@@ -113,7 +120,6 @@ int main(int argc, char *argv[]) {
 			logObj->debug = true;
 		}
 		if (flag("-i", "--install-hajime")) {
-			logObj->out("--------------------");
 			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			return 0;
 		}
@@ -134,7 +140,7 @@ int main(int argc, char *argv[]) {
 		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
 		logObj->out(text.questionDoSetupInstaller, Question);
 		if (logObj->getYN()) {
-			logObj->out("--------------------");
+			dividerLine();
 			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
 			logObj->out(text.questionStartHajime, Question);
 			if (!logObj->getYN()) {
@@ -193,4 +199,17 @@ bool readSettings() {
 	}
 	logObj->out(text.debugReadReadsettings + hajDefaultConfFile, Debug);
 	return 1;
+}
+
+void dividerLine() {
+	#if !defined(_WIN64) && !defined(_WIN32)
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	for (int i = 0; i < w.ws_col; i++) {
+		logObj->out("―", None, 0, 0);
+	}
+	std::cout << std::endl;
+	#else
+	logObj->out("-----------------------");
+	#endif
 }

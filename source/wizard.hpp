@@ -5,6 +5,7 @@
 
 class Wizard {
 
+	void dividerLine();
 	void pause(float mean, float stdev);
 	void doHajimeStep(string &confFile);
 	void doServerStep(bool &installedS, string &serverFile, std::vector<string> &servers);
