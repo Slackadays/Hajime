@@ -59,7 +59,7 @@ class Server {
 	vector<string> toArray(string input);
 	auto toPointerArray(vector<string> &strings);
 
-	inline static string name, file, path, command, flags, confFile, device, method, cmdline = "";
+	inline static string name, exec, file, path, command, flags, confFile, device, method, cmdline = "";
 
 	inline static int slave_fd, fd, pid;
 
