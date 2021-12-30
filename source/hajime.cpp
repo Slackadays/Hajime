@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
 		cout << "Enter a command..." << endl;
 		string command = "";
 		std::getline(std::cin, command);
-		if (command == "watch") {
+		if (command == "watch" || command == "w") {
 			#if !defined(_WIN64) && !defined (_WIN32)
 			logObj->normalDisabled = true;
 			serverVec[0].terminalAccessWrapper();

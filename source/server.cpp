@@ -24,6 +24,7 @@
 #include <chrono>
 #include <filesystem>
 #include <errno.h>
+#include <regex>
 
 #ifdef _MSC_VER
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
@@ -65,10 +66,12 @@ void Server::readFd() {
 		for (int i = 0; i < length; i++) {
 			output += input[i];
 		}
-		if (lines.size() >= 80) {
-			//std::cout << "Popping" << std::endl;
+		while (lines.size() >= (2 * w.ws_row)) {
+			//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
 			lines.pop_front();
+			//std::cout << "lines size = " << (unsigned short)lines.size() << w.ws_row << std::endl;
 		}
+		output = std::regex_replace(output, std::regex(">\\.\\.\\.\\.", std::regex_constants::optimize), ">"); //replace ">...." with ">" because this shows up in the temrinal output
 		//std::cout << "Pushing back" << std::endl;
 		lines.push_back(output);
 		if (wantsLiveOutput) {
@@ -86,9 +89,12 @@ void Server::terminalAccessWrapper() {
 	while (true) {
 		std::string user_input = "";
 		std::getline(std::cin, user_input); //getline allows for spaces
-		if (user_input == "hajex") {
+		if (user_input == "d") {
 			wantsLiveOutput = false;
 			break;
+		}
+		if (user_input == "/d") {
+			user_input = "d";
 		}
 		user_input += "\n";
 		write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
@@ -122,6 +128,9 @@ void Server::startServer(string confFile) {
 			} catch(...) {
 				logObj->out(text.errorCouldntSetPath, Error);
 			}
+			#if !defined(_WIN64) && !defined(_WIN32)
+			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+			#endif
 			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(\/||\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
 				logObj->out(text.infoStartingServer, Info);
 				startProgram(method);

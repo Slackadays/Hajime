@@ -66,6 +66,8 @@ class Server {
 	#if defined(_WIN64) || defined(_WIN32)
 	inline static STARTUPINFO si; // a variable that can specify parameters for windows created with it
 	inline static PROCESS_INFORMATION pi; // can get process handle and pid from this
+	#else
+	inline static struct winsize w;
 	#endif
 
 	bool startedRfdThread = false;

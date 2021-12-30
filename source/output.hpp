@@ -35,11 +35,11 @@ class Output {
 		void out(string data, outType type = None, bool keepEndlines = false, bool endLineAtEnd = true);
 
 		template<typename ...T>
-		int getYN(T ...options) { //c++20 lets us use auto as a function parameter and it automatically makes a template, so we have to put it here
+		int getYN(T ...options) {
 			string response;
 			bool isComplex = false;
 			int i = 0;
-			if constexpr ((std::is_same_v<string, T> || ...)) {
+			if constexpr ((std::is_same_v<string, T> || ...)) { //check if we get a string in it or not
 				isComplex = true;
 				this->out("\n\033[1m" + string("Choose an option below."), None, 1, 1);
 				(this->out(("\033[1m" + std::to_string(++i) + ".\033[0m " + options), None), ...);
