@@ -72,7 +72,7 @@ void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<stri
 	logObj->out(text.infoWizardServerFile, Info);
 	pause(200, 200);
 	logObj->out(text.questionWizardServerFile, Question, 1, 1);
-	int choice = logObj->getYN(text.optionMakeServerFileManually, "Let hajime deduce it for me", "Skip this step");
+	int choice = logObj->getYN(text.optionMakeServerFileManually, text.optionLetHajimeDeduce, text.optionSkipStep);
 	switch (choice) {
 		case 1:
 			while (true) {
@@ -96,7 +96,7 @@ void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<stri
 			installedS = true;
 			break;
 		case 2:
-			logObj->out("Sorry, this option isn't available yet.", Error);
+			logObj->out(text.errorOptionNotAvailable, Error);
 			break;
 		case 3:
 			break;

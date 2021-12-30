@@ -30,8 +30,8 @@ Installer::Installer(std::shared_ptr<Output> log) {
 void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
 	string file = "server.jar";
 	string flags;
-	logObj->out("Would you like to apply a configuration to the server file?", Question);
-	switch (logObj->getYN("Do it manually", "Let Hajime deduce the configuration", "Skip this step")) {
+	logObj->out(text.questionApplyConfigToServerFile, Question);
+	switch (logObj->getYN(text.optionDoManually, text.optionLetHajimeDeduce, text.optionSkipStep)) {
 		case 1:
 			logObj->out(text.questionUseFlags, Question);
 			if (logObj->getYN()) {
@@ -39,15 +39,15 @@ void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
 			} else {
 				flags = "";
 			}
-			logObj->out("Would you like to use the default server file (" + file + ") or something else?", Question);
-			switch (logObj->getYN(string("Use the default"), "Let Hajime deduce it for me", "Enter it manually", "Skip this step")) {
+			logObj->out(text.questionUseDefaultServerFile1 + file + text.questionUseDefaultServerFile2, Question);
+			switch (logObj->getYN(text.optionUseDefault, text.optionLetHajimeDeduce, text.optionEnterManually, text.optionSkipStep)) {
 				case 1:
 					break;
 				case 2:
-					logObj->out("Sorry, this option isn't available yet.", Error);
+					logObj->out(text.errorOptionNotAvailable, Error);
 					break;
 				case 3:
-					logObj->out("Enter a new server file: ", Question);
+					logObj->out(text.questionEnterNewServerFile, Question);
 					std::getline(std::cin, file);
 					break;
 				case 4:
@@ -66,7 +66,7 @@ void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
 			}
 			break;
 		case 2:
-			logObj->out("Sorry, this option isn't available yet.", Error);
+			logObj->out(text.errorOptionNotAvailable, Error);
 			break;
 		case 3:
 			break;

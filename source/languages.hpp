@@ -53,6 +53,7 @@ class Text {
 		string errorCode;
 		string errorHajFileNotMade;
 		string errorServerConfNotCreated;
+		string errorOptionNotAvailable;
 		string warningFoundSysvinitService;
 		string warningFoundSystemdService;
 		string warningFoundServerConf;
@@ -78,8 +79,18 @@ class Text {
 		string questionInstallNewOne;
 		string questionInstallNewOneAgain;
 		string questionCreateAnotherServerFile;
+		string questionApplyConfigToServerFile;
+		string questionUseDefaultServerFile1;
+		string questionUseDefaultServerFile2;
+		string questionEnterNewServerFile;
 		string optionMakeServerFileManually;
-
+		string optionDoManually;
+		string optionEnterManually;
+		string optionLetHajimeDeduce;
+		string optionSkipStep;
+		string optionUseDefault;
+		string optionChooseOptionBelow;
+		string optionYourChoice;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;
