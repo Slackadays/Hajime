@@ -28,22 +28,48 @@ Installer::Installer(std::shared_ptr<Output> log) {
 }
 
 void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
-	logObj->out(text.questionUseFlags, Question);
+	string file = "server.jar";
 	string flags;
-	if (logObj->getYN()) {
-		flags = optFlags;
-	} else {
-		flags = "";
-	}
-	logObj->out(text.infoInstallingDefServConf + conf + "...", Info);
-	if (fs::is_regular_file(conf) && !skipFileCheck) {
-		throw 0;
-	} else {
-		Installer::installNewServerConfigFile(conf, flags);
-		logObj->out(text.infoInstallingNewServConf + conf + "...", Info);
-		if (!fs::is_regular_file(conf)) {
-			throw 1;
-		}
+	logObj->out("Would you like to apply a configuration to the server file?", Question);
+	switch (logObj->getYN("Do it manually", "Let Hajime deduce the configuration", "Skip this step")) {
+		case 1:
+			logObj->out(text.questionUseFlags, Question);
+			if (logObj->getYN()) {
+				flags = optFlags;
+			} else {
+				flags = "";
+			}
+			logObj->out("Would you like to use the default server file (" + file + ") or something else?", Question);
+			switch (logObj->getYN(string("Use the default"), "Let Hajime deduce it for me", "Enter it manually", "Skip this step")) {
+				case 1:
+					break;
+				case 2:
+					logObj->out("Sorry, this option isn't available yet.", Error);
+					break;
+				case 3:
+					logObj->out("Enter a new server file: ", Question);
+					std::getline(std::cin, file);
+					break;
+				case 4:
+					file = "";
+					break;
+			}
+			logObj->out(text.infoInstallingDefServConf + conf + "...", Info);
+			if (fs::is_regular_file(conf) && !skipFileCheck) {
+				throw 0;
+			} else {
+				Installer::installNewServerConfigFile(conf, flags, file);
+				logObj->out(text.infoInstallingNewServConf + conf + "...", Info);
+				if (!fs::is_regular_file(conf)) {
+					throw 1;
+				}
+			}
+			break;
+		case 2:
+			logObj->out("Sorry, this option isn't available yet.", Error);
+			break;
+		case 3:
+			break;
 	}
 }
 
@@ -68,9 +94,9 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 	}
 }
 
-void Installer::installNewServerConfigFile(string fileLocation, string flags) {
+void Installer::installNewServerConfigFile(string fileLocation, string flags, string file) {
 	ofstream outConf(fileLocation);
-	outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar " + flags << endl << "file=server.jar" << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
+	outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " nogui" << endl << "file=" + file << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
 	outConf << text.fileServerConfComment << endl;
 	logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
 	outConf.close();

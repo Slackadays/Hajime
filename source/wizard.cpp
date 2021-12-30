@@ -72,7 +72,7 @@ void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<stri
 	logObj->out(text.infoWizardServerFile, Info);
 	pause(200, 200);
 	logObj->out(text.questionWizardServerFile, Question, 1, 1);
-	int choice = logObj->getYN(text.optionMakeServerFileManually, "Let hajime deduce the files", "Skip this step");
+	int choice = logObj->getYN(text.optionMakeServerFileManually, "Let hajime deduce it for me", "Skip this step");
 	switch (choice) {
 		case 1:
 			while (true) {
@@ -86,7 +86,7 @@ void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<stri
 				logObj->out(text.questionCreateAnotherServerFile, Question);
 				if (logObj->getYN()) {
 					logObj->out(text.infoEnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.infoEnterNewNameForServer2, Info, 0, 0);
-					std::cin >> serverFile;
+					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);
 				} else {

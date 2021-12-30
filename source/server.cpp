@@ -92,12 +92,13 @@ void Server::terminalAccessWrapper() {
 		if (user_input == ".d") {
 			wantsLiveOutput = false;
 			break;
+		} else if (user_input[0] == '.') {
+			std::cout << "Invalid command; list of valid commands:" << std::endl;
+			std::cout << ".d - detach from server" << std::endl;
+		} else {
+			user_input += "\n";
+			write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
 		}
-		if (user_input[0] == '.') {
-			std::cout << "Invalid Hajime command" << std::endl;
-		}
-		user_input += "\n";
-		write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
 	}
 	std::cout << "Hajime<-----" << std::endl;
 }

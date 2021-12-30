@@ -175,7 +175,8 @@ int main(int argc, char *argv[]) {
 			cout << "Windows doesn't support this feature." << endl;
 			#endif
 		} else {
-			cout << "Invalid command; try \"watch\" to access the server terminal." << endl;
+			cout << "Invalid command; list of valid commands:" << endl;
+			cout << "watch, w - attach to server" << endl;
 		}
 	}
 	return 0;

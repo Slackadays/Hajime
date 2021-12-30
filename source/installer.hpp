@@ -18,7 +18,7 @@ using std::endl;
 #include "languages.hpp"
 
 class Installer {
-	static void installNewServerConfigFile(string fileLocation, string flags);
+	static void installNewServerConfigFile(string fileLocation, string flags, string file);
 	public:
 		void installStartupService(string sysService);
 		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false);
