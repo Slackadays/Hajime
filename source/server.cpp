@@ -89,12 +89,12 @@ void Server::terminalAccessWrapper() {
 	while (true) {
 		std::string user_input = "";
 		std::getline(std::cin, user_input); //getline allows for spaces
-		if (user_input == "d") {
+		if (user_input == ".d") {
 			wantsLiveOutput = false;
 			break;
 		}
-		if (user_input == "/d") {
-			user_input = "d";
+		if (user_input[0] == '.') {
+			std::cout << "Invalid Hajime command" << std::endl;
 		}
 		user_input += "\n";
 		write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
@@ -120,7 +120,7 @@ void Server::startServer(string confFile) {
 		logObj->out(text.infoServerDebug + to_string(logObj->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		logObj->out(text.infoServerDevice + device, None);
 		if (!fs::is_regular_file(file)) {
-			logObj->out(file + " doesn't exist, but this may not matter.", Warning);
+			logObj->out(file + " doesn't exist.", Warning);
 		}
 		while (true) {
 			try {
@@ -174,7 +174,7 @@ void Server::startServer(string confFile) {
 vector<string> Server::toArray(string input) {
 	vector<string> flagVector;
 	string temp = "";
-	string execFile = path + '/' + file; //make an absolute executable path for the thing we're executing
+	string execFile = path + '/' + exec; //make an absolute executable path for the thing we're executing
 	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
 	for (int i = 0; i < input.length(); temp = "") {
 		while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
@@ -188,6 +188,7 @@ vector<string> Server::toArray(string input) {
 			i++;
 		}
 		flagVector.push_back(temp); //add the finished flag to the vector of flags
+		flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
 		logObj->out(text.debugFlagVecInFor + flagVector[0], Debug);
 	}
 	logObj->out(text.debugFlagVecOutFor + flagVector[0], Debug);
@@ -220,7 +221,7 @@ void Server::startProgram(string method = "new") {
 			// createprocessa might cause an error if commandline is const
 			char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
 			strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
-			CreateProcessA(file.c_str(), tempflags, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
+			CreateProcessA(exec.c_str(), tempflags, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
 			delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
 			#else
 			logObj->out(text.debugFlags + flags, Debug);
@@ -253,7 +254,7 @@ void Server::startProgram(string method = "new") {
 				setsid(); //create a new session without a terminal
 				ioctl(slave_fd, TIOCSCTTY, 0); //assign the terminal of to the current program
 				//ioctl(0, TIOCSCTTY, 0); etc
-				execvp(file.c_str(), flagArray.data());
+				execvp(exec.c_str(), flagArray.data());
 				//execlp("bc", "/bc", NULL); //use this for testing
 				exit(0);
 			} else {
@@ -363,7 +364,7 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(string confFile) {
-	vector<string> settings {"name", "file", "path", "command", "flags", "method", "device"};
+	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		logObj->out(it, Debug);
@@ -371,12 +372,13 @@ void Server::readSettings(string confFile) {
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
 		setVar(settings[0], name);
-		setVar(settings[1], file);
-		setVar(settings[2], path);
-		setVar(settings[3], command);
-		setVar(settings[4], flags);
-		setVar(settings[5], method);
-		setVar(settings[6], device);
+		setVar(settings[1], exec);
+		setVar(settings[2], file);
+		setVar(settings[3], path);
+		setVar(settings[4], command);
+		setVar(settings[5], flags);
+		setVar(settings[6], method);
+		setVar(settings[7], device);
 			logObj->out(text.debugReadingReadsettings, Debug);
 	}
 	logObj->addServerName(name); //send the name of the server name to logObj so that it can associate a name with a thread id
@@ -386,7 +388,7 @@ void Server::readSettings(string confFile) {
 	}
 	logObj->out(text.debugValidatingSettings, Debug);
 	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
-	remSlash(file, path, device);
+	remSlash(file, path, device, exec);
 }
 
 int Server::getPID() {

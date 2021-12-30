@@ -70,7 +70,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 
 void Installer::installNewServerConfigFile(string fileLocation, string flags) {
 	ofstream outConf(fileLocation);
-	outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "file=server.jar" << endl << "path=" << fs::current_path().string() << endl << "command=COMMAND" << endl << "flags=" + flags << endl << "method=new" << endl << "device=" << endl;
+	outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar " + flags << endl << "file=server.jar" << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
 	outConf << text.fileServerConfComment << endl;
 	logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
 	outConf.close();
