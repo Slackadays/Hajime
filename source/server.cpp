@@ -81,6 +81,7 @@ void Server::readFd() {
 }
 
 void Server::terminalAccessWrapper() {
+	logObj->normalDisabled = true;
 	std::cout << "----->" << name << std::endl;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {
@@ -93,14 +94,15 @@ void Server::terminalAccessWrapper() {
 			wantsLiveOutput = false;
 			break;
 		} else if (user_input[0] == '.') {
-			std::cout << "Invalid command; list of valid commands:" << std::endl;
-			std::cout << ".d - detach from server" << std::endl;
+			std::cout << text.errorInvalidCommand << std::endl;
+			std::cout << text.errorInvalidServerCommand1 << std::endl;
 		} else {
 			user_input += "\n";
 			write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
 		}
 	}
 	std::cout << "Hajime<-----" << std::endl;
+	logObj->normalDisabled = false;
 }
 #endif
 
@@ -189,9 +191,9 @@ vector<string> Server::toArray(string input) {
 			i++;
 		}
 		flagVector.push_back(temp); //add the finished flag to the vector of flags
-		flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
 		logObj->out(text.debugFlagVecInFor + flagVector[0], Debug);
 	}
+	flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
 	logObj->out(text.debugFlagVecOutFor + flagVector[0], Debug);
 	return flagVector;
 }

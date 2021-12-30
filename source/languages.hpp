@@ -54,6 +54,12 @@ class Text {
 		string errorHajFileNotMade;
 		string errorServerConfNotCreated;
 		string errorOptionNotAvailable;
+		string errorInvalidServerNumber;
+		string errorServerSelectionInvalid;
+		string errorDoesntSupportWindows;
+		string errorInvalidCommand;
+		string errorInvalidHajCommand1;
+		string errorInvalidServerCommand1;
 		string warningFoundSysvinitService;
 		string warningFoundSystemdService;
 		string warningFoundServerConf;
@@ -141,6 +147,7 @@ class Text {
 		string infoMadeServersFile;
 		string infoEnterNewNameForServer1;
 		string infoEnterNewNameForServer2;
+		string infoEnterCommand;
 		string debugHajDefConfNoExist1;
 		string debugHajDefConfNoExist2;
 		string debugReadingReadsettings;

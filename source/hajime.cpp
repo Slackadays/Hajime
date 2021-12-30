@@ -45,6 +45,7 @@ string hajConfFile = "";
 
 bool readSettings();
 void dividerLine();
+vector<string> toVec(string input);
 
 int main(int argc, char *argv[]) {
 	atexit(dividerLine);
@@ -163,20 +164,31 @@ int main(int argc, char *argv[]) {
 		threadVec.push_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 	while(true) { //future command processing
-		cout << "Enter a command..." << endl;
+		logObj->out(text.infoEnterCommand, Info);
 		string command = "";
 		std::getline(std::cin, command);
-		if (command == "watch" || command == "w") {
+		vector<string> commandVec = toVec(command);
+		if (commandVec[0] == "term" || commandVec[0] == "t") {
 			#if !defined(_WIN64) && !defined (_WIN32)
-			logObj->normalDisabled = true;
-			serverVec[0].terminalAccessWrapper();
-			logObj->normalDisabled = false;
+			if (commandVec.size() >= 2) {
+				try {
+					if (stoi(commandVec[1]) > serverVec.size() || stoi(commandVec[1]) < 1) {
+						logObj->out(text.errorInvalidServerNumber, Error);
+					} else {
+						serverVec[stoi(commandVec[1]) - 1].terminalAccessWrapper();
+					}
+				} catch (...) {
+					logObj->out(text.errorServerSelectionInvalid, Error);
+				}
+			} else {
+				logObj->out(text.errorNotEnoughArgs, Error);
+			}
 			#else
-			cout << "Windows doesn't support this feature." << endl;
+			logObj->out(text.errorDoesntSupportWindows, Error);
 			#endif
 		} else {
-			cout << "Invalid command; list of valid commands:" << endl;
-			cout << "watch, w - attach to server" << endl;
+			logObj->out(text.errorInvalidCommand, Error);
+			logObj->out(text.errorInvalidHajCommand1, Error);
 		}
 	}
 	return 0;
@@ -218,4 +230,23 @@ void dividerLine() {
 	}
 	#endif
 	std::cout << std::endl;
+}
+
+vector<string> toVec(string input) {
+	vector<string> output;
+	string temp = "";
+	for (int i = 0; i < input.length(); temp = "") {
+		while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
+			i++;
+		}
+		while (input[i] != ' ' && i < input.length()) { //add characters to a temp variable that will go into the vector
+			temp += input[i];
+			i++;
+		}
+		while (input[i] == ' ' && i < input.length()) { //skip any trailing whitespace
+			i++;
+		}
+		output.push_back(temp); //add the finished flag to the vector of flags
+	}
+	return output;
 }
