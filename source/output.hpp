@@ -41,9 +41,9 @@ class Output {
 			int i = 0;
 			if constexpr ((std::is_same_v<string, T> || ...)) { //check if we get a string in it or not
 				isComplex = true;
-				this->out("\n\033[1m" + string("-> " + text.optionChooseOptionBelow), None, 1, 1);
-				(this->out(("\033[1m[" + std::to_string(++i) + ".]\033[0m " + options), None), ...);
-				this->out("\033[1m" + string("-> " + text.optionYourChoice), None, 0, 0);
+				this->out("\n\033[1m" + string("――> " + text.optionChooseOptionBelow), None, 1, 1);
+				(this->out(("\033[1m(" + std::to_string(++i) + ")\033[0m " + options), None), ...);
+				this->out("\033[1m" + string("――> " + text.optionYourChoice), None, 0, 0);
 			} else {
 				this->out("\033[1m " + text.questionPrompt + ' ', None, 0, 0);
 			}

@@ -141,15 +141,18 @@ int main(int argc, char *argv[]) {
 	} else {
 		logObj->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
 		logObj->out(text.questionDoSetupInstaller, Question);
-		if (logObj->getYN()) {
-			dividerLine();
-			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
-			logObj->out(text.questionStartHajime, Question);
-			if (!logObj->getYN()) {
+		switch (logObj->getYN(text.optionAttendedInstallation, text.optionUnattendedInstallation, text.optionSkipSetup)) {
+			case 1:
+				dividerLine();
+				wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
+				logObj->out(text.questionStartHajime, Question);
+				if (!logObj->getYN()) {
+					return 0;
+				}
+			case 2:
+				logObj->out(text.errorOptionNotAvailable, Error);
+			case 3:
 				return 0;
-			}
-		} else {
-			return 0;
 		}
 	}
 	if (!fs::is_regular_file(defaultServersFile)) {

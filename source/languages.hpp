@@ -97,6 +97,9 @@ class Text {
 		string optionUseDefault;
 		string optionChooseOptionBelow;
 		string optionYourChoice;
+		string optionAttendedInstallation;
+		string optionUnattendedInstallation;
+		string optionSkipSetup;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;
