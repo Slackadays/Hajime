@@ -179,7 +179,12 @@ vector<string> Server::toArray(string input) {
 	vector<string> flagVector;
 	vector<string> addToEndVector;
 	string temp = "";
-	string execFile = path + '/' + exec; //make an absolute executable path for the thing we're executing
+	string execFile;
+	if (logObj->isWindows) {
+		execFile = exec; //make an absolute executable path for the thing we're executing
+	} else {
+		execFile = path + '/' + exec;
+	}
 	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
 	for (int i = 0; i < input.length(); temp = "") {
 		while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
@@ -233,7 +238,11 @@ void Server::startProgram(string method = "new") {
 			// createprocessa might cause an error if commandline is const
 			char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
 			strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
-			CreateProcessA(exec.c_str(), tempflags, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
+			if (CreateProcessA(NULL, tempflags, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)) { // create process with new console
+				logObj->out("CreateProcessA succeeded", Debug);
+			} else {
+				logObj->out("CreateProcessA did not succeed", Debug);
+			}
 			delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
 			#else
 			logObj->out(text.debugFlags + flags, Debug);

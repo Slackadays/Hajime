@@ -73,6 +73,11 @@ class Output {
 			}
 		}
 
+		#if defined(_WIN64) || defined (_WIN32)
+		bool isWindows = true;
+		#else
+		bool isWindows = false;
+		#endif
 		void init(string file, bool debugOrNot = true);
 		void addServerName(string name);
 		void end();
