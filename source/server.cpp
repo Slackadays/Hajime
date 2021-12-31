@@ -158,8 +158,7 @@ void Server::startServer(string confFile) {
 					isRunning = true;
 					hasMounted = true;
 				}
-			}
-			else {
+			} else {
 				isRunning = false;
 				logObj->out(text.warningIsRunningFalse, Warning);
 				#if defined(_WIN64) || defined(_WIN32)
@@ -286,25 +285,12 @@ void Server::startProgram(string method = "new") {
 				getline(cmdl, cmdline);
 				//std::cout << "cmdline = " << cmdline << std::endl;
 				cmdl.close();
-				if (getPID() != 0) { //check for the PID of the program we just started
-					isRunning = true; //isRunning disables a lot of checks
-					hasMounted = true;
-				}
-				//std::cout << "Trying to get output from lines..." << std::endl;
 			}
 			#endif
 		} else {
 			logObj->out(text.errorMethodNotValid, Error);
 		}
-		#if defined(_WIN64) || defined(_WIN32)
-		if (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, 1000)) { // might as well do this since we can
-		#else
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		if (getPID() != 0) { //check for the PID of the program we just started
-		#endif
-			isRunning = true; //isRunning disables a lot of checks
 			hasMounted = true;
-		}
 	}
 }
 
