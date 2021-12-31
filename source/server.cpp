@@ -153,9 +153,11 @@ void Server::startServer(string confFile) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 			#endif
 				std::this_thread::sleep_for(std::chrono::seconds(3));
-				logObj->out(text.infoServerIsRunning, Info);
-				isRunning = true;
-				hasMounted = true;
+				if (!isRunning) {
+					logObj->out(text.infoServerIsRunning, Info);
+					isRunning = true;
+					hasMounted = true;
+				}
 			}
 			else {
 				isRunning = false;
@@ -176,6 +178,7 @@ void Server::startServer(string confFile) {
 
 vector<string> Server::toArray(string input) {
 	vector<string> flagVector;
+	vector<string> addToEndVector;
 	string temp = "";
 	string execFile = path + '/' + exec; //make an absolute executable path for the thing we're executing
 	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
@@ -190,10 +193,17 @@ vector<string> Server::toArray(string input) {
 		while (input[i] == ' ' && i < input.length()) { //skip any trailing whitespace
 			i++;
 		}
-		flagVector.push_back(temp); //add the finished flag to the vector of flags
+		if (!std::regex_search(temp, std::regex("nogui", std::regex_constants::optimize))) { //--nogui has to come at the end
+			flagVector.push_back(temp); //add the finished flag to the vector of flags
+		} else {
+			addToEndVector.push_back(temp); //add an end-dependent flag to this special vector
+		}
 		logObj->out(text.debugFlagVecInFor + flagVector[0], Debug);
 	}
 	flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
+	for (const auto& it : addToEndVector) { //tack on the end-dependent flags that have to come after the file we want to run
+		flagVector.push_back(it);
+	}
 	logObj->out(text.debugFlagVecOutFor + flagVector[0], Debug);
 	return flagVector;
 }

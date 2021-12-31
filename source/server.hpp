@@ -61,7 +61,7 @@ class Server {
 
 	inline static string name, exec, file, path, command, flags, confFile, device, method, cmdline = "";
 
-	inline static int slave_fd, fd, pid;
+	inline static int slave_fd, fd, pid, uptime;
 
 	#if defined(_WIN64) || defined(_WIN32)
 	inline static STARTUPINFO si; // a variable that can specify parameters for windows created with it
@@ -81,7 +81,5 @@ class Server {
 		Server(shared_ptr<Output> tempObj);
 		bool isRunning = false;
 		void startServer(string confFile);
-		#if !defined(_WIN64) && !defined (_WIN32)
 		void terminalAccessWrapper();
-		#endif
 };
