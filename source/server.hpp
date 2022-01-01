@@ -49,6 +49,7 @@ class Server {
 
 	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
+	string readServerTerminal();
 	void writeToServerTerminal(string input);
 	void processTerminalBuffer(string input);
 	void processServerCommand(string input);
@@ -57,7 +58,7 @@ class Server {
 	void startProgram(string method);
 	void readSettings(string confFile);
 	void removeSlashesFromEnd(string& var);
-	void readServerTerminal();
+	void processServerTerminal();
 	int getPID();
 	vector<string> toArray(string input);
 	auto toPointerArray(vector<string> &strings);

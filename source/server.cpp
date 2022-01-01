@@ -54,11 +54,7 @@ Server::Server(shared_ptr<Output> tempObj) {
 
 #if !defined(_WIN64) && !defined (_WIN32)
 void Server::processTerminalBuffer(string input) {
-	#if !defined(_WIN64) && !defined (_WIN32)
 	while (lines.size() >= (2 * w.ws_row)) {
-	#else
-	while (lines.size() >= (2 * 50)) {
-	#endif
 		//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
 		lines.pop_front();
 		//std::cout << "lines size = " << (unsigned short)lines.size() << w.ws_row << std::endl;
@@ -73,7 +69,7 @@ void Server::processTerminalBuffer(string input) {
 
 void Server::processServerCommand(string input) {
 	if (std::regex_search(input, std::regex(".hajime", std::regex_constants::optimize))) {
-		string hajInfo = "tellraw @a \"§6[Server]§f This server is using §3Hajime 0.1.9\"\n";
+		string hajInfo = "tellraw @a \"§6[Hajime]§f This server is using §3Hajime 0.1.9\"\n";
 		writeToServerTerminal(hajInfo);
 	}
 }
@@ -82,22 +78,27 @@ void Server::writeToServerTerminal(string input) {
 	write(fd, input.c_str(), input.length());
 }
 
-void Server::readServerTerminal() {
+void Server::processServerTerminal() {
 	while (true) {
-		int length;
-		char input[1000];
-		length = read(fd, input, sizeof(input));
-		if (length == -1) {
-			logObj->out("read() errno = " + to_string(errno), Debug);
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-		}
-		std::string output = "";
-		for (int i = 0; i < length; i++) {
-			output += input[i];
-		}
-		processServerCommand(output);
-		processTerminalBuffer(output);
+		string terminalOutput = readServerTerminal();
+		processServerCommand(terminalOutput);
+		processTerminalBuffer(terminalOutput);
 	}
+}
+
+string Server::readServerTerminal() {
+	int length;
+	char input[1000];
+	length = read(fd, input, sizeof(input));
+	if (length == -1) {
+		logObj->out("read() errno = " + to_string(errno), Debug);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+	std::string output = "";
+	for (int i = 0; i < length; i++) {
+		output += input[i];
+	}
+	return output;
 }
 
 void Server::terminalAccessWrapper() {
@@ -295,7 +296,7 @@ void Server::startProgram(string method = "new") {
 				logObj->out("This is the parent.", Debug);
 				int length = 0;
 				if (!startedRfdThread) {
-					std::jthread rfd(&Server::readServerTerminal, this);
+					std::jthread rfd(&Server::processServerTerminal, this);
 					rfd.detach();
 					startedRfdThread = true;
 				}
