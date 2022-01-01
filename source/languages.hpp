@@ -81,7 +81,8 @@ class Text {
 		string questionSysvinitGroup;
 		string questionDoSetupInstaller;
 		string questionStartHajime;
-		string questionUseFlags;
+		string questionUseFlagsAikar;
+		string questionUseFlagsHilltty;
 		string questionInstallNewOne;
 		string questionInstallNewOneAgain;
 		string questionCreateAnotherServerFile;
