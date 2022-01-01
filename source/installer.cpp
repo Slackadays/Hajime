@@ -21,62 +21,22 @@ using std::endl;
 #include "installer.hpp"
 namespace fs = std::filesystem;
 
-const string aikarFlags = "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem  -XX:MaxTenuringThreshold=1 -Daikars.new.flags=true -Dusing.aikars.flags=https://mcflags.emc.gs";
-const string hillttyFlags = "-XX:+UseLargePages -XX:LargePageSizeInBytes=2M -XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu -XX:+UseNUMA -XX:+AlwaysPreTouch -XX:-UseBiasedLocking -XX:+DisableExplicitGC -Dfile.encoding=UTF-8";
-
 Installer::Installer(std::shared_ptr<Output> log) {
 	logObj = log;
 }
 
-void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
-	string file = "server.jar";
-	string flags;
-	logObj->out(text.questionApplyConfigToServerFile, Question);
-	switch (logObj->getYN(text.optionDoManually, text.optionLetHajimeDeduce, text.optionSkipStep)) {
-		case 1:
-			logObj->out(text.questionUseFlags, Question);
-			switch (logObj->getYN(text.optionAikarFlags, text.optionHillttyFlags, text.optionSkipStep)) {
-				case 1:
-					flags = aikarFlags;
-					break;
-				case 2:
-					flags = hillttyFlags;
-					break;
-				case 3:
-					flags = "";
-					break;
-			}
-			logObj->out(text.questionUseDefaultServerFile1 + file + text.questionUseDefaultServerFile2, Question);
-			switch (logObj->getYN(text.optionUseDefault, text.optionLetHajimeDeduce, text.optionEnterManually, text.optionSkipStep)) {
-				case 1:
-					break;
-				case 2:
-					logObj->out(text.errorOptionNotAvailable, Error);
-					break;
-				case 3:
-					logObj->out(text.questionEnterNewServerFile, Question);
-					std::getline(std::cin, file);
-					break;
-				case 4:
-					file = "";
-					break;
-			}
-			logObj->out(text.infoInstallingDefServConf + conf + "...", Info);
-			if (fs::is_regular_file(conf) && !skipFileCheck) {
-				throw 0;
-			} else {
-				Installer::installNewServerConfigFile(conf, flags, file);
-				logObj->out(text.infoInstallingNewServConf + conf + "...", Info);
-				if (!fs::is_regular_file(conf)) {
-					throw 1;
-				}
-			}
-			break;
-		case 2:
-			logObj->out(text.errorOptionNotAvailable, Error);
-			break;
-		case 3:
-			break;
+void Installer::installNewServerConfigFile(string fileLocation, bool skipFileCheck, string flags, string serverFile) {
+	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
+		throw 0;
+	} else {
+		ofstream outConf(fileLocation);
+		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " nogui" << endl << "file=" + serverFile << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
+		outConf << text.fileServerConfComment << endl;
+		logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
+		outConf.close();
+		if (!fs::is_regular_file(fileLocation)) {
+			throw 1;
+		}
 	}
 }
 
@@ -99,14 +59,6 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 			throw 1;
 		}
 	}
-}
-
-void Installer::installNewServerConfigFile(string fileLocation, string flags, string file) {
-	ofstream outConf(fileLocation);
-	outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " nogui" << endl << "file=" + file << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
-	outConf << text.fileServerConfComment << endl;
-	logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
-	outConf.close();
 }
 
 void Installer::installStartupService(string sysService) {

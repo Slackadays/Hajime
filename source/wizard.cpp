@@ -14,6 +14,9 @@
 
 namespace fs = std::filesystem;
 
+const string aikarFlags = "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem  -XX:MaxTenuringThreshold=1 -Daikars.new.flags=true -Dusing.aikars.flags=https://mcflags.emc.gs";
+const string hillttyFlags = "-XX:+UseLargePages -XX:LargePageSizeInBytes=2M -XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu -XX:+UseNUMA -XX:+AlwaysPreTouch -XX:-UseBiasedLocking -XX:+DisableExplicitGC -Dfile.encoding=UTF-8";
+
 void Wizard::dividerLine() {
 	#if defined(_WIN64) || defined(_WIN32)
 	CONSOLE_SCREEN_BUFFER_INFO w;
@@ -81,8 +84,52 @@ void Wizard::doServerStep(bool &installedS, string &serverFile, std::vector<stri
 				if (!std::regex_match(serverFile, std::regex(".+\\..+", std::regex_constants::optimize))) { //check for lack of file extension
 					serverFile += ".conf";
 				}
-				if (wizardStep(serverFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + serverFile, text.errorServerConfNotCreated)) {
-					servers.push_back(serverFile);
+				string file = "server.jar";
+				string flags;
+				logObj->out(text.questionApplyConfigToServerFile, Question);
+				switch (logObj->getYN(text.optionDoManually, text.optionLetHajimeDeduce, text.optionSkipStep)) {
+					case 1:
+						logObj->out(text.questionUseFlags, Question);
+						switch (logObj->getYN(text.optionAikarFlags, text.optionHillttyFlags, "Use custom flags", text.optionSkipStep)) {
+							case 1:
+								flags = aikarFlags;
+								break;
+							case 2:
+								flags = hillttyFlags;
+								break;
+							case 3:
+								logObj->out("Enter your custom flags here: ", Question);
+								std::getline(std::cin, flags);
+							case 4:
+								flags = "";
+								break;
+						}
+						logObj->out(text.questionUseDefaultServerFile1 + file + text.questionUseDefaultServerFile2, Question);
+						switch (logObj->getYN(text.optionUseDefault, text.optionLetHajimeDeduce, text.optionEnterManually, text.optionSkipStep)) {
+							case 1:
+								break;
+							case 2:
+								logObj->out(text.errorOptionNotAvailable, Error);
+								break;
+							case 3:
+								logObj->out(text.questionEnterNewServerFile, Question);
+								std::getline(std::cin, file);
+								break;
+							case 4:
+								file = "";
+								break;
+						}
+						logObj->out(text.infoInstallingDefServConf + serverFile + "...", Info);
+						if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warningFoundServerConfPlusFile + serverFile, text.errorServerConfNotCreated, flags, file)) {
+							servers.push_back(serverFile);
+						}
+						logObj->out(text.infoInstallingNewServConf + serverFile + "...", Info);
+						break;
+					case 2:
+						logObj->out(text.errorOptionNotAvailable, Error);
+						break;
+					case 3:
+						break;
 				}
 				logObj->out(text.questionCreateAnotherServerFile, Question);
 				if (logObj->getYN()) {

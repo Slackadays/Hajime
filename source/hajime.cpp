@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		if (flag("-s", "--install-default-server")) {
-			wizard.wizardStep(defaultServerConfFile, installer.installDefaultServerConfFile, text.warningFoundServerConfPlusFile + defaultServerConfFile, text.errorServerConfNotCreated);
+			wizard.wizardStep(defaultServerConfFile, installer.installNewServerConfigFile, text.warningFoundServerConfPlusFile + defaultServerConfFile, text.errorServerConfNotCreated, "", "server.jar");
 			return 0;
 		}
 		if (flag("-S", "--install-service")) {

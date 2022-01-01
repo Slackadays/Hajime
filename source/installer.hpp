@@ -18,11 +18,10 @@ using std::endl;
 #include "languages.hpp"
 
 class Installer {
-	static void installNewServerConfigFile(string fileLocation, string flags, string file);
 	public:
 		void installStartupService(string sysService);
+		static void installNewServerConfigFile(string fileLocation, bool skipFileCheck, string flags, string serverFile);
 		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false);
-		static void installDefaultServerConfFile(string conf, bool skipFileCheck = false);
 		static void installDefaultServersFile(string serversFile, bool skipFileCheck = false, std::vector<string> servers = {"MyServer"});
 		Installer(std::shared_ptr<Output> log);
 };
