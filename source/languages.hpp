@@ -81,8 +81,7 @@ class Text {
 		string questionSysvinitGroup;
 		string questionDoSetupInstaller;
 		string questionStartHajime;
-		string questionUseFlagsAikar;
-		string questionUseFlagsHilltty;
+		string questionUseFlags;
 		string questionInstallNewOne;
 		string questionInstallNewOneAgain;
 		string questionCreateAnotherServerFile;
@@ -101,6 +100,8 @@ class Text {
 		string optionAttendedInstallation;
 		string optionUnattendedInstallation;
 		string optionSkipSetup;
+		string optionAikarFlags;
+		string optionHillttyFlags;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;
