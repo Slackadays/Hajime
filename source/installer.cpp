@@ -34,11 +34,14 @@ void Installer::installDefaultServerConfFile(string conf, bool skipFileCheck) {
 	logObj->out(text.questionApplyConfigToServerFile, Question);
 	switch (logObj->getYN(text.optionDoManually, text.optionLetHajimeDeduce, text.optionSkipStep)) {
 		case 1:
-			logObj->out(text.questionUseFlagsAikar, Question);
-			if (logObj->getYN()) {
-				flags = aikarFlags;
-			} else {
-				flags = "";
+			switch (logObj->getYN(text.questionUseFlagsAikar, text.questionUseFlagsHilltty, text.optionSkipStep)) {
+				case 1:
+					flags = aikarFlags;
+					break;
+				case 2:
+					flags = hillttyFlags;
+				case 3:
+					flags = "";
 			}
 			logObj->out(text.questionUseDefaultServerFile1 + file + text.questionUseDefaultServerFile2, Question);
 			switch (logObj->getYN(text.optionUseDefault, text.optionLetHajimeDeduce, text.optionEnterManually, text.optionSkipStep)) {
