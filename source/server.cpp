@@ -66,6 +66,10 @@ void Server::readFd() {
 		for (int i = 0; i < length; i++) {
 			output += input[i];
 		}
+		if (std::regex_search(output, std::regex(".hajime", std::regex_constants::optimize))) {
+			string hajInfo = "tellraw @a \"§6[Server]§f This server is using §3Hajime 0.1.9\"\n";
+			write(fd, hajInfo.c_str(), hajInfo.length());
+		}
 		while (lines.size() >= (2 * w.ws_row)) {
 			//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
 			lines.pop_front();
