@@ -69,24 +69,25 @@ void Server::processTerminalBuffer(string input) {
 
 void Server::processServerCommand(string input) {
 	if (std::regex_search(input, std::regex(".hajime", std::regex_constants::optimize))) {
-		string hajInfo = "tellraw @a \"§6[Hajime]§f This server is using §3Hajime 0.1.9\"\n";
+		string hajInfo = "tellraw @a \"§6[Hajime]§f This server is using §3Hajime 0.1.9\"";
 		writeToServerTerminal(hajInfo);
 	}
 }
 
 void Server::writeToServerTerminal(string input) {
+	input += "\n"; //this is the delimiter of the server command
 	write(fd, input.c_str(), input.length());
 }
 
 void Server::processServerTerminal() {
 	while (true) {
-		string terminalOutput = readServerTerminal();
+		string terminalOutput = readFromServer();
 		processServerCommand(terminalOutput);
 		processTerminalBuffer(terminalOutput);
 	}
 }
 
-string Server::readServerTerminal() {
+string Server::readFromServer() {
 	int length;
 	char input[1000];
 	length = read(fd, input, sizeof(input));
@@ -118,7 +119,6 @@ void Server::terminalAccessWrapper() {
 			std::cout << text.errorInvalidCommand << std::endl;
 			std::cout << text.errorInvalidServerCommand1 << std::endl;
 		} else {
-			user_input += "\n";
 			writeToServerTerminal(user_input); //write to the master side of the pterminal with user_input converted into a c-style string
 		}
 	}
