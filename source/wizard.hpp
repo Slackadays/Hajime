@@ -46,5 +46,5 @@ class Wizard {
 		}
 };
 
-extern const string optFlags;
+extern const string aikarFlags;
 extern Wizard wizard;

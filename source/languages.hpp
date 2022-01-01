@@ -100,6 +100,8 @@ class Text {
 		string optionAttendedInstallation;
 		string optionUnattendedInstallation;
 		string optionSkipSetup;
+		string optionAikarFlags;
+		string optionHillttyFlags;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;
