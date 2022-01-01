@@ -10,6 +10,7 @@
 #include "output.hpp"
 #include "installer.hpp"
 #include "wizard.hpp"
+#include "deduce.hpp"
 
 namespace fs = std::filesystem;
 

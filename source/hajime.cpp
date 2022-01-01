@@ -29,6 +29,7 @@ namespace fs = std::filesystem;
 #include "server.hpp"
 #include "getvarsfromfile.hpp"
 #include "wizard.hpp"
+#include "deduce.hpp"
 
 using std::cin;
 using std::cout;
@@ -187,6 +188,7 @@ int main(int argc, char *argv[]) {
 				logObj->out(text.errorNotEnoughArgs, Error);
 			}
 			#else
+
 			logObj->out(text.errorDoesntSupportWindows, Error);
 			#endif
 		} else {
