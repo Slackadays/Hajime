@@ -83,8 +83,7 @@ questionWizardStartupService = "¿Te gustaría instalar un servicio de encendido
 questionSysvinitUser = "Por favor, pon el USER que usará Hajime. ";
 questionSysvinitGroup = "Por favor, pon el GRUPO del user. ";
 questionDoSetupInstaller = "Parece que no has ejecutado Hajime ya. ¿Te gustaría hacer el asistente de instalación?";
-// TODO: update this lol i dont know spanish 
-questionUseFlags = "";
+questionUseFlags = "¿Te gustaría usar indicadores de Java ya hechos con el servidor?";
 questionInstallNewOne = "¿Te gustaría instalarlo?";
 questionInstallNewOneAgain = "¿Te gustaría instalarlo otra vez?";
 questionCreateAnotherServerFile = "¿Te gustaría crear otro archivo de servidor?";
@@ -104,9 +103,8 @@ optionYourChoice = "Tu selección: ";
 optionAttendedInstallation = "Hacer una instalación con supervisión";
 optionUnattendedInstallation = "Hacer una instalación sin supervisión";
 optionSkipSetup = "Faltar a esta instalación";
-// TODO: these too
-optionAikarFlags = "";
-optionHillttyFlags = "";
+optionAikarFlags = "Usar Aikar's Flags";
+optionHillttyFlags = "Usar Hilltty's Flags";
 infoInstallingSysvinit = "Se está instalando el servicio de sysVinit";
 infoInstallingNewSysvinit = "Se está instalando un nuevo servicio de sysVinit";
 infoInstalledSysvinit = "Instaló el servicio de sysVinit en /etc/init.d/hajime.sh";

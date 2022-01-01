@@ -53,7 +53,36 @@ Server::Server(shared_ptr<Output> tempObj) {
 }
 
 #if !defined(_WIN64) && !defined (_WIN32)
-void Server::readFd() {
+void Server::processTerminalBuffer(string input) {
+	#if !defined(_WIN64) && !defined (_WIN32)
+	while (lines.size() >= (2 * w.ws_row)) {
+	#else
+	while (lines.size() >= (2 * 50)) {
+	#endif
+		//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
+		lines.pop_front();
+		//std::cout << "lines size = " << (unsigned short)lines.size() << w.ws_row << std::endl;
+	}
+	input = std::regex_replace(input, std::regex(">\\.\\.\\.\\.", std::regex_constants::optimize), ">"); //replace ">...." with ">" because this shows up in the temrinal output
+	//std::cout << "Pushing back" << std::endl;
+	lines.push_back(input);
+	if (wantsLiveOutput) {
+		std::cout << input << std::flush;
+	}
+}
+
+void Server::processServerCommand(string input) {
+	if (std::regex_search(input, std::regex(".hajime", std::regex_constants::optimize))) {
+		string hajInfo = "tellraw @a \"§6[Server]§f This server is using §3Hajime 0.1.9\"\n";
+		writeToServerTerminal(hajInfo);
+	}
+}
+
+void Server::writeToServerTerminal(string input) {
+	write(fd, input.c_str(), input.length());
+}
+
+void Server::readServerTerminal() {
 	while (true) {
 		int length;
 		char input[1000];
@@ -66,21 +95,8 @@ void Server::readFd() {
 		for (int i = 0; i < length; i++) {
 			output += input[i];
 		}
-		if (std::regex_search(output, std::regex(".hajime", std::regex_constants::optimize))) {
-			string hajInfo = "tellraw @a \"§6[Server]§f This server is using §3Hajime 0.1.9\"\n";
-			write(fd, hajInfo.c_str(), hajInfo.length());
-		}
-		while (lines.size() >= (2 * w.ws_row)) {
-			//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
-			lines.pop_front();
-			//std::cout << "lines size = " << (unsigned short)lines.size() << w.ws_row << std::endl;
-		}
-		output = std::regex_replace(output, std::regex(">\\.\\.\\.\\.", std::regex_constants::optimize), ">"); //replace ">...." with ">" because this shows up in the temrinal output
-		//std::cout << "Pushing back" << std::endl;
-		lines.push_back(output);
-		if (wantsLiveOutput) {
-			std::cout << output << std::flush;
-		}
+		processServerCommand(output);
+		processTerminalBuffer(output);
 	}
 }
 
@@ -102,7 +118,7 @@ void Server::terminalAccessWrapper() {
 			std::cout << text.errorInvalidServerCommand1 << std::endl;
 		} else {
 			user_input += "\n";
-			write(fd, user_input.c_str(), user_input.length()); //write to the master side of the pterminal with user_input converted into a c-style string
+			writeToServerTerminal(user_input); //write to the master side of the pterminal with user_input converted into a c-style string
 		}
 	}
 	std::cout << "Hajime<-----" << std::endl;
@@ -279,7 +295,7 @@ void Server::startProgram(string method = "new") {
 				logObj->out("This is the parent.", Debug);
 				int length = 0;
 				if (!startedRfdThread) {
-					std::jthread rfd(&Server::readFd, this);
+					std::jthread rfd(&Server::readServerTerminal, this);
 					rfd.detach();
 					startedRfdThread = true;
 				}
