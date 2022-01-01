@@ -29,8 +29,8 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++-10 -c -Ofast -std=c++20
-          g++-10 -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++-10 -c -Ofast -std=c++20
+          g++-10 -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
           
       - uses: actions/upload-artifact@v2
         with: 
@@ -49,8 +49,8 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++ -c -Ofast -std=c++20
-          g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++ -c -Ofast -std=c++20
+          g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
           
       - uses: actions/upload-artifact@v2
         with: 
@@ -69,8 +69,8 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
-          clang++ -target arm64-apple-macos -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
+          clang++ -target arm64-apple-macos -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
           
       - uses: actions/upload-artifact@v2
         with: 
@@ -91,8 +91,8 @@ jobs:
           cd source
           sudo apt-get update
           sudo apt-get install -y g++-10-arm-linux-gnueabihf
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 arm-linux-gnueabihf-g++-10 -c -Ofast -std=c++20
-          arm-linux-gnueabihf-g++-10 -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 arm-linux-gnueabihf-g++-10 -c -Ofast -std=c++20
+          arm-linux-gnueabihf-g++-10 -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
           
       - uses: actions/upload-artifact@v2
         with: 
@@ -108,7 +108,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          cl.exe /FeHajime.exe /EHsc /O2 /std:c++20 hajime.cpp installer.cpp output.cpp server.cpp wizard.cpp languages.cpp getvarsfromfile.cpp
+          cl.exe /FeHajime.exe /EHsc /O2 /std:c++20 hajime.cpp installer.cpp output.cpp server.cpp wizard.cpp languages.cpp getvarsfromfile.cpp deduce.cpp
           
       - uses: actions/upload-artifact@v2
         with: 
