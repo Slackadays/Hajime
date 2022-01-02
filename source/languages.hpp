@@ -89,6 +89,7 @@ class Text {
 		string questionUseDefaultServerFile1;
 		string questionUseDefaultServerFile2;
 		string questionEnterNewServerFile;
+		string questionEnterCustomFlags;
 		string optionMakeServerFileManually;
 		string optionDoManually;
 		string optionEnterManually;
@@ -102,6 +103,9 @@ class Text {
 		string optionSkipSetup;
 		string optionAikarFlags;
 		string optionHillttyFlags;
+		string optionFroggeMCFlags;
+		string optionBasicZGCFlags;
+		string optionCustomFlags;
 		string infoInstallingSysvinit;
 		string infoInstallingNewSysvinit;
 		string infoInstalledSysvinit;
