@@ -25,6 +25,7 @@
 #include <filesystem>
 #include <errno.h>
 #include <regex>
+#include <ctime>
 
 #ifdef _MSC_VER
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
@@ -45,8 +46,10 @@ using std::ofstream;
 using std::ios;
 using std::vector;
 using std::cout;
+using namespace std::chrono;
 
 namespace fs = std::filesystem;
+namespace ch = std::chrono;
 
 Server::Server(shared_ptr<Output> tempObj) {
 	logObj = tempObj;
@@ -70,6 +73,13 @@ void Server::processTerminalBuffer(string input) {
 void Server::processServerCommand(string input) {
 	if (std::regex_search(input, std::regex(".hajime", std::regex_constants::optimize))) {
 		string hajInfo = "tellraw @a \"§6[Hajime]§f This server is using §3Hajime 0.1.9\"";
+		writeToServerTerminal(hajInfo);
+	}
+	if (std::regex_search(input, std::regex(".time", std::regex_constants::optimize))) {
+		std::time_t timeNow = std::time(nullptr);
+		string stringTimeNow = std::asctime(std::localtime(&timeNow));
+		stringTimeNow.erase(std::remove(stringTimeNow.begin(), stringTimeNow.end(), '\n'), stringTimeNow.end());
+		string hajInfo = "tellraw @a \"§6[Hajime]§f This server's local time is §3" + stringTimeNow + '\"';
 		writeToServerTerminal(hajInfo);
 	}
 }
