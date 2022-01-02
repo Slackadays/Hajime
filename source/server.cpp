@@ -71,16 +71,22 @@ void Server::processTerminalBuffer(string input) {
 }
 
 void Server::processServerCommand(string input) {
-	if (std::regex_search(input, std::regex(".hajime", std::regex_constants::optimize))) {
+	if (std::regex_search(input, std::regex("\\.hajime(?![\\w])", std::regex_constants::optimize))) {
 		string hajInfo = "tellraw @a \"§6[Hajime]§f This server is using §3Hajime 0.1.9\"";
 		writeToServerTerminal(hajInfo);
 	}
-	if (std::regex_search(input, std::regex(".time", std::regex_constants::optimize))) {
+	if (std::regex_search(input, std::regex("\\.time(?![\\w])", std::regex_constants::optimize))) {
 		std::time_t timeNow = std::time(nullptr);
 		string stringTimeNow = std::asctime(std::localtime(&timeNow));
 		stringTimeNow.erase(std::remove(stringTimeNow.begin(), stringTimeNow.end(), '\n'), stringTimeNow.end());
 		string hajInfo = "tellraw @a \"§6[Hajime]§f This server's local time is §3" + stringTimeNow + '\"';
 		writeToServerTerminal(hajInfo);
+	}
+	if (std::regex_search(input, std::regex("\\.h(elp){0,1}(?![\\w])", std::regex_constants::optimize))) {
+		writeToServerTerminal("tellraw @a \"§6[Hajime]§f Command help:\"");
+		writeToServerTerminal("tellraw @a \"§f.h, .help §3| §fShow this help message\"");
+		writeToServerTerminal("tellraw @a \"§f.hajime §3| §fShow Hajime version\"");
+		writeToServerTerminal("tellraw @a \"§f.time §3| §fShow the server's local time\"");
 	}
 }
 
