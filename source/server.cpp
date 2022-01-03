@@ -72,7 +72,7 @@ void Server::processTerminalBuffer(string input) {
 
 void Server::processServerCommand(string input) {
 	if (std::regex_search(input, std::regex("\\.hajime(?![\\w])", std::regex_constants::optimize))) {
-		string hajInfo = "tellraw @a \"§6[Hajime]§f This server is using §3Hajime 0.1.9\"";
+		string hajInfo = "tellraw @a [\"§6[Hajime] §fThis server is using \",{\"text\":\"Hajime 0.1.9\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https:\/\/hajime.sh\"}}]";
 		writeToServerTerminal(hajInfo);
 	}
 	if (std::regex_search(input, std::regex("\\.time(?![\\w])", std::regex_constants::optimize))) {
@@ -83,10 +83,8 @@ void Server::processServerCommand(string input) {
 		writeToServerTerminal(hajInfo);
 	}
 	if (std::regex_search(input, std::regex("\\.h(elp){0,1}(?![\\w])", std::regex_constants::optimize))) {
-		writeToServerTerminal("tellraw @a \"§6[Hajime]§f Command help:\"");
-		writeToServerTerminal("tellraw @a \"§f.h, .help §3| §fShow this help message\"");
-		writeToServerTerminal("tellraw @a \"§f.hajime §3| §fShow Hajime version\"");
-		writeToServerTerminal("tellraw @a \"§f.time §3| §fShow the server's local time\"");
+		writeToServerTerminal("tellraw @a \"§6[Hajime]§f Roll over a command to show its action.\"");
+		writeToServerTerminal("tellraw @a [{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"}},{\"text\":\".time\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"}}]");
 	}
 }
 
