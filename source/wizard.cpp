@@ -24,13 +24,13 @@ void Wizard::dividerLine() {
 	CONSOLE_SCREEN_BUFFER_INFO w;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
-		logObj->out("―", None, 0, 0);
+		logObj->out("─", None, 0, 0);
 	}
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
-		logObj->out("―", None, 0, 0);
+		logObj->out("─", None, 0, 0);
 	}
 	#endif
 	std::cout << std::endl;
