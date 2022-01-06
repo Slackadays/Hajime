@@ -150,8 +150,10 @@ int main(int argc, char *argv[]) {
 				if (!logObj->getYN()) {
 					return 0;
 				}
+				break;
 			case 2:
 				logObj->out(text.errorOptionNotAvailable, Error);
+				break;
 			case 3:
 				return 0;
 		}
@@ -173,7 +175,6 @@ int main(int argc, char *argv[]) {
 		std::getline(std::cin, command);
 		vector<string> commandVec = toVec(command);
 		if (commandVec[0] == "term" || commandVec[0] == "t") {
-			#if !defined(_WIN64) && !defined (_WIN32)
 			if (commandVec.size() >= 2) {
 				try {
 					if (stoi(commandVec[1]) > serverVec.size() || stoi(commandVec[1]) < 1) {
@@ -187,10 +188,6 @@ int main(int argc, char *argv[]) {
 			} else {
 				logObj->out(text.errorNotEnoughArgs, Error);
 			}
-			#else
-
-			logObj->out(text.errorDoesntSupportWindows, Error);
-			#endif
 		} else {
 			logObj->out(text.errorInvalidCommand, Error);
 			logObj->out(text.errorInvalidHajCommand1, Error);

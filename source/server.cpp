@@ -55,9 +55,8 @@ Server::Server(shared_ptr<Output> tempObj) {
 	logObj = tempObj;
 }
 
-#if !defined(_WIN64) && !defined (_WIN32)
 void Server::processTerminalBuffer(string input) {
-	while (lines.size() >= (2 * w.ws_row)) {
+	while (lines.size() >= 100000) {
 		//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
 		lines.pop_front();
 		//std::cout << "lines size = " << (unsigned short)lines.size() << w.ws_row << std::endl;
@@ -92,7 +91,19 @@ void Server::processServerCommand(string input) {
 
 void Server::writeToServerTerminal(string input) {
 	input += "\n"; //this is the delimiter of the server command
+	#ifdef _WIN32
+	DWORD byteswritten;
+	if (!WriteFile(inputwrite, input.c_str(), input.size(), &byteswritten, NULL)) // write to input pipe
+	{
+		logObj->out("Unable to write to pipe", Warning);
+	}
+	else if (byteswritten != input.size())
+	{
+		logObj->out("Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()), Warning);
+	}
+	#else
 	write(fd, input.c_str(), input.length());
+	#endif
 }
 
 void Server::processServerTerminal() {
@@ -104,16 +115,25 @@ void Server::processServerTerminal() {
 }
 
 string Server::readFromServer() {
-	int length;
 	char input[1000];
+	#ifdef _WIN32
+	DWORD length = 0;
+	if (!ReadFile(outputread, input, 1000, &length, NULL))
+	{
+		logObj->out("ReadFile failed (unable to read from pipe)", Warning);
+		return std::string();
+	}
+	#else
+	int length;
 	length = read(fd, input, sizeof(input));
 	if (length == -1) {
 		logObj->out("read() errno = " + to_string(errno), Debug);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-	std::string output = "";
+	#endif	
+	std::string output;
 	for (int i = 0; i < length; i++) {
-		output += input[i];
+		output.push_back(input[i]);
 	}
 	return output;
 }
@@ -141,7 +161,6 @@ void Server::terminalAccessWrapper() {
 	std::cout << "Hajime<-----" << std::endl;
 	logObj->normalDisabled = false;
 }
-#endif
 
 void Server::startServer(string confFile) {
 	try {
@@ -186,7 +205,7 @@ void Server::startServer(string confFile) {
 			}
 			#if defined(_WIN64) || defined(_WIN32)
 			DWORD code;
-			if (GetExitCodeProcess(pi.hProcess, &code); code == STILL_ACTIVE) {
+			if (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, 0)) {
 			#else
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 			#endif
@@ -202,6 +221,10 @@ void Server::startServer(string confFile) {
 				#if defined(_WIN64) || defined(_WIN32)
 				CloseHandle(pi.hProcess);
 				CloseHandle(pi.hThread);
+				CloseHandle(inputread);
+				CloseHandle(inputwrite);
+				CloseHandle(outputread);
+				CloseHandle(outputwrite);
 				#endif
 			}
 		}
@@ -266,14 +289,31 @@ void Server::startProgram(string method = "new") {
 		} else if (method == "new") {
 			logObj->out(text.debugUsingNewMethod, Debug);
 			#if defined(_WIN64) || defined (_WIN32)
+			SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
+			saAttr.bInheritHandle = TRUE;
+			saAttr.lpSecurityDescriptor = NULL;
+			if (!CreatePipe(&outputread, &outputwrite, &saAttr, 0) || !CreatePipe(&inputread, &inputwrite, &saAttr, 0))
+			{
+				logObj->out("Error creating pipe", Error);
+				return;
+			}
 			ZeroMemory(&si, sizeof(si)); //ZeroMemory fills si with zeroes
+			si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+			si.hStdInput = inputread;
+			si.hStdOutput = outputwrite;
+			si.hStdError = outputwrite;
 			si.cb = sizeof(si); //si.cb = size of si
 			ZeroMemory(&pi, sizeof(pi));
 			// createprocessa might cause an error if commandline is const
 			char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
 			strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
-			CreateProcessA(NULL, tempflags, NULL, NULL, FALSE, CREATE_NEW_CONSOLE | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
+			CreateProcessA(NULL, tempflags, NULL, NULL, TRUE, CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
 			delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
+			if (!startedRfdThread) {
+				std::jthread rfd(&Server::processServerTerminal, this);
+				rfd.detach();
+				startedRfdThread = true;
+			}
 			#else
 			logObj->out(text.debugFlags + flags, Debug);
 			auto flagTemp = toArray(flags);
@@ -396,7 +436,7 @@ void Server::mountDrive() {
 }
 
 void Server::removeSlashesFromEnd(string& var) {
-	while ((var[var.length() - 1] == '/') || (var[var.length() - 1] == '\\')) {
+	while (!var.empty() && ((var[var.length() - 1] == '/') || (var[var.length() - 1] == '\\'))) {
 		var.pop_back();
 	}
 }
@@ -428,7 +468,7 @@ void Server::readSettings(string confFile) {
 	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
 	remSlash(file, path, device, exec);
 	#if defined(_WIN64) || defined(_WIN32)
-	flags = exec + ' ' + flags + ' ' + file;
+	flags = exec + ' ' + flags + ' ' + file + " nogui";
 	#endif
 }
 

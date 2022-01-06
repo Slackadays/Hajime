@@ -30,7 +30,7 @@ void Installer::installNewServerConfigFile(string fileLocation, bool skipFileChe
 		throw 0;
 	} else {
 		ofstream outConf(fileLocation);
-		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " nogui" << endl << "file=" + serverFile << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
+		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar -Xmx4G -Xms4G " + flags << endl << "file=" + serverFile << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
 		outConf << text.fileServerConfComment << endl;
 		logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
 		outConf.close();
