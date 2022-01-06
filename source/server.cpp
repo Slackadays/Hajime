@@ -130,7 +130,7 @@ string Server::readFromServer() {
 		logObj->out("read() errno = " + to_string(errno), Debug);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-	#endif	
+	#endif
 	std::string output;
 	for (int i = 0; i < length; i++) {
 		output.push_back(input[i]);
@@ -205,6 +205,7 @@ void Server::startServer(string confFile) {
 			}
 			#if defined(_WIN64) || defined(_WIN32)
 			DWORD code;
+			//if (GetExitCodeProcess(pi.hProcess, &code); code == STILL_ACTIVE) { //alternative method
 			if (WAIT_TIMEOUT == WaitForSingleObject(pi.hProcess, 0)) {
 			#else
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
@@ -221,10 +222,10 @@ void Server::startServer(string confFile) {
 				#if defined(_WIN64) || defined(_WIN32)
 				CloseHandle(pi.hProcess);
 				CloseHandle(pi.hThread);
-				CloseHandle(inputread);
-				CloseHandle(inputwrite);
-				CloseHandle(outputread);
-				CloseHandle(outputwrite);
+				//CloseHandle(inputread); //commented these out because they mess up server restarting
+				//CloseHandle(inputwrite);
+				//CloseHandle(outputread);
+				//CloseHandle(outputwrite);
 				#endif
 			}
 		}
