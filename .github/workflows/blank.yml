@@ -110,4 +110,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with: 
           name: hajime-windows-amd64
-          path: hajime.exe
+          path: Release\hajime.exe
