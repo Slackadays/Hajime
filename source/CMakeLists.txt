@@ -10,6 +10,8 @@ set(CMAKE_THREAD_PREFER_PTHREAD True)
 set(THREADS_PREFER_PTHREAD_FLAG True)
 find_package(Threads REQUIRED)
 
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
 add_executable(hajime hajime.cpp server.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp)
 
 target_link_libraries(hajime Threads::Threads)
