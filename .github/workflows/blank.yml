@@ -105,7 +105,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           cmake source
-          cmake --build . -j 8
+          cmake --build . -j 8 --config Release
           
       - uses: actions/upload-artifact@v2
         with: 
