@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 	if (!SetConsoleMode(hOut, (dwMode += ENABLE_VIRTUAL_TERMINAL_PROCESSING))) {
 		logObj->noColors = true;
 	}
-	SetConsoleOutputCP(_O_U8TEXT); //fix broken accents on Windows
+	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
 	#endif
 	dividerLine();
 	for (int i = 1; i < argc; i++) { //search for the help flag first
