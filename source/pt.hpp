@@ -17,7 +17,7 @@ help.push_back("\033[1m-l \033[0mor\033[1m --language \033[1m|\033[0m Escolher m
 help.push_back("\033[1m-np \033[0mor\033[1m --no-pauses \033[1m|\033[0m Desabilitar as pausas artificiais.");
 help.push_back("\033[1m-tc \033[0mor\033[1m --thread-colors \033[1m|\033[0m Mostrar cores por ID ao invés de tipo de mensagem.");
 help.push_back("\033[1m-it \033[0mor\033[1m --show-info-type \033[1m|\033[0m Exibir explicitamente o tipo de informação nas logs.");
-help.push_back("\033[1m\033[32mNeed more help?\033[0m Junte-se ao nosso servidor do Discord em https://discord.gg/J6asnc3pEG");
+help.push_back("\033[1m\033[32mPrecisa de mais ajuda?\033[0m Junte-se ao nosso servidor do Discord em https://discord.gg/J6asnc3pEG");
 errnoNotPermitted = "Não permitido. O dispositivo está certo?";
 errnoNoFileOrDir = "Não existe tal arquivo ou diretório.";
 errnoPermissionDenied = "Permissão negada. O Hajime está sendo administrado pelo root?";
