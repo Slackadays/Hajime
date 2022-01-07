@@ -49,24 +49,29 @@ class Server {
 
 	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
+	string readFromServer();
+	void writeToServerTerminal(string input);
+	void processTerminalBuffer(string input);
+	void processServerCommand(string input);
 	void mountDrive();
 	void makeDir();
 	void startProgram(string method);
 	void readSettings(string confFile);
 	void removeSlashesFromEnd(string& var);
-	void readFd();
+	void processServerTerminal();
 	int getPID();
 	vector<string> toArray(string input);
 	auto toPointerArray(vector<string> &strings);
 
 	inline static string name, exec, file, path, command, flags, confFile, device, method, cmdline = "";
 
-	inline static int slave_fd, fd, pid, uptime;
 
 	#if defined(_WIN64) || defined(_WIN32)
 	inline static STARTUPINFO si; // a variable that can specify parameters for windows created with it
 	inline static PROCESS_INFORMATION pi; // can get process handle and pid from this
+	inline static HANDLE inputread, inputwrite, outputread, outputwrite; // pipes for reading/writing
 	#else
+	inline static int slave_fd, fd, pid, uptime;
 	inline static struct winsize w;
 	#endif
 
@@ -76,7 +81,6 @@ class Server {
 
 	inline static std::list<string> lines; //make this inline static so the program only has one copy of lines available
 	//super duper important!!
-
 	public:
 		Server(shared_ptr<Output> tempObj);
 		bool isRunning = false;

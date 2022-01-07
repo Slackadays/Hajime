@@ -5,18 +5,24 @@
 
 class Wizard {
 
+	string confFile, serversFile, serverFile, sysdService;
+
+	std::vector<string> servers;
+
+	bool installedS = false;
+
 	void dividerLine();
 	void pause(float mean, float stdev);
-	void doHajimeStep(string &confFile);
-	void doServerStep(bool &installedS, string &serverFile, std::vector<string> &servers);
-	void doServersStep(string &serversFile, std::vector<string> &servers);
-	void doStartupStep(string &sysdService);
-	void doNextStepStep(bool &installedS, std::vector<string> &servers);
+	void doHajimeStep();
+	void doServerStep();
+	void doServersStep();
+	void doStartupStep();
+	void doNextStepStep();
 
 	public:
 		bool doArtificialPauses = true;
 
-		void initialHajimeSetup(string confFile, string serversFile, string serverFile, string sysdService);
+		void initialHajimeSetup(string tempConfFile, string tempServersFile, string tempServerFile, string tempSysdService);
 
 		template<typename Fn, typename ...Fx>
 		bool wizardStep(string filename, Fn func, string foundFile, string fileNotMade, Fx... extras) {

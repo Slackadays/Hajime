@@ -13,7 +13,10 @@ void Text::applyLang(string lang) {
 	#include "en.hpp"
 	if (lang == "es") { //spanish
 		help.clear(); //reset the help vector
-	#include "es.hpp"
+		#include "es.hpp"
+	} else if (lang == "pt") {
+		help.clear();
+		#include "pt.hpp"
 	}
 }
 
