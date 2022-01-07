@@ -91,14 +91,11 @@ void Server::processServerCommand(string input) {
 
 void Server::writeToServerTerminal(string input) {
 	input += "\n"; //this is the delimiter of the server command
-	#ifdef _WIN32
+	#if defined(_WIN64) || defined(_WIN32)
 	DWORD byteswritten;
-	if (!WriteFile(inputwrite, input.c_str(), input.size(), &byteswritten, NULL)) // write to input pipe
-	{
+	if (!WriteFile(inputwrite, input.c_str(), input.size(), &byteswritten, NULL)) {// write to input pipe
 		logObj->out("Unable to write to pipe", Warning);
-	}
-	else if (byteswritten != input.size())
-	{
+	} else if (byteswritten != input.size()) {
 		logObj->out("Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()), Warning);
 	}
 	#else
