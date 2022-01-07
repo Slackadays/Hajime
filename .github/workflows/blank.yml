@@ -28,8 +28,8 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          cmake source
-          cmake --build . -D CMAKE_CXX_COMPILER=g++-10 -j 8
+          cmake source -D CMAKE_CXX_COMPILER=g++-10
+          cmake --build . -j 8
           
       - uses: actions/upload-artifact@v2
         with: 
@@ -88,8 +88,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y g++-10-arm-linux-gnueabihf
-          cmake source
-          cmake --build . -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-10 -j 8
+          cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-10
+          cmake --build . -j 8
           
       - uses: actions/upload-artifact@v2
         with: 
