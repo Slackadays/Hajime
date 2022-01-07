@@ -2,7 +2,7 @@ help.push_back("\033[1mBem-vindo ao Hajime, o melhor script para a inicializaç�
 help.push_back("Esta versão do Hajime foi compilada em " __DATE__ ".");
 help.push_back("\033[1m\033[32mUtilização:\033[0m ");
 help.push_back(" [as seguintes flags]"); //1 and 2 sandwich a variable
-help.push_back("\033[1m-f \033[3mfile\033[0m ou \033[1m--server-file \033[3marquivo \033[0m\033[1m|\033[0m Especificar um arquivo de configuração do servidor a ser usado manualmente.");
+help.push_back("\033[1m-f \033[3marquivo\033[0m ou \033[1m--server-file \033[3marquivo \033[0m\033[1m|\033[0m Especificar um arquivo de configuração do servidor a ser usado manualmente.");
 help.push_back("\033[1m-h \033[0mou\033[1m --help |\033[0m Mostrar essa mensagem de ajuda.");
 help.push_back("\033[1m-hf \033[1m\033[3marquivo \033[0mou\033[1m --hajime-file\033[0m \033[1m\033[3marquivo \033[0m\033[1m|\033[0m Especificar manualmente o arquivo de configuração utilizado.");
 help.push_back("\033[1m-s  \033[0mou\033[1m --install-server \033[1m|\033[0m Criar um arquivo de configuração padrão para o servidor.");
