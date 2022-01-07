@@ -29,12 +29,12 @@ jobs:
       - name: Run a multi-line script
         run: |
           cmake source
-          cmake --build . -j 8
+          cmake CMAKE_CXX_COMPILER=g++-10 --build . -j 8
           
       - uses: actions/upload-artifact@v2
         with: 
           name: hajime-linux-amd64
-          path: source/hajime
+          path: hajime
   build-macos-amd64:
     # The type of runner that the job will run on
     runs-on: macos-latest
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with: 
           name: hajime-macos-amd64
-          path: source/hajime
+          path: hajime
   build-macos-arm64:
     # The type of runner that the job will run on
     runs-on: macos-latest
@@ -86,16 +86,15 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          cd source
           sudo apt-get update
           sudo apt-get install -y g++-10-arm-linux-gnueabihf
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 arm-linux-gnueabihf-g++-10 -c -Ofast -std=c++20
-          arm-linux-gnueabihf-g++-10 -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+          cmake source
+          cmake --build CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-10 . -j 8
           
       - uses: actions/upload-artifact@v2
         with: 
           name: hajime-linux-arm32
-          path: source/hajime
+          path: hajime
   build-windows-amd64:
     runs-on: windows-latest
     
