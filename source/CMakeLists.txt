@@ -12,6 +12,6 @@ find_package(Threads REQUIRED)
 
 add_executable(hajime hajime.cpp server.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp)
 
-set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
 
 target_link_libraries(hajime Threads::Threads)
