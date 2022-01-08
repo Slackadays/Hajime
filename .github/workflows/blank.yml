@@ -56,7 +56,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with: 
           name: hajime-linux-x86
-          path: hajime
+          path: source/hajime
   build-macos-amd64:
     # The type of runner that the job will run on
     runs-on: macos-latest
