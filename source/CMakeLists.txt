@@ -13,3 +13,7 @@ find_package(Threads REQUIRED)
 add_executable(hajime hajime.cpp server.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp)
 
 target_link_libraries(hajime Threads::Threads)
+
+if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MT")
+endif()
