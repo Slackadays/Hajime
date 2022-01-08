@@ -204,10 +204,10 @@ jobs:
           sudo mount -o loop,ro -t iso9660 obsd_temp.iso temp
           mkdir libs
           cd libs
-          tar -xvf ../temp/7.0/amd64/comp70.tgz ./
+          tar -xf ../temp/7.0/amd64/comp70.tgz ./
           cd ../source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target amd64-unknown-openbsd7.0 --sysroot=../libs/ -c -O3 -std=c++20
-          clang++ -target amd64-unknown-openbsd7.0 --sysroot=../libs/ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
+          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++-11 -target amd64-unknown-openbsd7.0 --sysroot=../libs/ -c -O3 -std=c++20
+          clang++-11 -target amd64-unknown-openbsd7.0 --sysroot=../libs/ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
           
       - uses: actions/upload-artifact@v2
         with: 
