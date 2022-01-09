@@ -90,4 +90,4 @@ class Output {
 		int debug = 0;
 };
 
-extern std::shared_ptr<Output> logObj; // make this pointer global
+extern std::shared_ptr<Output> hjlog; // make this pointer global

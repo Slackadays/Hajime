@@ -11,6 +11,7 @@ using std::string;
 void Text::applyLang(string lang) {
 	//the fallack is English
 	#include "en.hpp"
+	language = lang;
 	if (lang == "es") { //spanish
 		help.clear(); //reset the help vector
 		#include "es.hpp"

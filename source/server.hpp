@@ -45,7 +45,7 @@ class Server {
 
 	std::error_code ec;
 
-	shared_ptr<Output> logObj;
+	shared_ptr<Output> hjlog;
 
 	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 

@@ -52,7 +52,7 @@ namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
 Server::Server(shared_ptr<Output> tempObj) {
-	logObj = tempObj;
+	hjlog = tempObj;
 }
 
 void Server::processTerminalBuffer(string input) {
@@ -94,9 +94,9 @@ void Server::writeToServerTerminal(string input) {
 	#if defined(_WIN64) || defined(_WIN32)
 	DWORD byteswritten;
 	if (!WriteFile(inputwrite, input.c_str(), input.size(), &byteswritten, NULL)) {// write to input pipe
-		logObj->out("Unable to write to pipe", Warning);
+		hjlog->out("Unable to write to pipe", Warning);
 	} else if (byteswritten != input.size()) {
-		logObj->out("Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()), Warning);
+		hjlog->out("Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()), Warning);
 	}
 	#else
 	write(fd, input.c_str(), input.length());
@@ -117,14 +117,14 @@ string Server::readFromServer() {
 	DWORD length = 0;
 	if (!ReadFile(outputread, input, 1000, &length, NULL))
 	{
-		logObj->out("ReadFile failed (unable to read from pipe)", Warning);
+		hjlog->out("ReadFile failed (unable to read from pipe)", Warning);
 		return std::string();
 	}
 	#else
 	int length;
 	length = read(fd, input, sizeof(input));
 	if (length == -1) {
-		logObj->out("read() errno = " + to_string(errno), Debug);
+		hjlog->out("read() errno = " + to_string(errno), Debug);
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 	#endif
@@ -136,7 +136,7 @@ string Server::readFromServer() {
 }
 
 void Server::terminalAccessWrapper() {
-	logObj->normalDisabled = true;
+	hjlog->normalDisabled = true;
 	std::cout << "----->" << name << std::endl;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {
@@ -156,41 +156,41 @@ void Server::terminalAccessWrapper() {
 		}
 	}
 	std::cout << "Hajime<-----" << std::endl;
-	logObj->normalDisabled = false;
+	hjlog->normalDisabled = false;
 }
 
 void Server::startServer(string confFile) {
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
-			logObj->out(text.infoReadingServerSettings, Info);
+			hjlog->out(text.infoReadingServerSettings, Info);
 			readSettings(confFile);
 		} else {
-			logObj->out(text.errorServerFileNotPresent1 + confFile + text.errorServerFileNotPresent2, Error);
+			hjlog->out(text.errorServerFileNotPresent1 + confFile + text.errorServerFileNotPresent2, Error);
 			return;
 		}
-		logObj->out("----" + name + "----", Info);
-		logObj->out(text.infoServerFile + file + " | ", Info, 0, 0);
-		logObj->out(text.infoServerPath + path, None);
-		logObj->out(text.infoServerCommand + command + " | ", Info, 0, 0);
-		logObj->out(text.infoServerMethod + method, None);
-		logObj->out(text.infoServerDebug + to_string(logObj->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-		logObj->out(text.infoServerDevice + device, None);
+		hjlog->out("----" + name + "----", Info);
+		hjlog->out(text.infoServerFile + file + " | ", Info, 0, 0);
+		hjlog->out(text.infoServerPath + path, None);
+		hjlog->out(text.infoServerCommand + command + " | ", Info, 0, 0);
+		hjlog->out(text.infoServerMethod + method, None);
+		hjlog->out(text.infoServerDebug + to_string(hjlog->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+		hjlog->out(text.infoServerDevice + device, None);
 		if (!fs::is_regular_file(file)) {
-			logObj->out(file + " doesn't exist.", Warning);
+			hjlog->out(file + " doesn't exist.", Warning);
 		}
 		while (true) {
 			try {
 				fs::current_path(path);
 			} catch(...) {
-				logObj->out(text.errorCouldntSetPath, Error);
+				hjlog->out(text.errorCouldntSetPath, Error);
 			}
 			#if !defined(_WIN64) && !defined(_WIN32)
 			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 			#endif
 			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(\/||\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
-				logObj->out(text.infoStartingServer, Info);
+				hjlog->out(text.infoStartingServer, Info);
 				startProgram(method);
-				logObj->out(text.infoServerStartCompleted, Info);
+				hjlog->out(text.infoServerStartCompleted, Info);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
 			if (!fs::is_directory(path, ec) && !fs::is_directory(fs::current_path().string() + '/' + path, ec) && !fs::is_directory(fs::current_path().string() + '\\' + path, ec)) { //if the desired path doesn't exist, make it
@@ -209,13 +209,13 @@ void Server::startServer(string confFile) {
 			#endif
 				std::this_thread::sleep_for(std::chrono::seconds(3));
 				if (!isRunning) {
-					logObj->out(text.infoServerIsRunning, Info);
+					hjlog->out(text.infoServerIsRunning, Info);
 					isRunning = true;
 					hasMounted = true;
 				}
 			} else {
 				isRunning = false;
-				logObj->out(text.warningIsRunningFalse, Warning);
+				hjlog->out(text.warningIsRunningFalse, Warning);
 				#if defined(_WIN64) || defined(_WIN32)
 				CloseHandle(pi.hProcess);
 				CloseHandle(pi.hThread);
@@ -227,10 +227,10 @@ void Server::startServer(string confFile) {
 			}
 		}
 	} catch(string s) {
-		logObj->out(s);
+		hjlog->out(s);
 	}
  catch(...) { //error handling
-		logObj->out(text.errorGeneric, Error);
+		hjlog->out(text.errorGeneric, Error);
 	}
 }
 
@@ -257,13 +257,13 @@ vector<string> Server::toArray(string input) {
 		} else {
 			addToEndVector.push_back(temp); //add an end-dependent flag to this special vector
 		}
-		logObj->out(text.debugFlagVecInFor + flagVector[0], Debug);
+		hjlog->out(text.debugFlagVecInFor + flagVector[0], Debug);
 	}
 	flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
 	for (const auto& it : addToEndVector) { //tack on the end-dependent flags that have to come after the file we want to run
 		flagVector.push_back(it);
 	}
-	logObj->out(text.debugFlagVecOutFor + flagVector[0], Debug);
+	hjlog->out(text.debugFlagVecOutFor + flagVector[0], Debug);
 	return flagVector;
 }
 
@@ -278,21 +278,21 @@ auto Server::toPointerArray(vector<string> &strings) {
 
 void Server::startProgram(string method = "new") {
 	if (!isRunning) {
-		logObj->out(text.infoTryingToStartProgram, Info);
+		hjlog->out(text.infoTryingToStartProgram, Info);
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
 		if (method == "old") {
-			logObj->out(text.debugUsingOldMethod, Debug);
+			hjlog->out(text.debugUsingOldMethod, Debug);
 			int returnVal = system(command.c_str()); //convert the command to a c-style string, execute the command
 		} else if (method == "new") {
-			logObj->out(text.debugUsingNewMethod, Debug);
+			hjlog->out(text.debugUsingNewMethod, Debug);
 			#if defined(_WIN64) || defined (_WIN32)
 			SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
 			saAttr.bInheritHandle = TRUE;
 			saAttr.lpSecurityDescriptor = NULL;
 			if (!CreatePipe(&outputread, &outputwrite, &saAttr, 0) || !CreatePipe(&inputread, &inputwrite, &saAttr, 0))
 			{
-				logObj->out("Error creating pipe", Error);
+				hjlog->out("Error creating pipe", Error);
 				return;
 			}
 			ZeroMemory(&si, sizeof(si)); //ZeroMemory fills si with zeroes
@@ -313,11 +313,11 @@ void Server::startProgram(string method = "new") {
 				startedRfdThread = true;
 			}
 			#else
-			logObj->out(text.debugFlags + flags, Debug);
+			hjlog->out(text.debugFlags + flags, Debug);
 			auto flagTemp = toArray(flags);
 			auto flagArray = toPointerArray(flagTemp);
-			logObj->out(text.debugFlagArray0 + (string)flagArray[0], Debug);
-			logObj->out(text.debugFlagArray1 + (string)flagArray[1], Debug);
+			hjlog->out(text.debugFlagArray0 + (string)flagArray[0], Debug);
+			hjlog->out(text.debugFlagArray1 + (string)flagArray[1], Debug);
 			wantsLiveOutput = false;
 			fd = posix_openpt(O_RDWR);
 			grantpt(fd);
@@ -325,7 +325,7 @@ void Server::startProgram(string method = "new") {
 			slave_fd = open(ptsname(fd), O_RDWR);
 			pid = fork();
 			if (pid == 0) {
-				logObj->out("This is the child.", Debug);
+				hjlog->out("This is the child.", Debug);
 				close(fd);
 				struct termios old_sets; //something to save the old settings to
 				struct termios new_sets;
@@ -347,7 +347,7 @@ void Server::startProgram(string method = "new") {
 				//execlp("bc", "/bc", NULL); //use this for testing
 				exit(0);
 			} else {
-				logObj->out("This is the parent.", Debug);
+				hjlog->out("This is the parent.", Debug);
 				int length = 0;
 				if (!startedRfdThread) {
 					std::jthread rfd(&Server::processServerTerminal, this);
@@ -365,27 +365,27 @@ void Server::startProgram(string method = "new") {
 			}
 			#endif
 		} else {
-			logObj->out(text.errorMethodNotValid, Error);
+			hjlog->out(text.errorMethodNotValid, Error);
 		}
 			hasMounted = true;
 	}
 }
 
 void Server::makeDir() {
-	logObj->out(text.infoCreatingDirectory, Info);
+	hjlog->out(text.infoCreatingDirectory, Info);
 	if (!fs::create_directory(path, ec)) {
-		logObj->out(text.errorCreatingDirectory, Error);
+		hjlog->out(text.errorCreatingDirectory, Error);
 	}
 }
 
 void Server::mountDrive() {
 	#if defined(_WIN64) || defined(_WIN32) //Windows doesn't need drives to be mounted manually
-	logObj->out(text.infoPOSIXdriveMount, Info);
+	hjlog->out(text.infoPOSIXdriveMount, Info);
 	hasMounted = true;
 	#else
-	logObj->out(text.infoTryingMount, Info);
+	hjlog->out(text.infoTryingMount, Info);
 	if (!fs::is_empty(path, ec)) { //if there are files, then we don't want to mount there
-		logObj->out(text.errorFilesInPath, Error);
+		hjlog->out(text.errorFilesInPath, Error);
 		return;
 	} else {
 		string error;
@@ -396,7 +396,7 @@ void Server::mountDrive() {
 		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) {
 		//brute-forces every possible filesystem because mount() depends on it being the right one
 		#endif
-			logObj->out(text.infoDeviceMounted, Info);
+			hjlog->out(text.infoDeviceMounted, Info);
 			hasMounted = true;
 			systemi = 0; //reset in case it needs to mount again
 		} else {
@@ -418,15 +418,15 @@ void Server::mountDrive() {
 					default: error = text.errnoUnknownGeneric;
 				}
 				if (!hasOutputUSB) {
-					logObj->out(text.errorMount + error, Error);
+					hjlog->out(text.errorMount + error, Error);
 					hasOutputUSB = true;
 					systemi = 0;
 				}
-				logObj->out(text.errorCode + to_string(errsv), Error);
+				hjlog->out(text.errorCode + to_string(errsv), Error);
 			}
 		}
 		if (systemi < 6) {
-			logObj->out(text.infoTryingFilesystem1 + systems[systemi] + text.infoTryingFilesystem2, Info);
+			hjlog->out(text.infoTryingFilesystem1 + systems[systemi] + text.infoTryingFilesystem2, Info);
 			systemi++; //increment the filesystem
 		}
 	}
@@ -443,7 +443,7 @@ void Server::readSettings(string confFile) {
 	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
-		logObj->out(it, Debug);
+		hjlog->out(it, Debug);
 	}
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
@@ -455,14 +455,14 @@ void Server::readSettings(string confFile) {
 		setVar(settings[5], flags);
 		setVar(settings[6], method);
 		setVar(settings[7], device);
-			logObj->out(text.debugReadingReadsettings, Debug);
+			hjlog->out(text.debugReadingReadsettings, Debug);
 	}
-	logObj->addServerName(name); //send the name of the server name to logObj so that it can associate a name with a thread id
+	hjlog->addServerName(name); //send the name of the server name to hjlog so that it can associate a name with a thread id
 	if (device == "") {
-		logObj->out(text.infoNoMount, Info);
+		hjlog->out(text.infoNoMount, Info);
 		hasMounted = true;
 	}
-	logObj->out(text.debugValidatingSettings, Debug);
+	hjlog->out(text.debugValidatingSettings, Debug);
 	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
 	remSlash(file, path, device, exec);
 	#if defined(_WIN64) || defined(_WIN32)
@@ -472,7 +472,7 @@ void Server::readSettings(string confFile) {
 
 int Server::getPID() {
 	#if defined(_WIN64) || defined(_WIN32)
-	logObj->out(text.warningTestingWindowsSupport, Warning);
+	hjlog->out(text.warningTestingWindowsSupport, Warning);
 	return pi.dwProcessId; // honestly I don't think this is necessary but whatever
 	#else
 	if (method == "new") {

@@ -22,7 +22,7 @@ using std::endl;
 namespace fs = std::filesystem;
 
 Installer::Installer(std::shared_ptr<Output> log) {
-	logObj = log;
+	hjlog = log;
 }
 
 void Installer::installNewServerConfigFile(string fileLocation, bool skipFileCheck, string flags, string serverFile) {
@@ -32,7 +32,7 @@ void Installer::installNewServerConfigFile(string fileLocation, bool skipFileChe
 		ofstream outConf(fileLocation);
 		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl << "exec=java" << endl << "flags=-jar -Xmx4G -Xms4G " + flags << endl << "file=" + serverFile << endl << "command=" << endl << "method=new" << endl << "device=" << endl;
 		outConf << text.fileServerConfComment << endl;
-		logObj->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
+		hjlog->out(text.infoCreatedServerConfig1 + fileLocation + text.infoCreatedServerConfig2, Info);
 		outConf.close();
 		if (!fs::is_regular_file(fileLocation)) {
 			throw 1;
@@ -41,8 +41,8 @@ void Installer::installNewServerConfigFile(string fileLocation, bool skipFileChe
 }
 
 void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck) {
-	logObj->out(text.infoInstallingDefHajConf + fileLocation + "...", Info);
-	logObj->out(text.infoCheckingExistingFile, Info);
+	hjlog->out(text.infoInstallingDefHajConf + fileLocation + "...", Info);
+	hjlog->out(text.infoCheckingExistingFile, Info);
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
@@ -54,7 +54,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 		outConf << "debug=0" << endl;
 		outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
 		outConf.close();
-		logObj->out(text.infoHajConfigMade1 + fileLocation + text.infoHajConfigMade2, Info);
+		hjlog->out(text.infoHajConfigMade1 + fileLocation + text.infoHajConfigMade2, Info);
 		if (!fs::is_regular_file(fileLocation)) {
 			throw 1;
 		}
@@ -63,24 +63,24 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 
 void Installer::installStartupService(string sysService) {
 	#if defined(_WIN64) || defined (_WIN32)
-	logObj->out(text.infoInstallingWStartServ, Info);
+	hjlog->out(text.infoInstallingWStartServ, Info);
 	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\Hajime.exe";
 	cout << command << endl;
 	int result = system(command.c_str());
 	if (!IsUserAnAdmin()) {
-		logObj->out(text.errorStartupServiceWindowsAdmin, Error);
-		logObj->out(text.infoTipAdministrator, Info);
+		hjlog->out(text.errorStartupServiceWindowsAdmin, Error);
+		hjlog->out(text.infoTipAdministrator, Info);
 	}
 	#else
 	if (fs::is_directory("/etc/init.d") && !fs::is_regular_file("/lib/systemd/systemd")) {
-		logObj->out(text.infoInstallingSysvinit, Info);
+		hjlog->out(text.infoInstallingSysvinit, Info);
 		bool continueInstall = true;
 		if (fs::is_regular_file("/etc/init.d/hajime.sh")) {
-			logObj->out(text.warningFoundSysvinitService, Warning);
-			logObj->out(text.questionMakeNewSysvinitService, Question, 0, 0);
-			if (logObj->getYN()) {
+			hjlog->out(text.warningFoundSysvinitService, Warning);
+			hjlog->out(text.questionMakeNewSysvinitService, Question, 0, 0);
+			if (hjlog->getYN()) {
 				continueInstall = true;
-				logObj->out(text.infoInstallingNewSysvinit, Info);
+				hjlog->out(text.infoInstallingNewSysvinit, Info);
 			} else {
 				continueInstall = false;
 			}
@@ -88,10 +88,10 @@ void Installer::installStartupService(string sysService) {
 		if (continueInstall) {
 			ofstream service("/etc/init.d/hajime.sh");
 			string user;
-			logObj->out(text.questionSysvinitUser, Question, 0, 0);
+			hjlog->out(text.questionSysvinitUser, Question, 0, 0);
 			std::cin >> user;
 			string group;
-			logObj->out(text.questionSysvinitGroup, Question, 0, 0);
+			hjlog->out(text.questionSysvinitGroup, Question, 0, 0);
 			std::cin >> group;
 			service << "#!/bin/sh\n"
 			"### BEGIN INIT INFO\n"
@@ -147,19 +147,19 @@ void Installer::installStartupService(string sysService) {
 			"esac\n"
 			"exit 0" << endl;
 			service.close();
-			logObj->out(text.infoInstalledSysvinit, Info);
+			hjlog->out(text.infoInstalledSysvinit, Info);
 		} else {
-			logObj->out(text.infoAbortedSysvinit, Info);
+			hjlog->out(text.infoAbortedSysvinit, Info);
 		}
 	} else if (fs::is_directory("/Library/LaunchAgents")) { //macOS agent directory
-		logObj->out(text.infoInstallingLaunchdServ, Info);
+		hjlog->out(text.infoInstallingLaunchdServ, Info);
 		bool continueInstall = true;
 		if (fs::is_regular_file("/Library/LaunchAgents/Hajime.plist")) {
-			logObj->out(text.warningLaunchdServPresent, Warning);
-			logObj->out(text.questionMakeLaunchdServ, Question, 0, 0);
-			if (logObj->getYN()) {
+			hjlog->out(text.warningLaunchdServPresent, Warning);
+			hjlog->out(text.questionMakeLaunchdServ, Question, 0, 0);
+			if (hjlog->getYN()) {
 					continueInstall = true;
-					logObj->out(text.infoInstallingNewLaunchdServ, Info);
+					hjlog->out(text.infoInstallingNewLaunchdServ, Info);
 			} else {
 					continueInstall = false;
 			}
@@ -183,18 +183,18 @@ void Installer::installStartupService(string sysService) {
 			"	</dict>\n"
 			"</plist>" << endl;
 			service.close();
-			logObj->out(text.infoInstalledLaunchServ, Info);
+			hjlog->out(text.infoInstalledLaunchServ, Info);
 		} else {
-			logObj->out(text.infoAbortedLaunchServ, Info);
+			hjlog->out(text.infoAbortedLaunchServ, Info);
 		}
 	} else {
 		if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysService)) {
-			logObj->out(text.warningFoundSystemdService, Warning);
+			hjlog->out(text.warningFoundSystemdService, Warning);
 		}
 		if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
-			logObj->out(text.infoMakingSystemdServ + sysService + "...", Info);
+			hjlog->out(text.infoMakingSystemdServ + sysService + "...", Info);
 			if (getuid()) {
-				logObj->out(text.errorSystemdRoot, Error);
+				hjlog->out(text.errorSystemdRoot, Error);
 			}
 			ofstream service(sysService);
 			service << "[Unit]" << endl << "Description=Starts Hajime" << endl;
@@ -202,15 +202,15 @@ void Installer::installStartupService(string sysService) {
 			service.close();
 		}
 		if (!fs::is_directory("/etc/systemd")) {
-			logObj->out(text.errorNoSystemd, Error);
+			hjlog->out(text.errorNoSystemd, Error);
 		}
 	}
 	#endif
 }
 
 void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck, std::vector<string> servers) {
-	logObj->out(text.infoInstallingServersFile + serversFile + "...", Info);
-	logObj->out(text.infoCheckingExistingServersFile, Info);
+	hjlog->out(text.infoInstallingServersFile + serversFile + "...", Info);
+	hjlog->out(text.infoCheckingExistingServersFile, Info);
 	if (fs::is_regular_file(serversFile) && !skipFileCheck) {
 		throw 0;
 	} else {
@@ -219,11 +219,11 @@ void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck
 			outConf << it << endl;
 		}
 		outConf.close();
-		logObj->out(text.infoMadeServersFile, Info);
+		hjlog->out(text.infoMadeServersFile, Info);
 		if (!fs::is_regular_file(serversFile)) {
 			throw 1;
 		}
 	}
 }
 
-Installer installer(logObj);
+Installer installer(hjlog);

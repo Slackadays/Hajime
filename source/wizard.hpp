@@ -33,17 +33,17 @@ class Wizard {
 				}
 				catch (int i) {
 					if (i == 0) {
-						logObj->out(foundFile, Warning);
-						logObj->out(text.questionInstallNewOne, Question);
-						if (logObj->getYN()) {
+						hjlog->out(foundFile, Warning);
+						hjlog->out(text.questionInstallNewOne, Question);
+						if (hjlog->getYN()) {
 							skipFileCheck = true;
 						} else {
 							return 0;
 						}
 					} else if (i == 1) {
-						logObj->out(fileNotMade, Error);
-						logObj->out(text.questionInstallNewOneAgain, Question);
-						if (!logObj->getYN()) {
+						hjlog->out(fileNotMade, Error);
+						hjlog->out(text.questionInstallNewOneAgain, Question);
+						if (!hjlog->getYN()) {
 							return 0;
 						}
 					}

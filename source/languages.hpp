@@ -9,6 +9,7 @@ class Text {
 		void applyLang(string lang);
 		Text(string lang);
 		std::vector<string> help;
+		string language;
 		string errnoNotPermitted;
 		string errnoNoFileOrDir;
 		string errnoPermissionDenied;
