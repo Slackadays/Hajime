@@ -41,16 +41,16 @@ class Output {
 			int i = 0;
 			if constexpr ((std::is_same_v<string, T> || ...)) { //check if we get a string in it or not
 				isComplex = true;
-				this->out("\n\033[1m" + string(" ─> " + text.optionChooseOptionBelow), None, 1, 1);
+				this->out("\n\033[1m" + string(" ─> " + text.option.ChooseOptionBelow), None, 1, 1);
 				(this->out(("\033[1m " + std::to_string(++i) + ")\033[0m " + options), None), ...);
-				this->out("\033[1m" + string(" ─> " + text.optionYourChoice), None, 0, 0);
+				this->out("\033[1m" + string(" ─> " + text.option.YourChoice), None, 0, 0);
 			} else {
-				this->out("\033[1m " + text.questionPrompt + ' ', None, 0, 0);
+				this->out("\033[1m " + text.question.Prompt + ' ', None, 0, 0);
 			}
 			std::getline(std::cin, response);
 			this->out("\033[0m", None, 0, 0);
 			if (!isComplex) {
-				if (std::regex_match(text.questionPrompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
+				if (std::regex_match(text.question.Prompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
 					return true;
 				}
 				else {

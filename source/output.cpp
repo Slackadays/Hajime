@@ -81,24 +81,24 @@ string Output::addPrefixByType(string input, outType type) {
 				blank = true; //None is if you want to preserve input
 				break;
 			case Info:
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[36m") + "[" + (showExplicitInfoType ? text.prefixVInfo + "|" : ""); //cyan background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[36m") + "[" + (showExplicitInfoType ? text.prefix.VInfo + "|" : ""); //cyan background
 				break;
 			case Error:
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[41m\033[33m") + "[" + (showExplicitInfoType ? text.prefixVError + "|" : ""); //red background, yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[41m\033[33m") + "[" + (showExplicitInfoType ? text.prefix.VError + "|" : ""); //red background, yellow text
 				break;
 			case Warning:
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[33m") + "[" + (showExplicitInfoType ? text.prefixVWarning + "|" : ""); //yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[33m") + "[" + (showExplicitInfoType ? text.prefix.VWarning + "|" : ""); //yellow text
 				break;
 			case Question:
 				#if defined(_WIN64) || defined (_WIN32)
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[92m") + "[" + (showExplicitInfoType ? text.prefixVQuestion + "|" : ""); //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[92m") + "[" + (showExplicitInfoType ? text.prefix.VQuestion + "|" : ""); //green background
 				#else
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[38;2;0;255;0m") + "[" + (showExplicitInfoType ? text.prefixVQuestion + "|" : ""); //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[38;2;0;255;0m") + "[" + (showExplicitInfoType ? text.prefix.VQuestion + "|" : ""); //green background
 				#endif
 				break;
 			case Debug:
 				if (debug) {
-					prefix = (showThreadsAsColors ? getColorByID() : "\033[95m") + "[" + (showExplicitInfoType ? text.prefixVDebug + "|" : "");
+					prefix = (showThreadsAsColors ? getColorByID() : "\033[95m") + "[" + (showExplicitInfoType ? text.prefix.VDebug + "|" : "");
 				} //magenta background
 				break;
 			default:
@@ -110,24 +110,24 @@ string Output::addPrefixByType(string input, outType type) {
 				blank = true; //None is if you want to preserve input
 				break;
 			case Info:
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[36m") + "[" + (showExplicitInfoType ? text.prefixInfo + "|" : ""); //cyan background(showThreadsAsColors ? getColorByID() :  )
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[36m") + "[" + (showExplicitInfoType ? text.prefix.Info + "|" : ""); //cyan background(showThreadsAsColors ? getColorByID() :  )
 				break;
 			case Error:
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[41m\033[33m") + "[" + (showExplicitInfoType ? text.prefixError + "|" : ""); //red background, yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[41m\033[33m") + "[" + (showExplicitInfoType ? text.prefix.Error + "|" : ""); //red background, yellow text
 				break;
 			case Warning:
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[33m") + "[" + (showExplicitInfoType ? text.prefixWarning + "|" : ""); //yellow text
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[33m") + "[" + (showExplicitInfoType ? text.prefix.Warning + "|" : ""); //yellow text
 				break;
 			case Question:
 				#if defined(_WIN64) || defined (_WIN32)
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[92m") + "[" + (showExplicitInfoType ? text.prefixQuestion + "|" : ""); //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[92m") + "[" + (showExplicitInfoType ? text.prefix.Question + "|" : ""); //green background
 				#else
-				prefix = (showThreadsAsColors ? getColorByID() : "\033[38;2;0;255;0m") + "[" + (showExplicitInfoType ? text.prefixQuestion + "|" : ""); //green background
+				prefix = (showThreadsAsColors ? getColorByID() : "\033[38;2;0;255;0m") + "[" + (showExplicitInfoType ? text.prefix.Question + "|" : ""); //green background
 				#endif
 				break;
 			case Debug:
 				if (debug) {
-					prefix = (showThreadsAsColors ? getColorByID() : "\033[95m") + "[" + (showExplicitInfoType ? text.prefixDebug + "|" : ""); //magenta background
+					prefix = (showThreadsAsColors ? getColorByID() : "\033[95m") + "[" + (showExplicitInfoType ? text.prefix.Debug + "|" : ""); //magenta background
 				}
 				break;
 			default:

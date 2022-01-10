@@ -65,20 +65,20 @@ void Wizard::pause(float mean, float stdev) {
 }
 
 void Wizard::doHajimeStep() {
-	hjlog->out(text.infoWizardHajimeFile, Info);
+	hjlog->out(text.info.WizardHajimeFile, Info);
 	pause(200, 200);
-	hjlog->out(text.questionMakeHajimeConfig, Question, 0, 0);
+	hjlog->out(text.question.MakeHajimeConfig, Question, 0, 0);
 	if (hjlog->getYN()) {
 		pause(400, 400);
-		wizardStep(confFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, text.errorHajFileNotMade);
+		wizardStep(confFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade);
 	}
 }
 
 void Wizard::doServerStep() {
-	hjlog->out(text.infoWizardServerFile, Info);
+	hjlog->out(text.info.WizardServerFile, Info);
 	pause(200, 200);
-	hjlog->out(text.questionWizardServerFile, Question, 1, 1);
-	int choice = hjlog->getYN(text.optionMakeServerFileManually, text.optionLetHajimeDeduce, text.optionSkipStep);
+	hjlog->out(text.question.WizardServerFile, Question, 1, 1);
+	int choice = hjlog->getYN(text.option.MakeServerFileManually, text.option.LetHajimeDeduce, text.option.SkipStep);
 	switch (choice) {
 		case 1:
 			while (true) {
@@ -88,11 +88,11 @@ void Wizard::doServerStep() {
 				}
 				string file = "server.jar";
 				string flags;
-				hjlog->out(text.questionApplyConfigToServerFile, Question);
-				switch (hjlog->getYN(text.optionDoManually, text.optionLetHajimeDeduce, text.optionSkipStep)) {
+				hjlog->out(text.question.ApplyConfigToServerFile, Question);
+				switch (hjlog->getYN(text.option.DoManually, text.option.LetHajimeDeduce, text.option.SkipStep)) {
 					case 1:
-						hjlog->out(text.questionUseFlags, Question);
-						switch (hjlog->getYN(text.optionAikarFlags, text.optionHillttyFlags, text.optionFroggeMCFlags, text.optionBasicZGCFlags, text.optionCustomFlags, text.optionSkipStep)) {
+						hjlog->out(text.question.UseFlags, Question);
+						switch (hjlog->getYN(text.option.AikarFlags, text.option.HillttyFlags, text.option.FroggeMCFlags, text.option.BasicZGCFlags, text.option.CustomFlags, text.option.SkipStep)) {
 							case 1:
 								flags = aikarFlags;
 								break;
@@ -105,42 +105,42 @@ void Wizard::doServerStep() {
 							case 4:
 								flags = basicZGCFlags;
 							case 5:
-								hjlog->out(text.questionEnterCustomFlags, Question);
+								hjlog->out(text.question.EnterCustomFlags, Question);
 								std::getline(std::cin, flags);
 							case 6:
 								flags = "";
 								break;
 						}
-						hjlog->out(text.questionUseDefaultServerFile1 + file + text.questionUseDefaultServerFile2, Question);
-						switch (hjlog->getYN(text.optionUseDefault, text.optionLetHajimeDeduce, text.optionEnterManually, text.optionSkipStep)) {
+						hjlog->out(text.question.UseDefaultServerFile1 + file + text.question.UseDefaultServerFile2, Question);
+						switch (hjlog->getYN(text.option.UseDefault, text.option.LetHajimeDeduce, text.option.EnterManually, text.option.SkipStep)) {
 							case 1:
 								break;
 							case 2:
-								hjlog->out(text.errorOptionNotAvailable, Error);
+								hjlog->out(text.error.OptionNotAvailable, Error);
 								break;
 							case 3:
-								hjlog->out(text.questionEnterNewServerFile, Question);
+								hjlog->out(text.question.EnterNewServerFile, Question);
 								std::getline(std::cin, file);
 								break;
 							case 4:
 								file = "";
 								break;
 						}
-						hjlog->out(text.infoInstallingDefServConf + serverFile + "...", Info);
-						if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warningFoundServerConfPlusFile + serverFile, text.errorServerConfNotCreated, flags, file)) {
+						hjlog->out(text.info.InstallingDefServConf + serverFile + "...", Info);
+						if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);
 						}
-						hjlog->out(text.infoInstallingNewServConf + serverFile + "...", Info);
+						hjlog->out(text.info.InstallingNewServConf + serverFile + "...", Info);
 						break;
 					case 2:
-						hjlog->out(text.errorOptionNotAvailable, Error);
+						hjlog->out(text.error.OptionNotAvailable, Error);
 						break;
 					case 3:
 						break;
 				}
-				hjlog->out(text.questionCreateAnotherServerFile, Question);
+				hjlog->out(text.question.CreateAnotherServerFile, Question);
 				if (hjlog->getYN()) {
-					hjlog->out(text.infoEnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.infoEnterNewNameForServer2, Info, 0, 0);
+					hjlog->out(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2, Info, 0, 0);
 					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);
@@ -151,7 +151,7 @@ void Wizard::doServerStep() {
 			installedS = true;
 			break;
 		case 2:
-			hjlog->out(text.errorOptionNotAvailable, Error);
+			hjlog->out(text.error.OptionNotAvailable, Error);
 			break;
 		case 3:
 			break;
@@ -159,18 +159,18 @@ void Wizard::doServerStep() {
 }
 
 void Wizard::doServersStep() {
-	hjlog->out(text.infoWizardServersFile, Info);
-	hjlog->out(text.questionWizardServersFile, Question);
+	hjlog->out(text.info.WizardServersFile, Info);
+	hjlog->out(text.question.WizardServersFile, Question);
 	if (hjlog->getYN()) {
 		pause(500, 800);
-		wizardStep(serversFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated, servers);
+		wizardStep(serversFile, installer.installDefaultServersFile, text.error.ServersFilePresent, text.error.ServersFileNotCreated, servers);
 	}
 }
 
 void Wizard::doStartupStep() {
-	hjlog->out(text.infoWizardStartupService, Info);
+	hjlog->out(text.info.WizardStartupService, Info);
 	pause(200, 200);
-	hjlog->out(text.questionWizardStartupService, Question);
+	hjlog->out(text.question.WizardStartupService, Question);
 	if (hjlog->getYN()) {
 		pause(400, 400);
 		installer.installStartupService(sysdService);
@@ -180,15 +180,15 @@ void Wizard::doStartupStep() {
 void Wizard::doNextStepStep() {
 	if (installedS) {
 		if (servers.size() == 1) {
-			hjlog->out(text.infoWizardNextStepServerFile1 + servers[0] + text.infoWizardNextStepServerFile2, Info);
+			hjlog->out(text.info.WizardNextStepServerFile1 + servers[0] + text.info.WizardNextStepServerFile2, Info);
 		} else if (servers.size() == 2) {
-			hjlog->out(text.infoWizardNextStepServerFile1 + servers[0] + " & " + servers[1] + text.infoWizardNextStepServerFile2, Info);
+			hjlog->out(text.info.WizardNextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.WizardNextStepServerFile2, Info);
 		} else if (servers.size() > 2) {
-			hjlog->out(text.infoWizardNextStepServerFile1, Info, 0, 0);
+			hjlog->out(text.info.WizardNextStepServerFile1, Info, 0, 0);
 			for (int i = 0; i < (servers.size() - 1); i++) {
 				hjlog->out(servers[i] + ", ", None, 0, 0);
 			}
-			hjlog->out("& " + servers.back() + text.infoWizardNextStepServerFile2, None);
+			hjlog->out("& " + servers.back() + text.info.WizardNextStepServerFile2, None);
 		}
 	}
 }
@@ -213,7 +213,7 @@ void Wizard::initialHajimeSetup(string tempConfFile, string tempServersFile, str
 	doStartupStep();
 	pause(400, 400);
 	dividerLine();
-	hjlog->out(text.infoWizardComplete, Info);
+	hjlog->out(text.info.WizardComplete, Info);
 	pause(200, 200);
 	doNextStepStep();
 	pause(400, 400);

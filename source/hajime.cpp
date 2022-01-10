@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 			if ((i < (argc - 1)) && string(argv[i + 1]).front() != '-') {
 				text.applyLang(argv[i + 1]);
 			} else {
-				hjlog->out(text.errorNotEnoughArgs, Error);
+				hjlog->out(text.error.NotEnoughArgs, Error);
 				return 0;
 			}
 		}
@@ -88,13 +88,13 @@ int main(int argc, char *argv[]) {
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
 		if (flag("-f", "--server-file")) {
 			if (!assignNextToVar(defaultServerConfFile)) {
-				hjlog->out(text.errorNotEnoughArgs, Error);
+				hjlog->out(text.error.NotEnoughArgs, Error);
 				return 0;
 			}
 		}
 		if (flag("-hf", "--hajime-file")) {
 			if (!assignNextToVar(hajDefaultConfFile)) {
-				hjlog->out(text.errorNotEnoughArgs, Error);
+				hjlog->out(text.error.NotEnoughArgs, Error);
 				return 0;
 			}
 		}
@@ -102,15 +102,15 @@ int main(int argc, char *argv[]) {
 			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
 				hajDefaultConfFile = var;
 			}
-			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warningFoundHajConf, text.errorHajFileNotMade);
+			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade);
 			return 0;
 		}
 		if (flag("-ss", "--install-servers-file")) {
-			wizard.wizardStep(defaultServersFile, installer.installDefaultServersFile, text.errorServersFilePresent, text.errorServersFileNotCreated, std::vector<string>{defaultServerConfFile});
+			wizard.wizardStep(defaultServersFile, installer.installDefaultServersFile, text.error.ServersFilePresent, text.error.ServersFileNotCreated, std::vector<string>{defaultServerConfFile});
 			return 0;
 		}
 		if (flag("-s", "--install-default-server")) {
-			wizard.wizardStep(defaultServerConfFile, installer.installNewServerConfigFile, text.warningFoundServerConfPlusFile + defaultServerConfFile, text.errorServerConfNotCreated, "", "server.jar");
+			wizard.wizardStep(defaultServerConfFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + defaultServerConfFile, text.error.ServerConfNotCreated, "", "server.jar");
 			return 0;
 		}
 		if (flag("-S", "--install-service")) {
@@ -145,28 +145,28 @@ int main(int argc, char *argv[]) {
 	}
 	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
-		empty(logFile) ? hjlog->out(text.infoNoLogFile, Info) : hjlog->init(logFile);
+		empty(logFile) ? hjlog->out(text.info.NoLogFile, Info) : hjlog->init(logFile);
 	} else {
-		hjlog->out(text.errorConfDoesNotExist1 + hajDefaultConfFile + text.errorConfDoesNotExist2, Error);
-		hjlog->out(text.questionDoSetupInstaller, Question);
-		switch (hjlog->getYN(text.optionAttendedInstallation, text.optionUnattendedInstallation, text.optionSkipSetup)) {
+		hjlog->out(text.error.ConfDoesNotExist1 + hajDefaultConfFile + text.error.ConfDoesNotExist2, Error);
+		hjlog->out(text.question.DoSetupInstaller, Question);
+		switch (hjlog->getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
 			case 1:
 				dividerLine();
 				wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
-				hjlog->out(text.questionStartHajime, Question);
+				hjlog->out(text.question.StartHajime, Question);
 				if (!hjlog->getYN()) {
 					return 0;
 				}
 				break;
 			case 2:
-				hjlog->out(text.errorOptionNotAvailable, Error);
+				hjlog->out(text.error.OptionNotAvailable, Error);
 				break;
 			case 3:
 				return 0;
 		}
 	}
 	if (!fs::is_regular_file(defaultServersFile)) {
-		hjlog->out(text.errorNoServersFile, Error);
+		hjlog->out(text.error.NoServersFile, Error);
 		return 0;
 	}
 	Server server(hjlog); //create a template object
@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
 		threadVec.push_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 	while(true) { //future command processing
-		hjlog->out(text.infoEnterCommand, Info);
+		hjlog->out(text.info.EnterCommand, Info);
 		string command = "";
 		std::getline(std::cin, command);
 		processHajimeCommand(toVec(command));
@@ -186,21 +186,21 @@ int main(int argc, char *argv[]) {
 bool readSettings() {
 	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "debug"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		hjlog->out(text.debugHajDefConfNoExist1 + hajDefaultConfFile + text.debugHajDefConfNoExist2, Debug);
+		hjlog->out(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2, Debug);
 		return 0;
 	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
 		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
-		hjlog->out(text.debugReadingReadsettings, Debug);
+		hjlog->out(text.debug.ReadingReadsettings, Debug);
 		setVar(settings[0], defaultServersFile);
 		setVar(settings[1], defaultServerConfFile);
 		setVar(settings[2], logFile);
 		setVar(settings[3], sysdService);
 		setVari(settings[4], hjlog->debug);
 	}
-	hjlog->out(text.debugReadReadsettings + hajDefaultConfFile, Debug);
+	hjlog->out(text.debug.ReadReadsettings + hajDefaultConfFile, Debug);
 	return 1;
 }
 
@@ -245,22 +245,22 @@ void processHajimeCommand(vector<string> input) {
 		if (input.size() >= 2) {
 			try {
 				if (stoi(input[1]) > input.size() || stoi(input[1]) < 1) {
-					hjlog->out(text.errorInvalidServerNumber, Error);
+					hjlog->out(text.error.InvalidServerNumber, Error);
 				} else {
 					serverVec[stoi(input[1]) - 1].terminalAccessWrapper();
 				}
 			} catch (...) {
-				hjlog->out(text.errorServerSelectionInvalid, Error);
+				hjlog->out(text.error.ServerSelectionInvalid, Error);
 			}
 		} else {
-			hjlog->out(text.errorNotEnoughArgs, Error);
+			hjlog->out(text.error.NotEnoughArgs, Error);
 		}
 	} else if (input[0] == "ee" && ee && text.language == "en") {
 		hjlog->out("https://www.youtube.com/watch?v=ccY25Cb3im0");
 	} else if (input[0] == "ee" && ee && text.language == "es") {
 		hjlog->out("https://www.youtube.com/watch?v=iFClTRUnmKc");
 	} else {
-		hjlog->out(text.errorInvalidCommand, Error);
-		hjlog->out(text.errorInvalidHajCommand1, Error);
+		hjlog->out(text.error.InvalidCommand, Error);
+		hjlog->out(text.error.InvalidHajCommand1, Error);
 	}
 }
