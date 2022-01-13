@@ -72,9 +72,10 @@ class Server {
 	inline static PROCESS_INFORMATION pi; // can get process handle and pid from this
 	inline static HANDLE inputread, inputwrite, outputread, outputwrite; // pipes for reading/writing
 	#else
-	inline static std::atomic<int> slave_fd, fd, pid, uptime;
+	inline static std::atomic<int> slave_fd, fd, pid;
 	inline static struct winsize w;
 	#endif
+	inline static std::atomic<int> uptime;
 
 	bool startedRfdThread = false;
 
