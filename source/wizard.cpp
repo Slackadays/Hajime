@@ -65,7 +65,7 @@ void Wizard::pause(float mean, float stdev) {
 }
 
 void Wizard::doHajimeStep() {
-	hjlog->out(text.info.WizardHajimeFile, Info);
+	hjlog->out(text.info.wizard.HajimeFile, Info);
 	pause(200, 200);
 	hjlog->out(text.question.MakeHajimeConfig, Question, 0, 0);
 	if (hjlog->getYN()) {
@@ -75,7 +75,7 @@ void Wizard::doHajimeStep() {
 }
 
 void Wizard::doServerStep() {
-	hjlog->out(text.info.WizardServerFile, Info);
+	hjlog->out(text.info.wizard.ServerFile, Info);
 	pause(200, 200);
 	hjlog->out(text.question.WizardServerFile, Question, 1, 1);
 	int choice = hjlog->getYN(text.option.MakeServerFileManually, text.option.LetHajimeDeduce, text.option.SkipStep);
@@ -159,7 +159,7 @@ void Wizard::doServerStep() {
 }
 
 void Wizard::doServersStep() {
-	hjlog->out(text.info.WizardServersFile, Info);
+	hjlog->out(text.info.wizard.ServersFile, Info);
 	hjlog->out(text.question.WizardServersFile, Question);
 	if (hjlog->getYN()) {
 		pause(500, 800);
@@ -168,7 +168,7 @@ void Wizard::doServersStep() {
 }
 
 void Wizard::doStartupStep() {
-	hjlog->out(text.info.WizardStartupService, Info);
+	hjlog->out(text.info.wizard.StartupService, Info);
 	pause(200, 200);
 	hjlog->out(text.question.WizardStartupService, Question);
 	if (hjlog->getYN()) {
@@ -180,15 +180,15 @@ void Wizard::doStartupStep() {
 void Wizard::doNextStepStep() {
 	if (installedS) {
 		if (servers.size() == 1) {
-			hjlog->out(text.info.WizardNextStepServerFile1 + servers[0] + text.info.WizardNextStepServerFile2, Info);
+			hjlog->out(text.info.wizard.NextStepServerFile1 + servers[0] + text.info.wizard.NextStepServerFile2, Info);
 		} else if (servers.size() == 2) {
-			hjlog->out(text.info.WizardNextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.WizardNextStepServerFile2, Info);
+			hjlog->out(text.info.wizard.NextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.wizard.NextStepServerFile2, Info);
 		} else if (servers.size() > 2) {
-			hjlog->out(text.info.WizardNextStepServerFile1, Info, 0, 0);
+			hjlog->out(text.info.wizard.NextStepServerFile1, Info, 0, 0);
 			for (int i = 0; i < (servers.size() - 1); i++) {
 				hjlog->out(servers[i] + ", ", None, 0, 0);
 			}
-			hjlog->out("& " + servers.back() + text.info.WizardNextStepServerFile2, None);
+			hjlog->out("& " + servers.back() + text.info.wizard.NextStepServerFile2, None);
 		}
 	}
 }
@@ -213,7 +213,7 @@ void Wizard::initialHajimeSetup(string tempConfFile, string tempServersFile, str
 	doStartupStep();
 	pause(400, 400);
 	dividerLine();
-	hjlog->out(text.info.WizardComplete, Info);
+	hjlog->out(text.info.wizard.Complete, Info);
 	pause(200, 200);
 	doNextStepStep();
 	pause(400, 400);

@@ -24,6 +24,7 @@
 #include <chrono>
 #include <filesystem>
 #include <errno.h>
+#include <chrono>
 
 #include "getvarsfromfile.hpp"
 #include "output.hpp"
@@ -56,6 +57,7 @@ class Server {
 	void processServerCommand(string input);
 	void mountDrive();
 	void makeDir();
+	void updateUptime();
 	void startProgram(string method);
 	void readSettings(string confFile);
 	void removeSlashesFromEnd(string& var);
@@ -75,7 +77,10 @@ class Server {
 	inline static std::atomic<int> slave_fd, fd, pid;
 	inline static struct winsize w;
 	#endif
+
 	inline static std::atomic<int> uptime;
+	inline static std::chrono::time_point<std::chrono::steady_clock> timeStart;
+	inline static std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
 
 	bool startedRfdThread = false;
 

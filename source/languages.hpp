@@ -6,6 +6,8 @@ using std::string;
 
 class Text {
 	public:
+		void autoSetLanguage();
+		string getUserLanguage();
 		void applyLang(string lang);
 		Text(string lang);
 		std::vector<string> help;
@@ -151,13 +153,6 @@ class Text {
 			string CreatingDirectory;
 			string DeviceMounted;
 			string NoMount;
-			string WizardHajimeFile;
-			string WizardServersFile;
-			string WizardServerFile;
-			string WizardStartupService;
-			string WizardComplete;
-			string WizardNextStepServerFile1;
-			string WizardNextStepServerFile2;
 			string InstallingDefServConf;
 			string InstallingNewServConf;
 			string InstallingDefHajConf;
@@ -177,6 +172,16 @@ class Text {
 			string EnterNewNameForServer1;
 			string EnterNewNameForServer2;
 			string EnterCommand;
+			struct Wizard {
+				string HajimeFile;
+				string ServersFile;
+				string ServerFile;
+				string StartupService;
+				string Complete;
+				string NextStepServerFile1;
+				string NextStepServerFile2;
+			};
+			Wizard wizard;
 		};
 		Info info;
 		struct Debug {
@@ -184,14 +189,17 @@ class Text {
 			string HajDefConfNoExist2;
 			string ReadingReadsettings;
 			string ReadReadsettings;
-			string FlagVecInFor;
-			string FlagVecOutFor;
 			string UsingOldMethod;
 			string UsingNewMethod;
 			string Flags;
-			string FlagArray0;
-			string FlagArray1;
 			string ValidatingSettings;
+			struct Flag {
+				string Array0;
+				string Array1;
+				string VecInFor;
+				string VecOutFor;
+			};
+			Flag flag;
 		};
 		Debug debug;
 		string fileServerConfComment;

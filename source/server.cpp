@@ -87,7 +87,7 @@ void Server::processServerCommand(string input) {
 	}
 	if (std::regex_search(input, std::regex("\\.h(elp){0,1}(?![\\w])", std::regex_constants::optimize))) {
 		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Roll over a command to show its action."));
-		writeToServerTerminal(tellrawWrapper("[{\"text\":\".coinflip, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bFlip a coin.\"}},{\"text\":\".die, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bRoll a die.\"}},{\"text\":\".discord, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime Discord invite.\"}},{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"}},{\"text\":\".time\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"}}]"));
+		writeToServerTerminal(tellrawWrapper("[{\"text\":\".coinflip, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bFlip a coin.\"}},{\"text\":\".die, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bRoll a die.\"}},{\"text\":\".discord, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime Discord invite.\"}},{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"}},{\"text\":\".name, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's name in Hajime.\"}},{\"text\":\".time\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"}},{\"text\":\".uptime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's uptime.\"}}]"));
 		return;
 	}
 	if (std::regex_search(input, std::regex("\\.die(?![\\w])", std::regex_constants::optimize))) {
@@ -180,6 +180,13 @@ string Server::readFromServer() {
 	return output;
 }
 
+void Server::updateUptime() {
+	timeCurrent = std::chrono::steady_clock::now();
+	auto tempUptime = std::chrono::duration_cast<std::chrono::minutes>(timeCurrent - timeStart);
+	uptime = tempUptime.count();
+	hjlog->out("uptime = " + to_string(uptime), Debug);
+}
+
 void Server::terminalAccessWrapper() {
 	hjlog->normalDisabled = true;
 	std::cout << "----->" << name << std::endl;
@@ -205,6 +212,7 @@ void Server::terminalAccessWrapper() {
 }
 
 void Server::startServer(string confFile) {
+	uptime = 0;
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
 			hjlog->out(text.info.ReadingServerSettings, Info);
@@ -270,6 +278,7 @@ void Server::startServer(string confFile) {
 				//CloseHandle(outputwrite);
 				#endif
 			}
+			updateUptime();
 		}
 	} catch(string s) {
 		hjlog->out(s);
@@ -302,13 +311,13 @@ vector<string> Server::toArray(string input) {
 		} else {
 			addToEndVector.push_back(temp); //add an end-dependent flag to this special vector
 		}
-		hjlog->out(text.debug.FlagVecInFor + flagVector[0], Debug);
+		hjlog->out(text.debug.flag.VecInFor + flagVector[0], Debug);
 	}
 	flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
 	for (const auto& it : addToEndVector) { //tack on the end-dependent flags that have to come after the file we want to run
 		flagVector.push_back(it);
 	}
-	hjlog->out(text.debug.FlagVecOutFor + flagVector[0], Debug);
+	hjlog->out(text.debug.flag.VecOutFor + flagVector[0], Debug);
 	return flagVector;
 }
 
@@ -322,7 +331,6 @@ auto Server::toPointerArray(vector<string> &strings) {
 }
 
 void Server::startProgram(string method = "new") {
-	uptime = 70; //placeholder
 	if (!isRunning) {
 		hjlog->out(text.info.TryingToStartProgram, Info);
 		fs::current_path(path);
@@ -362,8 +370,8 @@ void Server::startProgram(string method = "new") {
 			hjlog->out(text.debug.Flags + flags, Debug);
 			auto flagTemp = toArray(flags);
 			auto flagArray = toPointerArray(flagTemp);
-			hjlog->out(text.debug.FlagArray0 + (string)flagArray[0], Debug);
-			hjlog->out(text.debug.FlagArray1 + (string)flagArray[1], Debug);
+			hjlog->out(text.debug.flag.Array0 + (string)flagArray[0], Debug);
+			hjlog->out(text.debug.flag.Array1 + (string)flagArray[1], Debug);
 			wantsLiveOutput = false;
 			fd = posix_openpt(O_RDWR);
 			grantpt(fd);
@@ -394,6 +402,7 @@ void Server::startProgram(string method = "new") {
 				exit(0);
 			} else {
 				hjlog->out("This is the parent.", Debug);
+				timeStart = std::chrono::steady_clock::now();
 				int length = 0;
 				if (!startedRfdThread) {
 					std::jthread rfd(&Server::processServerTerminal, this);
