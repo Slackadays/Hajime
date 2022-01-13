@@ -108,7 +108,17 @@ void Server::processServerCommand(string input) {
 		return;
 	}
 	if (std::regex_search(input, std::regex("\\.discord(?![\\w])", std::regex_constants::optimize))) {
-		string hajInfo = "[\"§6[Hajime] §fJoin the official Hajime Discord at \",{\"text\":\"https://discord.gg/J6asnc3pEG!\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://discord.gg/J6asnc3pEG\"}}]";
+		string hajInfo = "[\"§6[Hajime] §fJoin the official Hajime Discord at \",{\"text\":\"https://discord.gg/J6asnc3pEG\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://discord.gg/J6asnc3pEG\"}}]";
+		writeToServerTerminal(tellrawWrapper(hajInfo));
+		return;
+	}
+	if (std::regex_search(input, std::regex("\\.name(?![\\w])", std::regex_constants::optimize))) {
+		string hajInfo = "§6[Hajime]§f This server's name is §b" + name;
+		writeToServerTerminal(tellrawWrapper(hajInfo));
+		return;
+	}
+	if (std::regex_search(input, std::regex("\\.uptime(?![\\w])", std::regex_constants::optimize))) {
+		string hajInfo = "§6[Hajime]§f This server's uptime is §b" + std::to_string(uptime) + "§f minutes (§b" + std::to_string(uptime / 60.0) + "§f hours)";
 		writeToServerTerminal(tellrawWrapper(hajInfo));
 		return;
 	}
@@ -312,6 +322,7 @@ auto Server::toPointerArray(vector<string> &strings) {
 }
 
 void Server::startProgram(string method = "new") {
+	uptime = 70; //placeholder
 	if (!isRunning) {
 		hjlog->out(text.info.TryingToStartProgram, Info);
 		fs::current_path(path);
