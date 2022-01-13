@@ -26,6 +26,8 @@
 #include <errno.h>
 #include <regex>
 #include <ctime>
+//#include <format>
+#include <random>
 
 #ifdef _MSC_VER
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
@@ -73,18 +75,53 @@ void Server::processServerCommand(string input) {
 	if (std::regex_search(input, std::regex("\\.hajime(?![\\w])", std::regex_constants::optimize))) {
 		string hajInfo = "tellraw @a [\"§6[Hajime] §fThis server is using \",{\"text\":\"Hajime 0.1.9\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https:\/\/hajime.sh\"}}]";
 		writeToServerTerminal(hajInfo);
+		return;
 	}
 	if (std::regex_search(input, std::regex("\\.time(?![\\w])", std::regex_constants::optimize))) {
 		std::time_t timeNow = std::time(nullptr);
 		string stringTimeNow = std::asctime(std::localtime(&timeNow));
 		stringTimeNow.erase(std::remove(stringTimeNow.begin(), stringTimeNow.end(), '\n'), stringTimeNow.end());
-		string hajInfo = "tellraw @a \"§6[Hajime]§f This server's local time is §3" + stringTimeNow + '\"';
+		string hajInfo = "tellraw @a \"§6[Hajime]§f This server's local time is §b" + stringTimeNow + '\"';
 		writeToServerTerminal(hajInfo);
+		return;
 	}
 	if (std::regex_search(input, std::regex("\\.h(elp){0,1}(?![\\w])", std::regex_constants::optimize))) {
-		writeToServerTerminal("tellraw @a \"§6[Hajime]§f Roll over a command to show its action.\"");
-		writeToServerTerminal("tellraw @a [{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"}},{\"text\":\".time\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"}}]");
+		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Roll over a command to show its action."));
+		writeToServerTerminal(tellrawWrapper("[{\"text\":\".coinflip, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bFlip a coin.\"}},{\"text\":\".die, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bRoll a die.\"}},{\"text\":\".discord, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime Discord invite.\"}},{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"}},{\"text\":\".time\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"}}]"));
+		return;
 	}
+	if (std::regex_search(input, std::regex("\\.die(?![\\w])", std::regex_constants::optimize))) {
+		std::random_device rand;
+		std::uniform_int_distribution<int> die(1, 6);
+		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Rolled a die and got §b" + std::to_string(die(rand))));
+		//switch this to C++20 format when it becomes supported
+		return;
+	}
+	if (std::regex_search(input, std::regex("\\.coinflip(?![\\w])", std::regex_constants::optimize))) {
+		std::random_device rand;
+		std::uniform_int_distribution<int> flip(1, 2);
+		if (flip(rand) == 1) {
+			writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Flipped a coin and got §bheads"));
+		} else {
+			writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Flipped a coin and got §btails"));
+		}
+		return;
+	}
+	if (std::regex_search(input, std::regex("\\.discord(?![\\w])", std::regex_constants::optimize))) {
+		string hajInfo = "[\"§6[Hajime] §fJoin the official Hajime Discord at \",{\"text\":\"https://discord.gg/J6asnc3pEG!\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://discord.gg/J6asnc3pEG\"}}]";
+		writeToServerTerminal(tellrawWrapper(hajInfo));
+		return;
+	}
+}
+
+string Server::tellrawWrapper(string input) {
+	string output;
+	if (input.front() == '[' && input.back() == ']') {
+		output = "tellraw @a " + input;
+	} else {
+		output = "tellraw @a \"" + input + "\"";
+	}
+	return output;
 }
 
 void Server::writeToServerTerminal(string input) {

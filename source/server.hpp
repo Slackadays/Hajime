@@ -49,6 +49,7 @@ class Server {
 
 	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
+	string tellrawWrapper(string input);
 	string readFromServer();
 	void writeToServerTerminal(string input);
 	void processTerminalBuffer(string input);
