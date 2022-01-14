@@ -1,7 +1,10 @@
+#include <string>
+
 class Deduce {
 
 	public:
-		void deduceServerFile();
+		std::string deduceServerFile();
+		std::string deduceUsagePattern();
 };
 
 extern Deduce deducer;

@@ -40,18 +40,20 @@ void Installer::installNewServerConfigFile(string fileLocation, bool skipFileChe
 	}
 }
 
-void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck) {
+void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck, string lang) {
 	hjlog->out(text.info.InstallingDefHajConf + fileLocation + "...", Info);
 	hjlog->out(text.info.CheckingExistingFile, Info);
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
 		ofstream outConf(fileLocation);
+		outConf << "version=0.1.10" << endl;
 		outConf << "serversfile=servers.conf" << endl;
 		outConf << "defserverconf=MyServer.conf" << endl;
-		outConf << "logfile=" << endl;
-		outConf << "lang=en" << endl;
+		outConf << "logfile=hajime.log" << endl;
+		outConf << "lang=" << lang << endl;
 		outConf << "debug=0" << endl;
+		outConf << "threadcolors=1" << endl;
 		outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
 		outConf.close();
 		hjlog->out(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2, Info);

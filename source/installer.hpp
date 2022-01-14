@@ -21,7 +21,7 @@ class Installer {
 	public:
 		void installStartupService(string sysService);
 		static void installNewServerConfigFile(string fileLocation, bool skipFileCheck, string flags, string serverFile);
-		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false);
+		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false, string lang = "en");
 		static void installDefaultServersFile(string serversFile, bool skipFileCheck = false, std::vector<string> servers = {"MyServer"});
 		Installer(std::shared_ptr<Output> log);
 };

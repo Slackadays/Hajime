@@ -70,7 +70,25 @@ void Wizard::doHajimeStep() {
 	hjlog->out(text.question.MakeHajimeConfig, Question, 0, 0);
 	if (hjlog->getYN()) {
 		pause(400, 400);
-		wizardStep(confFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade);
+		hjlog->out("What language would you like Hajime to be in?", Question);
+		string defaultLang = "";
+		switch (hjlog->getYN(string("The current language (" + text.language + ")"), "English", "Español", "Português", "None (Detect on startup)")) {
+			case 1:
+				defaultLang = text.language;
+				break;
+			case 2:
+				defaultLang = "en";
+				break;
+			case 3:
+				defaultLang = "es";
+				break;
+			case 4:
+				defaultLang = "pt";
+				break;
+			case 5:
+				break;
+		}
+		wizardStep(confFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, defaultLang);
 	}
 }
 

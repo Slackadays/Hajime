@@ -33,25 +33,24 @@ void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd
 		endLineAtEnd = false;
 	}
 	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
-	if (noColors || logToFile) {
+	if (noColors) {
 		outputString = std::regex_replace(outputString, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 	}
-	if (!logToFile) {
-		std::lock_guard<std::mutex> lock(outMutex);
-		if (type == Error) {
-			std::cerr << outputString;
-		} else {
-			std::cout << outputString;
-		}
-		if (endLineAtEnd) {
-			if (type == Error) {
-				std::cerr << std::endl;
-			} else {
-				std::cout << std::endl;
-			}
-		}
+	std::lock_guard<std::mutex> lock(outMutex);
+	if (type == Error) {
+		std::cerr << outputString;
 	} else {
-		std::lock_guard<std::mutex> lock(outMutex);
+		std::cout << outputString;
+	}
+	if (endLineAtEnd) {
+		if (type == Error) {
+			std::cerr << std::endl;
+		} else {
+			std::cout << std::endl;
+		}
+	}
+	if (logToFile) {
+		outputString = std::regex_replace(outputString, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 		fileObj << outputString;
 		if (endLineAtEnd) {
 			fileObj << std::endl;
@@ -175,9 +174,9 @@ string Output::getColorByID() {
 	if (threadToNameMap.count(std::this_thread::get_id())) { //do not access threadtonamemap directly because doing so would add the thread id as a key
 		selection = hasher(threadToNameMap[std::this_thread::get_id()]) % 211;
 	} else if (std::this_thread::get_id() == main_thread) {
-		return "\033[36m";
+		return "\033[96m";
 	} else {
-		return "";
+		return "\033[36m";
 	}
 	float dummy;
  	float bgID = std::modf(selection / 14.0, &dummy);

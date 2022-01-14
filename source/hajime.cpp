@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
 			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
 				hajDefaultConfFile = var;
 			}
-			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade);
+			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, text.language);
 			return 0;
 		}
 		if (flag("-ss", "--install-servers-file")) {
@@ -138,6 +138,9 @@ int main(int argc, char *argv[]) {
 		}
 		if (flag("-tc", "--thread-colors")) {
 			hjlog->showThreadsAsColors = true;
+		}
+		if (flag("-ntc", "--no-thread-colors")) {
+			hjlog->showThreadsAsColors = false;
 		}
 		if (flag("-it", "--show-info-type")) {
 			hjlog->showExplicitInfoType = true;

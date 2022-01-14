@@ -25,7 +25,7 @@ class Wizard {
 		void initialHajimeSetup(string tempConfFile, string tempServersFile, string tempServerFile, string tempSysdService);
 
 		template<typename Fn, typename ...Fx>
-		bool wizardStep(string filename, Fn func, string foundFile, string fileNotMade, Fx... extras) {
+		bool wizardStep(string filename, Fn func, string foundFile, string fileNotMade, Fx... extras) { //allow for 0 or more extra flags to be passed to the inner function that we call
 			for (bool skipFileCheck = false; true;) {
 				try {
 					func(filename, skipFileCheck, extras...);
