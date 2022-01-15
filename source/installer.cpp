@@ -66,7 +66,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 void Installer::installStartupService(string sysService) {
 	#if defined(_WIN64) || defined (_WIN32)
 	hjlog->out(text.info.InstallingWStartServ, Info);
-	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\Hajime.exe";
+	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\hajime.exe";
 	cout << command << endl;
 	int result = system(command.c_str());
 	if (!IsUserAnAdmin()) {
