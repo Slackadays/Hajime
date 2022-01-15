@@ -87,7 +87,7 @@ void Server::processServerCommand(string input) {
 	}
 	if (std::regex_search(input, std::regex("\\.h(elp){0,1}(?![\\w])", std::regex_constants::optimize))) {
 		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Roll over a command to show its action."));
-		writeToServerTerminal(tellrawWrapper("[{\"text\":\".coinflip, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bFlip a coin.\"}},{\"text\":\".die, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bRoll a die.\"}},{\"text\":\".discord, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime Discord invite.\"}},{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"}},{\"text\":\".name, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's name in Hajime.\"}},{\"text\":\".time\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"}},{\"text\":\".uptime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's uptime.\"}}]"));
+		writeToServerTerminal(tellrawWrapper("[{\"text\":\".coinflip, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bFlip a coin.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".coinflip\"}},{\"text\":\".die, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bRoll a die.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".die\"}},{\"text\":\".discord, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime Discord invite.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".discord\"}},{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".hajime\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".help\"}},{\"text\":\".name, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's name in Hajime.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".name\"}},{\"text\":\".time, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".time\"}},{\"text\":\".uptime \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's uptime.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".uptime\"}}]"));
 		return;
 	}
 	if (std::regex_search(input, std::regex("\\.die(?![\\w])", std::regex_constants::optimize))) {
@@ -187,6 +187,18 @@ void Server::updateUptime() {
 	hjlog->out("uptime = " + to_string(uptime), Debug);
 }
 
+void Server::processAutoRestart() {
+	if (restartMins > 0 && uptime >= restartMins) {
+		writeToServerTerminal("stop");
+	}	else if (restartMins > 0 && uptime >= (restartMins - 5) && !said5MinRestart) {
+		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f This server is restarting in §b5 §fminutes"));
+		said5MinRestart = true;
+	} else if (restartMins > 0 && uptime >= (restartMins - 15) && !said15MinRestart) {
+		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f This server is restarting in §b15 §fminutes"));
+		said15MinRestart = true;
+	}
+}
+
 void Server::terminalAccessWrapper() {
 	hjlog->normalDisabled = true;
 	std::cout << "----->" << name << std::endl;
@@ -212,7 +224,6 @@ void Server::terminalAccessWrapper() {
 }
 
 void Server::startServer(string confFile) {
-	uptime = 0;
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
 			hjlog->out(text.info.ReadingServerSettings, Info);
@@ -279,6 +290,7 @@ void Server::startServer(string confFile) {
 				#endif
 			}
 			updateUptime();
+			processAutoRestart();
 		}
 	} catch(string s) {
 		hjlog->out(s);
@@ -306,17 +318,11 @@ vector<string> Server::toArray(string input) {
 		while (input[i] == ' ' && i < input.length()) { //skip any trailing whitespace
 			i++;
 		}
-		if (!std::regex_search(temp, std::regex("nogui", std::regex_constants::optimize))) { //--nogui has to come at the end
-			flagVector.push_back(temp); //add the finished flag to the vector of flags
-		} else {
-			addToEndVector.push_back(temp); //add an end-dependent flag to this special vector
-		}
+		flagVector.push_back(temp); //add the finished flag to the vector of flags
 		hjlog->out(text.debug.flag.VecInFor + flagVector[0], Debug);
 	}
 	flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
-	for (const auto& it : addToEndVector) { //tack on the end-dependent flags that have to come after the file we want to run
-		flagVector.push_back(it);
-	}
+	flagVector.push_back("--nogui");
 	hjlog->out(text.debug.flag.VecOutFor + flagVector[0], Debug);
 	return flagVector;
 }
@@ -331,6 +337,9 @@ auto Server::toPointerArray(vector<string> &strings) {
 }
 
 void Server::startProgram(string method = "new") {
+	uptime = 0;
+	said15MinRestart = false;
+	said5MinRestart = false;
 	if (!isRunning) {
 		hjlog->out(text.info.TryingToStartProgram, Info);
 		fs::current_path(path);
@@ -520,13 +529,14 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(string confFile) {
-	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device"};
+	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		hjlog->out(it, Debug);
 	}
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+		auto setVari = [&](string name, auto& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
 		setVar(settings[0], name);
 		setVar(settings[1], exec);
 		setVar(settings[2], file);
@@ -535,7 +545,8 @@ void Server::readSettings(string confFile) {
 		setVar(settings[5], flags);
 		setVar(settings[6], method);
 		setVar(settings[7], device);
-			hjlog->out(text.debug.ReadingReadsettings, Debug);
+		setVari(settings[8], restartMins);
+		hjlog->out(text.debug.ReadingReadsettings, Debug);
 	}
 	hjlog->addServerName(name); //send the name of the server name to hjlog so that it can associate a name with a thread id
 	if (device == "") {

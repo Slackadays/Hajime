@@ -46,6 +46,7 @@ string defaultServersFile = "servers.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile = "";
 string hajConfFile = "";
+string version;
 
 bool readSettings();
 void dividerLine();
@@ -187,7 +188,7 @@ int main(int argc, char *argv[]) {
 }
 
 bool readSettings() {
-	vector<string> settings{"serversfile", "defserverconf", "logfile", "systemdlocation", "debug"};
+	vector<string> settings{"version", "serversfile", "defserverconf", "logfile", "systemdlocation", "debug", "threadcolors"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		hjlog->out(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2, Debug);
 		return 0;
@@ -197,11 +198,13 @@ bool readSettings() {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
 		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
 		hjlog->out(text.debug.ReadingReadsettings, Debug);
-		setVar(settings[0], defaultServersFile);
-		setVar(settings[1], defaultServerConfFile);
-		setVar(settings[2], logFile);
-		setVar(settings[3], sysdService);
-		setVari(settings[4], hjlog->debug);
+		setVar(settings[0], version);
+		setVar(settings[1], defaultServersFile);
+		setVar(settings[2], defaultServerConfFile);
+		setVar(settings[3], logFile);
+		setVar(settings[4], sysdService);
+		setVari(settings[5], hjlog->debug);
+		setVari(settings[6], hjlog->showThreadsAsColors);
 	}
 	hjlog->out(text.debug.ReadReadsettings + hajDefaultConfFile, Debug);
 	return 1;

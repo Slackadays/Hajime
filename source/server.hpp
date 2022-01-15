@@ -58,6 +58,7 @@ class Server {
 	void mountDrive();
 	void makeDir();
 	void updateUptime();
+	void processAutoRestart();
 	void startProgram(string method);
 	void readSettings(string confFile);
 	void removeSlashesFromEnd(string& var);
@@ -78,9 +79,13 @@ class Server {
 	inline static struct winsize w;
 	#endif
 
-	inline static std::atomic<int> uptime;
+	inline static std::atomic<long int> restartMins;
+	inline static std::atomic<long int> uptime;
 	inline static std::chrono::time_point<std::chrono::steady_clock> timeStart;
 	inline static std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
+
+	inline static bool said15MinRestart;
+	inline static bool said5MinRestart;
 
 	bool startedRfdThread = false;
 

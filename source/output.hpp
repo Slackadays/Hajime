@@ -78,10 +78,10 @@ class Output {
 		#else
 		bool isWindows = false;
 		#endif
-		void init(string file, bool debugOrNot = true);
+		void init(string file, bool debugOrNot = false);
 		void addServerName(string name);
 		void end();
-		bool showThreadsAsColors = true;
+		int showThreadsAsColors = 0;
 		bool showExplicitInfoType = false;
 		bool normalDisabled = false;
 		bool noColors = false;
