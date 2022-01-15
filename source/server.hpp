@@ -67,9 +67,6 @@ class Server {
 	vector<string> toArray(string input);
 	auto toPointerArray(vector<string> &strings);
 
-	inline static string name, exec, file, path, command, flags, confFile, device, method, cmdline = "";
-
-
 	#if defined(_WIN64) || defined(_WIN32)
 	inline static STARTUPINFO si; // a variable that can specify parameters for windows created with it
 	inline static PROCESS_INFORMATION pi; // can get process handle and pid from this
@@ -94,6 +91,7 @@ class Server {
 	inline static std::list<string> lines; //make this inline static so the program only has one copy of lines available
 	//super duper important!!
 	public:
+		inline static string name, exec, file, path, command, flags, confFile, device, method, cmdline = "";
 		Server(shared_ptr<Output> tempObj);
 		bool isRunning = false;
 		void startServer(string confFile);

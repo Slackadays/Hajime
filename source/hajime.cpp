@@ -250,13 +250,23 @@ void processHajimeCommand(vector<string> input) {
 	if (input[0] == "term" || input[0] == "t") {
 		if (input.size() >= 2) {
 			try {
-				if (stoi(input[1]) > input.size() || stoi(input[1]) < 1) {
+				if (stoi(input[1]) > serverVec.size() || stoi(input[1]) < 1) {
 					hjlog->out(text.error.InvalidServerNumber, Error);
 				} else {
 					serverVec[stoi(input[1]) - 1].terminalAccessWrapper();
 				}
 			} catch (...) {
-				hjlog->out(text.error.ServerSelectionInvalid, Error);
+				bool attachSuccess = false;
+				for (auto& it : serverVec) {
+					if (it.name == input[1]) {
+						it.terminalAccessWrapper();
+						attachSuccess = true;
+						break;
+					}
+				}
+				if (!attachSuccess) {
+					hjlog->out(text.error.ServerSelectionInvalid, Error);
+				}
 			}
 		} else {
 			hjlog->out(text.error.NotEnoughArgs, Error);
