@@ -264,12 +264,13 @@ void Server::startServer(string confFile) {
 				isRunning = false;
 				hjlog->out(text.warning.IsRunningFalse, Warning);
 				#if defined(_WIN64) || defined(_WIN32)
-				//CloseHandle(pi.hProcess);
-				//CloseHandle(pi.hThread);
-				//CloseHandle(inputread); //commented these out because they mess up server restarting
-				//CloseHandle(inputwrite);
-				//CloseHandle(outputread);
-				//CloseHandle(outputwrite);
+				// close handles
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
+				CloseHandle(inputread);
+				CloseHandle(inputwrite);
+				CloseHandle(outputwrite);
+				CloseHandle(outputread);
 				#endif
 			}
 			updateUptime();
@@ -328,6 +329,8 @@ void Server::startProgram(string method = "new") {
 		hjlog->out(text.info.TryingToStartProgram, Info);
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
+		lines.clear(); // clear output from previous session
+
 		if (method == "old") {
 			hjlog->out(text.debug.UsingOldMethod, Debug);
 			int returnVal = system(command.c_str()); //convert the command to a c-style string, execute the command
@@ -540,7 +543,7 @@ void Server::readSettings(string confFile) {
 	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
 	remSlash(file, path, device, exec);
 	#if defined(_WIN64) || defined(_WIN32)
-	flags = exec + ' ' + flags + "-Dfile.encoding=UTF-8" + file + " nogui";
+	flags = exec + ' ' + flags + "-Dfile.encoding=UTF-8 " + file + " nogui";
 	#endif
 }
 
