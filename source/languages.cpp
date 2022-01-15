@@ -27,12 +27,12 @@ void Text::autoSetLanguage() {
 	string lang = getUserLanguage();
 	if (std::regex_search(lang, std::regex("en_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
 		applyLang("en");
-	}
-	if (std::regex_search(lang, std::regex("es_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
+	} else if (std::regex_search(lang, std::regex("es_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
 		applyLang("es");
-	}
-	if (std::regex_search(lang, std::regex("pt_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
+	} else if (std::regex_search(lang, std::regex("pt_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
 		applyLang("pt");
+	} else {
+		applyLang("en");
 	}
 }
 
