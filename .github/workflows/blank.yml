@@ -272,29 +272,6 @@ jobs:
         with: 
           name: hajime-freebsd-amd64
           path: source/hajime
-  build-freebsd-aarch64:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          mkdir temp
-          curl -L -o fbsd_temp.iso https://download.freebsd.org/releases/arm64/aarch64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-arm64-aarch64-dvd1.iso
-          sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
-          cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target aarch64-unknown-freebsd13.0 --sysroot=../temp/ -c -O3 -std=c++20
-          clang++ -target aarch64-unknown-freebsd13.0 --sysroot=../temp/ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
-          
-      - uses: actions/upload-artifact@v2
-        with: 
-          name: hajime-freebsd-aarch64
-          path: source/hajime
   build-linux-arm32l:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
