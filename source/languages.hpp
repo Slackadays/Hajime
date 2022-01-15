@@ -106,6 +106,7 @@ class Text {
 			string UseDefaultServerFile2;
 			string EnterNewServerFile;
 			string EnterCustomFlags;
+			string HajimeLanguage;
 		};
 		Question question;
 		struct Option {
@@ -125,6 +126,9 @@ class Text {
 			string FroggeMCFlags;
 			string BasicZGCFlags;
 			string CustomFlags;
+			string CurrentLanguage1;
+			string CurrentLanguage2;
+			string NoLanguage;
 		};
 		Option option;
 		struct Info {
@@ -202,6 +206,64 @@ class Text {
 			Flag flag;
 		};
 		Debug debug;
+		struct Server {
+			struct Restart {
+				string minutes5;
+				string minutes15;
+			};
+			Restart restart;
+			struct Command {
+				struct Hajime {
+					string regex;
+					string output;
+				};
+				Hajime hajime;
+				struct Time {
+					string regex;
+					string output;
+				};
+				Time time;
+				struct Help {
+					string regex;
+					string output1;
+					string output2;
+				};
+				Help help;
+				struct Die {
+					string regex;
+					string output;
+				};
+				Die die;
+				struct Coinflip {
+					string regex;
+					struct Output {
+						string heads;
+						string tails;
+					};
+					Output output;
+				};
+				Coinflip coinflip;
+				struct Discord {
+					string regex;
+					string output;
+				};
+				Discord discord;
+				struct Name {
+					string regex;
+					string output;
+				};
+				Name name;
+				struct Uptime {
+					string regex;
+					string output1;
+					string output2;
+					string output3;
+				};
+				Uptime uptime;
+			};
+			Command command;
+		};
+		Server server;
 		string fileServerConfComment;
 };
 

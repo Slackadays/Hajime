@@ -70,9 +70,9 @@ void Wizard::doHajimeStep() {
 	hjlog->out(text.question.MakeHajimeConfig, Question, 0, 0);
 	if (hjlog->getYN()) {
 		pause(400, 400);
-		hjlog->out("What language would you like Hajime to be in?", Question);
+		hjlog->out(text.question.HajimeLanguage, Question);
 		string defaultLang = "";
-		switch (hjlog->getYN(string("The current language (" + text.language + ")"), "English", "Español", "Português", "None (Detect on startup)")) {
+		switch (hjlog->getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
 			case 1:
 				defaultLang = text.language;
 				break;
