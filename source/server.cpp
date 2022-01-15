@@ -265,6 +265,7 @@ void Server::startServer(string confFile) {
 				hjlog->out(text.warning.IsRunningFalse, Warning);
 				#if defined(_WIN64) || defined(_WIN32)
 				// close handles
+				// the order MATTERS here, you need to close the one given to the child first (i think)
 				CloseHandle(pi.hProcess);
 				CloseHandle(pi.hThread);
 				CloseHandle(inputread);
