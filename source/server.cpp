@@ -264,8 +264,8 @@ void Server::startServer(string confFile) {
 				isRunning = false;
 				hjlog->out(text.warning.IsRunningFalse, Warning);
 				#if defined(_WIN64) || defined(_WIN32)
-				CloseHandle(pi.hProcess);
-				CloseHandle(pi.hThread);
+				//CloseHandle(pi.hProcess);
+				//CloseHandle(pi.hThread);
 				//CloseHandle(inputread); //commented these out because they mess up server restarting
 				//CloseHandle(inputwrite);
 				//CloseHandle(outputread);
