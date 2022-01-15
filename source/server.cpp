@@ -75,29 +75,21 @@ void Server::processServerCommand(string input) {
 	if (std::regex_search(input, std::regex("\\.hajime(?![\\w])", std::regex_constants::optimize))) {
 		string hajInfo = "tellraw @a [\"§6[Hajime] §fThis server is using \",{\"text\":\"Hajime 0.1.9\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https:\/\/hajime.sh\"}}]";
 		writeToServerTerminal(hajInfo);
-		return;
-	}
-	if (std::regex_search(input, std::regex("\\.time(?![\\w])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\.time(?![\\w])", std::regex_constants::optimize))) {
 		std::time_t timeNow = std::time(nullptr);
 		string stringTimeNow = std::asctime(std::localtime(&timeNow));
 		stringTimeNow.erase(std::remove(stringTimeNow.begin(), stringTimeNow.end(), '\n'), stringTimeNow.end());
 		string hajInfo = "tellraw @a \"§6[Hajime]§f This server's local time is §b" + stringTimeNow + '\"';
 		writeToServerTerminal(hajInfo);
-		return;
-	}
-	if (std::regex_search(input, std::regex("\\.h(elp){0,1}(?![\\w])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\.h(elp){0,1}(?![\\w])", std::regex_constants::optimize))) {
 		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Roll over a command to show its action."));
 		writeToServerTerminal(tellrawWrapper("[{\"text\":\".coinflip, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bFlip a coin.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".coinflip\"}},{\"text\":\".die, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bRoll a die.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".die\"}},{\"text\":\".discord, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime Discord invite.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".discord\"}},{\"text\":\".hajime, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the Hajime version.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".hajime\"}},{\"text\":\".h, help, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this help message.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".help\"}},{\"text\":\".name, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's name in Hajime.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".name\"}},{\"text\":\".time, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow the server's local time and date.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".time\"}},{\"text\":\".uptime \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§bShow this server's uptime.\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\".uptime\"}}]"));
-		return;
-	}
-	if (std::regex_search(input, std::regex("\\.die(?![\\w])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\.die(?![\\w])", std::regex_constants::optimize))) {
 		std::random_device rand;
 		std::uniform_int_distribution<int> die(1, 6);
 		writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Rolled a die and got §b" + std::to_string(die(rand))));
 		//switch this to C++20 format when it becomes supported
-		return;
-	}
-	if (std::regex_search(input, std::regex("\\.coinflip(?![\\w])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\.coinflip(?![\\w])", std::regex_constants::optimize))) {
 		std::random_device rand;
 		std::uniform_int_distribution<int> flip(1, 2);
 		if (flip(rand) == 1) {
@@ -105,22 +97,15 @@ void Server::processServerCommand(string input) {
 		} else {
 			writeToServerTerminal(tellrawWrapper("§6[Hajime]§f Flipped a coin and got §btails"));
 		}
-		return;
-	}
-	if (std::regex_search(input, std::regex("\\.discord(?![\\w])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\.discord(?![\\w])", std::regex_constants::optimize))) {
 		string hajInfo = "[\"§6[Hajime] §fJoin the official Hajime Discord at \",{\"text\":\"https://discord.gg/J6asnc3pEG\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://discord.gg/J6asnc3pEG\"}}]";
 		writeToServerTerminal(tellrawWrapper(hajInfo));
-		return;
-	}
-	if (std::regex_search(input, std::regex("\\.name(?![\\w])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\.name(?![\\w])", std::regex_constants::optimize))) {
 		string hajInfo = "§6[Hajime]§f This server's name is §b" + name;
 		writeToServerTerminal(tellrawWrapper(hajInfo));
-		return;
-	}
-	if (std::regex_search(input, std::regex("\\.uptime(?![\\w])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\.uptime(?![\\w])", std::regex_constants::optimize))) {
 		string hajInfo = "§6[Hajime]§f This server's uptime is §b" + std::to_string(uptime) + "§f minutes (§b" + std::to_string(uptime / 60.0) + "§f hours)";
 		writeToServerTerminal(tellrawWrapper(hajInfo));
-		return;
 	}
 }
 
