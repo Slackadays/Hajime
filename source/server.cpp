@@ -323,6 +323,7 @@ void Server::startProgram(string method = "new") {
 	uptime = 0;
 	said15MinRestart = false;
 	said5MinRestart = false;
+	timeStart = std::chrono::steady_clock::now();
 	if (!isRunning) {
 		hjlog->out(text.info.TryingToStartProgram, Info);
 		fs::current_path(path);
@@ -394,7 +395,6 @@ void Server::startProgram(string method = "new") {
 				exit(0);
 			} else {
 				hjlog->out("This is the parent.", Debug);
-				timeStart = std::chrono::steady_clock::now();
 				int length = 0;
 				if (!startedRfdThread) {
 					std::jthread rfd(&Server::processServerTerminal, this);
@@ -540,7 +540,7 @@ void Server::readSettings(string confFile) {
 	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
 	remSlash(file, path, device, exec);
 	#if defined(_WIN64) || defined(_WIN32)
-	flags = exec + ' ' + flags + ' ' + file + " nogui";
+	flags = exec + ' ' + flags + "-Dfile.encoding=UTF-8" + file + " nogui";
 	#endif
 }
 
