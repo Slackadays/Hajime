@@ -544,7 +544,7 @@ void Server::readSettings(string confFile) {
 	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
 	remSlash(file, path, device, exec);
 	#if defined(_WIN64) || defined(_WIN32)
-	flags = exec + ' ' + flags + "-Dfile.encoding=UTF-8 " + file + " nogui";
+	flags = exec + ' ' + flags + " -Dfile.encoding=UTF-8 " + file + " nogui";
 	#endif
 }
 
