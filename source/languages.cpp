@@ -2,6 +2,11 @@
 #include <vector>
 #include <filesystem>
 #include <iostream>
+#if defined(_WIN32) || defined(_WIN64)
+#include <atlstr.h>
+#include <WinNls.h>
+#include <Windows.h>
+#endif
 
 namespace fs = std::filesystem;
 using std::string;
@@ -14,7 +19,10 @@ void Text::applyLang(string lang) {
 	//the fallack is English
 	#include "en.hpp"
 	language = lang;
-	if (lang == "es") { //spanish
+	if (lang == "en") {
+		help.clear();
+		#include "en.hpp"
+	} else if (lang == "es") { //spanish
 		help.clear(); //reset the help vector
 		#include "es.hpp"
 	} else if (lang == "pt") {
@@ -25,11 +33,11 @@ void Text::applyLang(string lang) {
 
 void Text::autoSetLanguage() {
 	string lang = getUserLanguage();
-	if (std::regex_search(lang, std::regex("en_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
+	if (std::regex_search(lang, std::regex("en[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
 		applyLang("en");
-	} else if (std::regex_search(lang, std::regex("es_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
+	} else if (std::regex_search(lang, std::regex("es[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
 		applyLang("es");
-	} else if (std::regex_search(lang, std::regex("pt_.*", std::regex_constants::optimize | std::regex_constants::icase))) {
+	} else if (std::regex_search(lang, std::regex("pt[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
 		applyLang("pt");
 	} else {
 		applyLang("en");
@@ -38,6 +46,17 @@ void Text::autoSetLanguage() {
 
 string Text::getUserLanguage() {
 	string result;
+	#if defined(_WIN32) || defined(_WIN64)
+	LPWSTR* locale = (LPWSTR*)malloc(100); //we could use LOCALE_NAME_MAX_LENGTH here, but it turns out it doesn't work anymore because it's too small.
+	int ret = GetUserDefaultLocaleName(*locale, 100);
+	if (!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+		hjlog->out("Too small buffer for locale", outType::Error);
+	} else {
+		//std::cout << ret << std::endl;
+	}
+	result = CW2A(*locale); //convert the utf-16 locale to a utf-8 result
+	free(locale); //prevent a memory leak
+	#else
 	if (getenv("LANGUAGE") != nullptr) {
 		result = (string)getenv("LANGUAGE");
 	} else if (getenv("LC_ALL") != nullptr) {
@@ -45,6 +64,8 @@ string Text::getUserLanguage() {
 	} else if (getenv("LANG") != nullptr) {
 		result = (string)getenv("LANG");
 	}
+	#endif
+	//std::cout << result << std::endl;
 	return result;
 }
 
