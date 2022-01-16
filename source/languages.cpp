@@ -6,6 +6,7 @@
 #include <atlstr.h>
 #include <WinNls.h>
 #include <Windows.h>
+#include <memory>
 #endif
 
 namespace fs = std::filesystem;
@@ -45,18 +46,22 @@ void Text::autoSetLanguage() {
 }
 
 string Text::getUserLanguage() {
-	string result;
 	#if defined(_WIN32) || defined(_WIN64)
-	LPWSTR* locale = (LPWSTR*)malloc(100); //we could use LOCALE_NAME_MAX_LENGTH here, but it turns out it doesn't work anymore because it's too small.
-	int ret = GetUserDefaultLocaleName(*locale, 100);
+	std::unique_ptr<wchar_t[]> locale(new wchar_t[LOCALE_NAME_MAX_LENGTH]);
+	int ret = GetUserDefaultLocaleName(locale.get(), LOCALE_NAME_MAX_LENGTH);
 	if (!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 		hjlog->out("Too small buffer for locale", outType::Error);
 	} else {
-		//std::cout << ret << std::endl;
+		hjlog->out("ret = " + std::to_string(ret), outType::Debug);
 	}
-	result = CW2A(*locale); //convert the utf-16 locale to a utf-8 result
-	free(locale); //prevent a memory leak
+	int len = WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, locale.get(), ret - 1, nullptr, 0, NULL, NULL);
+	if (!len) {
+		hjlog->out("Error in WideCharToMultiByte", outType::Error);
+	}
+	string result(len, '\0');
+	WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, locale.get(), ret - 1, result.data(), len, NULL, NULL);
 	#else
+	string result;
 	if (getenv("LANGUAGE") != nullptr) {
 		result = (string)getenv("LANGUAGE");
 	} else if (getenv("LC_ALL") != nullptr) {
@@ -65,7 +70,7 @@ string Text::getUserLanguage() {
 		result = (string)getenv("LANG");
 	}
 	#endif
-	//std::cout << result << std::endl;
+	hjlog->out("result = " + result, outType::Debug);
 	return result;
 }
 
