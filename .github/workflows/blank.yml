@@ -201,6 +201,69 @@ jobs:
         with: 
           name: hajime-linux-arm32hf
           path: hajime
+  build-linux-alpha:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          sudo apt update
+          sudo apt install g++-10-alpha-linux-gnu
+          cmake source -D CMAKE_CXX_COMPILER=alpha-linux-gnu-g++-10
+          cmake --build . -j 8
+          
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: hajime-linux-alpha
+          path: hajime
+  build-linux-hppa:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          sudo apt update
+          sudo apt install g++-10-hppa-linux-gnu
+          cmake source -D CMAKE_CXX_COMPILER=hppa-linux-gnu-g++-10
+          cmake --build . -j 8
+          
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: hajime-linux-hppa
+          path: hajime
+  build-linux-m68k:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          sudo apt update
+          sudo apt install g++-10-m68k-linux-gnu
+          cmake source -D CMAKE_CXX_COMPILER=m68k-linux-gnu-g++-10
+          cmake --build . -j 8
+          
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: hajime-linux-m68k
+          path: hajime
   build-windows-amd64:
     runs-on: windows-latest
     
