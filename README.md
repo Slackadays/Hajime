@@ -26,19 +26,19 @@ sh <(curl -L https://gethaji.me)
 Go to the Releases page and download the latest release.
 
 # An Introduction
-Hajime fills in a gaping void in the Minecraft server management world. On one end of the spectrum, you've got tools like startmc.sh. These are super easy to use but offer no features at all. On the other end, you have mark2 and Pterodactyl Panel. These offer all the features you could possibly want, but are difficult to install and use. Hajime changes all of this by aiming to be as easy to use as a shell script yet offer all the features you could possibly want.
+Hajime fills in a gaping void in the Minecraft server management world. On one end of the spectrum, you've got tools like startmc.sh. These are super easy to use but offer no features at all. On the other end, you have mark2 and Pterodactyl Panel. These offer all the features you could possibly want, but are difficult to install and use. Hajime changes all of this by aiming to be as easy to use as a shell script yet offering all the features you could possibly want. Imagine the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in "smartness" and ease-of-use.
 
 ## Features
 - Supports Aikar's Flags, Hiltty's Flags, and ZGC flags out of the box!
-- Easy guided installation and setup!
+- Easy guided installation and setup.
 - Supports English, Spanish, and Portuguese!
 - Multiple server support through the latest C++ multithreading technologies.
 - Supports not just one, some, or many of the available computer platforms, but all of them. We have at least 20 premade binaries available!
 - Configure every setting exactly how you want it.
-- Customizable log and debug messages.
+- Customizable log and debug messages!
 - Help and support available in our Discord server.
-- Memory-safe by using modern C++ features.
-- Uses CMake for easy compiling!
+- Memory-safe by using modern-C++ features!
+- Uses CMake for easy compiling.
 - 100% FLOSS under the AGPLv3!
 
 ## Why C++?
