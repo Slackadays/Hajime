@@ -25,6 +25,10 @@ sh <(curl -L https://gethaji.me)
 ## Windows
 Go to the Releases page and download the latest release.
 
+## Tutorial Videos
+
+Check out the official Hajime YouTube channel at https://www.youtube.com/channel/UC0DeCW6yXXVr9DJctJVo7wg
+
 # An Introduction
 Hajime fills in a gaping void in the Minecraft server management world. On one end of the spectrum, you've got tools like startmc.sh. These are super easy to use but offer no features at all. On the other end, you have mark2 and Pterodactyl Panel. These offer all the features you could possibly want, but are difficult to install and use. Hajime changes all of this by aiming to be as easy to use as a shell script yet offering all the features you could possibly want. Imagine the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in "smartness" and ease-of-use.
 
