@@ -332,8 +332,6 @@ jobs:
     
     steps:
       - uses: actions/checkout@v2
-      - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.10.0
       - name: Run a multi-line script
         run: |
           cmake source
@@ -348,8 +346,6 @@ jobs:
     
     steps:
       - uses: actions/checkout@v2
-      - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.10.0
       - name: Run a multi-line script
         run: |
           cmake source -A Win32
@@ -359,13 +355,25 @@ jobs:
         with: 
           name: hajime-windows-x86
           path: Release\hajime.exe
+  build-windows-arm32:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run a multi-line script
+        run: |
+          cmake source -A ARM
+          cmake --build . -j 8 --config Release
+          
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: hajime-windows-arm32
+          path: Release\hajime.exe
   build-windows-arm64:
     runs-on: windows-latest
     
     steps:
       - uses: actions/checkout@v2
-      - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.10.0
       - name: Run a multi-line script
         run: |
           cmake source -A ARM64
