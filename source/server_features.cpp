@@ -80,7 +80,7 @@ void Server::processServerCommand(string input) {
 }
 
 void Server::commandHajime() {
-	writeToServerTerminal(tellrawWrapper(text.server.command.hajime.output));
+	writeToServerTerminal(formatWrapper(text.server.command.hajime.output));
 }
 
 void Server::commandTime() {
@@ -88,18 +88,26 @@ void Server::commandTime() {
 	string stringTimeNow = std::asctime(std::localtime(&timeNow));
 	stringTimeNow.erase(std::remove(stringTimeNow.begin(), stringTimeNow.end(), '\n'), stringTimeNow.end());
 	string hajInfo = text.server.command.time.output + stringTimeNow + '\"';
-	writeToServerTerminal(tellrawWrapper(hajInfo));
+	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
 void Server::commandHelp() {
-	writeToServerTerminal(tellrawWrapper(text.server.command.help.output1));
-	writeToServerTerminal(tellrawWrapper(text.server.command.help.output2));
+	writeToServerTerminal(formatWrapper(text.server.command.help.output));
+	writeToServerTerminal(formatWrapper("[{\"text\":\"" + text.server.command.coinflip.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.coinflip + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.coinflip.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.die.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.die + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.die.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.discord.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.discord + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.discord.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.hajime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.hajime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.hajime.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.help.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.help + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.help.regex, std::regex("(\\(|\\))", std::regex_constants::optimize), "") + "\"}},"
+	"{\"text\":\"" + text.server.command.name.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.name + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.name.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.time.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.time + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.time.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.uptime.regex + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.uptime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.uptime.regex + "\"}}]"));
 }
 
 void Server::commandDie() {
 	std::random_device rand;
 	std::uniform_int_distribution<int> die(1, 6);
-	writeToServerTerminal(tellrawWrapper(text.server.command.die.output + std::to_string(die(rand))));
+	string hajInfo = text.server.command.die.output + std::to_string(die(rand));
+	writeToServerTerminal(formatWrapper(std::regex_replace(hajInfo, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
 	//switch this to C++20 format when it becomes supported
 }
 
@@ -107,27 +115,27 @@ void Server::commandCoinflip() {
 	std::random_device rand;
 	std::uniform_int_distribution<int> flip(1, 2);
 	if (flip(rand) == 1) {
-		writeToServerTerminal(tellrawWrapper(text.server.command.coinflip.output.heads));
+		writeToServerTerminal(formatWrapper(text.server.command.coinflip.output.heads));
 	} else {
-		writeToServerTerminal(tellrawWrapper(text.server.command.coinflip.output.tails));
+		writeToServerTerminal(formatWrapper(text.server.command.coinflip.output.tails));
 	}
 }
 
 void Server::commandDiscord() {
-	writeToServerTerminal(tellrawWrapper(text.server.command.discord.output));
+	writeToServerTerminal(formatWrapper(text.server.command.discord.output));
 }
 
 void Server::commandName() {
 	string hajInfo = text.server.command.name.output + name;
-	writeToServerTerminal(tellrawWrapper(hajInfo));
+	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
 void Server::commandUptime() {
 	string hajInfo = text.server.command.uptime.output1 + std::to_string(uptime) + text.server.command.uptime.output2 + std::to_string(uptime / 60.0) + text.server.command.uptime.output3;
-	writeToServerTerminal(tellrawWrapper(hajInfo));
+	writeToServerTerminal(formatWrapper(std::regex_replace(hajInfo, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
 }
 
-string Server::tellrawWrapper(string input) {
+string Server::formatWrapper(string input) {
 	string output;
 	if (input.front() == '[' && input.back() == ']') {
 		output = "tellraw @a " + input;
@@ -195,10 +203,10 @@ void Server::processAutoRestart() {
 	if (restartMins > 0 && uptime >= restartMins) {
 		writeToServerTerminal("stop");
 	}	else if (restartMins > 0 && uptime >= (restartMins - 5) && !said5MinRestart) {
-		writeToServerTerminal(tellrawWrapper(text.server.restart.minutes5));
+		writeToServerTerminal(formatWrapper(text.server.restart.minutes5));
 		said5MinRestart = true;
 	} else if (restartMins > 0 && uptime >= (restartMins - 15) && !said15MinRestart) {
-		writeToServerTerminal(tellrawWrapper(text.server.restart.minutes15));
+		writeToServerTerminal(formatWrapper(text.server.restart.minutes15));
 		said15MinRestart = true;
 	}
 }

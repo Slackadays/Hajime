@@ -227,8 +227,18 @@ class Text {
 				Time time;
 				struct Help {
 					string regex;
-					string output1;
-					string output2;
+					string output;
+					struct Message {
+						string coinflip;
+						string die;
+						string time;
+						string hajime;
+						string discord;
+						string help;
+						string name;
+						string uptime;
+					};
+					Message message;
 				};
 				Help help;
 				struct Die {

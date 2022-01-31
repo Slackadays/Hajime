@@ -2,6 +2,7 @@
 #include <vector>
 #include <filesystem>
 #include <iostream>
+#include <regex>
 #if defined(_WIN32) || defined(_WIN64)
 #include <atlstr.h>
 #include <WinNls.h>
