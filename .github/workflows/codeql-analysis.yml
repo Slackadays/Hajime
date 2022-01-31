@@ -63,8 +63,8 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       cmake source
-       cmake --build . -j 9
+       cd source
+       echo hajime.cpp getvarsfromfile.cpp server.cpp server_features.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++-10 -c -Ofast -std=c++20 && g++-10 -o hajime hajime.o server.o server_features.o getvarsfromfile.o installer.o output.o languages.o wizard.o -pthread
        
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
