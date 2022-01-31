@@ -203,10 +203,10 @@ void Server::processAutoRestart() {
 	if (restartMins > 0 && uptime >= restartMins) {
 		writeToServerTerminal("stop");
 	}	else if (restartMins > 0 && uptime >= (restartMins - 5) && !said5MinRestart) {
-		writeToServerTerminal(formatWrapper(text.server.restart.minutes5));
+		writeToServerTerminal(formatWrapper(std::regex_replace(text.server.restart.minutes5, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
 		said5MinRestart = true;
 	} else if (restartMins > 0 && uptime >= (restartMins - 15) && !said15MinRestart) {
-		writeToServerTerminal(formatWrapper(text.server.restart.minutes15));
+		writeToServerTerminal(formatWrapper(std::regex_replace(text.server.restart.minutes15, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
 		said15MinRestart = true;
 	}
 }
