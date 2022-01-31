@@ -63,6 +63,12 @@ class Server {
 	void commandDiscord();
 	void commandName();
 	void commandUptime();
+	void commandRestart();
+	void commandSystem();
+	string getOS();
+	string getCPU();
+	string addNumberColors(string input);
+	void processRestartAlert(string input);
 	void mountDrive();
 	void makeDir();
 	void updateUptime();

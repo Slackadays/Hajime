@@ -19,6 +19,8 @@ using std::endl;
 #include "output.hpp"
 #include "languages.hpp"
 #include "installer.hpp"
+#include "constants.hpp"
+
 namespace fs = std::filesystem;
 
 Installer::Installer(std::shared_ptr<Output> log) {
@@ -47,9 +49,9 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 		throw 0;
 	} else {
 		ofstream outConf(fileLocation);
-		outConf << "version=0.1.10" << endl;
+		outConf << "version=" << hajime_version << endl;
 		outConf << "serversfile=servers.conf" << endl;
-		outConf << "defserverconf=MyServer.conf" << endl;
+		outConf << "defserverconf=MyServer.server" << endl;
 		outConf << "logfile=hajime.log" << endl;
 		outConf << "lang=" << lang << endl;
 		outConf << "debug=0" << endl;

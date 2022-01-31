@@ -102,7 +102,7 @@ void Wizard::doServerStep() {
 			while (true) {
 				pause(400, 400);
 				if (!std::regex_match(serverFile, std::regex(".+\\..+", std::regex_constants::optimize))) { //check for lack of file extension
-					serverFile += ".conf";
+					serverFile += ".server";
 				}
 				string file = "server.jar";
 				string flags;
@@ -158,7 +158,7 @@ void Wizard::doServerStep() {
 				}
 				hjlog->out(text.question.CreateAnotherServerFile, Question);
 				if (hjlog->getYN()) {
-					hjlog->out(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.conf(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2, Info, 0, 0);
+					hjlog->out(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2, Info, 0, 0);
 					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);

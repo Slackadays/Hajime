@@ -42,7 +42,7 @@ using std::vector;
 bool ee = false;
 vector<Server> serverVec; //create an array of individual server objects
 vector<std::jthread> threadVec; //create an array of thread objects
-string defaultServerConfFile = "MyServer.conf";
+string defaultServerConfFile = "MyServer.server";
 string defaultServersFile = "servers.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile = "";

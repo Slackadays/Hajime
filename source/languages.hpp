@@ -212,6 +212,8 @@ class Text {
 			struct Restart {
 				string minutes5;
 				string minutes15;
+				string alert1;
+				string alert2;
 			};
 			Restart restart;
 			struct Command {
@@ -237,6 +239,7 @@ class Text {
 						string help;
 						string name;
 						string uptime;
+						string restart;
 					};
 					Message message;
 				};
@@ -272,6 +275,19 @@ class Text {
 					string output3;
 				};
 				Uptime uptime;
+				struct Restart {
+					string regex;
+					string output1;
+					string output2;
+					string output3;
+					string outputDisabled;
+				};
+				Restart restart;
+				struct System {
+					string regex;
+					string output;
+				};
+				System system;
 			};
 			Command command;
 		};

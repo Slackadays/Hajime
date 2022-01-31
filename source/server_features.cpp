@@ -76,6 +76,10 @@ void Server::processServerCommand(string input) {
 		commandName();
 	} else if (std::regex_search(input, std::regex("\\" + text.server.command.uptime.regex + "(?![\\w])", std::regex_constants::optimize))) {
 		commandUptime();
+	} else if (std::regex_search(input, std::regex("\\" + text.server.command.restart.regex + "(?![\\w])", std::regex_constants::optimize))) {
+		commandRestart();
+	} else if (std::regex_search(input, std::regex("\\" + text.server.command.system.regex + "(?![\\w])", std::regex_constants::optimize))) {
+		commandSystem();
 	}
 }
 
@@ -100,14 +104,15 @@ void Server::commandHelp() {
 	"{\"text\":\"" + text.server.command.help.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.help + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.help.regex, std::regex("(\\(|\\))", std::regex_constants::optimize), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.name.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.name + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.name.regex + "\"}},"
 	"{\"text\":\"" + text.server.command.time.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.time + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.time.regex + "\"}},"
-	"{\"text\":\"" + text.server.command.uptime.regex + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.uptime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.uptime.regex + "\"}}]"));
+	"{\"text\":\"" + text.server.command.uptime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.uptime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.uptime.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.restart.regex + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.restart + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.restart.regex + "\"}}]"));
 }
 
 void Server::commandDie() {
 	std::random_device rand;
 	std::uniform_int_distribution<int> die(1, 6);
 	string hajInfo = text.server.command.die.output + std::to_string(die(rand));
-	writeToServerTerminal(formatWrapper(std::regex_replace(hajInfo, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
+	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 	//switch this to C++20 format when it becomes supported
 }
 
@@ -132,7 +137,62 @@ void Server::commandName() {
 
 void Server::commandUptime() {
 	string hajInfo = text.server.command.uptime.output1 + std::to_string(uptime) + text.server.command.uptime.output2 + std::to_string(uptime / 60.0) + text.server.command.uptime.output3;
-	writeToServerTerminal(formatWrapper(std::regex_replace(hajInfo, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
+	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
+}
+
+void Server::commandRestart() {
+	string hajInfo;
+	if (restartMins > 0) {
+		hajInfo = text.server.command.restart.output1 + std::to_string(restartMins - uptime) + text.server.command.restart.output2 + std::to_string((restartMins - uptime) / 60.0) + text.server.command.restart.output3;
+	} else {
+		hajInfo = text.server.command.restart.outputDisabled;
+	}
+	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
+}
+
+void Server::commandSystem() {
+	string hajInfo;
+	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"OS, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
+	"{\"text\":\"" + string("CPU") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
+	"{\"text\":\"" + string("RAM") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + "Testing RAM!" + "\"}}]";
+	writeToServerTerminal(formatWrapper(hajInfo));
+}
+
+string Server::getOS() {
+	#if defined(__linux__)
+	std::fstream proc;
+	proc.open("/proc/version", std::fstream::in);
+	std::ostringstream temp;
+	temp << proc.rdbuf();
+	string out = temp.str();
+	out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
+	return out;
+	#endif
+}
+
+string Server::getCPU() {
+	#if defined(__linux__)
+	std::smatch m;
+	std::fstream proc;
+	proc.open("/proc/cpuinfo", std::fstream::in);
+	std::ostringstream temp;
+	temp << proc.rdbuf();
+	string temp2 = temp.str();
+	std::regex_search(temp2, m, std::regex("(?:model name\\s*:\\s*)(.*)", std::regex_constants::optimize));
+	return m[1];
+	#endif
+}
+
+void Server::processRestartAlert(string input) {
+	std::smatch m;
+	if (restartMins > 0 && uptime >= (restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
+		string hajInfo = "tellraw " + string(m[1]) + text.server.restart.alert1 + std::to_string(restartMins - uptime) + text.server.restart.alert2;
+		writeToServerTerminal(addNumberColors(hajInfo));
+	}
+}
+
+string Server::addNumberColors(string input) {
+	return std::regex_replace(input, std::regex("( |\\()\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f");
 }
 
 string Server::formatWrapper(string input) {
@@ -164,13 +224,14 @@ void Server::processServerTerminal() {
 	while (true) {
 		string terminalOutput = readFromServer();
 		processServerCommand(terminalOutput);
+		processRestartAlert(terminalOutput);
 		processTerminalBuffer(terminalOutput);
 	}
 }
 
 string Server::readFromServer() {
 	char input[1000];
-	#ifdef _WIN32
+	#if defined(_WIN32) || defined (_WIN64)
 	DWORD length = 0;
 	if (!ReadFile(outputread, input, 1000, &length, NULL))
 	{
@@ -203,10 +264,10 @@ void Server::processAutoRestart() {
 	if (restartMins > 0 && uptime >= restartMins) {
 		writeToServerTerminal("stop");
 	}	else if (restartMins > 0 && uptime >= (restartMins - 5) && !said5MinRestart) {
-		writeToServerTerminal(formatWrapper(std::regex_replace(text.server.restart.minutes5, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
+		writeToServerTerminal(formatWrapper(addNumberColors(text.server.restart.minutes5)));
 		said5MinRestart = true;
 	} else if (restartMins > 0 && uptime >= (restartMins - 15) && !said15MinRestart) {
-		writeToServerTerminal(formatWrapper(std::regex_replace(text.server.restart.minutes15, std::regex("\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f")));
+		writeToServerTerminal(formatWrapper(addNumberColors(text.server.restart.minutes15)));
 		said15MinRestart = true;
 	}
 }
