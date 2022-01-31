@@ -217,7 +217,7 @@ void Server::processRestartAlert(string input) {
 }
 
 string Server::addNumberColors(string input) {
-	return std::regex_replace(input, std::regex("( |\\()\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f");
+	return std::regex_replace(input, std::regex("(?: |\\()\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f");
 }
 
 string Server::formatWrapper(string input) {

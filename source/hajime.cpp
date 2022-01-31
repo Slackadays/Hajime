@@ -53,6 +53,7 @@ bool readSettings();
 void dividerLine();
 vector<string> toVec(string input);
 void processHajimeCommand(vector<string> input);
+bool isUserPrivileged();
 
 int main(int argc, char *argv[]) {
 	atexit(dividerLine);
@@ -179,6 +180,19 @@ int main(int argc, char *argv[]) {
 		hjlog->out(text.error.NoServersFile, Error);
 		return 0;
 	}
+	for (int i = 1; i < argc; i++) {
+		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
+		if (flag("-tc", "--thread-colors")) {
+			hjlog->showThreadsAsColors = true;
+		}
+		if (flag("-ntc", "--no-thread-colors")) {
+			hjlog->showThreadsAsColors = false;
+		}
+	}
+	if (isUserPrivileged()) {
+		hjlog->out("Hajime must not be run by a privileged user", Error);
+		return 1;
+	}
 	Server server(hjlog); //create a template object
 	for (const auto &serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
 		serverVec.push_back(server); //add a copy of server to use
@@ -285,4 +299,16 @@ void processHajimeCommand(vector<string> input) {
 		hjlog->out(text.error.InvalidCommand, Error);
 		hjlog->out(text.error.InvalidHajCommand1, Error);
 	}
+}
+
+bool isUserPrivileged() {
+	#if !defined(_WIN32) && !defined(_WIN64)
+	if (!geteuid()) {
+		return true;
+	} else {
+		return false;
+	}
+	#else
+	return false;
+	#endif
 }
