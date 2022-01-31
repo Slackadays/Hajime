@@ -30,9 +30,9 @@ jobs:
         run: |
           cmake source -D CMAKE_CXX_COMPILER=g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-amd64
           path: hajime
   build-linux-x86:
@@ -50,11 +50,11 @@ jobs:
           sudo apt update
           sudo apt install -y g++-10-multilib
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++-10 -m32 -c -Ofast -std=c++20
-          g++-10 -m32 -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
-          
+          echo hajime.cpp getvarsfromfile.cpp server.cpp server_features.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++-10 -m32 -c -Ofast -std=c++20
+          g++-10 -m32 -o hajime hajime.o server.o server_features.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-x86
           path: source/hajime
   build-macos-amd64:
@@ -71,9 +71,9 @@ jobs:
         run: |
           cmake source
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-macos-amd64
           path: hajime
   build-macos-arm64:
@@ -89,11 +89,11 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
-          clang++ -target arm64-apple-macos -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
-          
+          echo hajime.cpp getvarsfromfile.cpp server.cpp server_features.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
+          clang++ -target arm64-apple-macos -o hajime hajime.o server.o server_features.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-macos-arm64
           path: source/hajime
   build-linux-arm64:
@@ -109,12 +109,12 @@ jobs:
       - name: Run a multi-line script
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-10-aarch64-linux-gnu 
+          sudo apt-get install -y g++-10-aarch64-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=aarch64-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-aarch64
           path: hajime
   build-linux-riscv64:
@@ -133,9 +133,9 @@ jobs:
           sudo apt install g++-10-riscv64-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=riscv64-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-riscv64
           path: hajime
   build-linux-ppc:
@@ -154,9 +154,9 @@ jobs:
           sudo apt install g++-10-powerpc-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=powerpc-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-ppc
           path: hajime
   build-linux-ppc64le:
@@ -175,9 +175,9 @@ jobs:
           sudo apt install g++-10-powerpc64le-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=powerpc64le-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-ppc64le
           path: hajime
   build-linux-sparc64:
@@ -196,9 +196,9 @@ jobs:
           sudo apt install g++-10-sparc64-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=sparc64-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-sparc64
           path: hajime
   build-linux-arm32hf:
@@ -217,9 +217,9 @@ jobs:
           sudo apt-get install -y g++-10-arm-linux-gnueabihf
           cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-arm32hf
           path: hajime
   build-linux-alpha:
@@ -238,9 +238,9 @@ jobs:
           sudo apt install g++-10-alpha-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=alpha-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-alpha
           path: hajime
   build-linux-hppa:
@@ -259,9 +259,9 @@ jobs:
           sudo apt install g++-10-hppa-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=hppa-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-hppa
           path: hajime
   build-linux-m68k:
@@ -280,9 +280,9 @@ jobs:
           sudo apt install g++-10-m68k-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=m68k-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-m68k
           path: hajime
   build-linux-ppc64:
@@ -301,9 +301,9 @@ jobs:
           sudo apt install g++-10-powerpc64-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=powerpc64-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-ppc64
           path: hajime
   build-linux-s390x:
@@ -322,9 +322,9 @@ jobs:
           sudo apt install g++-10-s390x-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=s390x-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-s390x
           path: hajime
   build-linux-sh4:
@@ -343,65 +343,65 @@ jobs:
           sudo apt install g++-10-sh4-linux-gnu
           cmake source -D CMAKE_CXX_COMPILER=sh4-linux-gnu-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-sh4
           path: hajime
   build-windows-amd64:
     runs-on: windows-latest
-    
+
     steps:
       - uses: actions/checkout@v2
       - name: Run a multi-line script
         run: |
           cmake source
           cmake --build . -j 8 --config Release
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-windows-amd64
           path: Release\hajime.exe
   build-windows-x86:
     runs-on: windows-latest
-    
+
     steps:
       - uses: actions/checkout@v2
       - name: Run a multi-line script
         run: |
           cmake source -A Win32
           cmake --build . -j 8 --config Release
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-windows-x86
           path: Release\hajime.exe
   build-windows-arm32:
     runs-on: windows-latest
-    
+
     steps:
       - uses: actions/checkout@v2
       - name: Run a multi-line script
         run: |
           cmake source -A ARM
           cmake --build . -j 8 --config Release
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-windows-arm32
           path: Release\hajime.exe
   build-windows-arm64:
     runs-on: windows-latest
-    
+
     steps:
       - uses: actions/checkout@v2
       - name: Run a multi-line script
         run: |
           cmake source -A ARM64
           cmake --build . -j 8 --config Release
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-windows-arm64
           path: Release\hajime.exe
   build-freebsd-amd64:
@@ -420,11 +420,11 @@ jobs:
           curl -L -o fbsd_temp.iso https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-dvd1.iso
           sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
           cd source
-          echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -c -O3 -std=c++20
-          clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
-          
+          echo hajime.cpp getvarsfromfile.cpp server.cpp server_features.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -c -O3 -std=c++20
+          clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -o hajime hajime.o server.o server_features.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-freebsd-amd64
           path: source/hajime
   build-linux-arm32l:
@@ -443,8 +443,8 @@ jobs:
           sudo apt-get install -y g++-10-arm-linux-gnueabi
           cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabi-g++-10
           cmake --build . -j 8
-          
+
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: hajime-linux-arm32l
           path: hajime
