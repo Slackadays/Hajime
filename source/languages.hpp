@@ -70,6 +70,7 @@ class Text {
 			string InvalidCommand;
 			string InvalidHajCommand1;
 			string InvalidServerCommand1;
+			string CreatingPipe;
 		};
 		Error error;
 		struct Warning {
@@ -82,6 +83,7 @@ class Text {
 			string HajConfPresent;
 			string LaunchdServPresent;
 			string FoundServerConfPlusFile;
+			string FileDoesntExist;
 		};
 		Warning warning;
 		struct Question {

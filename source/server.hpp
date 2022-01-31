@@ -55,6 +55,14 @@ class Server {
 	void writeToServerTerminal(string input);
 	void processTerminalBuffer(string input);
 	void processServerCommand(string input);
+	void commandHajime();
+	void commandTime();
+	void commandHelp();
+	void commandDie();
+	void commandCoinflip();
+	void commandDiscord();
+	void commandName();
+	void commandUptime();
 	void mountDrive();
 	void makeDir();
 	void updateUptime();

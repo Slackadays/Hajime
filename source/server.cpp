@@ -57,155 +57,6 @@ Server::Server(shared_ptr<Output> tempObj) {
 	hjlog = tempObj;
 }
 
-void Server::processTerminalBuffer(string input) {
-	while (lines.size() >= 100000) {
-		//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
-		lines.pop_front();
-		//std::cout << "lines size = " << (unsigned short)lines.size() << w.ws_row << std::endl;
-	}
-	input = std::regex_replace(input, std::regex(">\\.\\.\\.\\.", std::regex_constants::optimize), ">"); //replace ">...." with ">" because this shows up in the temrinal output
-	//std::cout << "Pushing back" << std::endl;
-	lines.push_back(input);
-	if (wantsLiveOutput) {
-		std::cout << input << std::flush;
-	}
-}
-
-void Server::processServerCommand(string input) {
-	if (std::regex_search(input, std::regex("\\" + text.server.command.hajime.regex + "(?![\\w])", std::regex_constants::optimize))) {
-		writeToServerTerminal(tellrawWrapper(text.server.command.hajime.output));
-	} else if (std::regex_search(input, std::regex("\\" + text.server.command.time.regex + "(?![\\w])", std::regex_constants::optimize))) {
-		std::time_t timeNow = std::time(nullptr);
-		string stringTimeNow = std::asctime(std::localtime(&timeNow));
-		stringTimeNow.erase(std::remove(stringTimeNow.begin(), stringTimeNow.end(), '\n'), stringTimeNow.end());
-		string hajInfo = text.server.command.time.output + stringTimeNow + '\"';
-		writeToServerTerminal(hajInfo);
-	} else if (std::regex_search(input, std::regex("\\" + text.server.command.help.regex + "{0,1}(?![\\w])", std::regex_constants::optimize))) {
-		writeToServerTerminal(tellrawWrapper(text.server.command.help.output1));
-		writeToServerTerminal(tellrawWrapper(text.server.command.help.output2));
-	} else if (std::regex_search(input, std::regex("\\" + text.server.command.die.regex + "(?![\\w])", std::regex_constants::optimize))) {
-		std::random_device rand;
-		std::uniform_int_distribution<int> die(1, 6);
-		writeToServerTerminal(tellrawWrapper(text.server.command.die.output + std::to_string(die(rand))));
-		//switch this to C++20 format when it becomes supported
-	} else if (std::regex_search(input, std::regex("\\" + text.server.command.coinflip.regex + "(?![\\w])", std::regex_constants::optimize))) {
-		std::random_device rand;
-		std::uniform_int_distribution<int> flip(1, 2);
-		if (flip(rand) == 1) {
-			writeToServerTerminal(tellrawWrapper(text.server.command.coinflip.output.heads));
-		} else {
-			writeToServerTerminal(tellrawWrapper(text.server.command.coinflip.output.tails));
-		}
-	} else if (std::regex_search(input, std::regex("\\" + text.server.command.discord.regex + "(?![\\w])", std::regex_constants::optimize))) {
-		writeToServerTerminal(tellrawWrapper(text.server.command.discord.output));
-	} else if (std::regex_search(input, std::regex("\\" + text.server.command.name.regex + "(?![\\w])", std::regex_constants::optimize))) {
-		string hajInfo = text.server.command.name.output + name;
-		writeToServerTerminal(tellrawWrapper(hajInfo));
-	} else if (std::regex_search(input, std::regex("\\" + text.server.command.uptime.regex + "(?![\\w])", std::regex_constants::optimize))) {
-		string hajInfo = text.server.command.uptime.output1 + std::to_string(uptime) + text.server.command.uptime.output2 + std::to_string(uptime / 60.0) + text.server.command.uptime.output3;
-		writeToServerTerminal(tellrawWrapper(hajInfo));
-	}
-}
-
-string Server::tellrawWrapper(string input) {
-	string output;
-	if (input.front() == '[' && input.back() == ']') {
-		output = "tellraw @a " + input;
-	} else {
-		output = "tellraw @a \"" + input + "\"";
-	}
-	return output;
-}
-
-void Server::writeToServerTerminal(string input) {
-	input += "\n"; //this is the delimiter of the server command
-	#if defined(_WIN64) || defined(_WIN32)
-	DWORD byteswritten;
-	if (!WriteFile(inputwrite, input.c_str(), input.size(), &byteswritten, NULL)) {// write to input pipe
-		hjlog->out("Unable to write to pipe", Warning);
-	} else if (byteswritten != input.size()) {
-		hjlog->out("Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()), Warning);
-	}
-	#else
-	write(fd, input.c_str(), input.length());
-	#endif
-}
-
-void Server::processServerTerminal() {
-	while (true) {
-		string terminalOutput = readFromServer();
-		processServerCommand(terminalOutput);
-		processTerminalBuffer(terminalOutput);
-	}
-}
-
-string Server::readFromServer() {
-	char input[1000];
-	#ifdef _WIN32
-	DWORD length = 0;
-	if (!ReadFile(outputread, input, 1000, &length, NULL))
-	{
-		hjlog->out("ReadFile failed (unable to read from pipe)", Warning);
-		return std::string();
-	}
-	#else
-	int length;
-	length = read(fd, input, sizeof(input));
-	if (length == -1) {
-		hjlog->out("read() errno = " + to_string(errno), Debug);
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-	#endif
-	std::string output;
-	for (int i = 0; i < length; i++) {
-		output.push_back(input[i]);
-	}
-	return output;
-}
-
-void Server::updateUptime() {
-	timeCurrent = std::chrono::steady_clock::now();
-	auto tempUptime = std::chrono::duration_cast<std::chrono::minutes>(timeCurrent - timeStart);
-	uptime = tempUptime.count();
-	hjlog->out("uptime = " + to_string(uptime), Debug);
-}
-
-void Server::processAutoRestart() {
-	if (restartMins > 0 && uptime >= restartMins) {
-		writeToServerTerminal("stop");
-	}	else if (restartMins > 0 && uptime >= (restartMins - 5) && !said5MinRestart) {
-		writeToServerTerminal(tellrawWrapper(text.server.restart.minutes5));
-		said5MinRestart = true;
-	} else if (restartMins > 0 && uptime >= (restartMins - 15) && !said15MinRestart) {
-		writeToServerTerminal(tellrawWrapper(text.server.restart.minutes15));
-		said15MinRestart = true;
-	}
-}
-
-void Server::terminalAccessWrapper() {
-	hjlog->normalDisabled = true;
-	std::cout << "----->" << name << std::endl;
-	wantsLiveOutput = true;
-	for (const auto& it : lines) {
-		std::cout << it << std::flush;
-	}
-	while (true) {
-		std::string user_input = "";
-		std::getline(std::cin, user_input); //getline allows for spaces
-		if (user_input == ".d") {
-			wantsLiveOutput = false;
-			break;
-		} else if (user_input[0] == '.') {
-			std::cout << text.error.InvalidCommand << std::endl;
-			std::cout << text.error.InvalidServerCommand1 << std::endl;
-		} else {
-			writeToServerTerminal(user_input); //write to the master side of the pterminal with user_input converted into a c-style string
-		}
-	}
-	std::cout << "Hajime<-----" << std::endl;
-	hjlog->normalDisabled = false;
-}
-
 void Server::startServer(string confFile) {
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
@@ -223,7 +74,7 @@ void Server::startServer(string confFile) {
 		hjlog->out(text.info.ServerDebug + to_string(hjlog->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		hjlog->out(text.info.ServerDevice + device, None);
 		if (!fs::is_regular_file(file)) {
-			hjlog->out(file + " doesn't exist.", Warning);
+			hjlog->out(file + text.warning.FileDoesntExist, Warning);
 		}
 		while (true) {
 			try {
@@ -343,7 +194,7 @@ void Server::startProgram(string method = "new") {
 			saAttr.lpSecurityDescriptor = NULL;
 			if (!CreatePipe(&outputread, &outputwrite, &saAttr, 0) || !CreatePipe(&inputread, &inputwrite, &saAttr, 0))
 			{
-				hjlog->out("Error creating pipe", Error);
+				hjlog->out(text.error.CreatingPipe, Error);
 				return;
 			}
 			ZeroMemory(&si, sizeof(si)); //ZeroMemory fills si with zeroes
@@ -376,7 +227,7 @@ void Server::startProgram(string method = "new") {
 			slave_fd = open(ptsname(fd), O_RDWR);
 			pid = fork();
 			if (pid == 0) {
-				hjlog->out("This is the child.", Debug);
+				hjlog->out("fork() = 0", Debug);
 				close(fd);
 				struct termios old_sets; //something to save the old settings to
 				struct termios new_sets;
@@ -398,7 +249,7 @@ void Server::startProgram(string method = "new") {
 				//execlp("bc", "/bc", NULL); //use this for testing
 				exit(0);
 			} else {
-				hjlog->out("This is the parent.", Debug);
+				hjlog->out("fork() != 0", Debug);
 				int length = 0;
 				if (!startedRfdThread) {
 					std::jthread rfd(&Server::processServerTerminal, this);

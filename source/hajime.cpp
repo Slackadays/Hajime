@@ -14,6 +14,7 @@ namespace fs = std::filesystem;
 #include <cstring>
 #include <string>
 #include <stdlib.h>
+#include <regex>
 
 #ifdef _MSC_VER
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
@@ -67,12 +68,17 @@ int main(int argc, char *argv[]) {
 	dividerLine();
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
-		auto helpOut = [](auto ...num){(hjlog->out(text.help[num]), ...);}; //print multiple strings pointed to by text.help[] at once by using a parameter pack
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
 		if (flag("-h", "--help")) { //-h = --help = help
-			helpOut(0, 1);
-			hjlog->out(text.help[2] + (string)argv[0] + text.help[3]); //show example of hajime and include its executed file
-			helpOut(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19); //note: Linux doesn't put an endline at the end upon exit, but Windows does
+			for (auto it : text.help) {
+				it = std::regex_replace(it, std::regex("^-(?=\\w+)", std::regex_constants::optimize), "\033[1m$&");
+				it = std::regex_replace(it, std::regex(" (?=\\w+ \\w+ --)", std::regex_constants::optimize), "$&\033[3m");
+				it = std::regex_replace(it, std::regex(" (?=\\w+ --)", std::regex_constants::optimize), "$&\033[0m");
+				it = std::regex_replace(it, std::regex("--(?=\\w+)", std::regex_constants::optimize), "$&\033[1m");
+				it = std::regex_replace(it, std::regex(" (?=\\w+ \\|)", std::regex_constants::optimize), "$&\033[3m");
+				it = std::regex_replace(it, std::regex("\\|", std::regex_constants::optimize), "\033[0m\033[1m$&\033[0m");
+				hjlog->out(it);
+			}
 			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
 		}
 		if (flag("-l", "--language")) {
