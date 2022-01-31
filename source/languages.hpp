@@ -239,6 +239,7 @@ class Text {
 						string help;
 						string name;
 						string uptime;
+						string system;
 						string restart;
 					};
 					Message message;

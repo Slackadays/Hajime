@@ -105,6 +105,7 @@ void Server::commandHelp() {
 	"{\"text\":\"" + text.server.command.name.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.name + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.name.regex + "\"}},"
 	"{\"text\":\"" + text.server.command.time.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.time + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.time.regex + "\"}},"
 	"{\"text\":\"" + text.server.command.uptime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.uptime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.uptime.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.system.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.system + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.system.regex + "\"}},"
 	"{\"text\":\"" + text.server.command.restart.regex + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.restart + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.restart.regex + "\"}}]"));
 }
 
@@ -154,7 +155,7 @@ void Server::commandSystem() {
 	string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"OS, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
 	"{\"text\":\"" + string("CPU") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
-	"{\"text\":\"" + string("RAM") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + "Testing RAM!" + "\"}}]";
+	"{\"text\":\"" + string("RAM") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
@@ -168,6 +169,7 @@ string Server::getOS() {
 	out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
 	return out;
 	#endif
+	return "Only works on Linux right now";
 }
 
 string Server::getCPU() {
@@ -181,6 +183,29 @@ string Server::getCPU() {
 	std::regex_search(temp2, m, std::regex("(?:model name\\s*:\\s*)(.*)", std::regex_constants::optimize));
 	return m[1];
 	#endif
+	return "Only works on Linux right now";
+}
+
+string Server::getRAM() {
+	#if defined(__linux__)
+	std::fstream proc;
+	proc.open("/proc/meminfo", std::fstream::in);
+	std::ostringstream temp;
+	temp << proc.rdbuf();
+	string temp2 = temp.str();
+	std::regex re("\\d+", std::regex_constants::optimize);
+	std::vector<std::string> meminfo;
+	for (auto it = std::sregex_iterator(temp2.begin(), temp2.end(), re); it != std::sregex_iterator(); ++it) {
+		std::smatch m = *it;
+		meminfo.push_back(m.str());
+	}
+	if (meminfo.size() < 3) {
+		return string("Could not get memory info");
+	}
+	string result = meminfo[0] + "kB total, " + meminfo[1] + "kB free, " + meminfo[2] + "kB available";
+	return result;
+	#endif
+	return "Only works on Linux right now";
 }
 
 void Server::processRestartAlert(string input) {

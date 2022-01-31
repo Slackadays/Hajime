@@ -67,6 +67,7 @@ class Server {
 	void commandSystem();
 	string getOS();
 	string getCPU();
+	string getRAM();
 	string addNumberColors(string input);
 	void processRestartAlert(string input);
 	void mountDrive();

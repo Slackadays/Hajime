@@ -201,6 +201,7 @@ server.command.help.message.help = "Show this help message.";
 server.command.help.message.name = "Show this server's name in Hajime.";
 server.command.help.message.time = "Show the server's local time and date.";
 server.command.help.message.uptime = "Show this server's uptime.";
+server.command.help.message.system = "Show this server's system specifications.";
 server.command.help.message.restart = "Show this server's auto-restart schedule.";
 server.command.help.output = "[Hajime] Roll over a command to show its action.";
 server.command.die.regex = ".die";
