@@ -11,6 +11,8 @@ The ultimate Minecraft server startup script!
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/slackadays/hajime/latest)
 ![GitHub Repo stars](https://img.shields.io/github/stars/slackadays/hajime?style=social)
 
+[Hajime en español](README_es.md)
+
 # Discord 💬
 Join our Discord server at https://discord.gg/J6asnc3pEG!
 
@@ -54,7 +56,7 @@ Other languages like Python may seem technically better, but using Python create
 ## What is "Hajime?" 🙋
 "Hajime" is simply "begin" in Japanese when talking about games. I know this because I hear it every time I train with my judo instructor.
 
-# Instructions (WIP) ✅
+# Instructions ✅
 
 ## Pre-compiled binaries (from the [Releases](https://github.com/Slackadays/Hajime/releases) page) 📦
 Your platform is probably supported here. If it isn't, CMake is here to help.
@@ -77,7 +79,7 @@ Hajime can also use what we call the `fakemake` script. It's nothing more than a
 `sh fakemake`. Fakemake will only work on POSIX systems.
    
 # Troubleshooting 🆘
-Open a GitHub Issue or get quick support in our Discord server.
+Open an issue in GitHub Issues or get quick support in our Discord server.
 
 # Supported by MacStadium 🍎
 To develop Hajime for MacOS, MacStadium provides a Mac Mini to help support open source projects like this one.
