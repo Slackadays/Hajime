@@ -1,6 +1,8 @@
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
+#include <VersionHelpers.h>
+#include <intrin.h>
 #pragma comment (lib, "Shell32")
 #else
 #include <unistd.h>
@@ -28,6 +30,7 @@
 #include <ctime>
 //#include <format>
 #include <random>
+#include <array>
 
 #include "getvarsfromfile.hpp"
 #include "server.hpp"
@@ -168,8 +171,50 @@ string Server::getOS() {
 	string out = temp.str();
 	out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
 	return out;
+	#elif defined(_WIN32)
+	// :concern:
+	// to be fair I thought it would be worse
+	std::string name;
+	if (IsWindows10OrGreater())
+	{
+		name = "Windows 10+";
+	}
+	else if (IsWindows8Point1OrGreater())
+	{
+		name = "Windows 8.1";
+	}
+	else if (IsWindows8OrGreater())
+	{
+		name = "Windows 8";
+	}
+	else if (IsWindows7OrGreater())
+	{
+		name = "Windows 7";
+	}
+	else if (IsWindowsVistaOrGreater())
+	{
+		name = "Windows Vista";
+	}
+	else if (IsWindowsXPOrGreater())
+	{
+		name = "Windows XP";
+	}
+	else
+	{
+		name = "Unknown Windows Version";
+	}
+	if (IsWindowsServer())
+	{
+		name += " (Server)";
+	}
+	#ifdef _WIN64
+	name += " 64-bit";
+	#else
+	name += " 32-bit";
 	#endif
-	return "Only works on Linux right now";
+	return name;
+	#endif
+	return "Does not work on your platform";
 }
 
 string Server::getCPU() {
@@ -182,8 +227,27 @@ string Server::getCPU() {
 	string temp2 = temp.str();
 	std::regex_search(temp2, m, std::regex("(?:model name\\s*:\\s*)(.*)", std::regex_constants::optimize));
 	return m[1];
+	#elif defined (_WIN32)
+	// all I know is that it works
+	std::array<int, 4> cpui = {};
+	std::array<char, 64> brand = {};
+	std::vector<std::array<int, 4>> extdata;
+	__cpuid(cpui.data(), 0x80000000);
+	int maxid = cpui[0];
+	for (int i = 0x80000000; i <= maxid; i++)
+	{
+		__cpuidex(cpui.data(), i, 0);
+		extdata.push_back(cpui);
+	}
+
+	// memory trickery split integer into 4 chars
+	memcpy(brand.data(), extdata[2].data(), sizeof(cpui));
+	memcpy(brand.data() + 16, extdata[3].data(), sizeof(cpui));
+	memcpy(brand.data() + 32, extdata[4].data(), sizeof(cpui));
+
+	return std::string(brand.data());
 	#endif
-	return "Only works on Linux right now";
+	return "Does not work on your platform";
 }
 
 string Server::getRAM() {
