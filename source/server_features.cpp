@@ -66,25 +66,25 @@ void Server::processTerminalBuffer(string input) {
 void Server::processServerCommand(string input) {
 	if (std::regex_search(input, std::regex("\\" + text.server.command.hajime.regex + "(?![\\w])", std::regex_constants::optimize))) {
 		commandHajime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.time.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.time.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandTime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.help.regex + "{0,1}(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.help.regex + "{0,1}(?!.\\w)", std::regex_constants::optimize))) {
 		commandHelp();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.die.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.die.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandDie();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.coinflip.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.coinflip.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandCoinflip();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.discord.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.discord.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandDiscord();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.name.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.name.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandName();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.uptime.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.uptime.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandUptime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.restart.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.restart.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandRestart();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.system.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.system.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandSystem();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.perf.regex + "(?![\\S])", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.perf.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandPerf();
 	}
 }
