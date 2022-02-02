@@ -73,6 +73,7 @@ void Server::startServer(string confFile) {
 		hjlog->out(text.info.ServerMethod + method, None);
 		hjlog->out(text.info.ServerDebug + to_string(hjlog->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		hjlog->out(text.info.ServerDevice + device, None);
+		hjlog->out("Restart interval: " + to_string(restartMins), Info);
 		if (!fs::is_regular_file(file)) {
 			hjlog->out(file + text.warning.FileDoesntExist, Warning);
 		}
@@ -226,7 +227,7 @@ void Server::startProgram(string method = "new") {
 			unlockpt(fd);
 			slave_fd = open(ptsname(fd), O_RDWR);
 			pid = fork();
-			if (pid == 0) {
+			if (pid == 0) { //this is the child
 				hjlog->out("fork() = 0", Debug);
 				close(fd);
 				struct termios old_sets; //something to save the old settings to
@@ -248,7 +249,7 @@ void Server::startProgram(string method = "new") {
 				execvp(exec.c_str(), flagArray.data());
 				//execlp("bc", "/bc", NULL); //use this for testing
 				exit(0);
-			} else {
+			} else { //this is the parent
 				hjlog->out("fork() != 0", Debug);
 				int length = 0;
 				if (!startedRfdThread) {
@@ -367,6 +368,7 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(string confFile) {
+	auto eliminateSpaces = [&](auto& ...var){((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);};
 	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
@@ -374,7 +376,7 @@ void Server::readSettings(string confFile) {
 	}
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-		auto setVari = [&](string name, auto& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
+		auto setVari = [&](string name, auto& tempVar){if (*firstSetIterator == name) {try {eliminateSpaces(*secondSetIterator); tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
 		setVar(settings[0], name);
 		setVar(settings[1], exec);
 		setVar(settings[2], file);
@@ -394,6 +396,7 @@ void Server::readSettings(string confFile) {
 	hjlog->out(text.debug.ValidatingSettings, Debug);
 	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
 	remSlash(file, path, device, exec);
+	eliminateSpaces(file, path, device, exec, method, flags, name);
 	#if defined(_WIN64) || defined(_WIN32)
 	flags = exec + ' ' + flags + " -Dfile.encoding=UTF-8 " + file + " nogui";
 	#endif
