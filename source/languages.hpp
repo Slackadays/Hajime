@@ -240,6 +240,7 @@ class Text {
 						string name;
 						string uptime;
 						string system;
+						string perf;
 						string restart;
 					};
 					Message message;
@@ -289,6 +290,11 @@ class Text {
 					string output;
 				};
 				System system;
+				struct Perf {
+					string regex;
+					string output;
+				};
+				Perf perf;
 			};
 			Command command;
 		};

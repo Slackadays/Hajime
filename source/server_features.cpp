@@ -84,6 +84,8 @@ void Server::processServerCommand(string input) {
 		commandRestart();
 	} else if (std::regex_search(input, std::regex("\\" + text.server.command.system.regex + "(?![\\w])", std::regex_constants::optimize))) {
 		commandSystem();
+	} else if (std::regex_search(input, std::regex("\\" + text.server.command.perf.regex + "(?![\\w])", std::regex_constants::optimize))) {
+		commandPerf();
 	}
 }
 
@@ -110,6 +112,7 @@ void Server::commandHelp() {
 	"{\"text\":\"" + text.server.command.time.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.time + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.time.regex + "\"}},"
 	"{\"text\":\"" + text.server.command.uptime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.uptime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.uptime.regex + "\"}},"
 	"{\"text\":\"" + text.server.command.system.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.system + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.system.regex + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.perf + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.perf.regex + "\"}},"
 	"{\"text\":\"" + text.server.command.restart.regex + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.restart + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + text.server.command.restart.regex + "\"}}]"));
 }
 
@@ -163,6 +166,10 @@ void Server::commandSystem() {
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
+void Server::commandPerf() {
+	writeToServerTerminal(formatWrapper("[Hajime] Currently not available"));
+}
+
 string Server::getOS() {
 	#if defined(__linux__)
 	std::fstream proc;
@@ -214,8 +221,12 @@ string Server::getOS() {
 		break;
 	}
 	return name;
+	#elif defined(__APPLE__)
+	return "Blah";
+	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+	return "Blah";
 	#endif
-	return "Only available on Linux or Windows";
+	return "Not available on your platform";
 }
 
 string Server::getCPU() {
@@ -259,12 +270,14 @@ string Server::getCPU() {
 	DWORD number_of_processors = sys_info.dwNumberOfProcessors;
 	brandname.insert(0, std::to_string(number_of_processors) + "x ");
 	return brandname;
+	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+	return "Blah";
 	#endif
 	return "Only available on Linux or Windows";
 }
 
 string Server::getRAM() {
-	#if defined(__linux__)
+	#if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 	std::fstream proc;
 	proc.open("/proc/meminfo", std::fstream::in);
 	std::ostringstream temp;
@@ -297,6 +310,8 @@ string Server::getRAM() {
 	std::string result = roundto2(total_usedmem / div) + '/' + roundto2(total_totalmem / div) + " GB Total, " + std::to_string(std::lround((total_usedmem * 100.0) / total_totalmem)) + "% Used (" +
 		roundto2((mem.ullTotalPhys - mem.ullAvailPhys) / div) + '/' + roundto2(mem.ullTotalPhys / div) + " GB Physical, " + std::to_string(mem.dwMemoryLoad) + "% Used)";
 	return result;
+	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+	return "Blah";
 	#endif
 	return "Only available on Linux or Windows";
 }

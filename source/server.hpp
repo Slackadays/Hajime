@@ -65,6 +65,7 @@ class Server {
 	void commandUptime();
 	void commandRestart();
 	void commandSystem();
+	void commandPerf();
 	string getOS();
 	string getCPU();
 	string getRAM();
