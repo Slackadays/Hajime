@@ -421,7 +421,7 @@ jobs:
           sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
           cd source
           echo hajime.cpp getvarsfromfile.cpp server.cpp server_features.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -D__FreeBSD__ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -c -O3 -std=c++20
-          clang++ -D__FreeBSD__ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -o hajime hajime.o server.o server_features.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+          clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -o hajime hajime.o server.o server_features.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
 
       - uses: actions/upload-artifact@v2
         with:
