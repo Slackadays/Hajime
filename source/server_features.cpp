@@ -1,6 +1,9 @@
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
+#include <VersionHelpers.h>
+#include <intrin.h>
+#include <powerbase.h>
 #pragma comment (lib, "Shell32")
 #else
 #include <unistd.h>
@@ -28,6 +31,7 @@
 #include <ctime>
 //#include <format>
 #include <random>
+#include <array>
 
 #include "getvarsfromfile.hpp"
 #include "server.hpp"
@@ -168,8 +172,62 @@ string Server::getOS() {
 	string out = temp.str();
 	out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
 	return out;
+	#elif defined(_WIN32)
+	// :concern:
+	std::string name;
+	if (IsWindows10OrGreater())
+	{
+		name = "Windows 10+";
+	}
+	else if (IsWindows8Point1OrGreater())
+	{
+		name = "Windows 8.1+";
+	}
+	else if (IsWindows8OrGreater())
+	{
+		name = "Windows 8+";
+	}
+	else if (IsWindows7OrGreater())
+	{
+		name = "Windows 7+";
+	}
+	else if (IsWindowsVistaOrGreater())
+	{
+		name = "Windows Vista+";
+	}
+	else if (IsWindowsXPOrGreater())
+	{
+		name = "Windows XP+";
+	}
+	else
+	{
+		name = "Unknown Windows Version";
+	}
+	if (IsWindowsServer())
+	{
+		name += " (Server)";
+	}
+
+	SYSTEM_INFO sys_info;
+	GetSystemInfo(&sys_info);
+	switch (sys_info.wProcessorArchitecture)
+	{
+	case PROCESSOR_ARCHITECTURE_INTEL:
+		name += " x86";
+		break;
+	case PROCESSOR_ARCHITECTURE_AMD64:
+		name += " x64";
+		break;
+	case PROCESSOR_ARCHITECTURE_ARM:
+		name += " arm";
+		break;
+	case PROCESSOR_ARCHITECTURE_ARM64:
+		name += " arm64";
+		break;
+	}
+	return name;
 	#endif
-	return "Only works on Linux right now";
+	return "Does not work on your platform";
 }
 
 string Server::getCPU() {
@@ -182,8 +240,48 @@ string Server::getCPU() {
 	string temp2 = temp.str();
 	std::regex_search(temp2, m, std::regex("(?:model name\\s*:\\s*)(.*)", std::regex_constants::optimize));
 	return m[1];
+	#elif defined (_WIN32)
+	std::string brandname;
+	#if defined(_M_IX86) || defined(_M_X64)
+	// all I know is that it works
+	std::array<int, 4> cpui = {};
+	std::array<char, 16> cpui_c = {};
+	std::vector<char> brand;
+	__cpuid(cpui.data(), 0x80000000);
+	unsigned int maxid = cpui[0];
+	if (maxid < 0x80000004U)
+	{
+		brandname = "Unknown CPU";
+	}
+	else
+	{
+		for (unsigned int i = 0x80000002U; i <= 0x80000004U; i++)
+		{
+			// here it actually gives chars, but cpuidex only accepts int*
+			__cpuidex(reinterpret_cast<int*>(cpui_c.data()), i, 0);
+			brand.insert(brand.end(), cpui_c.begin(), cpui_c.end());
+		}
+
+		brandname = std::string(brand.begin(), brand.end() - 1);
+		// erase trailing whitespaces
+		while (brandname.back() == ' ')
+		{
+			brandname.pop_back();
+		}
+	}
+	#else
+	brandname = "Unknown ARM CPU";
 	#endif
-	return "Only works on Linux right now";
+
+	// number of threads
+	SYSTEM_INFO sys_info;
+	GetSystemInfo(&sys_info);
+	DWORD number_of_processors = sys_info.dwNumberOfProcessors;
+	brandname.insert(0, std::to_string(number_of_processors) + "x ");
+
+	return brandname;
+	#endif
+	return "Does not work on your platform";
 }
 
 string Server::getRAM() {
@@ -204,8 +302,29 @@ string Server::getRAM() {
 	}
 	string result = meminfo[0] + "kB total, " + meminfo[1] + "kB free, " + meminfo[2] + "kB available";
 	return result;
+	#elif defined(_WIN32)
+	MEMORYSTATUSEX mem;
+	mem.dwLength = sizeof(mem);
+	GlobalMemoryStatusEx(&mem);
+
+	constexpr double div = 1024 * 1024 * 1024;
+	const auto roundto2 = [](double d) -> std::string
+	{
+		std::stringstream ss;
+		ss << std::fixed << std::setprecision(2) << d;
+		return ss.str();
+	};
+
+	DWORDLONG total_totalmem = mem.ullTotalPhys + mem.ullTotalPageFile;
+	DWORDLONG total_availmem = mem.ullAvailPhys + mem.ullAvailPageFile;
+	DWORDLONG total_usedmem = total_totalmem - total_availmem;
+
+	std::string result = roundto2(total_usedmem / div) + '/' + roundto2(total_totalmem / div) + " GB Total, " + std::to_string(std::lround((total_usedmem * 100.0) / total_totalmem)) + "% Used (" +
+		roundto2((mem.ullTotalPhys - mem.ullAvailPhys) / div) + '/' + roundto2(mem.ullTotalPhys / div) + " GB Physical, " + std::to_string(mem.dwMemoryLoad) + "% Used)";
+
+	return result;
 	#endif
-	return "Only works on Linux right now";
+	return "Does not work on your platform";
 }
 
 void Server::processRestartAlert(string input) {
