@@ -171,7 +171,7 @@ void Server::commandPerf() {
 }
 
 string Server::getOS() {
-	#if defined(__linux__) && !defined(__FreeBSD__) //fix GitHub Actions
+	#if defined(__linux__) && !defined(__FreeBSD__)
 	std::fstream proc;
 	proc.open("/proc/version", std::fstream::in);
 	std::ostringstream temp;
@@ -230,7 +230,7 @@ string Server::getOS() {
 }
 
 string Server::getCPU() {
-	#if defined(__linux__)
+	#if defined(__linux__) && !defined(__FreeBSD__)
 	std::smatch m;
 	std::fstream proc;
 	proc.open("/proc/cpuinfo", std::fstream::in);
@@ -277,7 +277,7 @@ string Server::getCPU() {
 }
 
 string Server::getRAM() {
-	#if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+	#if defined(__linux__)
 	std::fstream proc;
 	proc.open("/proc/meminfo", std::fstream::in);
 	std::ostringstream temp;
