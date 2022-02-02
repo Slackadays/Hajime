@@ -172,46 +172,34 @@ string Server::getOS() {
 	string out = temp.str();
 	out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
 	return out;
-	#elif defined(_WIN32)
-	// :concern:
+	#elif defined(_WIN32) || defined (_WIN64)
 	std::string name;
-	if (IsWindows10OrGreater())
-	{
+	if (IsWindows10OrGreater()) {
 		name = "Windows 10+";
 	}
-	else if (IsWindows8Point1OrGreater())
-	{
+	else if (IsWindows8Point1OrGreater()) {
 		name = "Windows 8.1+";
 	}
-	else if (IsWindows8OrGreater())
-	{
+	else if (IsWindows8OrGreater()) {
 		name = "Windows 8+";
 	}
-	else if (IsWindows7OrGreater())
-	{
+	else if (IsWindows7OrGreater()) {
 		name = "Windows 7+";
 	}
-	else if (IsWindowsVistaOrGreater())
-	{
+	else if (IsWindowsVistaOrGreater()) {
 		name = "Windows Vista+";
 	}
-	else if (IsWindowsXPOrGreater())
-	{
+	else if (IsWindowsXPOrGreater()) {
 		name = "Windows XP+";
-	}
-	else
-	{
+	} else {
 		name = "Unknown Windows Version";
 	}
-	if (IsWindowsServer())
-	{
+	if (IsWindowsServer()) {
 		name += " (Server)";
 	}
-
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
-	switch (sys_info.wProcessorArchitecture)
-	{
+	switch (sys_info.wProcessorArchitecture) {
 	case PROCESSOR_ARCHITECTURE_INTEL:
 		name += " x86";
 		break;
@@ -227,7 +215,7 @@ string Server::getOS() {
 	}
 	return name;
 	#endif
-	return "Does not work on your platform";
+	return "Only available on Linux or Windows";
 }
 
 string Server::getCPU() {
@@ -243,45 +231,36 @@ string Server::getCPU() {
 	#elif defined (_WIN32)
 	std::string brandname;
 	#if defined(_M_IX86) || defined(_M_X64)
-	// all I know is that it works
 	std::array<int, 4> cpui = {};
 	std::array<char, 16> cpui_c = {};
 	std::vector<char> brand;
 	__cpuid(cpui.data(), 0x80000000);
 	unsigned int maxid = cpui[0];
-	if (maxid < 0x80000004U)
-	{
+	if (maxid < 0x80000004U) {
 		brandname = "Unknown CPU";
-	}
-	else
-	{
-		for (unsigned int i = 0x80000002U; i <= 0x80000004U; i++)
-		{
+	}	else {
+		for (unsigned int i = 0x80000002U; i <= 0x80000004U; i++) {
 			// here it actually gives chars, but cpuidex only accepts int*
 			__cpuidex(reinterpret_cast<int*>(cpui_c.data()), i, 0);
 			brand.insert(brand.end(), cpui_c.begin(), cpui_c.end());
 		}
-
 		brandname = std::string(brand.begin(), brand.end() - 1);
 		// erase trailing whitespaces
-		while (brandname.back() == ' ')
-		{
+		while (brandname.back() == ' ') {
 			brandname.pop_back();
 		}
 	}
 	#else
-	brandname = "Unknown ARM CPU";
+	brandname = "Unknown or ARM CPU";
 	#endif
-
 	// number of threads
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
 	DWORD number_of_processors = sys_info.dwNumberOfProcessors;
 	brandname.insert(0, std::to_string(number_of_processors) + "x ");
-
 	return brandname;
 	#endif
-	return "Does not work on your platform";
+	return "Only available on Linux or Windows";
 }
 
 string Server::getRAM() {
@@ -306,25 +285,20 @@ string Server::getRAM() {
 	MEMORYSTATUSEX mem;
 	mem.dwLength = sizeof(mem);
 	GlobalMemoryStatusEx(&mem);
-
 	constexpr double div = 1024 * 1024 * 1024;
-	const auto roundto2 = [](double d) -> std::string
-	{
+	const auto roundto2 = [](double d) -> std::string {
 		std::stringstream ss;
 		ss << std::fixed << std::setprecision(2) << d;
 		return ss.str();
 	};
-
 	DWORDLONG total_totalmem = mem.ullTotalPhys + mem.ullTotalPageFile;
 	DWORDLONG total_availmem = mem.ullAvailPhys + mem.ullAvailPageFile;
 	DWORDLONG total_usedmem = total_totalmem - total_availmem;
-
 	std::string result = roundto2(total_usedmem / div) + '/' + roundto2(total_totalmem / div) + " GB Total, " + std::to_string(std::lround((total_usedmem * 100.0) / total_totalmem)) + "% Used (" +
 		roundto2((mem.ullTotalPhys - mem.ullAvailPhys) / div) + '/' + roundto2(mem.ullTotalPhys / div) + " GB Physical, " + std::to_string(mem.dwMemoryLoad) + "% Used)";
-
 	return result;
 	#endif
-	return "Does not work on your platform";
+	return "Only available on Linux or Windows";
 }
 
 void Server::processRestartAlert(string input) {
