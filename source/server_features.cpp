@@ -5,6 +5,9 @@
 #include <intrin.h>
 #include <powerbase.h>
 #pragma comment (lib, "Shell32")
+#elif defined(__APPLE__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
 #else
 #include <unistd.h>
 #include <sys/mount.h>
@@ -222,7 +225,14 @@ string Server::getOS() {
 	}
 	return name;
 	#elif defined(__APPLE__)
-	return "Blah";
+	size_t len;
+	sysctlbyname("kern.version", NULL, &len, NULL, 0);
+	string result(len, '\0');
+	sysctlbyname("kern.version", result.data(), &len, NULL, 0);
+	sysctlbyname("kern.osproductversion", NULL, &len, NULL, 0);
+       	string macosresult(len, '\0');
+        sysctlbyname("kern.osproductversion", macosresult.data(), &len, NULL, 0);
+	return result + " (macOS " + macosresult + ")";
 	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 	return "Blah";
 	#endif
@@ -272,6 +282,15 @@ string Server::getCPU() {
 	return brandname;
 	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 	return "Blah";
+	#elif defined(__APPLE__)
+	size_t len;
+        sysctlbyname("machdep.cpu.brand_string", NULL, &len, NULL, 0);
+        string cpuname(len, '\0');
+        sysctlbyname("machdep.cpu.brand_string", cpuname.data(), &len, NULL, 0);
+        sysctlbyname("hw.ncpu", NULL, &len, NULL, 0);
+        int cpucount;
+        sysctlbyname("hw.ncpu", &cpucount, &len, NULL, 0);
+        return to_string(cpucount) + "x " + cpuname;
 	#endif
 	return "Only available on Linux or Windows";
 }
@@ -312,6 +331,12 @@ string Server::getRAM() {
 	return result;
 	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 	return "Blah";
+	#elif defined(__APPLE__)
+	size_t len;
+        sysctlbyname("hw.memsize", NULL, &len, NULL, 0);
+        long int memtotal;
+        sysctlbyname("hw.memsize", &memtotal, &len, NULL, 0);
+        return to_string(memtotal) + "B total";
 	#endif
 	return "Only available on Linux or Windows";
 }
