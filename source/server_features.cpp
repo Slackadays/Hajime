@@ -92,6 +92,8 @@ void Server::processServerCommand(string input) {
 		commandSystem();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.perf.regex + "(?!.\\w)", std::regex_constants::optimize))) {
 		commandPerf();
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\.ee(?!.\\w)", std::regex_constants::optimize))) {
+		writeToServerTerminal(formatWrapper("[Hajime] https://www.youtube.com/watch?v=kjPD_H81hDc"));
 	}
 }
 
