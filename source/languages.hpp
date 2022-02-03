@@ -233,6 +233,7 @@ class Text {
 					struct Message {
 						string coinflip;
 						string die;
+						string d20;
 						string time;
 						string hajime;
 						string discord;
@@ -251,6 +252,11 @@ class Text {
 					string output;
 				};
 				Die die;
+				struct D20 {
+					string regex;
+					string output;
+				};
+				D20 d20;
 				struct Coinflip {
 					string regex;
 					struct Output {

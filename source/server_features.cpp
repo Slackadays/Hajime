@@ -78,6 +78,8 @@ void Server::processServerCommand(string input) {
 		commandHelp();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.die.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
 		commandDie();
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.d20.regex + "(?!.\\w)", std::regex_constants::optimize))) {
+		commandD20();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.coinflip.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
 		commandCoinflip();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.discord.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
@@ -113,6 +115,7 @@ void Server::commandHelp() {
 	writeToServerTerminal(formatWrapper(text.server.command.help.output));
 	writeToServerTerminal(formatWrapper("[{\"text\":\"" + text.server.command.coinflip.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.coinflip + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.coinflip.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.die.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.die + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.die.regex, std::regex("(\\(|\\))"), "") + "\"}},"
+	"{\"text\":\"" + text.server.command.d20.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.d20 + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.d20.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.discord.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.discord + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.discord.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.hajime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.hajime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.hajime.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.help.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.help + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.help.regex, std::regex("(\\(|\\))"), "") + "\"}},"
@@ -128,6 +131,14 @@ void Server::commandDie() {
 	std::random_device rand;
 	std::uniform_int_distribution<int> die(1, 6);
 	string hajInfo = text.server.command.die.output + std::to_string(die(rand));
+	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
+	//switch this to C++20 format when it becomes supported
+}
+
+void Server::commandD20() {
+	std::random_device rand;
+	std::uniform_int_distribution<int> die(1, 20);
+	string hajInfo = text.server.command.d20.output + std::to_string(die(rand));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 	//switch this to C++20 format when it becomes supported
 }
@@ -177,7 +188,19 @@ void Server::commandSystem() {
 }
 
 void Server::commandPerf() {
-	writeToServerTerminal(formatWrapper("[Hajime] Currently not available"));
+	string hajInfo;
+	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"CPU usage, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUusage() + "\"}},"
+	"{\"text\":\"" + string("CPU migrations") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUmigs() + "\"}},"
+	"{\"text\":\"" + string("last CPU") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLastCPU() + "\"}},"
+	"{\"text\":\"" + string("RAM usage") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAMusage() + "\"}},"
+	"{\"text\":\"" + string("IPC") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPC() + "\"}},"
+	"{\"text\":\"" + string("IPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPS() + "\"}},"
+	"{\"text\":\"" + string("context switches") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getContextSwitches() + "\"}},"
+	"{\"text\":\"" + string("pagefaults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getPagefaults() + "\"}},"
+	"{\"text\":\"" + string("branch instructions") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBranchInstructions() + "\"}},"
+	"{\"text\":\"" + string("branch misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBranchMisses() + "\"}},"
+	"{\"text\":\"" + string("cache misses") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCacheMisses() + "\"}}]";
+	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
 string Server::getOS() {
@@ -388,6 +411,50 @@ string Server::getLoadavg() {
 	#else
 	return "Not available";
 	#endif
+}
+
+string Server::getCPUusage() {
+	return "Currently not available";
+}
+
+string Server::getCPUmigs() {
+	return "Currently not available";
+}
+
+string Server::getLastCPU() {
+	return "Currently not available";
+}
+
+string Server::getRAMusage() {
+	return "Currently not available";
+}
+
+string Server::getIPC() {
+	return "Currently not available";
+}
+
+string Server::getIPS() {
+	return "Currently not available";
+}
+
+string Server::getContextSwitches() {
+	return "Currently not available";
+}
+
+string Server::getPagefaults() {
+	return "Currently not available";
+}
+
+string Server::getBranchInstructions() {
+	return "Currently not available";
+}
+
+string Server::getBranchMisses() {
+	return "Currently not available";
+}
+
+string Server::getCacheMisses() {
+	return "Currently not available";
 }
 
 void Server::processRestartAlert(string input) {

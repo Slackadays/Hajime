@@ -59,6 +59,7 @@ class Server {
 	void commandTime();
 	void commandHelp();
 	void commandDie();
+	void commandD20();
 	void commandCoinflip();
 	void commandDiscord();
 	void commandName();
@@ -71,6 +72,17 @@ class Server {
 	string getRAM();
 	string getUptime();
 	string getLoadavg();
+	string getCPUusage();
+	string getCPUmigs();
+	string getLastCPU();
+	string getRAMusage();
+	string getIPC();
+	string getIPS();
+	string getContextSwitches();
+	string getPagefaults();
+	string getBranchInstructions();
+	string getBranchMisses();
+	string getCacheMisses();
 	string addNumberColors(string input);
 	void processRestartAlert(string input);
 	void mountDrive();
