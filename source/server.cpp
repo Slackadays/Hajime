@@ -74,6 +74,7 @@ void Server::startServer(string confFile) {
 		hjlog->out(text.info.ServerDebug + to_string(hjlog->debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		hjlog->out(text.info.ServerDevice + device, None);
 		hjlog->out("Restart interval: " + to_string(restartMins), Info);
+		hjlog->out("Silent commands: " + to_string(silentCommands), None);
 		if (!fs::is_regular_file(file)) {
 			hjlog->out(file + text.warning.FileDoesntExist, Warning);
 		}
@@ -369,14 +370,14 @@ void Server::removeSlashesFromEnd(string& var) {
 
 void Server::readSettings(string confFile) {
 	auto eliminateSpaces = [&](auto& ...var){((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);};
-	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins"};
+	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		hjlog->out(it, Debug);
 	}
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-		auto setVari = [&](string name, auto& tempVar){if (*firstSetIterator == name) {try {eliminateSpaces(*secondSetIterator); tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
+		auto setVar = [&](auto name, auto& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
+		auto setVari = [&](auto name, auto& tempVar){if (*firstSetIterator == name) {try {eliminateSpaces(*secondSetIterator); tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
 		setVar(settings[0], name);
 		setVar(settings[1], exec);
 		setVar(settings[2], file);
@@ -386,6 +387,7 @@ void Server::readSettings(string confFile) {
 		setVar(settings[6], method);
 		setVar(settings[7], device);
 		setVari(settings[8], restartMins);
+		setVari(settings[9], silentCommands);
 		hjlog->out(text.debug.ReadingReadsettings, Debug);
 	}
 	hjlog->addServerName(name); //send the name of the server name to hjlog so that it can associate a name with a thread id

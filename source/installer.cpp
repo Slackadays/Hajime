@@ -33,7 +33,8 @@ void Installer::installNewServerConfigFile(string fileLocation, bool skipFileChe
 	} else {
 		ofstream outConf(fileLocation);
 		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl;
-		outConf << "exec=java # The file that gets called in the \"new\" method." << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " # This is where your Java flags go." << endl << "file=" + serverFile  + " # The server file you want to start."<< endl << "command= # Only use this if you using the \"old\" method."<< endl << "method=new" << endl << "device=" << endl << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << endl;
+		outConf << "exec=java # The file that gets called in the \"new\" method." << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " # This is where your Java flags go." << endl << "file=" + serverFile  + " # The server file you want to start."<< endl;
+		outConf << "command= # Only use this if you using the \"old\" method."<< endl << "method=new" << endl << "device=" << endl << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << "silentcommands=0" << endl;
 		outConf << text.fileServerConfComment << endl;
 		hjlog->out(text.info.CreatedServerConfig1 + fileLocation + text.info.CreatedServerConfig2, Info);
 		outConf.close();

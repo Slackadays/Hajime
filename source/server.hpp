@@ -101,6 +101,9 @@ class Server {
 
 	inline static bool said15MinRestart;
 	inline static bool said5MinRestart;
+	inline static bool silentCommands;
+
+	inline static string lastCommandUser;
 
 	bool startedRfdThread = false;
 

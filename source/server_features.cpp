@@ -67,6 +67,9 @@ void Server::processTerminalBuffer(string input) {
 }
 
 void Server::processServerCommand(string input) {
+	std::smatch m;
+	std::regex_search(input, m, std::regex("\\[.+\\]: <(.+)> .+", std::regex_constants::optimize));
+	lastCommandUser = m[1];
 	if (std::regex_search(input, std::regex("\\" + text.server.command.hajime.regex + "(?![\\w])", std::regex_constants::optimize))) {
 		commandHajime();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.time.regex + "(?!.\\w)", std::regex_constants::optimize))) {
@@ -399,10 +402,18 @@ string Server::addNumberColors(string input) {
 
 string Server::formatWrapper(string input) {
 	string output;
-	if (input.front() == '[' && input.back() == ']') {
-		output = "tellraw @a " + input;
+	if (!silentCommands) {
+		if (input.front() == '[' && input.back() == ']') {
+			output = "tellraw @a " + input;
+		} else {
+			output = "tellraw @a \"" + input + "\"";
+		}
 	} else {
-		output = "tellraw @a \"" + input + "\"";
+		if (input.front() == '[' && input.back() == ']') {
+			output = "tellraw " + lastCommandUser + " " + input;
+		} else {
+			output = "tellraw " + lastCommandUser + " \"" + input + "\"";
+		}
 	}
 	output = std::regex_replace(output, std::regex("\\[Hajime\\]", std::regex_constants::optimize), "§6$&§f");
 	return output;
