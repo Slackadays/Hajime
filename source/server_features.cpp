@@ -166,7 +166,8 @@ void Server::commandSystem() {
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"OS, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
 	"{\"text\":\"" + string("CPU") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
 	"{\"text\":\"" + string("RAM") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}},"
-	"{\"text\":\"" + string("uptime") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getUptime() + "\"}}]";
+	"{\"text\":\"" + string("uptime") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getUptime() + "\"}},"
+	"{\"text\":\"" + string("loadavg") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLoadavg() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
@@ -334,10 +335,10 @@ string Server::getRAM() {
 	return "Blah";
 	#elif defined(__APPLE__)
 	size_t len;
-        sysctlbyname("hw.memsize", NULL, &len, NULL, 0);
-        long int memtotal;
-        sysctlbyname("hw.memsize", &memtotal, &len, NULL, 0);
-        return to_string(memtotal) + "B total";
+  sysctlbyname("hw.memsize", NULL, &len, NULL, 0);
+  long int memtotal;
+  sysctlbyname("hw.memsize", &memtotal, &len, NULL, 0);
+  return to_string(memtotal) + "B total";
 	#endif
 	return "Only available on Linux or Windows";
 }
@@ -351,9 +352,36 @@ string Server::getUptime() {
 	temp << proc.rdbuf();
 	string temp2 = temp.str();
 	std::regex_search(temp2, m, std::regex("[0-9]+(\\.[0-9]+)?", std::regex_constants::optimize));
-	return string(m[1]) + string(" seconds");
+	try {
+		return string(m[0]) + " seconds (" + to_string(stoi(m[0]) / 60) + string(" minutes, ") + to_string(stoi(m[0]) / 3600) + " hours)";
+	} catch (...) {
+		return "Error parsing memory";
+	}
 	#else
 	return string("Only works on Linux");
+	#endif
+}
+
+string Server::getLoadavg() {
+	#if defined(__linux__)
+	std::fstream proc;
+	proc.open("/proc/loadavg", std::fstream::in);
+	std::ostringstream temp;
+	temp << proc.rdbuf();
+	string temp2 = temp.str();
+	std::regex re("[0-9.]+", std::regex_constants::optimize);
+	std::vector<std::string> loadinfo;
+	for (auto it = std::sregex_iterator(temp2.begin(), temp2.end(), re); it != std::sregex_iterator(); ++it) {
+		std::smatch m = *it;
+		loadinfo.push_back(m.str());
+	}
+	if (loadinfo.size() < 3) {
+		return string("Could not get load average info");
+	}
+	string result = "last 1 minute: " + loadinfo[0] + ", last 5 minutes: " + loadinfo[1] + ", last 10 minutes: " + loadinfo[2];
+	return result;
+	#else
+	return "Not available";
 	#endif
 }
 
