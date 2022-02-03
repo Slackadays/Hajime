@@ -352,6 +352,8 @@ string Server::getUptime() {
 	string temp2 = temp.str();
 	std::regex_search(temp2, m, std::regex("[0-9]+(\\.[0-9]+)?", std::regex_constants::optimize));
 	return string(m[1]) + string(" seconds");
+	#else
+	return string("Only works on Linux");
 	#endif
 }
 
