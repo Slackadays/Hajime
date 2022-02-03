@@ -69,6 +69,7 @@ class Server {
 	string getOS();
 	string getCPU();
 	string getRAM();
+	string getUptime();
 	string addNumberColors(string input);
 	void processRestartAlert(string input);
 	void mountDrive();

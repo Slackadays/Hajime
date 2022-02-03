@@ -165,7 +165,8 @@ void Server::commandSystem() {
 	string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"OS, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
 	"{\"text\":\"" + string("CPU") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
-	"{\"text\":\"" + string("RAM") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}}]";
+	"{\"text\":\"" + string("RAM") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}},"
+	"{\"text\":\"" + string("uptime") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getUptime() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
@@ -339,6 +340,19 @@ string Server::getRAM() {
         return to_string(memtotal) + "B total";
 	#endif
 	return "Only available on Linux or Windows";
+}
+
+string Server::getUptime() {
+	#if defined(__linux__)
+	std::smatch m;
+	std::fstream proc;
+	proc.open("/proc/uptime", std::fstream::in);
+	std::ostringstream temp;
+	temp << proc.rdbuf();
+	string temp2 = temp.str();
+	std::regex_search(temp2, m, std::regex("[0-9]+(\\.[0-9]+)?", std::regex_constants::optimize));
+	return string(m[1]) + string(" seconds");
+	#endif
 }
 
 void Server::processRestartAlert(string input) {
