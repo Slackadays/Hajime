@@ -427,47 +427,47 @@ string Server::getLoadavg() {
 }
 
 string Server::getCPUusage() {
-	return "Currently not available";
+	return to_string(CPUpercent1m) + " last 1 minute, " + to_string(CPUpercent5m) + " last 5, " + to_string(CPUpercent15m) + " last 15";
 }
 
 string Server::getCPUmigs() {
-	return "Currently not available";
+	return to_string(CPUmigrations1m) + " last 1 minute, " + to_string(CPUmigrations5m) + " last 5, " + to_string(CPUmigrations15m) + " last 15";
 }
 
 string Server::getLastCPU() {
-	return "Currently not available";
+	return "last cpu seen: " + to_string(lastseenCPU);
 }
 
 string Server::getRAMusage() {
-	return "Currently not available";
+	return to_string(RAMpercent1m) + "% last 1 minute, " + to_string(RAMpercent5m) + "% last 5, " + to_string(RAMpercent15m) + "% last 15 (" + to_string((RAMbytes1m / 1024) / 1024) + "MB/" + to_string((RAMbytes5m / 1024) / 1024) + "MB/" + to_string((RAMbytes15m / 1024) / 1024) + "MB)";
 }
 
 string Server::getIPC() {
-	return "Currently not available";
+	return to_string(IPC1m) + " last 1 minute, " + to_string(IPC5m) + " last 5, " + to_string(IPC15m) + " last 15";
 }
 
 string Server::getIPS() {
-	return "Currently not available";
+	return to_string(IPS1m) + " last 1 minute, " + to_string(IPS5m) + " last 5, " + to_string(IPS15m) + " last 15";
 }
 
 string Server::getContextSwitches() {
-	return "Currently not available";
+	return to_string(contextSwitches1m) + " last 1 minute, " + to_string(contextSwitches5m) + " last 5, " + to_string(contextSwitches15m) + " last 15";
 }
 
 string Server::getPagefaults() {
-	return "Currently not available";
+	return to_string(pageFaults1m) + " last 1 minute, " + to_string(pageFaults5m) + " last 5, " + to_string(pageFaults15m) + " last 15";
 }
 
 string Server::getBranchInstructions() {
-	return "Currently not available";
+	return to_string(branchInstructions1m) + " last 1 minute, " + to_string(branchInstructions5m) + " last 5, " + to_string(branchInstructions15m) + " last 15";
 }
 
 string Server::getBranchMisses() {
-	return "Currently not available";
+	return to_string(branchMisses1m) + " last 1 minute, " + to_string(branchMisses5m) + " last 5, " + to_string(branchMisses15m) + " last 15";
 }
 
 string Server::getCacheMisses() {
-	return "Currently not available";
+	return to_string(cacheMisses1m) + " last 1 minute, " + to_string(cacheMisses5m) + " last 5, " + to_string(cacheMisses15m) + " last 15";
 }
 
 void Server::processRestartAlert(string input) {
