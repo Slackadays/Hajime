@@ -1,14 +1,13 @@
 #!/bin/sh
 
 run_and_add_perms() {
-  TARGET_FILE=$1
-  unzip $1
-  if [ -e hajime ]
+  unzip "$1"
+  if [ -e "hajime" ]
   then
     echo "Assigning the CAP_PERFMON capability to Hajime..."
     sudo setcap 'cap_perfmon+pe' hajime
     chmod +x hajime
-    rm $1
+    rm "$1"
     ./hajime
     exit 0
   fi
@@ -89,8 +88,8 @@ cd Hajime
 cmake source
 cmake --build . -j 9
 echo "Cleaning up..."
-chown -R $USER "../Hajime/.git" #change perms for certain misbehaving files that come with git
-mv hajime ../ #move the binary to the original folder where the script was started
+chown -R "$USER" "../Hajime/.git" #change perms for certain misbehaving files that come with git
+mv hajime "../" #move the binary to the original folder where the script was started
 rm -rf ../Hajime #remove the cloned directory, ignore junk files from .git
 cd ../
 echo "Assigning the CAP_PERFMON capability to Hajime..."
