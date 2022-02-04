@@ -117,19 +117,19 @@ class Server {
 	inline static bool doCommands;
 	inline static bool silentCommands;
 
-	inline static std::atomic<long long> CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
-	inline static std::atomic<double> CPUpercent1m, CPUpercent5m, CPUpercent15m;
-	inline static std::atomic<long> CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
-	inline static std::atomic<long> lastseenCPU;
-	inline static std::atomic<double> RAMpercent1m, RAMpercent5m, RAMpercent15m;
-	inline static std::atomic<long long> RAMbytes1m, RAMbytes5m, RAMbytes15m;
-	inline static std::atomic<double> IPC1m, IPC5m, IPC15m;
-	inline static std::atomic<double> IPS1m, IPS5m, IPS15m;
-	inline static std::atomic<long long> contextSwitches1m, contextSwitches5m, contextSwitches15m;
-	inline static std::atomic<long long> pageFaults1m, pageFaults5m, pageFaults15m;
-	inline static std::atomic<long long> branchInstructions1m, branchInstructions5m, branchInstructions15m;
-	inline static std::atomic<long long> branchMisses1m, branchMisses5m, branchMisses15m;
-	inline static std::atomic<long long> cacheMisses1m, cacheMisses5m, cacheMisses15m;
+	inline static std::atomic<unsigned long> CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
+	inline static std::atomic<float> CPUpercent1m, CPUpercent5m, CPUpercent15m;
+	inline static std::atomic<unsigned long> CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
+	inline static std::atomic<unsigned long> lastseenCPU;
+	inline static std::atomic<float> RAMpercent1m, RAMpercent5m, RAMpercent15m;
+	inline static std::atomic<unsigned long> RAMbytes1m, RAMbytes5m, RAMbytes15m;
+	inline static std::atomic<float> IPC1m, IPC5m, IPC15m;
+	inline static std::atomic<float> IPS1m, IPS5m, IPS15m;
+	inline static std::atomic<unsigned long> contextSwitches1m, contextSwitches5m, contextSwitches15m;
+	inline static std::atomic<unsigned long> pageFaults1m, pageFaults5m, pageFaults15m;
+	inline static std::atomic<unsigned long> branchInstructions1m, branchInstructions5m, branchInstructions15m;
+	inline static std::atomic<unsigned long> branchMisses1m, branchMisses5m, branchMisses15m;
+	inline static std::atomic<unsigned long> cacheMisses1m, cacheMisses5m, cacheMisses15m;
 
 	inline static string lastCommandUser;
 
