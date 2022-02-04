@@ -18,4 +18,6 @@ add_executable(hajime hajime.cpp server.cpp server_features.cpp getvarsfromfile.
 set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
 
 target_link_libraries(hajime Threads::Threads)
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -latomic")
+if (LINUX)
+  set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -latomic")
+endif()
