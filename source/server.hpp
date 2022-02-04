@@ -119,8 +119,8 @@ class Server {
 
 	inline static std::atomic<long long> CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
 	inline static std::atomic<double> CPUpercent1m, CPUpercent5m, CPUpercent15m;
-	inline static std::atomic<long> CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
-	inline static std::atomic<long> lastseenCPU;
+	inline static std::atomic<long long> CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
+	inline static std::atomic<int> lastseenCPU;
 	inline static std::atomic<double> RAMpercent1m, RAMpercent5m, RAMpercent15m;
 	inline static std::atomic<long long> RAMbytes1m, RAMbytes5m, RAMbytes15m;
 	inline static std::atomic<double> IPC1m, IPC5m, IPC15m;
