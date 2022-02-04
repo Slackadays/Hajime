@@ -530,14 +530,13 @@ string Server::readFromServer() {
 	char input[1000];
 	#if defined(_WIN32) || defined (_WIN64)
 	DWORD length = 0;
-	if (!ReadFile(outputread, input, 1000, &length, NULL))
-	{
+	if (!ReadFile(outputread, input, 1000, &length, NULL)) {
 		std::cout << "ReadFile failed (unable to read from pipe)" << std::endl;
 		return std::string();
 	}
 	#else
-	int length;
-	length = read(fd, input, sizeof(input));
+	errno = 0;
+	ssize_t length = read(fd, input, sizeof(input));
 	if (length == -1) {
 		std::cout << "Error reading file descriptor (errno = " + to_string(errno) + ")" << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
