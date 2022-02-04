@@ -537,7 +537,7 @@ string Server::readFromServer() {
 	#else
 	errno = 0;
 	ssize_t length = read(fd, input, sizeof(input));
-	if (length == -1) {
+	if (length == -1 || errno == EAGAIN || errno == EINTR) {
 		std::cout << "Error reading file descriptor (errno = " + to_string(errno) + ")" << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
