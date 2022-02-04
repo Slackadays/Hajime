@@ -15,7 +15,7 @@ using std::ofstream;
 #include "output.hpp"
 #include "languages.hpp"
 
-void Output::init(string file, bool debugOrNot) {
+void Output::init(const string& file, bool debugOrNot) {
 	logToFile = true;
 	logFilename = file;
 	debug = debugOrNot;
@@ -160,7 +160,7 @@ string Output::addPrefixByType(string input, outType type) {
 	return (prefix + input);
 }
 
-void Output::addServerName(string serverName) {
+void Output::addServerName(const string& serverName) {
 	if (!threadToNameMap.count(std::this_thread::get_id())) {
 		threadToNameMap[std::this_thread::get_id()] = serverName;
 	} else {

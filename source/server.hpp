@@ -40,7 +40,7 @@ using std::vector;
 using std::cout;
 
 class Server {
-	bool hasOutput, hasOutputUSB, hasMounted = false;
+	bool hasOutput = false, hasOutputUSB = false, hasMounted = false;
 
 	int systemi = 0;
 

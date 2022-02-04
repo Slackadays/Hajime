@@ -18,7 +18,7 @@ using std::string;
 #include "output.hpp"
 #include "constants.hpp"
 
-void Text::applyLang(string lang) {
+void Text::applyLang(const string& lang) {
 	//the fallack is English
 	#include "en.hpp"
 	language = lang;

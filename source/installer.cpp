@@ -45,7 +45,7 @@ void Installer::installNewServerConfigFile(const string& fileLocation, const boo
 	}
 }
 
-void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck, string lang) {
+void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck, const string& lang) {
 	hjlog->out(text.info.InstallingDefHajConf + fileLocation + "...", Info);
 	hjlog->out(text.info.CheckingExistingFile, Info);
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
@@ -74,6 +74,9 @@ void Installer::installStartupService(const string& sysService) {
 	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\hajime.exe";
 	cout << command << endl;
 	int result = system(command.c_str());
+	if (result == 0 || result == -1) {
+		hjlog->out("system() error", Error);
+	}
 	if (!IsUserAnAdmin()) {
 		hjlog->out(text.error.StartupServiceWindowsAdmin, Error);
 		hjlog->out(text.info.TipAdministrator, Info);
