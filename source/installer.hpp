@@ -19,8 +19,8 @@ using std::endl;
 
 class Installer {
 	public:
-		void installStartupService(string sysService);
-		static void installNewServerConfigFile(string fileLocation, bool skipFileCheck, string flags, string serverFile);
+		void installStartupService(const string& sysService);
+		static void installNewServerConfigFile(const string& fileLocation, const bool& skipFileCheck, const string& flags, const string& serverFile);
 		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false, string lang = "en");
 		static void installDefaultServersFile(string serversFile, bool skipFileCheck = false, std::vector<string> servers = {"MyServer"});
 		Installer(std::shared_ptr<Output> log);
