@@ -138,27 +138,6 @@ jobs:
         with:
           name: hajime-linux-riscv64
           path: hajime
-  build-linux-ppc:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          sudo apt update
-          sudo apt install g++-10-powerpc-linux-gnu
-          cmake source -D CMAKE_CXX_COMPILER=powerpc-linux-gnu-g++-10
-          cmake --build . -j 8
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: hajime-linux-ppc
-          path: hajime
   build-linux-ppc64le:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -264,27 +243,6 @@ jobs:
         with:
           name: hajime-linux-hppa
           path: hajime
-  build-linux-m68k:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          sudo apt update
-          sudo apt install g++-10-m68k-linux-gnu
-          cmake source -D CMAKE_CXX_COMPILER=m68k-linux-gnu-g++-10
-          cmake --build . -j 8
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: hajime-linux-m68k
-          path: hajime
   build-linux-ppc64:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -326,27 +284,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: hajime-linux-s390x
-          path: hajime
-  build-linux-sh4:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          sudo apt update
-          sudo apt install g++-10-sh4-linux-gnu
-          cmake source -D CMAKE_CXX_COMPILER=sh4-linux-gnu-g++-10
-          cmake --build . -j 8
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: hajime-linux-sh4
           path: hajime
   build-windows-amd64:
     runs-on: windows-latest
@@ -427,24 +364,3 @@ jobs:
         with:
           name: hajime-freebsd-amd64
           path: source/hajime
-  build-linux-arm32l:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-10-arm-linux-gnueabi
-          cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabi-g++-10
-          cmake --build . -j 8
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: hajime-linux-arm32l
-          path: hajime
