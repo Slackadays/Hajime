@@ -9,7 +9,7 @@ class Text {
 		void autoSetLanguage();
 		string getUserLanguage();
 		void applyLang(const string& lang);
-		Text(string lang);
+		explicit Text(string lang);
 		std::vector<string> help;
 		string language;
 		struct Errno {

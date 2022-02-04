@@ -142,7 +142,7 @@ class Server {
 	//super duper important!!
 	public:
 		inline static string name, exec, file, path, command, flags, confFile, device, method, cmdline = "";
-		Server(shared_ptr<Output> tempObj);
+		explicit Server(shared_ptr<Output> tempObj);
 		bool isRunning = false;
 		void startServer(string confFile);
 		void terminalAccessWrapper();
