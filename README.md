@@ -17,15 +17,15 @@
 Join our Discord server at https://discord.gg/J6asnc3pEG!
 
 # Quick Installation ⬇️
-## Linux | macOS | FreeBSD 🐧🍎👿
+### Linux | macOS | FreeBSD 🐧🍎👿
 Copy and paste this command into the terminal to install. Or, go to the Releases page and download the latest release.
 ```
 sh <(curl -L https://gethaji.me)
 ```
-## Windows 🪟
+### Windows 🪟
 Go to the Releases page and download the latest release.
 
-## Tutorial Videos 🖵
+### Tutorial Videos 🖵
 
 Check out the official Hajime tutorial video series!
 
