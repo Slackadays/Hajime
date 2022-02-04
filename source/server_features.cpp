@@ -518,7 +518,9 @@ void Server::writeToServerTerminal(string input) {
 void Server::processServerTerminal() {
 	while (true) {
 		string terminalOutput = readFromServer();
-		processServerCommand(terminalOutput);
+		if (doCommands) {
+			processServerCommand(terminalOutput);
+		}
 		processRestartAlert(terminalOutput);
 		processTerminalBuffer(terminalOutput);
 	}

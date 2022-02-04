@@ -380,7 +380,7 @@ void Server::removeSlashesFromEnd(string& var) {
 
 void Server::readSettings(string confFile) {
 	auto eliminateSpaces = [&](auto& ...var){((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);};
-	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands"};
+	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		hjlog->out(it, Debug);
@@ -398,6 +398,7 @@ void Server::readSettings(string confFile) {
 		setVar(settings[7], device);
 		setVari(settings[8], restartMins);
 		setVari(settings[9], silentCommands);
+		setVari(settings[10], doCommands);
 		hjlog->out(text.debug.ReadingReadsettings, Debug);
 	}
 	hjlog->addServerName(name); //send the name of the server name to hjlog so that it can associate a name with a thread id

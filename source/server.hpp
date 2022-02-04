@@ -114,6 +114,7 @@ class Server {
 
 	inline static bool said15MinRestart;
 	inline static bool said5MinRestart;
+	inline static bool doCommands;
 	inline static bool silentCommands;
 
 	inline static std::atomic<long long> CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
