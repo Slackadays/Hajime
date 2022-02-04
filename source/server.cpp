@@ -33,7 +33,7 @@
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
 	#define jthread thread
 #endif
-#elif (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__) || defined(__clang__)) //jthreads are only in C++20 and up and not supported by Clang yet
+#elif (__cplusplus <= 201703L || defined(__APPLE__) || defined(__clang__)) //jthreads are only in C++20 and up and not supported by Clang yet
 	#define jthread thread
 #endif
 
@@ -216,6 +216,11 @@ void Server::startProgram(string method = "new") {
 				rfd.detach();
 				startedRfdThread = true;
 			}
+			if (!startedPerfThread) {
+				std::jthread perfThread(&Server::processPerfStats, this);
+				perfThread.detach();
+				startedPerfThread = true;
+			}
 			#else
 			hjlog->out(text.debug.Flags + flags, Debug);
 			auto flagTemp = toArray(flags);
@@ -257,6 +262,11 @@ void Server::startProgram(string method = "new") {
 					std::jthread rfd(&Server::processServerTerminal, this);
 					rfd.detach();
 					startedRfdThread = true;
+				}
+				if (!startedPerfThread) {
+					std::jthread perfThread(&Server::processPerfStats, this);
+					perfThread.detach();
+					startedPerfThread = true;
 				}
 				close(slave_fd);
 				std::this_thread::sleep_for(std::chrono::seconds(4));

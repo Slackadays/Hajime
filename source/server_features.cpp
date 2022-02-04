@@ -52,6 +52,19 @@ using namespace std::chrono;
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
+void Server::processPerfStats() {
+	while (true) {
+		#if defined(_WIN32) || defined(_WIN64)
+		//do stuff here
+		//update the values in server.hpp
+		#else
+		//do stuff here
+		//update the values in server.hpp
+		#endif
+		std::this_thread::sleep_for(std::chrono::seconds(60));
+	}
+}
+
 void Server::processTerminalBuffer(string input) {
 	while (lines.size() >= 100000) {
 		//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;

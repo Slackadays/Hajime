@@ -55,6 +55,7 @@ class Server {
 	void writeToServerTerminal(string input);
 	void processTerminalBuffer(string input);
 	void processServerCommand(string input);
+	void processPerfStats();
 	void commandHajime();
 	void commandTime();
 	void commandHelp();
@@ -115,9 +116,23 @@ class Server {
 	inline static bool said5MinRestart;
 	inline static bool silentCommands;
 
+	inline static std::atomic<long long> CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
+	inline static std::atomic<double> CPUpercent1m, CPUpercent5m, CPUpercent15m;
+	inline static std::atomic<long> CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
+	inline static std::atomic<long> lastseenCPU;
+	inline static std::atomic<double> RAMusage1m, RAMusage5m, RAMusage15m;
+	inline static std::atomic<double> IPC1m, IPC5m, IPC15m;
+	inline static std::atomic<double> IPS1m, IPS5m, IPS15m;
+	inline static std::atomic<long long> contextSwitches1m, contextSwitches5m, contextSwitches15m;
+	inline static std::atomic<long long> pageFaults1m, pageFaults5m, pageFaults15m;
+	inline static std::atomic<long long> branchInstructions1m, branchInstructions5m, branchInstructions15m;
+	inline static std::atomic<long long> branchMisses1m, branchMisses5m, branchMisses15m;
+	inline static std::atomic<long long> cacheMisses1m, cacheMisses5m, cacheMisses15m;
+
 	inline static string lastCommandUser;
 
 	bool startedRfdThread = false;
+	bool startedPerfThread = false;
 
 	inline static std::atomic<bool> wantsLiveOutput; //you can't assign a value to this yet, so we give it a value before we use it
 
