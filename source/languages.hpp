@@ -8,7 +8,7 @@ class Text {
 	public:
 		void autoSetLanguage();
 		string getUserLanguage();
-		void applyLang(string lang);
+		void applyLang(const string& lang);
 		Text(string lang);
 		std::vector<string> help;
 		string language;
