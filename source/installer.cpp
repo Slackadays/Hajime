@@ -27,7 +27,7 @@ Installer::Installer(std::shared_ptr<Output> log) {
 	hjlog = log;
 }
 
-void Installer::installNewServerConfigFile(string fileLocation, bool skipFileCheck, string flags, string serverFile) {
+void Installer::installNewServerConfigFile(const string& fileLocation, const bool& skipFileCheck, const string& flags, const string& serverFile) {
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
@@ -68,7 +68,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 	}
 }
 
-void Installer::installStartupService(string sysService) {
+void Installer::installStartupService(const string& sysService) {
 	#if defined(_WIN64) || defined (_WIN32)
 	hjlog->out(text.info.InstallingWStartServ, Info);
 	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\hajime.exe";

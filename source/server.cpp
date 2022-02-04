@@ -130,7 +130,7 @@ void Server::startServer(string confFile) {
 			updateUptime();
 			processAutoRestart();
 		}
-	} catch(string s) {
+	} catch(string& s) {
 		hjlog->out(s);
 	}
  catch(...) { //error handling
@@ -146,14 +146,14 @@ vector<string> Server::toArray(string input) {
 	execFile = path + '/' + exec;
 	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
 	for (int i = 0; i < input.length(); temp = "") {
-		while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
+		while (i < input.length() && input[i] == ' ') { //skip any leading whitespace
 			i++;
 		}
-		while (input[i] != ' ' && i < input.length()) { //add characters to a temp variable that will go into the vector
+		while (i < input.length() && input[i] != ' ') { //add characters to a temp variable that will go into the vector
 			temp += input[i];
 			i++;
 		}
-		while (input[i] == ' ' && i < input.length()) { //skip any trailing whitespace
+		while (i < input.length() && input[i] == ' ') { //skip any trailing whitespace
 			i++;
 		}
 		flagVector.push_back(temp); //add the finished flag to the vector of flags
@@ -188,6 +188,9 @@ void Server::startProgram(string method = "new") {
 		if (method == "old") {
 			hjlog->out(text.debug.UsingOldMethod, Debug);
 			int returnVal = system(command.c_str()); //convert the command to a c-style string, execute the command
+			if (returnVal == 0 || returnVal == -1) {
+				hjlog->out("system() error", Error);
+			}
 		} else if (method == "new") {
 			hjlog->out(text.debug.UsingNewMethod, Debug);
 			#if defined(_WIN64) || defined (_WIN32)
@@ -257,7 +260,6 @@ void Server::startProgram(string method = "new") {
 				exit(0);
 			} else { //this is the parent
 				hjlog->out("fork() != 0", Debug);
-				int length = 0;
 				if (!startedRfdThread) {
 					std::jthread rfd(&Server::processServerTerminal, this);
 					rfd.detach();
@@ -378,7 +380,7 @@ void Server::removeSlashesFromEnd(string& var) {
 	}
 }
 
-void Server::readSettings(string confFile) {
+void Server::readSettings(const string confFile) {
 	auto eliminateSpaces = [&](auto& ...var){((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);};
 	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands"};
 	vector<string> results = getVarsFromFile(confFile, settings);
@@ -434,7 +436,7 @@ int Server::getPID() {
 				return 0;
 			}
 		} else {
-			int errnum = errno;
+			//int errnum = errno;
 			return 0;
 		}
 	} else {
