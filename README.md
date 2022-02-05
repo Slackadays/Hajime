@@ -35,6 +35,19 @@ Check out the official Hajime tutorial video series!
 [**BitChute** ](https://www.bitchute.com/channel/DyRXhLP4Ghxd/)
 
 # An Introduction 👋
+
+### Imagine your Minecraft server working just fine, until it isn't. 
+
+### Or, your server is running a bit too slow for your liking. 
+
+### Or, you want to gain insights into performance. 
+
+### Or, you just want to get playing on Minecraft.
+
+### Introducing Hajime.
+
+## Why Hajime?
+
 Hajime fills in a gaping void in the Minecraft server management world. On one end of the spectrum, you have startmc.sh. startmc.sh is super easy to use but offers no features at all. On the other end there are mark2 and Pterodactyl. These offer a lot of features, but are difficult to install and use. Hajime changes all of this by aiming to be extremely easy to use while offering all the features you could possibly want. Imagine the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in smartness and ease-of-use.
 
 ## Features 🎛️
