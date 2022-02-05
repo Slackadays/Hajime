@@ -48,7 +48,9 @@ Check out the official Hajime tutorial video series!
 
 ## Why Hajime?
 
-Hajime fills in a gaping void in the Minecraft server management world. On one end of the spectrum, you have startmc.sh. startmc.sh is super easy to use but offers no features at all. On the other end there are mark2 and Pterodactyl. These offer a lot of features, but are difficult to install and use. Hajime changes all of this by aiming to be extremely easy to use while offering all the features you could possibly want. Imagine the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in smartness and ease-of-use.
+Hajime fills in a gaping void in the Minecraft server management world. On one end of the spectrum, you have startmc.sh. startmc.sh is super easy to use but offers no features at all. On the other end there are mark2 and Pterodactyl. These offer a lot of features, but are difficult to install and use. Hajime changes all of this by aiming to be extremely easy to use while offering all the features you could possibly want. 
+
+As a comparison, remember the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in smartness and ease-of-use.
 
 ## Features 🎛️
 - Keeps your server running in the background so you can keep playing!
