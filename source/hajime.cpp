@@ -40,8 +40,8 @@ using std::make_shared;
 using std::vector;
 
 bool ee = false;
-vector<Server> serverVec; //create an array of individual server objects
-vector<std::jthread> threadVec; //create an array of thread objects
+vector<Server> serverVec = {}; //create an array of individual server objects
+vector<std::jthread> threadVec = {}; //create an array of thread objects
 string defaultServerConfFile = "MyServer.server";
 string defaultServersFile = "servers.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
 	if (!SetConsoleMode(hOut, (dwMode += ENABLE_VIRTUAL_TERMINAL_PROCESSING))) {
-		hjlog->noColors = true;
+		hjlog.noColors = true;
 	}
 	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
 	#endif
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 				it = std::regex_replace(it, std::regex("--(?=\\w+)", std::regex_constants::optimize), "$&\033[1m");
 				it = std::regex_replace(it, std::regex(" (?=\\w+ \\|)", std::regex_constants::optimize), "$&\033[3m");
 				it = std::regex_replace(it, std::regex("\\|", std::regex_constants::optimize), "\033[0m\033[1m$&\033[0m");
-				hjlog->out(it);
+				hjlog.out(it);
 			}
 			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
 		}
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 			if ((i < (argc - 1)) && string(argv[i + 1]).front() != '-') {
 				text.applyLang(argv[i + 1]);
 			} else {
-				hjlog->out(text.error.NotEnoughArgs, Error);
+				hjlog.out(text.error.NotEnoughArgs, Error);
 				return 0;
 			}
 		}
@@ -96,13 +96,13 @@ int main(int argc, char *argv[]) {
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
 		if (flag("-f", "--server-file")) {
 			if (!assignNextToVar(defaultServerConfFile)) {
-				hjlog->out(text.error.NotEnoughArgs, Error);
+				hjlog.out(text.error.NotEnoughArgs, Error);
 				return 0;
 			}
 		}
 		if (flag("-hf", "--hajime-file")) {
 			if (!assignNextToVar(hajDefaultConfFile)) {
-				hjlog->out(text.error.NotEnoughArgs, Error);
+				hjlog.out(text.error.NotEnoughArgs, Error);
 				return 0;
 			}
 		}
@@ -126,13 +126,13 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		if (flag("-v", "--verbose")) {
-			hjlog->verbose = true;
+			hjlog.verbose = true;
 		}
 		if (flag("-m", "--monochrome", "--no-colors")) {
-			hjlog->noColors = true;
+			hjlog.noColors = true;
 		}
 		if (flag("-d", "--debug")) {
-			hjlog->debug = true;
+			hjlog.debug = true;
 		}
 		if (flag("-ee")) {
 			ee = true;
@@ -145,64 +145,65 @@ int main(int argc, char *argv[]) {
 			wizard.doArtificialPauses = false;
 		}
 		if (flag("-tc", "--thread-colors")) {
-			hjlog->showThreadsAsColors = true;
+			hjlog.showThreadsAsColors = true;
 		}
 		if (flag("-ntc", "--no-thread-colors")) {
-			hjlog->showThreadsAsColors = false;
+			hjlog.showThreadsAsColors = false;
 		}
 		if (flag("-it", "--show-info-type")) {
-			hjlog->showExplicitInfoType = true;
+			hjlog.showExplicitInfoType = true;
 		}
 	}
 	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
-		empty(logFile) ? hjlog->out(text.info.NoLogFile, Info) : hjlog->init(logFile);
+		empty(logFile) ? hjlog.out(text.info.NoLogFile, Info) : hjlog.init(logFile);
 	} else {
-		hjlog->out(text.error.ConfDoesNotExist1 + hajDefaultConfFile + text.error.ConfDoesNotExist2, Error);
-		hjlog->out(text.question.DoSetupInstaller, Question);
-		switch (hjlog->getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
+		hjlog.out(text.error.ConfDoesNotExist1 + hajDefaultConfFile + text.error.ConfDoesNotExist2, Error);
+		hjlog.out(text.question.DoSetupInstaller, Question);
+		switch (hjlog.getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
 			case 1:
 				dividerLine();
 				wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
-				hjlog->out(text.question.StartHajime, Question);
-				if (!hjlog->getYN()) {
+				hjlog.out(text.question.StartHajime, Question);
+				if (!hjlog.getYN()) {
 					return 0;
 				}
 				break;
 			case 2:
-				hjlog->out(text.error.OptionNotAvailable, Error);
+				hjlog.out(text.error.OptionNotAvailable, Error);
 				break;
 			case 3:
 				return 0;
 		}
 	}
 	if (!fs::is_regular_file(defaultServersFile)) {
-		hjlog->out(text.error.NoServersFile, Error);
+		hjlog.out(text.error.NoServersFile, Error);
 		return 0;
 	}
 	for (int i = 1; i < argc; i++) {
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
 		if (flag("-tc", "--thread-colors")) {
-			hjlog->showThreadsAsColors = true;
+			hjlog.showThreadsAsColors = true;
 		}
 		if (flag("-ntc", "--no-thread-colors")) {
-			hjlog->showThreadsAsColors = false;
+			hjlog.showThreadsAsColors = false;
 		}
 	}
 	if (isUserPrivileged()) {
-		hjlog->out("Hajime must not be run by a privileged user", Error);
+		hjlog.out("Hajime must not be run by a privileged user", Error);
 		return 1;
 	}
-	Server server(hjlog); //create a template object
-	for (const auto &serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
-		serverVec.push_back(server); //add a copy of server to use
-		threadVec.push_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+	for (const auto& serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
+		serverVec.emplace_back(Server()); //add a copy of server to use
+		threadVec.emplace_back(std::jthread(&Server::startServer, &(serverVec.back()), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 	while(true) { //future command processing
-		hjlog->out(text.info.EnterCommand, Info);
+		hjlog.out(text.info.EnterCommand, Info);
 		string command = "";
 		std::getline(std::cin, command);
-		processHajimeCommand(toVec(command));
+		if (command != "") {
+			processHajimeCommand(toVec(command));
+		}
 	}
 	return 0;
 }
@@ -210,23 +211,23 @@ int main(int argc, char *argv[]) {
 bool readSettings() {
 	vector<string> settings{"version", "serversfile", "defserverconf", "logfile", "systemdlocation", "debug", "threadcolors"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		hjlog->out(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2, Debug);
+		hjlog.out(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2, Debug);
 		return 0;
 	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
 		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
-		hjlog->out(text.debug.ReadingReadsettings, Debug);
+		hjlog.out(text.debug.ReadingReadsettings, Debug);
 		setVar(settings[0], version);
 		setVar(settings[1], defaultServersFile);
 		setVar(settings[2], defaultServerConfFile);
 		setVar(settings[3], logFile);
 		setVar(settings[4], sysdService);
-		setVari(settings[5], hjlog->debug);
-		setVari(settings[6], hjlog->showThreadsAsColors);
+		setVari(settings[5], hjlog.debug);
+		setVari(settings[6], hjlog.showThreadsAsColors);
 	}
-	hjlog->out(text.debug.ReadReadsettings + hajDefaultConfFile, Debug);
+	hjlog.out(text.debug.ReadReadsettings + hajDefaultConfFile, Debug);
 	return 1;
 }
 
@@ -235,13 +236,13 @@ void dividerLine() {
 	CONSOLE_SCREEN_BUFFER_INFO w;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
-		hjlog->out("─", None, 0, 0);
+		hjlog.out("─", None, 0, 0);
 	}
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
-		hjlog->out("─", None, 0, 0);
+		hjlog.out("─", None, 0, 0);
 	}
 	#endif
 	std::cout << std::endl;
@@ -271,7 +272,7 @@ void processHajimeCommand(vector<string> input) {
 		if (input.size() >= 2) {
 			try {
 				if (stoi(input[1]) > serverVec.size() || stoi(input[1]) < 1) {
-					hjlog->out(text.error.InvalidServerNumber, Error);
+					hjlog.out(text.error.InvalidServerNumber, Error);
 				} else {
 					serverVec[stoi(input[1]) - 1].terminalAccessWrapper();
 				}
@@ -285,19 +286,19 @@ void processHajimeCommand(vector<string> input) {
 					}
 				}
 				if (!attachSuccess) {
-					hjlog->out(text.error.ServerSelectionInvalid, Error);
+					hjlog.out(text.error.ServerSelectionInvalid, Error);
 				}
 			}
 		} else {
-			hjlog->out(text.error.NotEnoughArgs, Error);
+			hjlog.out(text.error.NotEnoughArgs, Error);
 		}
 	} else if (input[0] == "ee" && ee && text.language == "en") {
-		hjlog->out("https://www.youtube.com/watch?v=ccY25Cb3im0");
+		hjlog.out("https://www.youtube.com/watch?v=ccY25Cb3im0");
 	} else if (input[0] == "ee" && ee && text.language == "es") {
-		hjlog->out("https://www.youtube.com/watch?v=iFClTRUnmKc");
+		hjlog.out("https://www.youtube.com/watch?v=iFClTRUnmKc");
 	} else {
-		hjlog->out(text.error.InvalidCommand, Error);
-		hjlog->out(text.error.InvalidHajCommand1, Error);
+		hjlog.out(text.error.InvalidCommand, Error);
+		hjlog.out(text.error.InvalidHajCommand1, Error);
 	}
 }
 

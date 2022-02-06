@@ -23,7 +23,7 @@ class Installer {
 		static void installNewServerConfigFile(const string& fileLocation, const bool& skipFileCheck, const string& flags, const string& serverFile);
 		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false, const string& lang = "en");
 		static void installDefaultServersFile(string serversFile, bool skipFileCheck = false, std::vector<string> servers = {"MyServer"});
-		explicit Installer(std::shared_ptr<Output> log);
+		//explicit Installer(std::shared_ptr<Output> log);
 };
 
 extern Installer installer;

@@ -24,13 +24,13 @@ void Wizard::dividerLine() {
 	CONSOLE_SCREEN_BUFFER_INFO w;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
-		hjlog->out("─", None, 0, 0);
+		hjlog.out("─", None, 0, 0);
 	}
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
-		hjlog->out("─", None, 0, 0);
+		hjlog.out("─", None, 0, 0);
 	}
 	#endif
 	std::cout << std::endl;
@@ -65,14 +65,14 @@ void Wizard::pause(float mean, float stdev) {
 }
 
 void Wizard::doHajimeStep() {
-	hjlog->out(text.info.wizard.HajimeFile, Info);
+	hjlog.out(text.info.wizard.HajimeFile, Info);
 	pause(200, 200);
-	hjlog->out(text.question.MakeHajimeConfig, Question, 0, 0);
-	if (hjlog->getYN()) {
+	hjlog.out(text.question.MakeHajimeConfig, Question, 0, 0);
+	if (hjlog.getYN()) {
 		pause(400, 400);
-		hjlog->out(text.question.HajimeLanguage, Question);
+		hjlog.out(text.question.HajimeLanguage, Question);
 		string defaultLang = "";
-		switch (hjlog->getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
+		switch (hjlog.getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
 			case 1:
 				defaultLang = text.language;
 				break;
@@ -93,10 +93,10 @@ void Wizard::doHajimeStep() {
 }
 
 void Wizard::doServerStep() {
-	hjlog->out(text.info.wizard.ServerFile, Info);
+	hjlog.out(text.info.wizard.ServerFile, Info);
 	pause(200, 200);
-	hjlog->out(text.question.WizardServerFile, Question, 1, 1);
-	int choice = hjlog->getYN(text.option.MakeServerFileManually, text.option.LetHajimeDeduce, text.option.SkipStep);
+	hjlog.out(text.question.WizardServerFile, Question, 1, 1);
+	int choice = hjlog.getYN(text.option.MakeServerFileManually, text.option.LetHajimeDeduce, text.option.SkipStep);
 	switch (choice) {
 		case 1:
 			while (true) {
@@ -106,11 +106,11 @@ void Wizard::doServerStep() {
 				}
 				string file = "server.jar";
 				string flags;
-				hjlog->out(text.question.ApplyConfigToServerFile, Question);
-				switch (hjlog->getYN(text.option.DoManually, text.option.LetHajimeDeduce, text.option.SkipStep)) {
+				hjlog.out(text.question.ApplyConfigToServerFile, Question);
+				switch (hjlog.getYN(text.option.DoManually, text.option.LetHajimeDeduce, text.option.SkipStep)) {
 					case 1:
-						hjlog->out(text.question.UseFlags, Question);
-						switch (hjlog->getYN(text.option.AikarFlags, text.option.HillttyFlags, text.option.FroggeMCFlags, text.option.BasicZGCFlags, text.option.CustomFlags, text.option.SkipStep)) {
+						hjlog.out(text.question.UseFlags, Question);
+						switch (hjlog.getYN(text.option.AikarFlags, text.option.HillttyFlags, text.option.FroggeMCFlags, text.option.BasicZGCFlags, text.option.CustomFlags, text.option.SkipStep)) {
 							case 1:
 								flags = aikarFlags;
 								break;
@@ -123,42 +123,42 @@ void Wizard::doServerStep() {
 							case 4:
 								flags = basicZGCFlags;
 							case 5:
-								hjlog->out(text.question.EnterCustomFlags, Question);
+								hjlog.out(text.question.EnterCustomFlags, Question);
 								std::getline(std::cin, flags);
 							case 6:
 								flags = "";
 								break;
 						}
-						hjlog->out(text.question.UseDefaultServerFile1 + file + text.question.UseDefaultServerFile2, Question);
-						switch (hjlog->getYN(text.option.UseDefault, text.option.LetHajimeDeduce, text.option.EnterManually, text.option.SkipStep)) {
+						hjlog.out(text.question.UseDefaultServerFile1 + file + text.question.UseDefaultServerFile2, Question);
+						switch (hjlog.getYN(text.option.UseDefault, text.option.LetHajimeDeduce, text.option.EnterManually, text.option.SkipStep)) {
 							case 1:
 								break;
 							case 2:
-								hjlog->out(text.error.OptionNotAvailable, Error);
+								hjlog.out(text.error.OptionNotAvailable, Error);
 								break;
 							case 3:
-								hjlog->out(text.question.EnterNewServerFile, Question);
+								hjlog.out(text.question.EnterNewServerFile, Question);
 								std::getline(std::cin, file);
 								break;
 							case 4:
 								file = "";
 								break;
 						}
-						hjlog->out(text.info.InstallingDefServConf + serverFile + "...", Info);
+						hjlog.out(text.info.InstallingDefServConf + serverFile + "...", Info);
 						if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);
 						}
-						hjlog->out(text.info.InstallingNewServConf + serverFile + "...", Info);
+						hjlog.out(text.info.InstallingNewServConf + serverFile + "...", Info);
 						break;
 					case 2:
-						hjlog->out(text.error.OptionNotAvailable, Error);
+						hjlog.out(text.error.OptionNotAvailable, Error);
 						break;
 					case 3:
 						break;
 				}
-				hjlog->out(text.question.CreateAnotherServerFile, Question);
-				if (hjlog->getYN()) {
-					hjlog->out(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2, Info, 0, 0);
+				hjlog.out(text.question.CreateAnotherServerFile, Question);
+				if (hjlog.getYN()) {
+					hjlog.out(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2, Info, 0, 0);
 					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);
@@ -169,7 +169,7 @@ void Wizard::doServerStep() {
 			installedS = true;
 			break;
 		case 2:
-			hjlog->out(text.error.OptionNotAvailable, Error);
+			hjlog.out(text.error.OptionNotAvailable, Error);
 			break;
 		case 3:
 			break;
@@ -177,19 +177,19 @@ void Wizard::doServerStep() {
 }
 
 void Wizard::doServersStep() {
-	hjlog->out(text.info.wizard.ServersFile, Info);
-	hjlog->out(text.question.WizardServersFile, Question);
-	if (hjlog->getYN()) {
+	hjlog.out(text.info.wizard.ServersFile, Info);
+	hjlog.out(text.question.WizardServersFile, Question);
+	if (hjlog.getYN()) {
 		pause(500, 800);
 		wizardStep(serversFile, installer.installDefaultServersFile, text.error.ServersFilePresent, text.error.ServersFileNotCreated, servers);
 	}
 }
 
 void Wizard::doStartupStep() {
-	hjlog->out(text.info.wizard.StartupService, Info);
+	hjlog.out(text.info.wizard.StartupService, Info);
 	pause(200, 200);
-	hjlog->out(text.question.WizardStartupService, Question);
-	if (hjlog->getYN()) {
+	hjlog.out(text.question.WizardStartupService, Question);
+	if (hjlog.getYN()) {
 		pause(400, 400);
 		installer.installStartupService(sysdService);
 	}
@@ -198,15 +198,15 @@ void Wizard::doStartupStep() {
 void Wizard::doNextStepStep() {
 	if (installedS) {
 		if (servers.size() == 1) {
-			hjlog->out(text.info.wizard.NextStepServerFile1 + servers[0] + text.info.wizard.NextStepServerFile2, Info);
+			hjlog.out(text.info.wizard.NextStepServerFile1 + servers[0] + text.info.wizard.NextStepServerFile2, Info);
 		} else if (servers.size() == 2) {
-			hjlog->out(text.info.wizard.NextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.wizard.NextStepServerFile2, Info);
+			hjlog.out(text.info.wizard.NextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.wizard.NextStepServerFile2, Info);
 		} else if (servers.size() > 2) {
-			hjlog->out(text.info.wizard.NextStepServerFile1, Info, 0, 0);
+			hjlog.out(text.info.wizard.NextStepServerFile1, Info, 0, 0);
 			for (int i = 0; i < (servers.size() - 1); i++) {
-				hjlog->out(servers[i] + ", ", None, 0, 0);
+				hjlog.out(servers[i] + ", ", None, 0, 0);
 			}
-			hjlog->out("& " + servers.back() + text.info.wizard.NextStepServerFile2, None);
+			hjlog.out("& " + servers.back() + text.info.wizard.NextStepServerFile2, None);
 		}
 	}
 }
@@ -231,7 +231,7 @@ void Wizard::initialHajimeSetup(string tempConfFile, string tempServersFile, str
 	doStartupStep();
 	pause(400, 400);
 	dividerLine();
-	hjlog->out(text.info.wizard.Complete, Info);
+	hjlog.out(text.info.wizard.Complete, Info);
 	pause(200, 200);
 	doNextStepStep();
 	pause(400, 400);

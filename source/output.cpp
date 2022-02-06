@@ -277,5 +277,3 @@ string Output::getColorByID() {
 	}
 	return returnedColor;
 }
-
-std::shared_ptr<Output> hjlog = std::make_shared<Output>();

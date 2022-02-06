@@ -569,7 +569,7 @@ void Server::processAutoRestart() {
 }
 
 void Server::terminalAccessWrapper() {
-	hjlog->normalDisabled = true;
+	hjlog.normalDisabled = true;
 	std::cout << "----->" << name << std::endl;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {
@@ -589,5 +589,5 @@ void Server::terminalAccessWrapper() {
 		}
 	}
 	std::cout << "Hajime<-----" << std::endl;
-	hjlog->normalDisabled = false;
+	hjlog.normalDisabled = false;
 }
