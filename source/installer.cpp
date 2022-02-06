@@ -67,16 +67,48 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 void Installer::installStartupService(const string& sysService) {
 	#if defined(_WIN64) || defined (_WIN32)
 	hjlog.out(text.info.InstallingWStartServ, Info);
-	string command = "schtasks.exe /create /sc ONLOGON /tn Hajime /tr " + fs::current_path().string() + "\\hajime.exe";
-	cout << command << endl;
-	int result = system(command.c_str());
-	if (result == 0 || result == -1) {
-		hjlog.out("system() error", Error);
+	PWSTR* startupfolder = new PWSTR;
+	WCHAR* executablename = new WCHAR[512];
+	WCHAR* directoryname = new WCHAR[512];
+	HRESULT h;
+	h = SHGetKnownFolderPath(FOLDERID_Startup, NULL, NULL, startupfolder);
+	if (!SUCCEEDED(h))
+	{
+		hjlog.out("SHGetKnownFolderPath failed", Error);
+		CoTaskMemFree(startupfolder);
+		delete[] executablename;
+		delete[] directoryname;
+		return;
 	}
-	if (!IsUserAnAdmin()) {
-		hjlog.out(text.error.StartupServiceWindowsAdmin, Error);
-		hjlog.out(text.info.TipAdministrator, Info);
+	GetModuleFileNameW(NULL, executablename, 512);
+	GetCurrentDirectoryW(512, directoryname);
+	IShellLinkW* shortcut;
+	IPersistFile* persistfile;
+	CoInitialize(NULL);
+	h = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (LPVOID*)(&shortcut));
+	if (SUCCEEDED(h))
+	{
+		shortcut->SetPath(executablename);
+		shortcut->SetWorkingDirectory(directoryname);
+		h = shortcut->QueryInterface(IID_IPersistFile, (LPVOID*)(&persistfile));
+		if (SUCCEEDED(h))
+		{
+			persistfile->Save((std::wstring(*startupfolder) + L"\\Hajime.lnk").c_str(), TRUE);
+			persistfile->Release();
+		}
+		else
+		{
+			hjlog.out("QueryInterface failed", Error);
+		}
+		shortcut->Release();
 	}
+	else
+	{
+		hjlog.out("CoCreateInstance failed", Error);
+	}
+	CoTaskMemFree(startupfolder);
+	delete[] executablename;
+	delete[] directoryname;
 	#else
 	if (fs::is_directory("/etc/init.d") && !fs::is_regular_file("/lib/systemd/systemd")) {
 		hjlog.out(text.info.InstallingSysvinit, Info);
