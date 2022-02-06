@@ -3,7 +3,6 @@
 
 **The ultimate Minecraft server startup script!**
 
-[![](https://tokei.rs/b1/github/Slackadays/Hajime?category=lines)](https://github.com/Slackadays/Hajime)
 [![CodeFactor](https://www.codefactor.io/repository/github/slackadays/hajime/badge)](https://www.codefactor.io/repository/github/slackadays/hajime)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/18effdc4e4ca4d62ae5d160314f6f200)](https://www.codacy.com/gh/Slackadays/Hajime/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Slackadays/Hajime&amp;utm_campaign=Badge_Grade)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Slackadays/Hajime/CI)

@@ -54,15 +54,84 @@ namespace ch = std::chrono;
 
 void Server::processPerfStats() {
 	while (true) {
-		#if defined(_WIN32) || defined(_WIN64)
-		//do stuff here
-		//update the values in server.hpp
-		#else
-		//do stuff here
-		//update the values in server.hpp
-		#endif
+		updateCPUusage();
 		std::this_thread::sleep_for(std::chrono::seconds(60));
 	}
+}
+
+void Server::updateCPUusage() {
+	#if defined(_WIN32) || defined(_WIN64)
+	//do stuff here
+	//update the values in server.hpp
+	#elif defined(__linux__)
+	string line;
+	double old_pidjiffies;
+	double old_cpujiffies;
+	double new_pidjiffies;
+	double new_cpujiffies;
+	long cpuNum = sysconf(_SC_NPROCESSORS_ONLN);
+	old_pidjiffies = PIDjiffies;
+	old_cpujiffies = CPUjiffies;
+	std::fstream pidprocstat("/proc/" + to_string(pid) + "/stat", std::fstream::in);
+	std::getline(pidprocstat, line);
+	std::regex repid("\\S+", std::regex_constants::optimize);
+	std::vector<std::string> pidcpuinfo;
+	for (auto it = std::sregex_iterator(line.begin(), line.end(), repid); it != std::sregex_iterator(); ++it) {
+		std::smatch m = *it;
+		pidcpuinfo.push_back(m.str());
+	}
+	if (pidcpuinfo.size() < 15) {
+		std::cout << "Could not get CPU usage info" << std::endl;
+	}
+	//std::cout << "userjiffies = " << pidcpuinfo[13] << " kerneljiffies = " << pidcpuinfo[14] << std::endl;
+	std::fstream procstat("/proc/stat", std::fstream::in);
+	std::getline(procstat, line);
+	std::regex restat("[0-9]+", std::regex_constants::optimize);
+	std::vector<std::string> procstatinfo;
+	for (auto it = std::sregex_iterator(line.begin(), line.end(), restat); it != std::sregex_iterator(); ++it) {
+		std::smatch m = *it;
+		procstatinfo.push_back(m.str());
+	}
+	try {
+		new_pidjiffies = (std::stoi(pidcpuinfo[13]) + std::stoi(pidcpuinfo[14]));
+	} catch(...) {
+		std::cout << "Failed to add PID jiffies" << std::endl;
+	}
+	for (new_cpujiffies = 0; const auto& it : procstatinfo) { //add together all the number parameters in procstatinfo
+		try {
+			new_cpujiffies += std::stoi(it); //even though we are adding the PID of the process, it doesn't matter because we will only care about the deltas
+		} catch(...) {
+			std::cout << "Failed to add CPU jiffies" << std::endl;
+		}
+	}
+	try {
+		CPUpercent1m = (long long)((double)cpuNum * 100.0 * ((new_pidjiffies - old_pidjiffies) / (new_cpujiffies - old_cpujiffies)));
+		CPUreadings.push_back(CPUpercent1m);
+		while (CPUreadings.size() > 15) {
+			CPUreadings.pop_front();
+		}
+		CPUpercent5m = 0;
+		for (int i = 0; const auto& it : CPUreadings) {
+			CPUpercent5m += it;
+			i++;
+			if (i == 5) {
+				break;
+			}
+		}
+		CPUpercent5m /= 5;
+		CPUpercent15m = 0;
+		for (const auto& it : CPUreadings) {
+			CPUpercent15m += it;
+		}
+		CPUpercent15m /= 15;
+		PIDjiffies = new_pidjiffies;
+		CPUjiffies = new_cpujiffies;
+	} catch(...) {
+		std::cout << "Error updating CPU usage" << std::endl;
+	}
+	#else
+	//macOS and BSD here
+	#endif
 }
 
 void Server::processTerminalBuffer(string input) {
@@ -427,7 +496,7 @@ string Server::getLoadavg() {
 }
 
 string Server::getCPUusage() {
-	return to_string(CPUpercent1m) + " last 1 minute, " + to_string(CPUpercent5m) + " last 5, " + to_string(CPUpercent15m) + " last 15";
+	return to_string(CPUpercent1m) + "% last 1 minute, " + to_string(CPUpercent5m) + "% last 5, " + to_string(CPUpercent15m) + "% last 15";
 }
 
 string Server::getCPUmigs() {

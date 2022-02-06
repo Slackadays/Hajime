@@ -3,6 +3,7 @@
 namespace fs = std::filesystem;
 #if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
+#include <shlobj.h>
 #else
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -40,7 +41,7 @@ using std::make_shared;
 using std::vector;
 
 bool ee = false;
-vector<Server> serverVec = {}; //create an array of individual server objects
+vector<Server*> serverVec = {}; //create an array of individual server objects
 vector<std::jthread> threadVec = {}; //create an array of thread objects
 string defaultServerConfFile = "MyServer.server";
 string defaultServersFile = "servers.conf";
@@ -194,8 +195,8 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	for (const auto& serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
-		serverVec.emplace_back(Server()); //add a copy of server to use
-		threadVec.emplace_back(std::jthread(&Server::startServer, &(serverVec.back()), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		serverVec.emplace_back(new Server); //add a copy of server to use
+		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 	while(true) { //future command processing
 		hjlog.out(text.info.EnterCommand, Info);
@@ -274,13 +275,13 @@ void processHajimeCommand(vector<string> input) {
 				if (stoi(input[1]) > serverVec.size() || stoi(input[1]) < 1) {
 					hjlog.out(text.error.InvalidServerNumber, Error);
 				} else {
-					serverVec[stoi(input[1]) - 1].terminalAccessWrapper();
+					serverVec[stoi(input[1]) - 1]->terminalAccessWrapper();
 				}
 			} catch (...) {
 				bool attachSuccess = false;
 				for (auto& it : serverVec) {
-					if (it.name == input[1]) {
-						it.terminalAccessWrapper();
+					if (it->name == input[1]) {
+						it->terminalAccessWrapper();
 						attachSuccess = true;
 						break;
 					}
@@ -310,6 +311,10 @@ bool isUserPrivileged() {
 		return false;
 	}
 	#else
-	return false;
+	if (IsUserAnAdmin()) {
+		return true;
+	} else {
+		return false;
+	}
 	#endif
 }

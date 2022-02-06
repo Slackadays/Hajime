@@ -15,6 +15,23 @@ using std::ofstream;
 #include "output.hpp"
 #include "languages.hpp"
 
+Output::Output() {
+	#if defined(_WIN64) || defined (_WIN32)
+	isWindows = true;
+	#else
+	isWindows = false;
+	#endif
+	showThreadsAsColors = 0;
+	showExplicitInfoType = false;
+	normalDisabled = false;
+	noColors = false;
+	reduceColors = true;
+	verbose = false;
+	debug = 0;
+	threadCounter = 0;
+	logToFile = false;
+}
+
 void Output::init(const string& file, bool debugOrNot) {
 	logToFile = true;
 	logFilename = file;

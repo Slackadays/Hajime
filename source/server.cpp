@@ -70,7 +70,7 @@ void Server::startServer(string confFile) {
 		hjlog.out(text.info.ServerMethod + method, None);
 		hjlog.out(text.info.ServerDebug + to_string(hjlog.debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		hjlog.out(text.info.ServerDevice + device, None);
-		hjlog.out("Restart interval: " + to_string(restartMins), Info);
+		hjlog.out("Restart interval: " + to_string(restartMins) + " | ", Info, 0, 0);
 		hjlog.out("Silent commands: " + to_string(silentCommands), None);
 		if (!fs::is_regular_file(file)) {
 			hjlog.out(file + text.warning.FileDoesntExist, Warning);

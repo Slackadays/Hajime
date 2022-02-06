@@ -54,6 +54,7 @@ class Server {
 	void processTerminalBuffer(string input);
 	void processServerCommand(string input);
 	void processPerfStats();
+	void updateCPUusage();
 	void commandHajime();
 	void commandTime();
 	void commandHelp();
@@ -116,7 +117,8 @@ class Server {
 	bool silentCommands;
 
 	long long CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
-	double CPUpercent1m, CPUpercent5m, CPUpercent15m;
+	long long CPUjiffies, PIDjiffies;
+	long long CPUpercent1m, CPUpercent5m, CPUpercent15m;
 	long long CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
 	int lastseenCPU;
 	double RAMpercent1m, RAMpercent5m, RAMpercent15m;
@@ -129,15 +131,17 @@ class Server {
 	long long branchMisses1m, branchMisses5m, branchMisses15m;
 	long long cacheMisses1m, cacheMisses5m, cacheMisses15m;
 
+	std::list<long long> CPUreadings;
+
 	string lastCommandUser;
 
 	bool startedRfdThread = false;
 	bool startedPerfThread = false;
 
-	bool wantsLiveOutput; //you can't assign a value to this yet, so we give it a value before we use it
+	bool wantsLiveOutput;
 
 	std::list<string> lines; //make this so the program only has one copy of lines available
-	//super duper important!!
+
 	public:
 		string name, exec, file, path, command, flags, confFile, device, method, cmdline;
 		bool isRunning = false;
