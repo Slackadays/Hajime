@@ -22,13 +22,13 @@ enum lines {Def = 2, True = 1, False = 0};
 class Output {
 	inline static std::mutex outMutex;
 	std::thread::id main_thread = std::this_thread::get_id();
-	inline static bool logToFile = false;
+	inline static bool logToFile;
 	inline static string logFilename;
 	ofstream fileObj;
 	string removeEndlines(string input, bool keepEndlines = false);
 	string addPrefixByType(string data = "", outType type = None);
 	string getColorByID();
-	inline static int threadCounter = 0;
+	inline static int threadCounter;
 	inline static std::unordered_map<std::thread::id, int> threadToNumMap;
 	inline static std::unordered_map<std::thread::id, string> threadToNameMap;
 	public:
@@ -73,21 +73,18 @@ class Output {
 			}
 		}
 
-		#if defined(_WIN64) || defined (_WIN32)
-		inline static bool isWindows = true;
-		#else
-		inline static bool isWindows = false;
-		#endif
+		inline static bool isWindows;
 		void init(const string& file, bool debugOrNot = false);
 		void addServerName(const string& name);
 		void end();
-		inline static int showThreadsAsColors = 0;
-		inline static bool showExplicitInfoType = false;
-		inline static bool normalDisabled = false;
-		inline static bool noColors = false;
-		inline static bool reduceColors = true;
-		inline static bool verbose = false;
-		inline static int debug = 0;
+		inline static int showThreadsAsColors;
+		inline static bool showExplicitInfoType;
+		inline static bool normalDisabled;
+		inline static bool noColors;
+		inline static bool reduceColors;
+		inline static bool verbose;
+		inline static int debug;
+		Output();
 };
 
 static Output hjlog;

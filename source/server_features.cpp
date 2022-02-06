@@ -83,7 +83,7 @@ void Server::updateCPUusage() {
 	if (pidcpuinfo.size() < 15) {
 		std::cout << "Could not get CPU usage info" << std::endl;
 	}
-	std::cout << "userjiffies = " << pidcpuinfo[13] << " kerneljiffies = " << pidcpuinfo[14] << std::endl;
+	//std::cout << "userjiffies = " << pidcpuinfo[13] << " kerneljiffies = " << pidcpuinfo[14] << std::endl;
 	std::fstream procstat("/proc/stat", std::fstream::in);
 	std::getline(procstat, line);
 	std::regex restat("[0-9]+", std::regex_constants::optimize);
