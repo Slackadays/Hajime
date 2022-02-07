@@ -8,7 +8,7 @@
 #elif defined(__APPLE__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#else
+#elif defined(__linux__)
 #include <unistd.h>
 #include <sys/mount.h>
 #include <sys/types.h>
@@ -18,6 +18,12 @@
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
 #include <termios.h>
+#else
+#include <unistd.h>
+#include <termios.h>
+#include <sys/mount.h>
+#include <sys/types.h>
+#include <signal.h>
 #endif
 
 #include <sstream>
