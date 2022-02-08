@@ -86,11 +86,14 @@ class Server {
 	string getIPS();
 	string getCPS();
 	string getContextSwitches();
-	string getPagefaults();
-	string getBranchInstructions();
+	string getStalledCyclesBackend();
+	string getStalledCyclesFrontend();
 	string getBranchMisses();
 	string getCacheMisses();
-	string getCacheReferences();
+	string getAlignmentFaults();
+	string getEmulationFaults();
+	string getMinorPagefaults();
+	string getMajorPagefaults();
 	string addNumberColors(string input);
 	void processRestartAlert(string input);
 	void mountDrive();

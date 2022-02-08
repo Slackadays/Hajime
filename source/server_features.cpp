@@ -118,6 +118,12 @@ vector<long> Server::getProcessChildPids(long pid) {
 }
 
 void Server::setupCounter(auto& s) {
+	auto setupFD = [&](auto& fd, auto& id) {
+		if (fd == -1) {
+			std::cout << "error setting up performance counter event, errno = " << errno << std::endl;
+		}
+		ioctl(fd, PERF_EVENT_IOC_ID, &(id));
+	};
 	//std::cout << "setting up counters for pid " << s->pid << std::endl;
 
 	memset(&(s->perfstruct1), 0, sizeof(struct perf_event_attr)); //fill the struct with 0s
@@ -127,10 +133,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct1.disabled = true;
 	s->perfstruct1.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID; //format the result in our all-in-one data struct
 	s->g1fd1 = syscall(__NR_perf_event_open, &(s->perfstruct1), s->pid, -1, -1, 0); //create the group file descriptor to share
-	ioctl(s->g1fd1, PERF_EVENT_IOC_ID, &(s->g1id1));
-	if (s->g1fd1 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd1, s->g1id1);
 
 	memset(&(s->perfstruct2), 0, sizeof(struct perf_event_attr));
 	s->perfstruct2.type = PERF_TYPE_HARDWARE;
@@ -139,10 +142,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct2.disabled = true;
 	s->perfstruct2.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g1fd2 = syscall(__NR_perf_event_open, &(s->perfstruct2), s->pid, -1, s->g1fd1, 0); //use our group file descriptor
-	ioctl(s->g1fd2, PERF_EVENT_IOC_ID, &(s->g1id2));
-	if (s->g1fd2 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd2, s->g1id2);
 
 	memset(&(s->perfstruct3), 0, sizeof(struct perf_event_attr));
 	s->perfstruct3.type = PERF_TYPE_HARDWARE;
@@ -151,10 +151,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct3.disabled = true;
 	s->perfstruct3.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g1fd3 = syscall(__NR_perf_event_open, &(s->perfstruct3), s->pid, -1, s->g1fd1, 0);
-	ioctl(s->g1fd3, PERF_EVENT_IOC_ID, &(s->g1id3));
-	if (s->g1fd3 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd3, s->g1id3);
 
 	memset(&(s->perfstruct4), 0, sizeof(struct perf_event_attr));
 	s->perfstruct4.type = PERF_TYPE_HARDWARE;
@@ -163,10 +160,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct4.disabled = true;
 	s->perfstruct4.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g1fd4 = syscall(__NR_perf_event_open, &(s->perfstruct4), s->pid, -1, s->g1fd1, 0);
-	ioctl(s->g1fd4, PERF_EVENT_IOC_ID, &(s->g1id4));
-	if (s->g1fd4 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd4, s->g1id4);
 
 	memset(&(s->perfstruct5), 0, sizeof(struct perf_event_attr));
 	s->perfstruct5.type = PERF_TYPE_HARDWARE;
@@ -175,10 +169,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct5.disabled = true;
 	s->perfstruct5.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g1fd5 = syscall(__NR_perf_event_open, &(s->perfstruct5), s->pid, -1, s->g1fd1, 0);
-	ioctl(s->g1fd5, PERF_EVENT_IOC_ID, &(s->g1id5));
-	if (s->g1fd5 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd5, s->g1id5);
 
 	memset(&(s->perfstruct6), 0, sizeof(struct perf_event_attr));
 	s->perfstruct6.type = PERF_TYPE_HARDWARE;
@@ -187,10 +178,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct6.disabled = true;
 	s->perfstruct6.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g1fd6 = syscall(__NR_perf_event_open, &(s->perfstruct6), s->pid, -1, s->g1fd1, 0);
-	ioctl(s->g1fd6, PERF_EVENT_IOC_ID, &(s->g1id6));
-	if (s->g1fd6 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd6, s->g1id6);
 	/*
 	memset(&(s->perfstruct7), 0, sizeof(struct perf_event_attr));
 	s->perfstruct7.type = PERF_TYPE_HARDWARE;
@@ -199,10 +187,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct7.disabled = true;
 	s->perfstruct7.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g1fd7 = syscall(__NR_perf_event_open, &(s->perfstruct7), s->pid, -1, s->g1fd1, 0);
-	ioctl(s->g1fd7, PERF_EVENT_IOC_ID, &(s->g1id7));
-	if (s->g1fd7 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd7, s->g1id7);
 
 	memset(&(s->perfstruct8), 0, sizeof(struct perf_event_attr));
 	s->perfstruct8.type = PERF_TYPE_HARDWARE;
@@ -211,10 +196,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct8.disabled = true;
 	s->perfstruct8.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g1fd8 = syscall(__NR_perf_event_open, &(s->perfstruct8), s->pid, -1, s->g1fd1, 0);
-	ioctl(s->g1fd8, PERF_EVENT_IOC_ID, &(s->g1id8));
-	if (s->g1fd8 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g1fd8, s->g1id8);
 	*/
 	memset(&(s->perfstruct9), 0, sizeof(struct perf_event_attr));
 	s->perfstruct9.type = PERF_TYPE_SOFTWARE;
@@ -223,10 +205,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct9.disabled = true;
 	s->perfstruct9.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g2fd1 = syscall(__NR_perf_event_open, &(s->perfstruct9), s->pid, -1, -1, 0);
-	ioctl(s->g2fd1, PERF_EVENT_IOC_ID, &(s->g2id1));
-	if (s->g2fd1 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g2fd1, s->g2id1);
 
 	memset(&(s->perfstruct10), 0, sizeof(struct perf_event_attr));
 	s->perfstruct10.type = PERF_TYPE_SOFTWARE;
@@ -235,10 +214,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct10.disabled = true;
 	s->perfstruct10.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g2fd2 = syscall(__NR_perf_event_open, &(s->perfstruct10), s->pid, -1, s->g2fd1, 0); //use our group file descriptor
-	ioctl(s->g2fd2, PERF_EVENT_IOC_ID, &(s->g2id2));
-	if (s->g2fd2 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g2fd2, s->g2id2);
 
 	memset(&(s->perfstruct11), 0, sizeof(struct perf_event_attr));
 	s->perfstruct11.type = PERF_TYPE_SOFTWARE;
@@ -247,10 +223,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct11.disabled = true;
 	s->perfstruct11.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g2fd3 = syscall(__NR_perf_event_open, &(s->perfstruct11), s->pid, -1, s->g2fd1, 0);
-	ioctl(s->g2fd3, PERF_EVENT_IOC_ID, &(s->g2id3));
-	if (s->g2fd3 == -1) {
-		std::cout << "error setting up performance counter event" << std::endl;
-	}
+	setupFD(s->g2fd3, s->g2id3);
 
 	memset(&(s->perfstruct12), 0, sizeof(struct perf_event_attr));
 	s->perfstruct12.type = PERF_TYPE_SOFTWARE;
@@ -259,10 +232,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct12.disabled = true;
 	s->perfstruct12.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g2fd4 = syscall(__NR_perf_event_open, &(s->perfstruct12), s->pid, -1, s->g2fd1, 0);
-	ioctl(s->g2fd4, PERF_EVENT_IOC_ID, &(s->g2id4));
-	if (s->g2fd4 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g2fd4, s->g2id4);
 
 	memset(&(s->perfstruct13), 0, sizeof(struct perf_event_attr));
 	s->perfstruct13.type = PERF_TYPE_SOFTWARE;
@@ -271,10 +241,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct13.disabled = true;
 	s->perfstruct13.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g2fd5 = syscall(__NR_perf_event_open, &(s->perfstruct13), s->pid, -1, s->g2fd1, 0);
-	ioctl(s->g2fd5, PERF_EVENT_IOC_ID, &(s->g2id5));
-	if (s->g2fd5 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g2fd5, s->g2id5);
 
 	memset(&(s->perfstruct14), 0, sizeof(struct perf_event_attr));
 	s->perfstruct14.type = PERF_TYPE_SOFTWARE;
@@ -283,10 +250,7 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct14.disabled = true;
 	s->perfstruct14.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g2fd6 = syscall(__NR_perf_event_open, &(s->perfstruct14), s->pid, -1, s->g2fd1, 0);
-	ioctl(s->g2fd6, PERF_EVENT_IOC_ID, &(s->g2id6));
-	if (s->g2fd6 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g2fd6, s->g2id6);
 
 	memset(&(s->perfstruct15), 0, sizeof(struct perf_event_attr));
 	s->perfstruct15.type = PERF_TYPE_SOFTWARE;
@@ -295,10 +259,8 @@ void Server::setupCounter(auto& s) {
 	s->perfstruct15.disabled = true;
 	s->perfstruct15.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	s->g2fd7 = syscall(__NR_perf_event_open, &(s->perfstruct15), s->pid, -1, s->g2fd1, 0);
-	ioctl(s->g2fd7, PERF_EVENT_IOC_ID, &(s->g2id7));
-	if (s->g2fd7 == -1) {
-		std::cout << "error setting up performance counter event errno = " << errno << std::endl;
-	}
+	setupFD(s->g2fd7, s->g2id7);
+
 }
 
 void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
@@ -724,11 +686,12 @@ void Server::commandPerf() {
 	"{\"text\":\"" + string("CPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPS() + "\"}},"
 	"{\"text\":\"" + string("IPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPS() + "\"}},"
 	"{\"text\":\"" + string("context switches") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getContextSwitches() + "\"}},"
-	"{\"text\":\"" + string("pagefaults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getPagefaults() + "\"}},"
-	"{\"text\":\"" + string("branch instructions") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBranchInstructions() + "\"}},"
+	"{\"text\":\"" + string("stalled cycles frontend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesFrontend() + "\"}},"
+	"{\"text\":\"" + string("stalled cycles backend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesBackend() + "\"}},"
 	"{\"text\":\"" + string("branch misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBranchMisses() + "\"}},"
-	"{\"text\":\"" + string("cache references") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCacheReferences() + "\"}},"
-	"{\"text\":\"" + string("cache misses") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCacheMisses() + "\"}}]";
+	"{\"text\":\"" + string("cache misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCacheMisses() + "\"}},"
+	"{\"text\":\"" + string("emulation faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getEmulationFaults() + "\"}},"
+	"{\"text\":\"" + string("alignment faults") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getAlignmentFaults() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
@@ -943,7 +906,7 @@ string Server::getLoadavg() {
 }
 
 string Server::getCPUusage() {
-	return to_string(CPUpercent1m) + "% last 1 minute, " + to_string(CPUpercent5m) + "% last 5, " + to_string(CPUpercent15m) + "% last 15";
+	return to_string(CPUpercent1m) + "% last 1 minute, " + to_string(CPUpercent5m) + "% last 5, " + to_string(CPUpercent15m) + "% last 15 (Lower is better)";
 }
 
 string Server::getCPUmigs() {
@@ -951,11 +914,11 @@ string Server::getCPUmigs() {
 }
 
 string Server::getRAMusage() {
-	return to_string(RAMpercent1m) + "% last 1 minute, " + to_string(RAMpercent5m) + "% last 5, " + to_string(RAMpercent15m) + "% last 15 (" + to_string((RAMbytes1m / 1024) / 1024) + "MB/" + to_string((RAMbytes5m / 1024) / 1024) + "MB/" + to_string((RAMbytes15m / 1024) / 1024) + "MB)";
+	return to_string(RAMpercent1m) + "% last 1 minute, " + to_string(RAMpercent5m) + "% last 5, " + to_string(RAMpercent15m) + "% last 15 (" + to_string((RAMbytes1m / 1024) / 1024) + "MB/" + to_string((RAMbytes5m / 1024) / 1024) + "MB/" + to_string((RAMbytes15m / 1024) / 1024) + "MB) (Lower is better)";
 }
 
 string Server::getIPC() {
-	return to_string((double)CPUinstructions1m / (double)CPUcycles1m) + " last 1 minute, " + to_string((double)CPUinstructions5m / (double)CPUcycles5m) + " last 5, " + to_string((double)CPUinstructions5m / (double)CPUcycles5m) + " last 15";
+	return to_string((double)CPUinstructions1m / (double)CPUcycles1m) + " last 1 minute, " + to_string((double)CPUinstructions5m / (double)CPUcycles5m) + " last 5, " + to_string((double)CPUinstructions5m / (double)CPUcycles5m) + " last 15 (Higher is better)";
 }
 
 string Server::getIPS() {
@@ -967,27 +930,39 @@ string Server::getCPS() {
 }
 
 string Server::getContextSwitches() {
-	return to_string(contextSwitches1m) + " (" + to_string((double)contextSwitches1m / (double)CPUinstructions1m) + "% of CPU) last 1 minute, " + to_string(contextSwitches5m) + " (" + to_string((double)contextSwitches5m / (double)CPUinstructions5m) + "%) last 5, " + to_string(contextSwitches15m) + " (" + to_string((double)contextSwitches15m / (double)CPUinstructions15m) + "%) last 15";
+	return to_string(contextSwitches1m) + " (" + to_string((double)contextSwitches1m / (double)CPUinstructions1m) + "% of CPU) last 1 minute, " + to_string(contextSwitches5m) + " (" + to_string((double)contextSwitches5m / (double)CPUinstructions5m) + "%) last 5, " + to_string(contextSwitches15m) + " (" + to_string((double)contextSwitches15m / (double)CPUinstructions15m) + "%) last 15 (Lower is better)";
 }
 
-string Server::getPagefaults() {
-	return to_string(pageFaults1m) + " last 1 minute, " + to_string(pageFaults5m) + " last 5, " + to_string(pageFaults15m) + " last 15";
+string Server::getStalledCyclesFrontend() {
+	return to_string(stalledCyclesFrontend1m) + " (" + to_string((double)stalledCyclesFrontend1m / (double)CPUcycles1m) + "% of all cycles) last 1 minute, " + to_string(stalledCyclesFrontend5m) + " (" + to_string((double)stalledCyclesFrontend5m / (double)CPUcycles5m) + "%) last 5, " + to_string(stalledCyclesFrontend15m) + " (" + to_string((double)stalledCyclesFrontend15m / (double)CPUcycles15m) + "%) last 15 (Lower is better)";
 }
 
-string Server::getBranchInstructions() {
-	return to_string(branchInstructions1m) + " last 1 minute, " + to_string(branchInstructions5m) + " last 5, " + to_string(branchInstructions15m) + " last 15";
+string Server::getStalledCyclesBackend() {
+	return to_string(stalledCyclesBackend1m) + " (" + to_string((double)stalledCyclesBackend1m / (double)CPUcycles1m) + "% of all cycles) last 1 minute, " + to_string(stalledCyclesBackend5m) + " (" + to_string((double)stalledCyclesBackend5m / (double)CPUcycles5m) + "%) last 5, " + to_string(stalledCyclesBackend15m) + " (" + to_string((double)stalledCyclesBackend15m / (double)CPUcycles15m) + "%) last 15 (Lower is better)";
 }
 
 string Server::getBranchMisses() {
-	return to_string(branchMisses1m) + " last 1 minute, " + to_string(branchMisses5m) + " last 5, " + to_string(branchMisses15m) + " last 15";
+	return to_string(branchMisses1m) + " (" + to_string((double)branchMisses1m / (double)branchInstructions1m) + "% of all branch instructions) last 1 minute, " + to_string(branchMisses5m) + " (" + to_string((double)branchMisses5m / (double)branchInstructions5m) + "%) last 5, " + to_string(branchMisses15m) + " (" + to_string((double)branchMisses15m / (double)branchInstructions15m) + "%) last 15 (Lower is better)";
 }
 
 string Server::getCacheMisses() {
-	return to_string(cacheMisses1m) + " (" + to_string((double)cacheMisses1m / (double)cacheReferences1m) + "% of total) last 1 minute, " + to_string(cacheMisses5m) + " (" + to_string((double)cacheMisses5m / (double)cacheReferences5m) + "%) last 5, " + to_string(cacheMisses15m) + " (" + to_string((double)cacheMisses15m / (double)cacheReferences15m) + "%) last 15";
+	return to_string(cacheMisses1m) + " (" + to_string((double)cacheMisses1m / (double)cacheReferences1m) + "% of total) last 1 minute, " + to_string(cacheMisses5m) + " (" + to_string((double)cacheMisses5m / (double)cacheReferences5m) + "%) last 5, " + to_string(cacheMisses15m) + " (" + to_string((double)cacheMisses15m / (double)cacheReferences15m) + "%) last 15 (Lower is better)";
 }
 
-string Server::getCacheReferences() {
-	return to_string(cacheReferences1m) + " last 1 minute, " + to_string(cacheReferences5m) + " last 5, " + to_string(cacheReferences15m) + " last 15";
+string Server::getAlignmentFaults() {
+	return to_string(alignmentFaults1m) + " last 1 minute, " + to_string(alignmentFaults5m) + " last 5, " + to_string(alignmentFaults15m) + " last 15 (Lower is better)";
+}
+
+string Server::getEmulationFaults() {
+	return to_string(emulationFaults1m) + " last 1 minute, " + to_string(emulationFaults5m) + " last 5, " + to_string(emulationFaults15m) + " last 15 (Lower is better)";
+}
+
+string Server::getMinorPagefaults() {
+	return to_string(minorPagefaults1m) + " (" + to_string((double)minorPagefaults1m / (double)pageFaults1m) + "% of total) last 1 minute, " + to_string(minorPagefaults5m) + " (" + to_string((double)minorPagefaults5m / (double)pageFaults5m) + "%) last 5, " + to_string(minorPagefaults15m) + " (" + to_string((double)minorPagefaults15m / (double)pageFaults15m) + "%) last 15";
+}
+
+string Server::getMajorPagefaults() {
+	return to_string(majorPagefaults1m) + " (" + to_string((double)majorPagefaults1m / (double)pageFaults1m) + "% of total) last 1 minute, " + to_string(majorPagefaults5m) + " (" + to_string((double)majorPagefaults5m / (double)pageFaults5m) + "%) last 5, " + to_string(majorPagefaults15m) + " (" + to_string((double)majorPagefaults15m / (double)pageFaults15m) + "%) last 15";
 }
 
 void Server::processRestartAlert(string input) {
