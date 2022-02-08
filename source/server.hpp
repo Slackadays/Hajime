@@ -50,6 +50,9 @@ class Server {
 
 	#if defined(__linux__)
 	vector<long> getProcessChildPids(long pid);
+	void setupCounter(auto& s);
+	void createCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
+	void cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
 	#endif
 
 	string formatWrapper(string input);
@@ -78,15 +81,16 @@ class Server {
 	string getLoadavg();
 	string getCPUusage();
 	string getCPUmigs();
-	string getCPUinstructions();
 	string getRAMusage();
 	string getIPC();
 	string getIPS();
+	string getCPS();
 	string getContextSwitches();
 	string getPagefaults();
 	string getBranchInstructions();
 	string getBranchMisses();
 	string getCacheMisses();
+	string getCacheReferences();
 	string addNumberColors(string input);
 	void processRestartAlert(string input);
 	void mountDrive();
@@ -120,23 +124,25 @@ class Server {
 	bool doCommands;
 	bool silentCommands;
 
+	double RAMpercent1m, RAMpercent5m, RAMpercent15m;
+	long long CPUjiffies, PIDjiffies;
 	long long CPUcycles1m, CPUcycles5m, CPUcycles15m;
 	long long CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
-	long long CPUjiffies, PIDjiffies;
 	long long CPUpercent1m, CPUpercent5m, CPUpercent15m;
 	long long CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
-	double RAMpercent1m, RAMpercent5m, RAMpercent15m;
 	long long RAMbytes1m, RAMbytes5m, RAMbytes15m;
-	double IPC1m, IPC5m, IPC15m;
-	double IPS1m, IPS5m, IPS15m;
 	long long contextSwitches1m, contextSwitches5m, contextSwitches15m;
 	long long pageFaults1m, pageFaults5m, pageFaults15m;
 	long long branchInstructions1m, branchInstructions5m, branchInstructions15m;
 	long long branchMisses1m, branchMisses5m, branchMisses15m;
 	long long cacheMisses1m, cacheMisses5m, cacheMisses15m;
 	long long cacheReferences1m, cacheReferences5m, cacheReferences15m;
+	long long stalledCyclesFrontend1m, stalledCyclesFrontend5m, stalledCyclesFrontend15m;
+	long long stalledCyclesBackend1m, stalledCyclesBackend5m, stalledCyclesBackend15m;
 	long long alignmentFaults1m, alignmentFaults5m, alignmentFaults15m;
 	long long emulationFaults1m, emulationFaults5m, emulationFaults15m;
+	long long minorPagefaults1m, minorPagefaults5m, minorPagefaults15m;
+	long long majorPagefaults1m, majorPagefaults5m, majorPagefaults15m;
 
 	string lastCommandUser;
 
