@@ -119,7 +119,7 @@ vector<long> Server::getProcessChildPids(long pid) {
 
 void Server::setupCounter(auto& s) {
 	//std::cout << "setting up counters for pid " << s->pid << std::endl;
-	
+
 	memset(&(s->perfstruct1), 0, sizeof(struct perf_event_attr)); //fill the struct with 0s
 	s->perfstruct1.type = PERF_TYPE_HARDWARE;
 	s->perfstruct1.size = sizeof(struct perf_event_attr);
@@ -959,11 +959,11 @@ string Server::getIPC() {
 }
 
 string Server::getIPS() {
-	return to_string((CPUinstructions1m / 60) / 100000) + "M last 1 minute, " + to_string((CPUinstructions5m / 60) / 100000) + "M last 5, " + to_string((CPUinstructions15m / 60) / 100000) + "M last 15";
+	return to_string((CPUinstructions1m / 60) / 1000000) + "M/s last 1 minute, " + to_string((CPUinstructions5m / 60) / 1000000) + "M/s last 5, " + to_string((CPUinstructions15m / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getCPS() {
-	return to_string((CPUcycles1m / 60) / 100000) + "M last 1 minute, " + to_string((CPUcycles5m / 60) / 100000) + "M last 5, " + to_string((CPUcycles15m / 60) / 100000) + "M last 15";
+	return to_string((CPUcycles1m / 60) / 1000000) + "M/s last 1 minute, " + to_string((CPUcycles5m / 60) / 1000000) + "M/s last 5, " + to_string((CPUcycles15m / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getContextSwitches() {
@@ -983,11 +983,11 @@ string Server::getBranchMisses() {
 }
 
 string Server::getCacheMisses() {
-	return to_string(cacheMisses1m) + " last 1 minute, " + to_string(cacheMisses5m) + " last 5, " + to_string(cacheMisses15m) + " last 15";
+	return to_string(cacheMisses1m) + " (" + to_string((double)cacheMisses1m / (double)cacheReferences1m) + "% of total) last 1 minute, " + to_string(cacheMisses5m) + " (" + to_string((double)cacheMisses5m / (double)cacheReferences5m) + "%) last 5, " + to_string(cacheMisses15m) + " (" + to_string((double)cacheMisses15m / (double)cacheReferences15m) + "%) last 15";
 }
 
 string Server::getCacheReferences() {
-	return to_string(cacheMisses1m) + " last 1 minute, " + to_string(cacheMisses5m) + " last 5, " + to_string(cacheMisses15m) + " last 15";
+	return to_string(cacheReferences1m) + " last 1 minute, " + to_string(cacheReferences5m) + " last 5, " + to_string(cacheReferences15m) + " last 15";
 }
 
 void Server::processRestartAlert(string input) {
