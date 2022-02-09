@@ -267,9 +267,6 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 #endif
 
 void Server::processPerfStats() {
-	std::list<long long> cpuusagereadings;
-	std::list<unsigned long long> cpucyclereadings, cpuinstructionreadings, cachemissreadings, branchinstructionreadings, branchmissreadings, cachereferencereadings, stalledcyclcesfrontendreadings, stalledcyclesbackendreadings;
-	std::list<unsigned long long> pagefaultreadings, contextswitchreadings, cpumigrationreadings, alignmentfaultreadings, emulationfaultreadings, minorpagefaultreadings, majorpagefaultreadings;
 	std::this_thread::sleep_for(std::chrono::seconds(10));
 	#if defined(__linux__)
 	struct rlimit rlimits;
@@ -317,10 +314,12 @@ void Server::processPerfStats() {
 	      	s->gv[0][4] = s->data->values[i].value;
 	    	} else if (s->data->values[i].id == s->gid[0][5]) {
 	      	s->gv[0][5] = s->data->values[i].value;
-	    	/*} else if (s->data->values[i].id == s->gid[0][6]) {
+	    	} else if (s->data->values[i].id == s->gid[0][6]) {
 	      	s->gv[0][6] = s->data->values[i].value;
 	    	} else if (s->data->values[i].id == s->gid[0][7]) {
-	      	s->gv[0][7] = s->data->values[i].value;*/
+	      	s->gv[0][7] = s->data->values[i].value;
+	    	} else if (s->data->values[i].id == s->gid[0][8]) {
+	      	s->gv[0][8] = s->data->values[i].value;
 	    	}
 			}
 			size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
@@ -359,86 +358,118 @@ void Server::processPerfStats() {
 					s->gv[2][6] = s->data->values[i].value;
 				} else if (s->data->values[i].id == s->gid[2][7]) {
 					s->gv[2][7] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][8]) {
+					s->gv[2][8] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][9]) {
+					s->gv[2][9] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][10]) {
+					s->gv[2][10] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][11]) {
+					s->gv[2][11] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][12]) {
+					s->gv[2][12] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][13]) {
+					s->gv[2][13] = s->data->values[i].value;
 				}
 			}
 		}
-		CPUcycles1m = 0;
-		CPUinstructions1m = 0;
-		cacheMisses1m = 0;
-		branchInstructions1m = 0;
-		branchMisses1m = 0;
-		cacheReferences1m = 0;
-		//stalledCyclesFrontend1m = 0;
-		//stalledCyclesBackend1m = 0;
-		pageFaults1m = 0;
-		contextSwitches1m = 0;
-		CPUmigrations1m = 0;
-		alignmentFaults1m = 0;
-		emulationFaults1m = 0;
-		minorPagefaults1m = 0;
-		majorPagefaults1m = 0;
+		long long CPUcycles = 0;
+		long long CPUinstructions = 0;
+		long long CPUpercent = 0;
+		long long CPUmigrations = 0;
+		long long RAMbytes = 0;
+		long long contextSwitches = 0;
+		long long pageFaults = 0;
+		long long branchInstructions = 0;
+		long long branchMisses = 0;
+		long long cacheMisses = 0;
+		long long cacheReferences = 0;
+		long long stalledCyclesFrontend = 0;
+		long long stalledCyclesBackend = 0;
+		long long busCycles = 0;
+		long long alignmentFaults = 0;
+		long long emulationFaults = 0;
+		long long minorPagefaults = 0;
+		long long majorPagefaults = 0;
+		long long L1dReadAccesses = 0;
+		long long L1dReadMisses = 0;
+		long long LLReadAccesses = 0;
+		long long LLReadMisses = 0;
+		long long LLWriteAccesses = 0;
+		long long LLWriteMisses = 0;
+		long long DTLBReadAccesses = 0;
+		long long DTLBReadMisses = 0;
+		long long DTLBWriteAccesses = 0;
+		long long DTLBWriteMisses = 0;
+		long long ITLBReadAccesses = 0;
+		long long ITLBReadMisses = 0;
+		long long BPUReadAccesses = 0;
+		long long BPUReadMisses = 0;
 		for (const auto& s : MyCounters) {
-			CPUcycles1m += s->gv[0][0];
-			CPUinstructions1m += s->gv[0][1];
-			cacheMisses1m += s->gv[0][2];
-			branchInstructions1m += s->gv[0][3];
-			branchMisses1m += s->gv[0][4];
-			cacheReferences1m += s->gv[0][5];
-			//stalledCyclesFrontend1m += s->gv[0][6];
-			//stalledCyclesBackend1m += s->gv[0][7];
-			pageFaults1m += s->gv[1][0];
-			contextSwitches1m += s->gv[1][1];
-			CPUmigrations1m += s->gv[1][2];
-			alignmentFaults1m += s->gv[1][3];
-			emulationFaults1m += s->gv[1][4];
-			minorPagefaults1m += s->gv[1][5];
-			majorPagefaults1m += s->gv[1][6];
+			CPUcycles += s->gv[0][0];
+			CPUinstructions += s->gv[0][1];
+			cacheMisses += s->gv[0][2];
+			branchInstructions += s->gv[0][3];
+			branchMisses += s->gv[0][4];
+			cacheReferences += s->gv[0][5];
+			stalledCyclesFrontend += s->gv[0][6];
+			stalledCyclesBackend += s->gv[0][7];
+			busCycles += s->gv[0][8];
+			pageFaults += s->gv[1][0];
+			contextSwitches += s->gv[1][1];
+			CPUmigrations += s->gv[1][2];
+			alignmentFaults += s->gv[1][3];
+			emulationFaults += s->gv[1][4];
+			minorPagefaults += s->gv[1][5];
+			majorPagefaults += s->gv[1][6];
+			L1dReadAccesses += s->gv[2][0];
+			L1dReadMisses += s->gv[2][1];
+			LLReadAccesses += s->gv[2][2];
+			LLReadMisses += s->gv[2][3];
+			DTLBReadAccesses += s->gv[2][4];
+			DTLBReadMisses += s->gv[2][5];
+			DTLBWriteAccesses += s->gv[2][6];
+			DTLBWriteMisses += s->gv[2][7];
+			ITLBReadAccesses += s->gv[2][8];
+			ITLBReadMisses += s->gv[2][9];
+			BPUReadAccesses += s->gv[2][10];
+			BPUReadMisses += s->gv[2][11];
+			LLWriteAccesses += s->gv[2][12];
+			LLWriteMisses += s->gv[2][13];
 		}
-		auto addAndAverageReadings = [](auto& list, auto& onemin, auto& fivemin, auto& fifteenmin) {
-			list.push_back(onemin);
+		auto addReading = [](auto& list, auto& entry) {
+			list.emplace_back(entry);
 			while (list.size() > 15) {
 				list.pop_front();
 			}
-			int readings = 0;
-			fivemin = 0;
-			for (const auto& it : list) {
-				fivemin += it;
-				readings++;
-				if (readings == 5) {
-					break;
-				}
-			}
-			if (readings > 0) {
-				fivemin /= readings;
-			} else {
-				std::cout << "/0 error" << std::endl;
-			}
-			fifteenmin = 0;
-			for (readings = 0; const auto& it : list) {
-				fifteenmin += it;
-				readings++;
-			}
-			if (readings > 0) {
-				fifteenmin /= readings;
-			} else {
-				std::cout << "/0 error" << std::endl;
-			}
 		};
-		addAndAverageReadings(cpucyclereadings, CPUcycles1m, CPUcycles5m, CPUcycles15m);
-		addAndAverageReadings(cpuinstructionreadings, CPUinstructions1m, CPUinstructions5m, CPUinstructions15m);
-		addAndAverageReadings(cachemissreadings, cacheMisses1m, cacheMisses5m, cacheMisses15m);
-		addAndAverageReadings(branchinstructionreadings, branchInstructions1m, branchInstructions5m, branchInstructions15m);
-		addAndAverageReadings(branchmissreadings, branchMisses1m, branchMisses5m, branchMisses15m);
-		addAndAverageReadings(cachereferencereadings, cacheReferences1m, cacheReferences5m, cacheReferences15m);
-		//addAndAverageReadings(stalledcyclcesfrontendreadings, stalledCyclesFrontend1m, stalledCyclesFrontend5m, stalledCyclesFrontend15m);
-		//addAndAverageReadings(stalledcyclesbackendreadings, stalledCyclesBackend1m, stalledCyclesBackend5m, stalledCyclesBackend15m);
-		addAndAverageReadings(pagefaultreadings, pageFaults1m, pageFaults5m, pageFaults15m);
-		addAndAverageReadings(contextswitchreadings, contextSwitches1m, contextSwitches5m, contextSwitches15m);
-		addAndAverageReadings(cpumigrationreadings, CPUmigrations1m, CPUmigrations5m, CPUmigrations15m);
-		addAndAverageReadings(alignmentfaultreadings, alignmentFaults1m, alignmentFaults5m, alignmentFaults15m);
-		addAndAverageReadings(emulationfaultreadings, emulationFaults1m, emulationFaults5m, emulationFaults15m);
-		addAndAverageReadings(minorpagefaultreadings, minorPagefaults1m, minorPagefaults5m, minorPagefaults15m);
-		addAndAverageReadings(majorpagefaultreadings, majorPagefaults1m, majorPagefaults5m, majorPagefaults15m);
+		addReading(cpucyclereadings, CPUcycles);
+		addReading(cpuinstructionreadings, CPUinstructions);
+		addReading(cachemissreadings, cacheMisses);
+		addReading(branchinstructionreadings, branchInstructions);
+		addReading(branchmissreadings, branchMisses);
+		addReading(cachereferencereadings, cacheReferences);
+		addReading(stalledcyclesfrontendreadings, stalledCyclesFrontend);
+		addReading(stalledcyclesbackendreadings, stalledCyclesBackend);
+		addReading(pagefaultreadings, pageFaults);
+		addReading(contextswitchreadings, contextSwitches);
+		addReading(cpumigrationreadings, CPUmigrations);
+		addReading(alignmentfaultreadings, alignmentFaults);
+		addReading(emulationfaultreadings, emulationFaults);
+		addReading(minorpagefaultreadings, minorPagefaults);
+		addReading(majorpagefaultreadings, majorPagefaults);
+		addReading(l1dreadaccessreadings, L1dReadAccesses);
+		addReading(l1dreadmissreadings, L1dReadMisses);
+		addReading(llreadaccessreadings, LLReadAccesses);
+		addReading(llreadmissreadings, LLReadMisses);
+		addReading(llwriteaccessreadings, LLWriteAccesses);
+		addReading(llwritemissreadings, LLWriteMisses);
+		addReading(dtlbreadaccessreadings, DTLBReadAccesses);
+		addReading(dtlbreadmissreadings, DTLBReadMisses);
+		addReading(dtlbwriteaccessreadings, DTLBWriteAccesses);
+		addReading(itlbreadaccessreadings, ITLBReadAccesses);
+		addReading(bpureadaccessreadings, BPUReadAccesses);
+		addReading(bpureadmissreadings, BPUReadMisses);
 		newPids = getProcessChildPids(pid);
 		diffPids.clear();
 		std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
@@ -497,34 +528,10 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 		}
 	}
 	try {
-		CPUpercent1m = (long long)((double)cpuNum * 100.0 * ((new_pidjiffies - old_pidjiffies) / (new_cpujiffies - old_cpujiffies)));
-		CPUreadings.push_back(CPUpercent1m);
+		long long CPUpercent = (long long)((double)cpuNum * 100.0 * ((new_pidjiffies - old_pidjiffies) / (new_cpujiffies - old_cpujiffies)));
+		CPUreadings.push_back(CPUpercent);
 		while (CPUreadings.size() > 15) {
 			CPUreadings.pop_front();
-		}
-		int readings = 0;
-		CPUpercent5m = 0;
-		for (const auto& it : CPUreadings) {
-			CPUpercent5m += it;
-			readings++;
-			if (readings == 5) {
-				break;
-			}
-		}
-		if (readings > 0) {
-			CPUpercent5m /= readings;
-		} else {
-			std::cout << "/0 error" << std::endl;
-		}
-		CPUpercent15m = 0;
-		for (readings = 0; const auto& it : CPUreadings) {
-			CPUpercent15m += it;
-			readings++;
-		}
-		if (readings > 0) {
-			CPUpercent15m /= readings;
-		} else {
-			std::cout << "/0 error" << std::endl;
 		}
 		PIDjiffies = new_pidjiffies;
 		CPUjiffies = new_cpujiffies;
@@ -674,18 +681,26 @@ void Server::commandSystem() {
 void Server::commandPerf() {
 	string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"CPU usage, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUusage() + "\"}},"
-	"{\"text\":\"" + string("CPU migrations") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUmigs() + "\"}},"
 	"{\"text\":\"" + string("RAM usage") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAMusage() + "\"}},"
+	"{\"text\":\"" + string("CPU migrations") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUmigs() + "\"}},"
 	"{\"text\":\"" + string("IPC") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPC() + "\"}},"
 	"{\"text\":\"" + string("CPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPS() + "\"}},"
 	"{\"text\":\"" + string("IPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPS() + "\"}},"
 	"{\"text\":\"" + string("context switches") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getContextSwitches() + "\"}},"
 	"{\"text\":\"" + string("stalled cycles frontend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesFrontend() + "\"}},"
 	"{\"text\":\"" + string("stalled cycles backend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesBackend() + "\"}},"
+	"{\"text\":\"" + string("bus cycles") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBusCycles() + "\"}},"
 	"{\"text\":\"" + string("branch misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBranchMisses() + "\"}},"
 	"{\"text\":\"" + string("cache misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCacheMisses() + "\"}},"
 	"{\"text\":\"" + string("emulation faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getEmulationFaults() + "\"}},"
-	"{\"text\":\"" + string("alignment faults") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getAlignmentFaults() + "\"}}]";
+	"{\"text\":\"" + string("alignment faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getAlignmentFaults() + "\"}},"
+	"{\"text\":\"" + string("L1d read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dReadMisses() + "\"}},"
+	"{\"text\":\"" + string("LLC read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLLReadMisses() + "\"}},"
+	"{\"text\":\"" + string("LLC write misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLLWriteMisses() + "\"}},"
+	"{\"text\":\"" + string("dTLB read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getdTLBReadMisses() + "\"}},"
+	"{\"text\":\"" + string("dTLB write misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getdTLBWriteMisses() + "\"}},"
+	"{\"text\":\"" + string("iTLB read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getiTLBReadMisses() + "\"}},"
+	"{\"text\":\"" + string("BPU read misses") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBPUReadMisses() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
@@ -800,13 +815,13 @@ string Server::getCPU() {
 	return "Blah";
 	#elif defined(__APPLE__)
 	size_t len;
-        sysctlbyname("machdep.cpu.brand_string", NULL, &len, NULL, 0);
-        string cpuname(len, '\0');
-        sysctlbyname("machdep.cpu.brand_string", cpuname.data(), &len, NULL, 0);
-        sysctlbyname("hw.ncpu", NULL, &len, NULL, 0);
-        int cpucount;
-        sysctlbyname("hw.ncpu", &cpucount, &len, NULL, 0);
-        return to_string(cpucount) + "x " + cpuname;
+  sysctlbyname("machdep.cpu.brand_string", NULL, &len, NULL, 0);
+  string cpuname(len, '\0');
+  sysctlbyname("machdep.cpu.brand_string", cpuname.data(), &len, NULL, 0);
+	sysctlbyname("hw.ncpu", NULL, &len, NULL, 0);
+  int cpucount;
+  sysctlbyname("hw.ncpu", &cpucount, &len, NULL, 0);
+  return to_string(cpucount) + "x " + cpuname;
 	#endif
 	return "Only available on Linux or Windows";
 }
@@ -900,63 +915,95 @@ string Server::getLoadavg() {
 }
 
 string Server::getCPUusage() {
-	return to_string(CPUpercent1m) + "% last 1 minute, " + to_string(CPUpercent5m) + "% last 5, " + to_string(CPUpercent15m) + "% last 15 (Lower is better)";
+	return to_string(cpuusagereadings.back()) + "% last 1 minute, " + to_string(averageVal(cpuusagereadings, 5)) + "% last 5, " + to_string(averageVal(cpuusagereadings, 15)) + "% last 15 (Lower is better)";
 }
 
 string Server::getCPUmigs() {
-	return to_string(CPUmigrations1m) + " last 1 minute, " + to_string(CPUmigrations5m) + " last 5, " + to_string(CPUmigrations15m) + " last 15";
+	return to_string(cpumigrationreadings.back()) + " last 1 minute, " + to_string(averageVal(cpumigrationreadings, 5)) + " last 5, " + to_string(averageVal(cpumigrationreadings, 15)) + " last 15";
 }
 
 string Server::getRAMusage() {
-	return to_string(RAMpercent1m) + "% last 1 minute, " + to_string(RAMpercent5m) + "% last 5, " + to_string(RAMpercent15m) + "% last 15 (" + to_string((RAMbytes1m / 1024) / 1024) + "MB/" + to_string((RAMbytes5m / 1024) / 1024) + "MB/" + to_string((RAMbytes15m / 1024) / 1024) + "MB) (Lower is better)";
+	return to_string(rampercentreadings.back()) + "% last 1 minute, " + to_string(averageVal(rampercentreadings, 5)) + "% last 5, " + to_string(averageVal(rampercentreadings, 15)) + "% last 15 (" + to_string((rambytereadings.back() / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 5) / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
 }
 
 string Server::getIPC() {
-	return to_string((double)CPUinstructions1m / (double)CPUcycles1m) + " last 1 minute, " + to_string((double)CPUinstructions5m / (double)CPUcycles5m) + " last 5, " + to_string((double)CPUinstructions5m / (double)CPUcycles5m) + " last 15 (Higher is better)";
+	return to_string((double)cpuinstructionreadings.back() / (double)cpucyclereadings.back()) + " last 1 minute, " + to_string((double)averageVal(cpuinstructionreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + " last 5, " + to_string((double)averageVal(cpuinstructionreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + " last 15 (Higher is better)";
 }
 
 string Server::getIPS() {
-	return to_string((CPUinstructions1m / 60) / 1000000) + "M/s last 1 minute, " + to_string((CPUinstructions5m / 60) / 1000000) + "M/s last 5, " + to_string((CPUinstructions15m / 60) / 1000000) + "M/s last 15";
+	return to_string((cpuinstructionreadings.back() / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getCPS() {
-	return to_string((CPUcycles1m / 60) / 1000000) + "M/s last 1 minute, " + to_string((CPUcycles5m / 60) / 1000000) + "M/s last 5, " + to_string((CPUcycles15m / 60) / 1000000) + "M/s last 15";
+	return to_string((cpucyclereadings.back() / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getContextSwitches() {
-	return to_string(contextSwitches1m) + " (" + to_string(100.0 * (double)contextSwitches1m / (double)CPUinstructions1m) + "% of CPU) last 1 minute, " + to_string(contextSwitches5m) + " (" + to_string(100.0 * (double)contextSwitches5m / (double)CPUinstructions5m) + "%) last 5, " + to_string(contextSwitches15m) + " (" + to_string(100.0 * (double)contextSwitches15m / (double)CPUinstructions15m) + "%) last 15 (Lower is better)";
+	return to_string(contextswitchreadings.back()) + " (" + to_string(100.0 * (double)contextswitchreadings.back() / (double)cpuinstructionreadings.back()) + "% of CPU) last 1 minute, " + to_string(averageVal(contextswitchreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 5) / (double)averageVal(cpuinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(contextswitchreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 15) / (double)averageVal(cpuinstructionreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getStalledCyclesFrontend() {
-	return to_string(stalledCyclesFrontend1m) + " (" + to_string(100.0 * (double)stalledCyclesFrontend1m / (double)CPUcycles1m) + "% of all cycles) last 1 minute, " + to_string(stalledCyclesFrontend5m) + " (" + to_string(100.0 * (double)stalledCyclesFrontend5m / (double)CPUcycles5m) + "%) last 5, " + to_string(stalledCyclesFrontend15m) + " (" + to_string(100.0 * (double)stalledCyclesFrontend15m / (double)CPUcycles15m) + "%) last 15 (Lower is better)";
+	return to_string(stalledcyclesfrontendreadings.back()) + " (" + to_string(100.0 * (double)stalledcyclesfrontendreadings.back() / (double)cpucyclereadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesfrontendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesfrontendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getStalledCyclesBackend() {
-	return to_string(stalledCyclesBackend1m) + " (" + to_string(100.0 * (double)stalledCyclesBackend1m / (double)CPUcycles1m) + "% of all cycles) last 1 minute, " + to_string(stalledCyclesBackend5m) + " (" + to_string(100.0 * (double)stalledCyclesBackend5m / (double)CPUcycles5m) + "%) last 5, " + to_string(stalledCyclesBackend15m) + " (" + to_string(100.0 * (double)stalledCyclesBackend15m / (double)CPUcycles15m) + "%) last 15 (Lower is better)";
+	return to_string(stalledcyclesbackendreadings.back()) + " (" + to_string(100.0 * (double)stalledcyclesbackendreadings.back() / (double)cpucyclereadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesbackendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesbackendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getBusCycles() {
+	return to_string(buscyclereadings.back()) + " last 1 minute, " + to_string(averageVal(buscyclereadings, 5)) + " last 5, " + to_string(averageVal(buscyclereadings, 15)) + " last 15 (Lower is better)";
 }
 
 string Server::getBranchMisses() {
-	return to_string(branchMisses1m) + " (" + to_string(100.0 * (double)branchMisses1m / (double)branchInstructions1m) + "% of all branch instructions) last 1 minute, " + to_string(branchMisses5m) + " (" + to_string(100.0 * (double)branchMisses5m / (double)branchInstructions5m) + "%) last 5, " + to_string(branchMisses15m) + " (" + to_string(100.0 * (double)branchMisses15m / (double)branchInstructions15m) + "%) last 15 (Lower is better)";
+	return to_string(branchmissreadings.back()) + " (" + to_string(100.0 * (double)branchmissreadings.back() / (double)branchinstructionreadings.back()) + "% of all branch instructions) last 1 minute, " + to_string(averageVal(branchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 5) / (double)averageVal(branchinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(branchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 15) / (double)averageVal(branchinstructionreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getCacheMisses() {
-	return to_string(cacheMisses1m) + " (" + to_string(100.0 * (double)cacheMisses1m / (double)cacheReferences1m) + "% of total) last 1 minute, " + to_string(cacheMisses5m) + " (" + to_string(100.0 * (double)cacheMisses5m / (double)cacheReferences5m) + "%) last 5, " + to_string(cacheMisses15m) + " (" + to_string(100.0 * (double)cacheMisses15m / (double)cacheReferences15m) + "%) last 15 (Lower is better)";
+	return to_string(cachemissreadings.back()) + " (" + to_string(100.0 * (double)cachemissreadings.back() / (double)cachereferencereadings.back()) + "% of total) last 1 minute, " + to_string(averageVal(cachemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 5) / (double)averageVal(cachereferencereadings, 5)) + "%) last 5, " + to_string(averageVal(cachemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 15) / (double)averageVal(cachereferencereadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getAlignmentFaults() {
-	return to_string(alignmentFaults1m) + " last 1 minute, " + to_string(alignmentFaults5m) + " last 5, " + to_string(alignmentFaults15m) + " last 15 (Lower is better)";
+	return to_string(alignmentfaultreadings.back()) + " last 1 minute, " + to_string(averageVal(alignmentfaultreadings, 5)) + " last 5, " + to_string(averageVal(alignmentfaultreadings, 15)) + " last 15 (Lower is better)";
 }
 
 string Server::getEmulationFaults() {
-	return to_string(emulationFaults1m) + " last 1 minute, " + to_string(emulationFaults5m) + " last 5, " + to_string(emulationFaults15m) + " last 15 (Lower is better)";
+	return to_string(emulationfaultreadings.back()) + " last 1 minute, " + to_string(averageVal(emulationfaultreadings, 5)) + " last 5, " + to_string(averageVal(emulationfaultreadings, 15)) + " last 15 (Lower is better)";
 }
 
 string Server::getMinorPagefaults() {
-	return to_string(minorPagefaults1m) + " (" + to_string(100.0 * (double)minorPagefaults1m / (double)pageFaults1m) + "% of total) last 1 minute, " + to_string(minorPagefaults5m) + " (" + to_string(100.0 * (double)minorPagefaults5m / (double)pageFaults5m) + "%) last 5, " + to_string(minorPagefaults15m) + " (" + to_string(100.0 * (double)minorPagefaults15m / (double)pageFaults15m) + "%) last 15";
+	return to_string(minorpagefaultreadings.back()) + " (" + to_string(100.0 * (double)minorpagefaultreadings.back() / (double)pagefaultreadings.back()) + "% of total) last 1 minute, " + to_string(averageVal(minorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(minorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 15) / (double)averageVal(pagefaultreadings, 15)) + "%) last 15";
 }
 
 string Server::getMajorPagefaults() {
-	return to_string(majorPagefaults1m) + " (" + to_string(100.0 * (double)majorPagefaults1m / (double)pageFaults1m) + "% of total) last 1 minute, " + to_string(majorPagefaults5m) + " (" + to_string(100.0 * (double)majorPagefaults5m / (double)pageFaults5m) + "%) last 5, " + to_string(majorPagefaults15m) + " (" + to_string(100.0 * (double)majorPagefaults15m / (double)pageFaults15m) + "%) last 15";
+	return to_string(majorpagefaultreadings.back()) + " (" + to_string(100.0 * (double)majorpagefaultreadings.back() / (double)pagefaultreadings.back()) + "% of total) last 1 minute, " + to_string(averageVal(majorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(majorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 15) / (double)averageVal(majorpagefaultreadings, 15)) + "%) last 15";
+}
+
+string Server::getL1dReadMisses() {
+	return to_string(l1dreadmissreadings.back()) + " (" + to_string(100.0 * (double)l1dreadmissreadings.back() / (double)l1dreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 5) / (double)averageVal(l1dreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 15) / (double)averageVal(l1dreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getLLReadMisses() {
+	return to_string(llreadmissreadings.back()) + " (" + to_string(100.0 * (double)llreadmissreadings.back() / (double)llreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(llreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 5) / (double)averageVal(llreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 15) / (double)averageVal(llreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getLLWriteMisses() {
+	return to_string(llwritemissreadings.back()) + " (" + to_string(100.0 * (double)llwritemissreadings.back() / (double)llwriteaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(llwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 5) / (double)averageVal(llwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 15) / (double)averageVal(llwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getdTLBReadMisses() {
+	return to_string(dtlbreadmissreadings.back()) + " (" + to_string(100.0 * (double)dtlbreadmissreadings.back() / (double)dtlbreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 5) / (double)averageVal(dtlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 15) / (double)averageVal(dtlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getdTLBWriteMisses() {
+	return to_string(dtlbwritemissreadings.back()) + " (" + to_string(100.0 * (double)dtlbwritemissreadings.back() / (double)dtlbwriteaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 5) / (double)averageVal(dtlbwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 15) / (double)averageVal(dtlbwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getiTLBReadMisses() {
+	return to_string(itlbreadmissreadings.back()) + " (" + to_string(100.0 * (double)itlbreadmissreadings.back() / (double)itlbreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(itlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 5) / (double)averageVal(itlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(itlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 15) / (double)averageVal(itlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getBPUReadMisses() {
+	return to_string(bpureadmissreadings.back()) + " (" + to_string(100.0 * (double)bpureadmissreadings.back() / (double)bpureadmissreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(bpureadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 5) / (double)averageVal(bpureadmissreadings, 5)) + "%) last 5, " + to_string(averageVal(bpureadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 15) / (double)averageVal(bpureadmissreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 void Server::processRestartAlert(string input) {
@@ -1000,7 +1047,10 @@ void Server::writeToServerTerminal(string input) {
 		std::cout << "Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()) << std::endl;
 	}
 	#else
-	write(fd, input.c_str(), input.length());
+	int len = write(fd, input.c_str(), input.length());
+	if (len == -1) {
+		std::cout << "error writing to server terminal" << std::endl;
+	}
 	#endif
 }
 

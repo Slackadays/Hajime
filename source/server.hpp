@@ -37,6 +37,7 @@ using std::to_string;
 using std::ofstream;
 using std::ios;
 using std::vector;
+using std::list;
 using std::cout;
 
 class Server {
@@ -74,6 +75,27 @@ class Server {
 	void commandRestart();
 	void commandSystem();
 	void commandPerf();
+
+	template<typename T>
+	T averageVal(list<T> myList, unsigned int minutes) {
+		int readings = 0.0;
+		T temp = 0;
+		myList.reverse();
+		for (const auto& value : myList) {
+			temp += value;
+			readings++;
+			if (readings >= minutes) {
+				break;
+			}
+		}
+		if (readings > 0) {
+			temp /= readings;
+		} else {
+			std::cout << "/0 error" << std::endl;
+		}
+		return temp;
+	}
+
 	string getOS();
 	string getCPU();
 	string getRAM();
@@ -88,12 +110,20 @@ class Server {
 	string getContextSwitches();
 	string getStalledCyclesBackend();
 	string getStalledCyclesFrontend();
+	string getBusCycles();
 	string getBranchMisses();
 	string getCacheMisses();
 	string getAlignmentFaults();
 	string getEmulationFaults();
 	string getMinorPagefaults();
 	string getMajorPagefaults();
+	string getL1dReadMisses();
+	string getLLReadMisses();
+	string getLLWriteMisses();
+	string getdTLBReadMisses();
+	string getdTLBWriteMisses();
+	string getiTLBReadMisses();
+	string getBPUReadMisses();
 	string addNumberColors(string input);
 	void processRestartAlert(string input);
 	void mountDrive();
@@ -127,25 +157,14 @@ class Server {
 	bool doCommands;
 	bool silentCommands;
 
+	std::list<long long> cpuusagereadings;
+	std::list<double> rampercentreadings;
+	std::list<unsigned long long> rambytereadings, cpucyclereadings, cpuinstructionreadings, cachemissreadings, branchinstructionreadings, branchmissreadings, cachereferencereadings, stalledcyclesfrontendreadings, stalledcyclesbackendreadings, buscyclereadings;
+	std::list<unsigned long long> pagefaultreadings, contextswitchreadings, cpumigrationreadings, alignmentfaultreadings, emulationfaultreadings, minorpagefaultreadings, majorpagefaultreadings;
+	std::list<unsigned long long> l1dreadaccessreadings, l1dreadmissreadings, llreadaccessreadings, llreadmissreadings, dtlbreadaccessreadings, dtlbreadmissreadings, dtlbwriteaccessreadings, dtlbwritemissreadings, itlbreadaccessreadings, itlbreadmissreadings, bpureadaccessreadings, bpureadmissreadings, llwriteaccessreadings, llwritemissreadings;
+
 	double RAMpercent1m, RAMpercent5m, RAMpercent15m;
 	long long CPUjiffies, PIDjiffies;
-	long long CPUcycles1m, CPUcycles5m, CPUcycles15m;
-	long long CPUinstructions1m, CPUinstructions5m, CPUinstructions15m;
-	long long CPUpercent1m, CPUpercent5m, CPUpercent15m;
-	long long CPUmigrations1m, CPUmigrations5m, CPUmigrations15m;
-	long long RAMbytes1m, RAMbytes5m, RAMbytes15m;
-	long long contextSwitches1m, contextSwitches5m, contextSwitches15m;
-	long long pageFaults1m, pageFaults5m, pageFaults15m;
-	long long branchInstructions1m, branchInstructions5m, branchInstructions15m;
-	long long branchMisses1m, branchMisses5m, branchMisses15m;
-	long long cacheMisses1m, cacheMisses5m, cacheMisses15m;
-	long long cacheReferences1m, cacheReferences5m, cacheReferences15m;
-	long long stalledCyclesFrontend1m, stalledCyclesFrontend5m, stalledCyclesFrontend15m;
-	long long stalledCyclesBackend1m, stalledCyclesBackend5m, stalledCyclesBackend15m;
-	long long alignmentFaults1m, alignmentFaults5m, alignmentFaults15m;
-	long long emulationFaults1m, emulationFaults5m, emulationFaults15m;
-	long long minorPagefaults1m, minorPagefaults5m, minorPagefaults15m;
-	long long majorPagefaults1m, majorPagefaults5m, majorPagefaults15m;
 
 	string lastCommandUser;
 
