@@ -81,11 +81,11 @@ struct pcounter {
 	long pid;
 
 	vector<vector<struct perf_event_attr>> perfstruct{vector<struct perf_event_attr>(9), vector<struct perf_event_attr>(7), vector<struct perf_event_attr>(14)};
-	vector<vector<unsigned long long>> gid{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)}; //group 1: hardware counters
-	vector<vector<unsigned long long>> gv{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)}; //group 2: software counters
-	vector<vector<int>> gfd{vector<int>(9, 0), vector<int>(14, 0), vector<int>(7, 0)}; //group 3: cache counters
+	vector<vector<unsigned long long>> gid{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)};
+	vector<vector<unsigned long long>> gv{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)};
+	vector<vector<int>> gfd{vector<int>(9, 0), vector<int>(7, 0), vector<int>(14, 0)};
 
-	char buf[4096];
+	char buf[512];
 	struct read_format* data = (struct read_format*)buf;
 };
 
@@ -96,7 +96,7 @@ vector<long> Server::getProcessChildPids(long pid) {
 		try {
 			pids.emplace_back(stol(std::regex_replace(dir.path().string(), re, "")));
 		} catch(...) {
-			std::cout << "could not convert group id" << std::endl;
+			std::cout << "could not add pid to list" << std::endl;
 		}
 	}
 	return pids;
@@ -132,7 +132,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	s->gfd[0][1] = syscall(__NR_perf_event_open, &(s->perfstruct[0][1]), s->pid, -1, s->gfd[0][0], 0); //use our group file descriptor
 	setupFD(s->gfd[0][1], s->gid[0][1]);
-
+	/*
 	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
 	s->gfd[0][2] = syscall(__NR_perf_event_open, &(s->perfstruct[0][2]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][2], s->gid[0][2]);
@@ -148,7 +148,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][5], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
 	s->gfd[0][5] = syscall(__NR_perf_event_open, &(s->perfstruct[0][5]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][5], s->gid[0][5]);
-/*
+
 	configureStruct(s->perfstruct[0][6], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
 	s->gfd[0][6] = syscall(__NR_perf_event_open, &(s->perfstruct[0][6]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][6], s->gid[0][6]);
@@ -156,10 +156,10 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][7], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
 	s->gfd[0][7] = syscall(__NR_perf_event_open, &(s->perfstruct[0][7]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][7], s->gid[0][7]);
-	*/
+
 	configureStruct(s->perfstruct[0][8], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
 	s->gfd[0][8] = syscall(__NR_perf_event_open, &(s->perfstruct[0][8]), s->pid, -1, s->gfd[0][0], 0);
-	setupFD(s->gfd[0][8], s->gid[0][8]);
+	setupFD(s->gfd[0][8], s->gid[0][8]);*/
 	//group 2: software
 	configureStruct(s->perfstruct[1][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS);
 	s->gfd[1][0] = syscall(__NR_perf_event_open, &(s->perfstruct[1][0]), s->pid, -1, -1, 0);
@@ -196,7 +196,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[2][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][1] = syscall(__NR_perf_event_open, &(s->perfstruct[2][1]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][1], s->gid[2][1]);
-
+	/*
 	configureStruct(s->perfstruct[2][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][2] = syscall(__NR_perf_event_open, &(s->perfstruct[2][2]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][2], s->gid[2][2]);
@@ -243,24 +243,24 @@ void Server::setupCounter(auto& s) {
 
 	configureStruct(s->perfstruct[2][13], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][13] = syscall(__NR_perf_event_open, &(s->perfstruct[2][13]), s->pid, -1, s->gfd[2][0], 0);
-	setupFD(s->gfd[2][13], s->gid[2][13]);
+	setupFD(s->gfd[2][13], s->gid[2][13]);*/
 }
 
-void Server::createCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids) {
+void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
 	for (const auto& it : pids) {
-		counters.emplace_back(std::make_unique<pcounter>());
+		counters.emplace_back(new pcounter);
 		counters.back()->pid = it;
 		//std::cout << "creating counter for pid " << counters.back()->pid << std::endl;
 		setupCounter(counters.back());
 	}
 }
 
-void Server::cullCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids) {
-	for (const auto& culledpid : pids) {
+void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
+	for (const auto culledpid : pids) {
 		for (auto& s : counters) {
 			if (s->pid == culledpid) {
-				for (auto& group : s->gfd) {
-					for (auto& filedescriptor : group) {
+				for (const auto group : s->gfd) {
+					for (const auto filedescriptor : group) {
 						close(filedescriptor);
 					}
 				}
@@ -273,20 +273,52 @@ void Server::cullCounters(vector<std::unique_ptr<struct pcounter>>& counters, co
 #endif
 
 void Server::processPerfStats() {
-	std::this_thread::sleep_for(std::chrono::seconds(10));
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 	#if defined(__linux__)
 	struct rlimit rlimits;
-	rlimits.rlim_cur = 4096; //soft
-	rlimits.rlim_max = 4096; //hard
+	rlimits.rlim_cur = 8192; //soft
+	rlimits.rlim_max = 8192; //hard
 	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
 		std::cout << "error changing limits, errno = " << errno << std::endl;
 	}
-	std::vector<std::unique_ptr<struct pcounter>> MyCounters = {};
+	std::vector<struct pcounter*> MyCounters = {};
 	//std::cout << "creating counters" << std::endl;
 	vector<long> newPids = {};
 	vector<long> diffPids = {};
 	vector<long> currentPids = getProcessChildPids(pid);
 	createCounters(MyCounters, currentPids);
+	long long CPUcycles;
+	long long CPUinstructions;
+	long long CPUpercent;
+	long long CPUmigrations;
+	long long RAMbytes;
+	long long contextSwitches;
+	long long pageFaults;
+	long long branchInstructions;
+	long long branchMisses;
+	long long cacheMisses;
+	long long cacheReferences;
+	long long stalledCyclesFrontend;
+	long long stalledCyclesBackend;
+	long long busCycles;
+	long long alignmentFaults;
+	long long emulationFaults;
+	long long minorPagefaults;
+	long long majorPagefaults;
+	long long L1dReadAccesses;
+	long long L1dReadMisses;
+	long long LLReadAccesses;
+	long long LLReadMisses;
+	long long LLWriteAccesses;
+	long long LLWriteMisses;
+	long long DTLBReadAccesses;
+	long long DTLBReadMisses;
+	long long DTLBWriteAccesses;
+	long long DTLBWriteMisses;
+	long long ITLBReadAccesses;
+	long long ITLBReadMisses;
+	long long BPUReadAccesses;
+	long long BPUReadMisses;
 	#endif
 	while (true) {
 		#if defined(__linux__)
@@ -305,42 +337,10 @@ void Server::processPerfStats() {
 				ioctl(group[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP); //disable all counters in the groups
 			}
 		}
-		long long CPUcycles;
-		long long CPUinstructions;
-		long long CPUpercent;
-		long long CPUmigrations;
-		long long RAMbytes;
-		long long contextSwitches;
-		long long pageFaults;
-		long long branchInstructions;
-		long long branchMisses;
-		long long cacheMisses;
-		long long cacheReferences;
-		long long stalledCyclesFrontend;
-		long long stalledCyclesBackend;
-		long long busCycles;
-		long long alignmentFaults;
-		long long emulationFaults;
-		long long minorPagefaults;
-		long long majorPagefaults;
-		long long L1dReadAccesses;
-		long long L1dReadMisses;
-		long long LLReadAccesses;
-		long long LLReadMisses;
-		long long LLWriteAccesses;
-		long long LLWriteMisses;
-		long long DTLBReadAccesses;
-		long long DTLBReadMisses;
-		long long DTLBWriteAccesses;
-		long long DTLBWriteMisses;
-		long long ITLBReadAccesses;
-		long long ITLBReadMisses;
-		long long BPUReadAccesses;
-		long long BPUReadMisses;
 		for (auto& s : MyCounters) {
-			memset(&(s->data), 0, sizeof(s->buf));
+			//memset(&(s->buf), 0, sizeof(s->buf));
 			long size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
-			std::cout << "size = " << size << std::endl;
+			//std::cout << "size for g1 = " << size << std::endl;
 			for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
 				if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
 	      	s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
@@ -362,8 +362,9 @@ void Server::processPerfStats() {
 	      	s->gv[0][8] = s->data->values[i].value;
 	    	}
 			}
-			memset(&(s->data), 0, sizeof(s->buf));
+			//memset(&(s->buf), 0, sizeof(s->buf));
 			size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
+			//std::cout << "size for g2 = " << size << std::endl;
 			for (int i = 0; i < s->data->nr; i++) {
 				if (s->data->values[i].id == s->gid[1][0]) {
 					s->gv[1][0] = s->data->values[i].value;
@@ -381,8 +382,9 @@ void Server::processPerfStats() {
 					s->gv[1][6] = s->data->values[i].value;
 				}
 			}
-			memset(&(s->data), 0, sizeof(s->buf));
+			//memset(&(s->buf), 0, sizeof(s->buf));
 			size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
+			//std::cout << "size for g3 = " << size << std::endl;
 			for (int i = 0; i < s->data->nr; i++) {
 				if (s->data->values[i].id == s->gid[2][0]) {
 					s->gv[2][0] = s->data->values[i].value;

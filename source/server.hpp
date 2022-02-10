@@ -52,8 +52,8 @@ class Server {
 	#if defined(__linux__)
 	vector<long> getProcessChildPids(long pid);
 	void setupCounter(auto& s);
-	void createCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids);
-	void cullCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids);
+	void createCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
+	void cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
 	#endif
 
 	string formatWrapper(string input);
