@@ -70,7 +70,7 @@ namespace ch = std::chrono;
 #if defined(__linux__)
 
 struct read_format {
-	unsigned long long nr; //how many events there are
+	unsigned long long nr = 0; //how many events there are
 	struct {
 		unsigned long long value; //the value of event nr
 		unsigned long long id; //the id of event nr
@@ -103,6 +103,9 @@ vector<long> Server::getProcessChildPids(long pid) {
 }
 
 void Server::setupCounter(auto& s) {
+	if (performanceCounterCompat == -1) {
+		return;
+	}
 	auto configureStruct = [&](auto& st, const auto perftype, const auto config) {
 		memset(&(st), 0, sizeof(struct perf_event_attr)); //fill the struct with 0s
 		st.type = perftype; //the type of event
@@ -113,15 +116,19 @@ void Server::setupCounter(auto& s) {
 	};
 
 	auto setupFD = [&](auto& fd, auto& id) {
-		if (fd == -1 && errno == EACCES && performanceCounterCompat == 0) {
+		if (performanceCounterCompat == -1) {
+			return;
+		} else if (fd == -1 && errno == EACCES && performanceCounterCompat == 0) {
 			std::cout << "error: performance counters not permitted; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability" << std::endl;
 			performanceCounterCompat = -1;
 		} else if (fd == -1 && errno != EACCES) {
 			std::cout << "performance counter error; errno = " << errno << std::endl;
 		} else if (performanceCounterCompat == 0) {
 			performanceCounterCompat = 1;
+			ioctl(fd, PERF_EVENT_IOC_ID, &(id));
+		} else {
+			ioctl(fd, PERF_EVENT_IOC_ID, &(id));
 		}
-		ioctl(fd, PERF_EVENT_IOC_ID, &(id));
 	};
 	//std::cout << "setting up counters for pid " << s->pid << std::endl;
 	//group 1: hardware
@@ -320,7 +327,7 @@ void Server::processPerfStats() {
 	long long BPUReadAccesses;
 	long long BPUReadMisses;
 	#endif
-	while (true) {
+	while (performanceCounterCompat != -1) {
 		#if defined(__linux__)
 		for (auto& s : MyCounters) {
 			for (auto& group : s->gfd) {
@@ -608,28 +615,34 @@ void Server::processServerCommand(string input) {
 	lastCommandUser = m[1];
 	if (std::regex_search(input, std::regex("\\" + text.server.command.hajime.regex + "?(?![\\w])", std::regex_constants::optimize))) {
 		commandHajime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.time.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.time.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandTime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.help.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.help.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandHelp();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.die.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.die.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandDie();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.d20.regex + "(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.d20.regex + "(?!\\w)", std::regex_constants::optimize))) {
 		commandD20();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.coinflip.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.coinflip.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandCoinflip();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.discord.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.discord.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandDiscord();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.name.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.name.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandName();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.uptime.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.uptime.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandUptime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.restart.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.restart.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandRestart();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.system.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.system.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandSystem();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.perf.regex + "?(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.perf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandPerf();
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.hwperf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+		commandHWPerf();
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.swperf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+		commandSWPerf();
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.caperf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+		commandCAPerf();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\.ee(?!.\\w)", std::regex_constants::optimize))) {
 		writeToServerTerminal(formatWrapper("[Hajime] https://www.youtube.com/watch?v=kjPD_H81hDc"));
 	}
@@ -660,6 +673,9 @@ void Server::commandHelp() {
 	"{\"text\":\"" + text.server.command.uptime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.uptime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.uptime.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.system.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.system + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.system.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.perf + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.perf.regex, std::regex("(\\(|\\))"), "") + "\"}},"
+	"{\"text\":\"" + text.server.command.hwperf.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.hwperf + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.hwperf.regex, std::regex("(\\(|\\))"), "") + "\"}},"
+	"{\"text\":\"" + text.server.command.swperf.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.swperf + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.swperf.regex, std::regex("(\\(|\\))"), "") + "\"}},"
+	"{\"text\":\"" + text.server.command.caperf.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.caperf + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.caperf.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.restart.regex + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.restart + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.restart.regex, std::regex("(\\(|\\))"), "") + "\"}}]"));
 }
 
@@ -724,22 +740,61 @@ void Server::commandSystem() {
 }
 
 void Server::commandPerf() {
+	writeToServerTerminal(formatWrapper("[Hajime] Roll over an item to show its explanation."));
+	string hajInfo;
+	hajInfo = "[{\"text\":\"CPU usage, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the total CPU usage.") + "\"}},"
+	"{\"text\":\"" + string("RAM usage") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the RAM usage.") + "\"}},"
+	"{\"text\":\"" + string("CPU migrations") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the scheduler moved the server to another CPU core.") + "\"}},"
+	"{\"text\":\"" + string("IPC") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the Instructions Per Clock (IPC) measurement.") + "\"}},"
+	"{\"text\":\"" + string("CPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the Cycles Per Second (CPS) measurement.") + "\"}},"
+	"{\"text\":\"" + string("IPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the Instructions Per Second (IPS) measurement.") + "\"}},"
+	"{\"text\":\"" + string("context switches") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the kernel switched the current context of execution on the CPU to or from the server's process.") + "\"}},"
+	"{\"text\":\"" + string("stalled cycles frontend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many cycles the CPU spent waiting on undecoded instructions to be decoded.") + "\"}},"
+	"{\"text\":\"" + string("stalled cycles backend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many cycles the CPU spent waiting on instructions while executing them.") + "\"}},"
+	"{\"text\":\"" + string("bus cycles") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many cycles the CPU spent communicating to an external device, such as the server's RAM.") + "\"}},"
+	"{\"text\":\"" + string("branch misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many branch instructions were incorrectly predicted by the branch predictor.") + "\"}},"
+	"{\"text\":\"" + string("cache misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU had to go into main memory (RAM) instead of getting data from its cache memory.") + "\"}},"
+	"{\"text\":\"" + string("emulation faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the kernel tried to emulate an unsupported instruction, but couldn't.") + "\"}},"
+	"{\"text\":\"" + string("alignment faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the kernel made an unaligned memory read or write.") + "\"}},"
+	"{\"text\":\"" + string("L1d read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access some data from its Layer 1 Data (L1d) cache, but had to go elsewhere.") + "\"}},"
+	"{\"text\":\"" + string("LLC read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access some data from its Last Layer Cache (LLC), but had to go elsewhere.") + "\"}},"
+	"{\"text\":\"" + string("LLC write misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to write some data to its Last Layer Cache, but had to go elsewhere.") + "\"}},"
+	"{\"text\":\"" + string("dTLB read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access a memory mapping in the Data Translation Lookaside Buffer (dTLB) but had to go elsewhere.") + "\"}},"
+	"{\"text\":\"" + string("dTLB write misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to write a memory mapping in the Data Translation Lookaside Buffer but had to go elsewhere.") + "\"}},"
+	"{\"text\":\"" + string("iTLB read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access a memory mapping in the Instruction Translation Lookaside Buffer but had to go elsewhere.") + "\"}},"
+	"{\"text\":\"" + string("BPU read misses") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access a branch cache entry in the Branch Prediction Unit cache but had to go elsewhere.") + "\"}}]";
+	writeToServerTerminal(formatWrapper(hajInfo));
+}
+
+void Server::commandHWPerf() {
 	string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"CPU usage, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUusage() + "\"}},"
 	"{\"text\":\"" + string("RAM usage") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAMusage() + "\"}},"
-	"{\"text\":\"" + string("CPU migrations") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUmigs() + "\"}},"
 	"{\"text\":\"" + string("IPC") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPC() + "\"}},"
 	"{\"text\":\"" + string("CPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPS() + "\"}},"
 	"{\"text\":\"" + string("IPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPS() + "\"}},"
-	"{\"text\":\"" + string("context switches") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getContextSwitches() + "\"}},"
-	"{\"text\":\"" + string("stalled cycles frontend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesFrontend() + "\"}},"
-	"{\"text\":\"" + string("stalled cycles backend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesBackend() + "\"}},"
-	"{\"text\":\"" + string("bus cycles") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBusCycles() + "\"}},"
 	"{\"text\":\"" + string("branch misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBranchMisses() + "\"}},"
 	"{\"text\":\"" + string("cache misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCacheMisses() + "\"}},"
+	"{\"text\":\"" + string("stalled cycles frontend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesFrontend() + "\"}},"
+	"{\"text\":\"" + string("stalled cycles backend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStalledCyclesBackend() + "\"}},"
+	"{\"text\":\"" + string("bus cycles") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBusCycles() + "\"}}]";
+	writeToServerTerminal(formatWrapper(hajInfo));
+}
+
+void Server::commandSWPerf() {
+	string hajInfo;
+	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + string("context switches") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getContextSwitches() + "\"}},"
+	"{\"text\":\"" + string("CPU migrations") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUmigs() + "\"}},"
 	"{\"text\":\"" + string("emulation faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getEmulationFaults() + "\"}},"
 	"{\"text\":\"" + string("alignment faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getAlignmentFaults() + "\"}},"
-	"{\"text\":\"" + string("L1d read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dReadMisses() + "\"}},"
+	"{\"text\":\"" + string("minor pagefaults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getMinorPagefaults() + "\"}},"
+	"{\"text\":\"" + string("major pagefaults") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getMajorPagefaults() + "\"}}]";
+	writeToServerTerminal(formatWrapper(hajInfo));
+}
+
+void Server::commandCAPerf() {
+	string hajInfo;
+	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + string("L1d read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dReadMisses() + "\"}},"
 	"{\"text\":\"" + string("LLC read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLLReadMisses() + "\"}},"
 	"{\"text\":\"" + string("LLC write misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLLWriteMisses() + "\"}},"
 	"{\"text\":\"" + string("dTLB read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getdTLBReadMisses() + "\"}},"

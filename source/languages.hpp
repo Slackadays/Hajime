@@ -242,6 +242,9 @@ class Text {
 						string uptime;
 						string system;
 						string perf;
+						string hwperf;
+						string swperf;
+						string caperf;
 						string restart;
 					};
 					Message message;
@@ -301,6 +304,21 @@ class Text {
 					string output;
 				};
 				Perf perf;
+				struct HWPerf {
+					string regex;
+					string output;
+				};
+				HWPerf hwperf;
+				struct SWPerf {
+					string regex;
+					string output;
+				};
+				SWPerf swperf;
+				struct CAPerf {
+					string regex;
+					string output;
+				};
+				CAPerf caperf;
 			};
 			Command command;
 		};

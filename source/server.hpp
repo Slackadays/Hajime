@@ -75,6 +75,9 @@ class Server {
 	void commandRestart();
 	void commandSystem();
 	void commandPerf();
+	void commandHWPerf();
+	void commandSWPerf();
+	void commandCAPerf();
 
 	template<typename T>
 	T averageVal(list<T> myList, unsigned int minutes) {
@@ -154,18 +157,48 @@ class Server {
 	std::chrono::time_point<std::chrono::steady_clock> timeStart;
 	std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
 
-	bool said15MinRestart;
-	bool said5MinRestart;
-	bool doCommands;
-	bool silentCommands;
+	bool said15MinRestart = false;
+	bool said5MinRestart = false;
+	bool doCommands = true;
+	bool silentCommands = false;
 
-	std::list<long long> cpuusagereadings;
-	std::list<double> rampercentreadings;
-	std::list<unsigned long long> rambytereadings, cpucyclereadings, cpuinstructionreadings, cachemissreadings, branchinstructionreadings, branchmissreadings, cachereferencereadings, stalledcyclesfrontendreadings, stalledcyclesbackendreadings, buscyclereadings;
-	std::list<unsigned long long> pagefaultreadings, contextswitchreadings, cpumigrationreadings, alignmentfaultreadings, emulationfaultreadings, minorpagefaultreadings, majorpagefaultreadings;
-	std::list<unsigned long long> l1dreadaccessreadings, l1dreadmissreadings, llreadaccessreadings, llreadmissreadings, dtlbreadaccessreadings, dtlbreadmissreadings, dtlbwriteaccessreadings, dtlbwritemissreadings, itlbreadaccessreadings, itlbreadmissreadings, bpureadaccessreadings, bpureadmissreadings, llwriteaccessreadings, llwritemissreadings;
+	std::list<long long> cpuusagereadings{0};
+	std::list<double> rampercentreadings{0.0};
 
-	double RAMpercent1m, RAMpercent5m, RAMpercent15m;
+	std::list<unsigned long long> rambytereadings{0};
+	std::list<unsigned long long> cpucyclereadings{0};
+	std::list<unsigned long long> cpuinstructionreadings{0};
+	std::list<unsigned long long> cachemissreadings{0};
+	std::list<unsigned long long> branchinstructionreadings{0};
+	std::list<unsigned long long> branchmissreadings{0};
+	std::list<unsigned long long> cachereferencereadings{0};
+	std::list<unsigned long long> stalledcyclesfrontendreadings{0};
+	std::list<unsigned long long> stalledcyclesbackendreadings{0};
+	std::list<unsigned long long> buscyclereadings{0};
+
+	std::list<unsigned long long> pagefaultreadings{0};
+	std::list<unsigned long long> contextswitchreadings{0};
+	std::list<unsigned long long> cpumigrationreadings{0};
+	std::list<unsigned long long> alignmentfaultreadings{0};
+	std::list<unsigned long long> emulationfaultreadings{0};
+	std::list<unsigned long long> minorpagefaultreadings{0};
+	std::list<unsigned long long> majorpagefaultreadings{0};
+
+	std::list<unsigned long long> l1dreadaccessreadings{0};
+	std::list<unsigned long long> l1dreadmissreadings{0};
+	std::list<unsigned long long> llreadaccessreadings{0};
+	std::list<unsigned long long> llreadmissreadings{0};
+	std::list<unsigned long long> dtlbreadaccessreadings{0};
+	std::list<unsigned long long> dtlbreadmissreadings{0};
+	std::list<unsigned long long> dtlbwriteaccessreadings{0};
+	std::list<unsigned long long> dtlbwritemissreadings{0};
+	std::list<unsigned long long> itlbreadaccessreadings{0};
+	std::list<unsigned long long> itlbreadmissreadings{0};
+	std::list<unsigned long long> bpureadaccessreadings{0};
+	std::list<unsigned long long> bpureadmissreadings{0};
+	std::list<unsigned long long> llwriteaccessreadings{0};
+	std::list<unsigned long long> llwritemissreadings{0};
+
 	long long CPUjiffies, PIDjiffies;
 
 	string lastCommandUser;
