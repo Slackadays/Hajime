@@ -52,8 +52,8 @@ class Server {
 	#if defined(__linux__)
 	vector<long> getProcessChildPids(long pid);
 	void setupCounter(auto& s);
-	void createCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
-	void cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
+	void createCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids);
+	void cullCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids);
 	#endif
 
 	string formatWrapper(string input);
@@ -78,7 +78,7 @@ class Server {
 
 	template<typename T>
 	T averageVal(list<T> myList, unsigned int minutes) {
-		int readings = 0.0;
+		int readings = 0;
 		T temp = 0;
 		myList.reverse();
 		for (const auto& value : myList) {
@@ -91,7 +91,7 @@ class Server {
 		if (readings > 0) {
 			temp /= readings;
 		} else {
-			std::cout << "/0 error" << std::endl;
+			return 0;
 		}
 		return temp;
 	}
@@ -137,6 +137,8 @@ class Server {
 	int getPID();
 	vector<string> toArray(string input);
 	auto toPointerArray(vector<string> &strings);
+
+	inline static std::atomic<int> performanceCounterCompat = 0;
 
 	#if defined(_WIN64) || defined(_WIN32)
 	STARTUPINFO si; // a variable that can specify parameters for windows created with it

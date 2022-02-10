@@ -15,7 +15,6 @@
 #include <signal.h>
 #include <linux/perf_event.h>
 #include <linux/hw_breakpoint.h>
-#include <sys/capability.h>
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
@@ -28,6 +27,7 @@
 #include <signal.h>
 #endif
 
+#include <memory>
 #include <iterator>
 #include <algorithm>
 #include <sstream>
@@ -80,12 +80,12 @@ struct read_format {
 struct pcounter {
 	long pid;
 
-	array<array<struct perf_event_attr, 14>, 3> perfstruct;
-	array<array<unsigned long long, 14>, 3> gid; //group 1: hardware counters
-	array<array<unsigned long long, 14>, 3> gv; //group 2: software counters
-	array<array<int, 14>, 3> gfd; //group 3: cache counters
+	vector<vector<struct perf_event_attr>> perfstruct{vector<struct perf_event_attr>(9), vector<struct perf_event_attr>(7), vector<struct perf_event_attr>(14)};
+	vector<vector<unsigned long long>> gid{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)}; //group 1: hardware counters
+	vector<vector<unsigned long long>> gv{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)}; //group 2: software counters
+	vector<vector<int>> gfd{vector<int>(9, 0), vector<int>(14, 0), vector<int>(7, 0)}; //group 3: cache counters
 
-	char buf[8192];
+	char buf[4096];
 	struct read_format* data = (struct read_format*)buf;
 };
 
@@ -113,8 +113,13 @@ void Server::setupCounter(auto& s) {
 	};
 
 	auto setupFD = [&](auto& fd, auto& id) {
-		if (fd == -1) {
-			std::cout << "error setting up performance counter event, errno = " << errno << std::endl;
+		if (fd == -1 && errno == EACCES && performanceCounterCompat == 0) {
+			std::cout << "error: performance counters not permitted; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability" << std::endl;
+			performanceCounterCompat = -1;
+		} else if (fd == -1 && errno != EACCES) {
+			std::cout << "performance counter error; errno = " << errno << std::endl;
+		} else if (performanceCounterCompat == 0) {
+			performanceCounterCompat = 1;
 		}
 		ioctl(fd, PERF_EVENT_IOC_ID, &(id));
 	};
@@ -143,7 +148,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][5], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
 	s->gfd[0][5] = syscall(__NR_perf_event_open, &(s->perfstruct[0][5]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][5], s->gid[0][5]);
-	/*
+/*
 	configureStruct(s->perfstruct[0][6], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
 	s->gfd[0][6] = syscall(__NR_perf_event_open, &(s->perfstruct[0][6]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][6], s->gid[0][6]);
@@ -226,11 +231,11 @@ void Server::setupCounter(auto& s) {
 
 	configureStruct(s->perfstruct[2][10], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][10] = syscall(__NR_perf_event_open, &(s->perfstruct[2][10]), s->pid, -1, s->gfd[2][0], 0);
-	setupFD(s->gfd[2][8], s->gid[2][10]);
+	setupFD(s->gfd[2][10], s->gid[2][10]);
 
 	configureStruct(s->perfstruct[2][11], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][11] = syscall(__NR_perf_event_open, &(s->perfstruct[2][11]), s->pid, -1, s->gfd[2][0], 0);
-	setupFD(s->gfd[2][9], s->gid[2][11]);
+	setupFD(s->gfd[2][11], s->gid[2][11]);
 
 	configureStruct(s->perfstruct[2][12], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][12] = syscall(__NR_perf_event_open, &(s->perfstruct[2][12]), s->pid, -1, s->gfd[2][0], 0);
@@ -241,16 +246,16 @@ void Server::setupCounter(auto& s) {
 	setupFD(s->gfd[2][13], s->gid[2][13]);
 }
 
-void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
+void Server::createCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids) {
 	for (const auto& it : pids) {
-		counters.emplace_back(new pcounter);
+		counters.emplace_back(std::make_unique<pcounter>());
 		counters.back()->pid = it;
 		//std::cout << "creating counter for pid " << counters.back()->pid << std::endl;
 		setupCounter(counters.back());
 	}
 }
 
-void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
+void Server::cullCounters(vector<std::unique_ptr<struct pcounter>>& counters, const vector<long>& pids) {
 	for (const auto& culledpid : pids) {
 		for (auto& s : counters) {
 			if (s->pid == culledpid) {
@@ -270,16 +275,14 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 void Server::processPerfStats() {
 	std::this_thread::sleep_for(std::chrono::seconds(10));
 	#if defined(__linux__)
-	string caps = cap_to_text(cap_get_pid(0), NULL);
-	//if (std::regex_search())
 	struct rlimit rlimits;
 	rlimits.rlim_cur = 4096; //soft
 	rlimits.rlim_max = 4096; //hard
 	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
 		std::cout << "error changing limits, errno = " << errno << std::endl;
 	}
-	std::vector<struct pcounter*> MyCounters = {};
-	std::cout << "creating counters" << std::endl;
+	std::vector<std::unique_ptr<struct pcounter>> MyCounters = {};
+	//std::cout << "creating counters" << std::endl;
 	vector<long> newPids = {};
 	vector<long> diffPids = {};
 	vector<long> currentPids = getProcessChildPids(pid);
@@ -302,8 +305,42 @@ void Server::processPerfStats() {
 				ioctl(group[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP); //disable all counters in the groups
 			}
 		}
+		long long CPUcycles;
+		long long CPUinstructions;
+		long long CPUpercent;
+		long long CPUmigrations;
+		long long RAMbytes;
+		long long contextSwitches;
+		long long pageFaults;
+		long long branchInstructions;
+		long long branchMisses;
+		long long cacheMisses;
+		long long cacheReferences;
+		long long stalledCyclesFrontend;
+		long long stalledCyclesBackend;
+		long long busCycles;
+		long long alignmentFaults;
+		long long emulationFaults;
+		long long minorPagefaults;
+		long long majorPagefaults;
+		long long L1dReadAccesses;
+		long long L1dReadMisses;
+		long long LLReadAccesses;
+		long long LLReadMisses;
+		long long LLWriteAccesses;
+		long long LLWriteMisses;
+		long long DTLBReadAccesses;
+		long long DTLBReadMisses;
+		long long DTLBWriteAccesses;
+		long long DTLBWriteMisses;
+		long long ITLBReadAccesses;
+		long long ITLBReadMisses;
+		long long BPUReadAccesses;
+		long long BPUReadMisses;
 		for (auto& s : MyCounters) {
+			memset(&(s->data), 0, sizeof(s->buf));
 			long size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
+			std::cout << "size = " << size << std::endl;
 			for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
 				if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
 	      	s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
@@ -325,6 +362,7 @@ void Server::processPerfStats() {
 	      	s->gv[0][8] = s->data->values[i].value;
 	    	}
 			}
+			memset(&(s->data), 0, sizeof(s->buf));
 			size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
 			for (int i = 0; i < s->data->nr; i++) {
 				if (s->data->values[i].id == s->gid[1][0]) {
@@ -343,6 +381,7 @@ void Server::processPerfStats() {
 					s->gv[1][6] = s->data->values[i].value;
 				}
 			}
+			memset(&(s->data), 0, sizeof(s->buf));
 			size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
 			for (int i = 0; i < s->data->nr; i++) {
 				if (s->data->values[i].id == s->gid[2][0]) {
@@ -376,38 +415,38 @@ void Server::processPerfStats() {
 				}
 			}
 		}
-		long long CPUcycles = 0;
-		long long CPUinstructions = 0;
-		long long CPUpercent = 0;
-		long long CPUmigrations = 0;
-		long long RAMbytes = 0;
-		long long contextSwitches = 0;
-		long long pageFaults = 0;
-		long long branchInstructions = 0;
-		long long branchMisses = 0;
-		long long cacheMisses = 0;
-		long long cacheReferences = 0;
-		long long stalledCyclesFrontend = 0;
-		long long stalledCyclesBackend = 0;
-		long long busCycles = 0;
-		long long alignmentFaults = 0;
-		long long emulationFaults = 0;
-		long long minorPagefaults = 0;
-		long long majorPagefaults = 0;
-		long long L1dReadAccesses = 0;
-		long long L1dReadMisses = 0;
-		long long LLReadAccesses = 0;
-		long long LLReadMisses = 0;
-		long long LLWriteAccesses = 0;
-		long long LLWriteMisses = 0;
-		long long DTLBReadAccesses = 0;
-		long long DTLBReadMisses = 0;
-		long long DTLBWriteAccesses = 0;
-		long long DTLBWriteMisses = 0;
-		long long ITLBReadAccesses = 0;
-		long long ITLBReadMisses = 0;
-		long long BPUReadAccesses = 0;
-		long long BPUReadMisses = 0;
+		CPUcycles = 0;
+		CPUinstructions = 0;
+		CPUpercent = 0;
+		CPUmigrations = 0;
+		RAMbytes = 0;
+		contextSwitches = 0;
+		pageFaults = 0;
+		branchInstructions = 0;
+		branchMisses = 0;
+		cacheMisses = 0;
+		cacheReferences = 0;
+		stalledCyclesFrontend = 0;
+		stalledCyclesBackend = 0;
+		busCycles = 0;
+		alignmentFaults = 0;
+		emulationFaults = 0;
+		minorPagefaults = 0;
+		majorPagefaults = 0;
+		L1dReadAccesses = 0;
+		L1dReadMisses = 0;
+		LLReadAccesses = 0;
+		LLReadMisses = 0;
+		LLWriteAccesses = 0;
+		LLWriteMisses = 0;
+		DTLBReadAccesses = 0;
+		DTLBReadMisses = 0;
+		DTLBWriteAccesses = 0;
+		DTLBWriteMisses = 0;
+		ITLBReadAccesses = 0;
+		ITLBReadMisses = 0;
+		BPUReadAccesses = 0;
+		BPUReadMisses = 0;
 		for (const auto& s : MyCounters) {
 			CPUcycles += s->gv[0][0];
 			CPUinstructions += s->gv[0][1];
@@ -440,8 +479,9 @@ void Server::processPerfStats() {
 			LLWriteAccesses += s->gv[2][12];
 			LLWriteMisses += s->gv[2][13];
 		}
+		std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
 		auto addReading = [](auto& list, auto& entry) {
-			list.emplace_back(entry);
+			list.push_back(entry);
 			while (list.size() > 15) {
 				list.pop_front();
 			}
