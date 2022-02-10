@@ -15,6 +15,7 @@
 #include <signal.h>
 #include <linux/perf_event.h>
 #include <linux/hw_breakpoint.h>
+#include <sys/capability.h>
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
@@ -269,6 +270,8 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 void Server::processPerfStats() {
 	std::this_thread::sleep_for(std::chrono::seconds(10));
 	#if defined(__linux__)
+	string caps = cap_to_text(cap_get_pid(0), NULL);
+	//if (std::regex_search())
 	struct rlimit rlimits;
 	rlimits.rlim_cur = 4096; //soft
 	rlimits.rlim_max = 4096; //hard
