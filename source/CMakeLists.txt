@@ -19,3 +19,5 @@ add_executable(hajime hajime.cpp server.cpp server_features.cpp getvarsfromfile.
 set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
 
 target_link_libraries(hajime Threads::Threads)
+
+target_link_options(hajime PRIVATE "-Wl,--no-as-needed" "-lcap")
