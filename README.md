@@ -10,24 +10,23 @@
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/slackadays/hajime/latest)
 ![GitHub Repo stars](https://img.shields.io/github/stars/slackadays/hajime?style=social)
 
-[Hajime en español](README_es.md)
+[**Hajime en español**](README_es.md)
 
 # Discord 💬
 Join our Discord server at https://discord.gg/J6asnc3pEG!
 
-# Quick Installation ⬇️
-### Linux | macOS | FreeBSD 🐧🍎👿
-Copy and paste this command into the terminal to install. Or, go to the Releases page and download the latest release.
+# Get Hajime ⬇️
+### Linux, macOS & FreeBSD 🐧🍎👿
+Copy and paste this command into the terminal to install. Or, go to the [GitHub Releases page](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
 ```
 sh <(curl -L https://gethaji.me)
 ```
 ### Windows 🪟
-Go to the Releases page and download the latest release.
+Go to the [GitHub Releases page](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
 
 ### Tutorial Videos 🖵
 
 Check out the official Hajime tutorial video series!
-
 [**YouTube** | ](https://www.youtube.com/channel/UC0DeCW6yXXVr9DJctJVo7wg)
 [**Odysee** | ](https://odysee.com/@TheHajimeProject)
 [**Rumble** | ](https://rumble.com/user/TheHajimeProject)
@@ -73,6 +72,10 @@ Your platform is probably supported here. If it isn't, CMake is here to help.
 
 ## Setup 🪛
 Hajime will automtically start the installation wizard if it cannot find the configuation file. This is automatically the case when you download Hajime. To do the installer manually, use `-i` as a flag option.
+
+## More Info 
+
+Check out the [Hajime Wiki!](https://github.com/Slackadays/Hajime/wiki)
 
 ## Compiling 📚
 
