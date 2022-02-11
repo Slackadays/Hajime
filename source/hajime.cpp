@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, text.language);
 			return 0;
 		}
-		if (flag("-p", "--priviliged")) {
+		if (flag("-p", "--privileged")) {
 			bypassPriviligeCheck = true;
 		}
 		if (flag("-ss", "--install-servers-file")) {
