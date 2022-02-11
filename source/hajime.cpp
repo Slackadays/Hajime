@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+	bool bypassPriviligeCheck = false;
 	for (int i = 1; i < argc; i++) {//start at i = 1 to improve performance because we will never find a flag at 0
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
@@ -113,6 +114,9 @@ int main(int argc, char *argv[]) {
 			}
 			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, text.language);
 			return 0;
+		}
+		if (flag("-p", "--priviliged")) {
+			bypassPriviligeCheck = true;
 		}
 		if (flag("-ss", "--install-servers-file")) {
 			wizard.wizardStep(defaultServersFile, installer.installDefaultServersFile, text.error.ServersFilePresent, text.error.ServersFileNotCreated, std::vector<string>{defaultServerConfFile});
@@ -190,7 +194,7 @@ int main(int argc, char *argv[]) {
 			hjlog.showThreadsAsColors = false;
 		}
 	}
-	if (isUserPrivileged()) {
+	if (!bypassPriviligeCheck && isUserPrivileged()) {
 		hjlog.out("Hajime must not be run by a privileged user", Error);
 		return 1;
 	}

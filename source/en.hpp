@@ -5,6 +5,7 @@ help.push_back("hajime(.exe) [the following flags]"); //1 and 2 sandwich a varia
 help.push_back("-f file or --server-file file | Specify a server configuration file to use manually.");
 help.push_back("-h or --help | Show this help message.");
 help.push_back("-hf file or --hajime-file file | Manually specify the configuration file that Hajime uses.");
+help.push_back("-p or --priviliged | Bypass the priviliged user check.");
 help.push_back("-s  or --install-server | Create a default server configuration file.");
 help.push_back("-ih file or --install-hajime-config file | Install the default Hajime configuration file.");
 help.push_back("-S  or --install-service | Install a startup service file for your platform to start Hajime automatically.");
