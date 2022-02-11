@@ -51,7 +51,7 @@ div.infomodal {
 	padding: 10px;
 }
 div.infomodal > div.maintitle {
-	font-size: 4em;	
+	font-size: 4em;
 	margin-bottom: 20px;
 	display: block;
 }
@@ -112,5 +112,8 @@ a {
 	}
 	div.downloadbox {
 		width: auto;
+	}
+	img {
+		max-width: 90%;
 	}
 }
