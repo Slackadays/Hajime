@@ -268,10 +268,13 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 			if (s->pid == culledpid) {
 				for (const auto group : s->gfd) {
 					for (const auto filedescriptor : group) {
-						close(filedescriptor);
+						if (filedescriptor > 2) { //check that we are not closing a built-in file descriptor for stdout, stdin, or stderr
+							close(filedescriptor);
+						}
 					}
 				}
 				//std::cout << "culling counter for pid " << s->pid << std::endl;
+				delete s;
 				counters.erase(std::find(begin(counters), end(counters), s));
 			}
 		}

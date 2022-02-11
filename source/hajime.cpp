@@ -208,6 +208,8 @@ int main(int argc, char *argv[]) {
 		std::getline(std::cin, command);
 		if (command != "") {
 			processHajimeCommand(toVec(command));
+		} else {
+			hjlog.out("Command must not be empty", Error);
 		}
 	}
 	return 0;
