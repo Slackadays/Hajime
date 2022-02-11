@@ -84,7 +84,7 @@ void Server::startServer(string confFile) {
 			#if !defined(_WIN64) && !defined(_WIN32)
 			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 			#endif
-			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(\/||\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
+			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(/|\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
 				hjlog.out(text.info.StartingServer, Info);
 				startProgram(method);
 				hjlog.out(text.info.ServerStartCompleted, Info);
