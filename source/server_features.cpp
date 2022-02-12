@@ -190,40 +190,40 @@ void Server::commandRestart() {
 
 void Server::commandSystem() {
 	string hajInfo;
-	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"OS, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
-	"{\"text\":\"" + string("CPU") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
-	"{\"text\":\"" + string("RAM") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}},"
-	"{\"text\":\"" + string("swap") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getSwap() + "\"}},"
-	"{\"text\":\"" + string("uptime") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getUptime() + "\"}},"
-	"{\"text\":\"" + string("processes") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getProcesses() + "\"}},"
-	"{\"text\":\"" + string("loadavg") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLoadavg() + "\"}}]";
+	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + text.server.command.system.key.os + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.cpu + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.ram + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.swap + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getSwap() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.uptime + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getUptime() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.processes + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getProcesses() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.loadavg + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLoadavg() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
 void Server::commandPerf() {
 	writeToServerTerminal(formatWrapper("[Hajime] Roll over an item to show its explanation."));
 	string hajInfo;
-	hajInfo = "[{\"text\":\"CPU usage, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the total CPU usage.") + "\"}},"
-	"{\"text\":\"" + string("RAM usage") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the RAM usage.") + "\"}},"
-	"{\"text\":\"" + string("CPU migrations") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the scheduler moved the server to another CPU core.") + "\"}},"
-	"{\"text\":\"" + string("IPC") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the Instructions Per Clock (IPC) measurement.") + "\"}},"
-	"{\"text\":\"" + string("CPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the Cycles Per Second (CPS) measurement.") + "\"}},"
-	"{\"text\":\"" + string("IPS") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show the Instructions Per Second (IPS) measurement.") + "\"}},"
-	"{\"text\":\"" + string("context switches") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the kernel switched the current context of execution on the CPU to or from the server's process.") + "\"}},"
-	"{\"text\":\"" + string("stalled cycles frontend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many cycles the CPU spent waiting on undecoded instructions to be decoded.") + "\"}},"
-	"{\"text\":\"" + string("stalled cycles backend") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many cycles the CPU spent waiting on instructions while executing them.") + "\"}},"
-	"{\"text\":\"" + string("bus cycles") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many cycles the CPU spent communicating to an external device, such as the server's RAM.") + "\"}},"
-	"{\"text\":\"" + string("branch misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many branch instructions were incorrectly predicted by the branch predictor.") + "\"}},"
-	"{\"text\":\"" + string("cache misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU had to go into main memory (RAM) instead of getting data from its cache memory.") + "\"}},"
-	"{\"text\":\"" + string("emulation faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the kernel tried to emulate an unsupported instruction, but couldn't.") + "\"}},"
-	"{\"text\":\"" + string("alignment faults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the kernel made an unaligned memory read or write.") + "\"}},"
-	"{\"text\":\"" + string("L1d read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access some data from its Layer 1 Data (L1d) cache, but had to go elsewhere.") + "\"}},"
-	"{\"text\":\"" + string("LLC read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access some data from its Last Layer Cache (LLC), but had to go elsewhere.") + "\"}},"
-	"{\"text\":\"" + string("LLC write misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to write some data to its Last Layer Cache, but had to go elsewhere.") + "\"}},"
-	"{\"text\":\"" + string("dTLB read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access a memory mapping in the Data Translation Lookaside Buffer (dTLB) but had to go elsewhere.") + "\"}},"
-	"{\"text\":\"" + string("dTLB write misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to write a memory mapping in the Data Translation Lookaside Buffer but had to go elsewhere.") + "\"}},"
-	"{\"text\":\"" + string("iTLB read misses") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access a memory mapping in the Instruction Translation Lookaside Buffer but had to go elsewhere.") + "\"}},"
-	"{\"text\":\"" + string("BPU read misses") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("Show how many times the CPU wanted to access a branch cache entry in the Branch Prediction Unit cache but had to go elsewhere.") + "\"}}]";
+	hajInfo = "[{\"text\":\"" + text.server.command.perf.key.cpuusage + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.cpuusage + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.ramusage + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.ramusage + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.cpumigrations + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.cpumigrations + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.ipc + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.ipc + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.cps + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.cps + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.ips + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.ips + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.contextswitches + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.contextswitches + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.stalledfrontend + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.stalledfrontend + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.stalledbackend + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.stalledbackend + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.buscycles + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.buscycles + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.branchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.branchmisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.cachemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.cachemisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.emufaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.emufaults + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.alignfaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.alignfaults + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.l1dreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.l1dreadmisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.llcreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.llcreadmisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.llcwritemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.llcwritemisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.dtlbreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.dtlbreadmisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.dtlbwritemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.dtlbwritemisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.itlbreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.itlbreadmisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.bpureadmisses + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.bpureadmisses + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 

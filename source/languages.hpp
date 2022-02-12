@@ -297,11 +297,79 @@ class Text {
 				struct System {
 					string regex;
 					string output;
+					struct Key {
+						string os;
+						string cpu;
+						string ram;
+						string swap;
+						string uptime;
+						string processes;
+						string loadavg;
+					};
+					Key key;
+					struct Value {
+						string os;
+						string cpu;
+						string ram;
+						string swap;
+						string uptime;
+						string processes;
+						string loadavg;
+					};
+					Value value;
 				};
 				System system;
 				struct Perf {
 					string regex;
 					string output;
+					struct Key {
+						string cpuusage;
+						string ramusage;
+						string cpumigrations;
+						string ipc;
+						string cps;
+						string ips;
+						string contextswitches;
+						string stalledfrontend;
+						string stalledbackend;
+						string buscycles;
+						string branchmisses;
+						string cachemisses;
+						string emufaults;
+						string alignfaults;
+						string l1dreadmisses;
+						string llcreadmisses;
+						string llcwritemisses;
+						string dtlbreadmisses;
+						string dtlbwritemisses;
+						string itlbreadmisses;
+						string bpureadmisses;
+					};
+					Key key;
+					struct Value {
+						string cpuusage;
+						string ramusage;
+						string cpumigrations;
+						string ipc;
+						string cps;
+						string ips;
+						string contextswitches;
+						string stalledfrontend;
+						string stalledbackend;
+						string buscycles;
+						string branchmisses;
+						string cachemisses;
+						string emufaults;
+						string alignfaults;
+						string l1dreadmisses;
+						string llcreadmisses;
+						string llcwritemisses;
+						string dtlbreadmisses;
+						string dtlbwritemisses;
+						string itlbreadmisses;
+						string bpureadmisses;
+					};
+					Value value;
 				};
 				Perf perf;
 				struct HWPerf {
