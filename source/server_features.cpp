@@ -18,6 +18,7 @@
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
+#include <sys/sysinfo.h>
 #include <termios.h>
 #else
 #include <unistd.h>
@@ -192,7 +193,9 @@ void Server::commandSystem() {
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"OS, \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
 	"{\"text\":\"" + string("CPU") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
 	"{\"text\":\"" + string("RAM") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}},"
+	"{\"text\":\"" + string("swap") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getSwap() + "\"}},"
 	"{\"text\":\"" + string("uptime") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getUptime() + "\"}},"
+	"{\"text\":\"" + string("processes") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getProcesses() + "\"}},"
 	"{\"text\":\"" + string("loadavg") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLoadavg() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
@@ -469,6 +472,28 @@ string Server::getLoadavg() {
 	return result;
 	#else
 	return "Not available";
+	#endif
+}
+
+string Server::getSwap() {
+	#if defined(__linux__)
+	struct sysinfo info;
+	sysinfo(&info);
+	string result = to_string(info.totalswap / 1024) + "kB total, " + to_string(info.freeswap / 1024) + "kB available";
+	return result;
+	#else
+	return "Not available yet";
+	#endif
+}
+
+string Server::getProcesses() {
+	#if defined(__linux__)
+	struct sysinfo info;
+	sysinfo(&info);
+	string result = to_string(info.procs) + " total";
+	return result;
+	#else
+	return "Not available yet";
 	#endif
 }
 

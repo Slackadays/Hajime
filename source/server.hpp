@@ -107,6 +107,8 @@ class Server {
 	string getOS();
 	string getCPU();
 	string getRAM();
+	string getSwap();
+	string getProcesses();
 	string getUptime();
 	string getLoadavg();
 	string getCPUusage();
