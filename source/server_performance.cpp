@@ -123,7 +123,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	s->gfd[0][1] = syscall(__NR_perf_event_open, &(s->perfstruct[0][1]), s->pid, -1, s->gfd[0][0], 0); //use our group file descriptor
 	setupFD(s->gfd[0][1], s->gid[0][1]);
-	/*
+
 	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
 	s->gfd[0][2] = syscall(__NR_perf_event_open, &(s->perfstruct[0][2]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][2], s->gid[0][2]);
@@ -139,7 +139,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][5], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
 	s->gfd[0][5] = syscall(__NR_perf_event_open, &(s->perfstruct[0][5]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][5], s->gid[0][5]);
-
+	/*
 	configureStruct(s->perfstruct[0][6], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
 	s->gfd[0][6] = syscall(__NR_perf_event_open, &(s->perfstruct[0][6]), s->pid, -1, s->gfd[0][0], 0);
 	setupFD(s->gfd[0][6], s->gid[0][6]);
@@ -187,7 +187,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[2][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][1] = syscall(__NR_perf_event_open, &(s->perfstruct[2][1]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][1], s->gid[2][1]);
-	/*
+
 	configureStruct(s->perfstruct[2][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][2] = syscall(__NR_perf_event_open, &(s->perfstruct[2][2]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][2], s->gid[2][2]);
@@ -195,7 +195,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[2][3], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][3] = syscall(__NR_perf_event_open, &(s->perfstruct[2][3]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][3], s->gid[2][3]);
-
+	/*
 	configureStruct(s->perfstruct[2][4], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][4] = syscall(__NR_perf_event_open, &(s->perfstruct[2][4]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][4], s->gid[2][4]);
@@ -227,14 +227,14 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[2][11], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][11] = syscall(__NR_perf_event_open, &(s->perfstruct[2][11]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][11], s->gid[2][11]);
-
+	*/
 	configureStruct(s->perfstruct[2][12], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][12] = syscall(__NR_perf_event_open, &(s->perfstruct[2][12]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][12], s->gid[2][12]);
 
 	configureStruct(s->perfstruct[2][13], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][13] = syscall(__NR_perf_event_open, &(s->perfstruct[2][13]), s->pid, -1, s->gfd[2][0], 0);
-	setupFD(s->gfd[2][13], s->gid[2][13]);*/
+	setupFD(s->gfd[2][13], s->gid[2][13]);
 }
 
 void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
@@ -264,23 +264,109 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 		}
 	}
 }
+
+void Server::resetAndEnableCounters(auto& counters) {
+	for (auto& s : counters) {
+		for (auto& group : s->gfd) {
+			ioctl(group[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP); //reset the counters for ALL the events that are members of group 1 (g1fd1)
+			ioctl(group[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
+		}
+	}
+}
+
+void Server::disableCounters(auto& counters) {
+	for (auto& s : counters) {
+		for (auto& group : s->gfd) {
+			ioctl(group[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP); //disable all counters in the groups
+		}
+	}
+}
+
+void Server::readCounters(auto& counters) {
+	for (auto& s : counters) {
+		//memset(&(s->buf), 0, sizeof(s->buf));
+		long size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
+			if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
+				s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
+			} else if (s->data->values[i].id == s->gid[0][1]) {
+				s->gv[0][1] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][2]) {
+				s->gv[0][2] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][3]) {
+				s->gv[0][3] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][4]) {
+				s->gv[0][4] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][5]) {
+				s->gv[0][5] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][6]) {
+				s->gv[0][6] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][7]) {
+				s->gv[0][7] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][8]) {
+				s->gv[0][8] = s->data->values[i].value;
+			}
+		}
+		//memset(&(s->buf), 0, sizeof(s->buf));
+		size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
+		//std::cout << "size for g2 = " << size << std::endl;
+		for (int i = 0; i < s->data->nr; i++) {
+			if (s->data->values[i].id == s->gid[1][0]) {
+				s->gv[1][0] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[1][1]) {
+				s->gv[1][1] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[1][2]) {
+				s->gv[1][2] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[1][3]) {
+				s->gv[1][3] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[1][4]) {
+				s->gv[1][4] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[1][5]) {
+				s->gv[1][5] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[1][6]) {
+				s->gv[1][6] = s->data->values[i].value;
+			}
+		}
+		//memset(&(s->buf), 0, sizeof(s->buf));
+		size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
+		//std::cout << "size for g3 = " << size << std::endl;
+		for (int i = 0; i < s->data->nr; i++) {
+			if (s->data->values[i].id == s->gid[2][0]) {
+				s->gv[2][0] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][1]) {
+				s->gv[2][1] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][2]) {
+				s->gv[2][2] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][3]) {
+				s->gv[2][3] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][4]) {
+				s->gv[2][4] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][5]) {
+				s->gv[2][5] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][6]) {
+				s->gv[2][6] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][7]) {
+				s->gv[2][7] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][8]) {
+				s->gv[2][8] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][9]) {
+				s->gv[2][9] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][10]) {
+				s->gv[2][10] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][11]) {
+				s->gv[2][11] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][12]) {
+				s->gv[2][12] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][13]) {
+				s->gv[2][13] = s->data->values[i].value;
+			}
+		}
+	}
+}
 #endif
 
 void Server::processPerfStats() {
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-	#if defined(__linux__)
-	struct rlimit rlimits;
-	rlimits.rlim_cur = 8192; //soft
-	rlimits.rlim_max = 8192; //hard
-	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		std::cout << "error changing limits, errno = " << errno << std::endl;
-	}
-	std::vector<struct pcounter*> MyCounters = {};
-	//std::cout << "creating counters" << std::endl;
-	vector<long> newPids = {};
-	vector<long> diffPids = {};
-	vector<long> currentPids = getProcessChildPids(pid);
-	createCounters(MyCounters, currentPids);
 	long long CPUcycles;
 	long long CPUinstructions;
 	long long CPUpercent;
@@ -313,104 +399,30 @@ void Server::processPerfStats() {
 	long long ITLBReadMisses;
 	long long BPUReadAccesses;
 	long long BPUReadMisses;
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	#if defined(__linux__)
+	struct rlimit rlimits;
+	rlimits.rlim_cur = 8192; //soft
+	rlimits.rlim_max = 8192; //hard
+	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
+		std::cout << "error changing limits, errno = " << errno << std::endl;
+	}
+	std::vector<struct pcounter*> MyCounters = {};
+	//std::cout << "creating counters" << std::endl;
+	vector<long> newPids = {};
+	vector<long> diffPids = {};
+	vector<long> currentPids = getProcessChildPids(pid);
+	createCounters(MyCounters, currentPids);
 	#endif
 	while (performanceCounterCompat != -1) {
 		#if defined(__linux__)
-		for (auto& s : MyCounters) {
-			for (auto& group : s->gfd) {
-				ioctl(group[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP); //reset the counters for ALL the events that are members of group 1 (g1fd1)
-				ioctl(group[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
-			}
-		}
+		resetAndEnableCounters(MyCounters);
 		#endif
 		updateCPUusage(cpuusagereadings);
-		std::this_thread::sleep_for(std::chrono::seconds(60));
+		std::this_thread::sleep_for(std::chrono::seconds(15));
 		#if defined(__linux__)
-		for (auto& s : MyCounters) {
-			for (auto& group : s->gfd) {
-				ioctl(group[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP); //disable all counters in the groups
-			}
-		}
-		for (auto& s : MyCounters) {
-			//memset(&(s->buf), 0, sizeof(s->buf));
-			long size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
-			//std::cout << "size for g1 = " << size << std::endl;
-			for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
-				if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
-	      	s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
-	    	} else if (s->data->values[i].id == s->gid[0][1]) {
-	      	s->gv[0][1] = s->data->values[i].value;
-	    	} else if (s->data->values[i].id == s->gid[0][2]) {
-	      	s->gv[0][2] = s->data->values[i].value;
-	    	} else if (s->data->values[i].id == s->gid[0][3]) {
-	      	s->gv[0][3] = s->data->values[i].value;
-	    	} else if (s->data->values[i].id == s->gid[0][4]) {
-	      	s->gv[0][4] = s->data->values[i].value;
-	    	} else if (s->data->values[i].id == s->gid[0][5]) {
-	      	s->gv[0][5] = s->data->values[i].value;
-	    	} else if (s->data->values[i].id == s->gid[0][6]) {
-	      	s->gv[0][6] = s->data->values[i].value;
-	    	} else if (s->data->values[i].id == s->gid[0][7]) {
-	      	s->gv[0][7] = s->data->values[i].value;
-	    	} else if (s->data->values[i].id == s->gid[0][8]) {
-	      	s->gv[0][8] = s->data->values[i].value;
-	    	}
-			}
-			//memset(&(s->buf), 0, sizeof(s->buf));
-			size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
-			//std::cout << "size for g2 = " << size << std::endl;
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[1][0]) {
-					s->gv[1][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[1][1]) {
-					s->gv[1][1] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[1][2]) {
-					s->gv[1][2] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[1][3]) {
-					s->gv[1][3] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[1][4]) {
-					s->gv[1][4] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[1][5]) {
-					s->gv[1][5] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[1][6]) {
-					s->gv[1][6] = s->data->values[i].value;
-				}
-			}
-			//memset(&(s->buf), 0, sizeof(s->buf));
-			size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
-			//std::cout << "size for g3 = " << size << std::endl;
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[2][0]) {
-					s->gv[2][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][1]) {
-					s->gv[2][1] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][2]) {
-					s->gv[2][2] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][3]) {
-					s->gv[2][3] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][4]) {
-					s->gv[2][4] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][5]) {
-					s->gv[2][5] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][6]) {
-					s->gv[2][6] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][7]) {
-					s->gv[2][7] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][8]) {
-					s->gv[2][8] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][9]) {
-					s->gv[2][9] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][10]) {
-					s->gv[2][10] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][11]) {
-					s->gv[2][11] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][12]) {
-					s->gv[2][12] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][13]) {
-					s->gv[2][13] = s->data->values[i].value;
-				}
-			}
-		}
+		disableCounters(MyCounters);
+		readCounters(MyCounters);
 		CPUcycles = 0;
 		CPUinstructions = 0;
 		CPUpercent = 0;
@@ -478,7 +490,7 @@ void Server::processPerfStats() {
 		std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
 		auto addReading = [](auto& list, auto& entry) {
 			list.push_back(entry);
-			while (list.size() > 15) {
+			while (list.size() > 60) {
 				list.pop_front();
 			}
 		};
@@ -569,7 +581,7 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 	try {
 		long long CPUpercent = (long long)((double)cpuNum * 100.0 * ((new_pidjiffies - old_pidjiffies) / (new_cpujiffies - old_cpujiffies)));
 		CPUreadings.push_back(CPUpercent);
-		while (CPUreadings.size() > 15) {
+		while (CPUreadings.size() > 60) {
 			CPUreadings.pop_front();
 		}
 		PIDjiffies = new_pidjiffies;

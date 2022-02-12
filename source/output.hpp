@@ -22,15 +22,21 @@ enum lines {Def = 2, True = 1, False = 0};
 class Output {
 	inline static std::mutex outMutex;
 	std::thread::id main_thread = std::this_thread::get_id();
-	inline static bool logToFile;
-	inline static string logFilename;
 	ofstream fileObj;
 	string removeEndlines(string input, bool keepEndlines = false);
 	string addPrefixByType(string data = "", outType type = None);
 	string getColorByID();
+	string processMonochrome(string input);
+	bool isExcluded(outType type);
+	void processOutput(string data, outType type, bool keepEndlines, bool endLineAtEnd);
+	void terminalDispatch(string input, outType type, bool endLineAtEnd);
+	void fileDispatch(string input, outType type, bool endLineAtEnd);
 	inline static int threadCounter;
 	inline static std::unordered_map<std::thread::id, int> threadToNumMap;
 	inline static std::unordered_map<std::thread::id, string> threadToNameMap;
+	inline static bool logToFile;
+	inline static string logFilename;
+
 	public:
 		void out(string data, outType type = None, bool keepEndlines = false, bool endLineAtEnd = true);
 
@@ -80,6 +86,7 @@ class Output {
 		inline static int showThreadsAsColors;
 		inline static bool showExplicitInfoType;
 		inline static bool normalDisabled;
+		inline static bool hajimeTerminal;
 		inline static bool noColors;
 		inline static bool reduceColors;
 		inline static bool verbose;

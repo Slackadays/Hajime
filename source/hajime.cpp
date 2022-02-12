@@ -202,8 +202,8 @@ int main(int argc, char *argv[]) {
 		serverVec.emplace_back(new Server); //add a copy of server to use
 		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
-	while(true) { //future command processing
-		hjlog.out(text.info.EnterCommand, Info);
+	hjlog.hajimeTerminal = true;
+	while(true) {
 		string command = "";
 		std::getline(std::cin, command);
 		if (command != "") {
@@ -281,13 +281,17 @@ void processHajimeCommand(vector<string> input) {
 				if (stoi(input[1]) > serverVec.size() || stoi(input[1]) < 1) {
 					hjlog.out(text.error.InvalidServerNumber, Error);
 				} else {
+					hjlog.hajimeTerminal = false;
 					serverVec[stoi(input[1]) - 1]->terminalAccessWrapper();
+					hjlog.hajimeTerminal = true;
 				}
 			} catch (...) {
 				bool attachSuccess = false;
 				for (auto& it : serverVec) {
 					if (it->name == input[1]) {
+						hjlog.hajimeTerminal = false;
 						it->terminalAccessWrapper();
+						hjlog.hajimeTerminal = true;
 						attachSuccess = true;
 						break;
 					}

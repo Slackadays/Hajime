@@ -55,6 +55,7 @@ namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
 void Server::startServer(string confFile) {
+	hjlog.hajimeTerminal = false;
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
 			hjlog.out(text.info.ReadingServerSettings, Info);
@@ -72,6 +73,7 @@ void Server::startServer(string confFile) {
 		hjlog.out(text.info.ServerDevice + device, None);
 		hjlog.out("Restart interval: " + to_string(restartMins) + " | ", Info, 0, 0);
 		hjlog.out("Silent commands: " + to_string(silentCommands), None);
+		hjlog.hajimeTerminal = true;
 		if (!fs::is_regular_file(file)) {
 			hjlog.out(file + text.warning.FileDoesntExist, Warning);
 		}

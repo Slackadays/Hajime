@@ -24,6 +24,7 @@ Output::Output() {
 	showThreadsAsColors = 0;
 	showExplicitInfoType = false;
 	normalDisabled = false;
+	hajimeTerminal = false;
 	noColors = false;
 	reduceColors = true;
 	verbose = false;
@@ -40,38 +41,28 @@ void Output::init(const string& file, bool debugOrNot) {
 }
 
 void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd) {
-	if (normalDisabled && !debug) {
-		return;
+	processOutput(data, type, keepEndlines, endLineAtEnd);
+	if (hajimeTerminal && (type != None) && endLineAtEnd) {
+		terminalDispatch('\r' + text.info.EnterCommand, None, 0);
 	}
-	if (!debug && type == Debug) {
+}
+
+void Output::processOutput(string data, outType type, bool keepEndlines, bool endLineAtEnd) {
+	if (isExcluded(type)) {
 		return;
 	}
 	if (type == Question) {
 		endLineAtEnd = false;
 	}
-	string outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
-	if (noColors) {
-		outputString = std::regex_replace(outputString, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
+	string outputString;
+	outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
+	outputString = processMonochrome(outputString);
+	if (hajimeTerminal && (type != None) && endLineAtEnd) {
+		outputString = '\r' + outputString;
 	}
-	std::lock_guard<std::mutex> lock(outMutex);
-	if (type == Error) {
-		std::cerr << outputString;
-	} else {
-		std::cout << outputString;
-	}
-	if (endLineAtEnd) {
-		if (type == Error) {
-			std::cerr << std::endl;
-		} else {
-			std::cout << std::endl;
-		}
-	}
+	terminalDispatch(outputString, type, endLineAtEnd);
 	if (logToFile) {
-		outputString = std::regex_replace(outputString, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
-		fileObj << outputString;
-		if (endLineAtEnd) {
-			fileObj << std::endl;
-		}
+		fileDispatch(outputString, type, endLineAtEnd);
 	}
 }
 
@@ -86,6 +77,57 @@ string Output::removeEndlines(string input, bool keepEndlines) {
 		input.erase(std::remove(input.begin(), input.end(), '\n'), input.end());
 	}
 	return input;
+}
+
+bool Output::isExcluded(outType type) {
+	if (normalDisabled && !debug) {
+		return true;
+	} else if (!debug && type == Debug) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+string Output::processMonochrome(string input) {
+	if (noColors) {
+		return std::regex_replace(input, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
+	} else {
+		return input;
+	}
+}
+
+void Output::terminalDispatch(string input, outType type, bool endLineAtEnd) {
+	std::lock_guard<std::mutex> lock(outMutex);
+	if (type == Error) {
+		std::cerr << input;
+	} else {
+		std::cout << input;
+		if (hajimeTerminal && (type != None) && endLineAtEnd) {
+			std::cout << '\r';
+		}
+	}
+	if (endLineAtEnd) {
+		if (type == Error) {
+			std::cerr << std::endl;
+		} else {
+			std::cout << std::endl;
+		}
+	} else {
+		if (type == Error) {
+			std::cerr << std::flush;
+		} else {
+			std::cout << std::flush;
+		}
+	}
+}
+
+void Output::fileDispatch(string input, outType type, bool endLineAtEnd) {
+	input = std::regex_replace(input, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
+	fileObj << input;
+	if (endLineAtEnd) {
+		fileObj << std::endl;
+	}
 }
 
 string Output::addPrefixByType(string input, outType type) {
