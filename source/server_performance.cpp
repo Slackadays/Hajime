@@ -11,6 +11,7 @@
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
+#include <sys/sysinfo.h>
 #else
 
 #endif
@@ -195,7 +196,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[2][3], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][3] = syscall(__NR_perf_event_open, &(s->perfstruct[2][3]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][3], s->gid[2][3]);
-	/*
+
 	configureStruct(s->perfstruct[2][4], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][4] = syscall(__NR_perf_event_open, &(s->perfstruct[2][4]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][4], s->gid[2][4]);
@@ -211,7 +212,7 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[2][7], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	s->gfd[2][7] = syscall(__NR_perf_event_open, &(s->perfstruct[2][7]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][7], s->gid[2][7]);
-
+	/*
 	configureStruct(s->perfstruct[2][8], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_ITLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	s->gfd[2][8] = syscall(__NR_perf_event_open, &(s->perfstruct[2][8]), s->pid, -1, s->gfd[2][0], 0);
 	setupFD(s->gfd[2][8], s->gid[2][8]);
@@ -414,122 +415,125 @@ void Server::processPerfStats() {
 	vector<long> currentPids = getProcessChildPids(pid);
 	createCounters(MyCounters, currentPids);
 	#endif
-	while (performanceCounterCompat != -1) {
+	while (true) {
 		#if defined(__linux__)
 		resetAndEnableCounters(MyCounters);
 		#endif
 		updateCPUusage(cpuusagereadings);
+		updateRAMusage();
 		std::this_thread::sleep_for(std::chrono::seconds(15));
-		#if defined(__linux__)
-		disableCounters(MyCounters);
-		readCounters(MyCounters);
-		CPUcycles = 0;
-		CPUinstructions = 0;
-		CPUpercent = 0;
-		CPUmigrations = 0;
-		RAMbytes = 0;
-		contextSwitches = 0;
-		pageFaults = 0;
-		branchInstructions = 0;
-		branchMisses = 0;
-		cacheMisses = 0;
-		cacheReferences = 0;
-		stalledCyclesFrontend = 0;
-		stalledCyclesBackend = 0;
-		busCycles = 0;
-		alignmentFaults = 0;
-		emulationFaults = 0;
-		minorPagefaults = 0;
-		majorPagefaults = 0;
-		L1dReadAccesses = 0;
-		L1dReadMisses = 0;
-		LLReadAccesses = 0;
-		LLReadMisses = 0;
-		LLWriteAccesses = 0;
-		LLWriteMisses = 0;
-		DTLBReadAccesses = 0;
-		DTLBReadMisses = 0;
-		DTLBWriteAccesses = 0;
-		DTLBWriteMisses = 0;
-		ITLBReadAccesses = 0;
-		ITLBReadMisses = 0;
-		BPUReadAccesses = 0;
-		BPUReadMisses = 0;
-		for (const auto& s : MyCounters) {
-			CPUcycles += s->gv[0][0];
-			CPUinstructions += s->gv[0][1];
-			cacheMisses += s->gv[0][2];
-			branchInstructions += s->gv[0][3];
-			branchMisses += s->gv[0][4];
-			cacheReferences += s->gv[0][5];
-			stalledCyclesFrontend += s->gv[0][6];
-			stalledCyclesBackend += s->gv[0][7];
-			busCycles += s->gv[0][8];
-			pageFaults += s->gv[1][0];
-			contextSwitches += s->gv[1][1];
-			CPUmigrations += s->gv[1][2];
-			alignmentFaults += s->gv[1][3];
-			emulationFaults += s->gv[1][4];
-			minorPagefaults += s->gv[1][5];
-			majorPagefaults += s->gv[1][6];
-			L1dReadAccesses += s->gv[2][0];
-			L1dReadMisses += s->gv[2][1];
-			LLReadAccesses += s->gv[2][2];
-			LLReadMisses += s->gv[2][3];
-			DTLBReadAccesses += s->gv[2][4];
-			DTLBReadMisses += s->gv[2][5];
-			DTLBWriteAccesses += s->gv[2][6];
-			DTLBWriteMisses += s->gv[2][7];
-			ITLBReadAccesses += s->gv[2][8];
-			ITLBReadMisses += s->gv[2][9];
-			BPUReadAccesses += s->gv[2][10];
-			BPUReadMisses += s->gv[2][11];
-			LLWriteAccesses += s->gv[2][12];
-			LLWriteMisses += s->gv[2][13];
-		}
-		std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
-		auto addReading = [](auto& list, auto& entry) {
-			list.push_back(entry);
-			while (list.size() > 60) {
-				list.pop_front();
+		if (performanceCounterCompat != -1) {
+			#if defined(__linux__)
+			disableCounters(MyCounters);
+			readCounters(MyCounters);
+			CPUcycles = 0;
+			CPUinstructions = 0;
+			CPUpercent = 0;
+			CPUmigrations = 0;
+			RAMbytes = 0;
+			contextSwitches = 0;
+			pageFaults = 0;
+			branchInstructions = 0;
+			branchMisses = 0;
+			cacheMisses = 0;
+			cacheReferences = 0;
+			stalledCyclesFrontend = 0;
+			stalledCyclesBackend = 0;
+			busCycles = 0;
+			alignmentFaults = 0;
+			emulationFaults = 0;
+			minorPagefaults = 0;
+			majorPagefaults = 0;
+			L1dReadAccesses = 0;
+			L1dReadMisses = 0;
+			LLReadAccesses = 0;
+			LLReadMisses = 0;
+			LLWriteAccesses = 0;
+			LLWriteMisses = 0;
+			DTLBReadAccesses = 0;
+			DTLBReadMisses = 0;
+			DTLBWriteAccesses = 0;
+			DTLBWriteMisses = 0;
+			ITLBReadAccesses = 0;
+			ITLBReadMisses = 0;
+			BPUReadAccesses = 0;
+			BPUReadMisses = 0;
+			for (const auto& s : MyCounters) {
+				CPUcycles += s->gv[0][0];
+				CPUinstructions += s->gv[0][1];
+				cacheMisses += s->gv[0][2];
+				branchInstructions += s->gv[0][3];
+				branchMisses += s->gv[0][4];
+				cacheReferences += s->gv[0][5];
+				stalledCyclesFrontend += s->gv[0][6];
+				stalledCyclesBackend += s->gv[0][7];
+				busCycles += s->gv[0][8];
+				pageFaults += s->gv[1][0];
+				contextSwitches += s->gv[1][1];
+				CPUmigrations += s->gv[1][2];
+				alignmentFaults += s->gv[1][3];
+				emulationFaults += s->gv[1][4];
+				minorPagefaults += s->gv[1][5];
+				majorPagefaults += s->gv[1][6];
+				L1dReadAccesses += s->gv[2][0];
+				L1dReadMisses += s->gv[2][1];
+				LLReadAccesses += s->gv[2][2];
+				LLReadMisses += s->gv[2][3];
+				DTLBReadAccesses += s->gv[2][4];
+				DTLBReadMisses += s->gv[2][5];
+				DTLBWriteAccesses += s->gv[2][6];
+				DTLBWriteMisses += s->gv[2][7];
+				ITLBReadAccesses += s->gv[2][8];
+				ITLBReadMisses += s->gv[2][9];
+				BPUReadAccesses += s->gv[2][10];
+				BPUReadMisses += s->gv[2][11];
+				LLWriteAccesses += s->gv[2][12];
+				LLWriteMisses += s->gv[2][13];
 			}
-		};
-		addReading(cpucyclereadings, CPUcycles);
-		addReading(cpuinstructionreadings, CPUinstructions);
-		addReading(cachemissreadings, cacheMisses);
-		addReading(branchinstructionreadings, branchInstructions);
-		addReading(branchmissreadings, branchMisses);
-		addReading(cachereferencereadings, cacheReferences);
-		addReading(stalledcyclesfrontendreadings, stalledCyclesFrontend);
-		addReading(stalledcyclesbackendreadings, stalledCyclesBackend);
-		addReading(pagefaultreadings, pageFaults);
-		addReading(contextswitchreadings, contextSwitches);
-		addReading(cpumigrationreadings, CPUmigrations);
-		addReading(alignmentfaultreadings, alignmentFaults);
-		addReading(emulationfaultreadings, emulationFaults);
-		addReading(minorpagefaultreadings, minorPagefaults);
-		addReading(majorpagefaultreadings, majorPagefaults);
-		addReading(l1dreadaccessreadings, L1dReadAccesses);
-		addReading(l1dreadmissreadings, L1dReadMisses);
-		addReading(llreadaccessreadings, LLReadAccesses);
-		addReading(llreadmissreadings, LLReadMisses);
-		addReading(llwriteaccessreadings, LLWriteAccesses);
-		addReading(llwritemissreadings, LLWriteMisses);
-		addReading(dtlbreadaccessreadings, DTLBReadAccesses);
-		addReading(dtlbreadmissreadings, DTLBReadMisses);
-		addReading(dtlbwriteaccessreadings, DTLBWriteAccesses);
-		addReading(itlbreadaccessreadings, ITLBReadAccesses);
-		addReading(bpureadaccessreadings, BPUReadAccesses);
-		addReading(bpureadmissreadings, BPUReadMisses);
-		newPids = getProcessChildPids(pid);
-		diffPids.clear();
-		std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
-		createCounters(MyCounters, diffPids);
-		diffPids.clear();
-		std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids;
-		cullCounters(MyCounters, diffPids);
-		currentPids = newPids;
-		#endif
+			std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
+			auto addReading = [](auto& list, const auto& entry) {
+				list.push_back(entry);
+				while (list.size() > 60) {
+					list.pop_front();
+				}
+			};
+			addReading(cpucyclereadings, CPUcycles);
+			addReading(cpuinstructionreadings, CPUinstructions);
+			addReading(cachemissreadings, cacheMisses);
+			addReading(branchinstructionreadings, branchInstructions);
+			addReading(branchmissreadings, branchMisses);
+			addReading(cachereferencereadings, cacheReferences);
+			addReading(stalledcyclesfrontendreadings, stalledCyclesFrontend);
+			addReading(stalledcyclesbackendreadings, stalledCyclesBackend);
+			addReading(pagefaultreadings, pageFaults);
+			addReading(contextswitchreadings, contextSwitches);
+			addReading(cpumigrationreadings, CPUmigrations);
+			addReading(alignmentfaultreadings, alignmentFaults);
+			addReading(emulationfaultreadings, emulationFaults);
+			addReading(minorpagefaultreadings, minorPagefaults);
+			addReading(majorpagefaultreadings, majorPagefaults);
+			addReading(l1dreadaccessreadings, L1dReadAccesses);
+			addReading(l1dreadmissreadings, L1dReadMisses);
+			addReading(llreadaccessreadings, LLReadAccesses);
+			addReading(llreadmissreadings, LLReadMisses);
+			addReading(llwriteaccessreadings, LLWriteAccesses);
+			addReading(llwritemissreadings, LLWriteMisses);
+			addReading(dtlbreadaccessreadings, DTLBReadAccesses);
+			addReading(dtlbreadmissreadings, DTLBReadMisses);
+			addReading(dtlbwriteaccessreadings, DTLBWriteAccesses);
+			addReading(itlbreadaccessreadings, ITLBReadAccesses);
+			addReading(bpureadaccessreadings, BPUReadAccesses);
+			addReading(bpureadmissreadings, BPUReadMisses);
+			newPids = getProcessChildPids(pid);
+			diffPids.clear();
+			std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
+			createCounters(MyCounters, diffPids);
+			diffPids.clear();
+			std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids;
+			cullCounters(MyCounters, diffPids);
+			currentPids = newPids;
+			#endif
+		}
 	}
 }
 
@@ -591,5 +595,41 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 	}
 	#else
 	//macOS and BSD here
+	#endif
+}
+
+void Server::updateRAMusage() {
+	auto addReading = [](auto& list, const auto& entry) {
+		list.push_back(entry);
+		while (list.size() > 60) {
+			list.pop_front();
+		}
+	};
+	#if defined(_WIN32) || defined(_WIN64)
+	//do stuff here
+	//update the values in server.hpp
+	#elif defined(__linux__)
+	string line;
+	std::fstream pidprocstatm("/proc/" + to_string(pid) + "/statm", std::fstream::in);
+	std::getline(pidprocstatm, line);
+	std::regex repid("\\S+", std::regex_constants::optimize);
+	std::vector<std::string> pidmeminfo;
+	for (auto it = std::sregex_iterator(line.begin(), line.end(), repid); it != std::sregex_iterator(); ++it) {
+		std::smatch m = *it;
+		pidmeminfo.push_back(m.str());
+	}
+	try {
+		addReading(rambytereadings, stol(pidmeminfo.at(1)) * sysconf(_SC_PAGESIZE)); //calculate the bytes of RAM usage
+	} catch(...) {
+		std::cout << "error adding RAM bytes" << std::endl;
+	}
+	struct sysinfo info;
+	sysinfo(&info);
+	try {
+		addReading(rampercentreadings, (100.0 * (double)stol(pidmeminfo.at(1)) * (double)sysconf(_SC_PAGESIZE)) / info.totalram);
+	} catch(...) {
+		std::cout << "error adding RAM percent" << std::endl;
+	}
+	#else
 	#endif
 }

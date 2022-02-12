@@ -66,6 +66,7 @@ class Server {
 	void processServerCommand(string input);
 	void processPerfStats();
 	void updateCPUusage(std::list<long long>& CPUreadings);
+	void updateRAMusage();
 	void commandHajime();
 	void commandTime();
 	void commandHelp();
@@ -168,8 +169,8 @@ class Server {
 
 	std::list<long long> cpuusagereadings{0};
 	std::list<double> rampercentreadings{0.0};
-
 	std::list<unsigned long long> rambytereadings{0};
+
 	std::list<unsigned long long> cpucyclereadings{0};
 	std::list<unsigned long long> cpuinstructionreadings{0};
 	std::list<unsigned long long> cachemissreadings{0};
