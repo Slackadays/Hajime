@@ -209,8 +209,8 @@ void Server::commandPerf() {
 	"{\"text\":\"" + text.server.command.perf.key.ipc + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.ipc + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.cps + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.cps + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.ips + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.ips + "\"}},"
-	"{\"text\":\"" + "minor pagefaults" + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("How many times the CPU wanted to access a memory page that was not available, and did not require disk I/O to fix.") + "\"}},"
-	"{\"text\":\"" + "major pagefaults" + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + string("How many times the CPU wanted to access a memory page that was not available, and did require disk I/O to fix.") + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.minorpagefaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.minorpagefaults + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.majorpagefaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.majorpagefaults + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.contextswitches + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.contextswitches + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.stalledfrontend + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.stalledfrontend + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.stalledbackend + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.stalledbackend + "\"}},"
@@ -250,8 +250,8 @@ void Server::commandSWPerf() {
 	"{\"text\":\"" + text.server.command.perf.key.cpumigrations + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUmigs() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.emufaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getEmulationFaults() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.alignfaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getAlignmentFaults() + "\"}},"
-	"{\"text\":\"" + string("minor pagefaults") + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getMinorPagefaults() + "\"}},"
-	"{\"text\":\"" + string("major pagefaults") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getMajorPagefaults() + "\"}}]";
+	"{\"text\":\"" + text.server.command.perf.key.minorpagefaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getMinorPagefaults() + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.majorpagefaults + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getMajorPagefaults() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 

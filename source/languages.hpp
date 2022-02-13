@@ -329,6 +329,8 @@ class Text {
 						string ipc;
 						string cps;
 						string ips;
+						string minorpagefaults;
+						string majorpagefaults;
 						string contextswitches;
 						string stalledfrontend;
 						string stalledbackend;
@@ -353,6 +355,8 @@ class Text {
 						string ipc;
 						string cps;
 						string ips;
+						string minorpagefaults;
+						string majorpagefaults;
 						string contextswitches;
 						string stalledfrontend;
 						string stalledbackend;
