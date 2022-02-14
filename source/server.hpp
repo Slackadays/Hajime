@@ -90,10 +90,11 @@ class Server {
 		T temp = 0;
 		myList.reverse();
 		for (const auto& value : myList) {
-			temp += value;
-			readings++;
-			if (readings >= minutes) {
-				break;
+			if (value != 0) {
+				temp += value;
+				if (readings++; readings >= minutes) {
+					break;
+				}
 			}
 		}
 		if (readings > 0) {
