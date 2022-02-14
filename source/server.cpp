@@ -380,24 +380,30 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(const string confFile) {
-	auto eliminateSpaces = [&](auto& ...var){((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);};
-	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands"};
+	auto eliminateSpaces = [&](auto& ...var) {
+		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
+	};
+	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		hjlog.out(it, Debug);
 	}
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-		auto setVar = [&](auto name, auto& tempVar){if (*firstSetIterator == name) {
-			tempVar = *secondSetIterator;
-		}};
-		auto setVari = [&](auto name, auto& tempVar){if (*firstSetIterator == name) {
-			try {
-				eliminateSpaces(*secondSetIterator);
-				tempVar = stoi(*secondSetIterator);
-			} catch(...) {
-				tempVar = 0;
+		auto setVar = [&](auto name, auto& tempVar) {
+			if (*firstSetIterator == name) {
+				tempVar = *secondSetIterator;
 			}
-		}};
+		};
+		auto setVari = [&](auto name, auto& tempVar) {
+			if (*firstSetIterator == name) {
+				try {
+					eliminateSpaces(*secondSetIterator);
+					tempVar = stoi(*secondSetIterator);
+				} catch(...) {
+					tempVar = 0;
+				}
+			}
+		};
 		setVar(settings[0], name);
 		setVar(settings[1], exec);
 		setVar(settings[2], file);
@@ -409,6 +415,8 @@ void Server::readSettings(const string confFile) {
 		setVari(settings[8], restartMins);
 		setVari(settings[9], silentCommands);
 		setVari(settings[10], doCommands);
+		setVar(settings[11], customMessage);
+		setVar(settings[12], chatKickRegex);
 		hjlog.out(text.debug.ReadingReadsettings, Debug);
 	}
 	hjlog.addServerName(name); //send the name of the server name to hjlog so that it can associate a name with a thread id
@@ -417,7 +425,9 @@ void Server::readSettings(const string confFile) {
 		hasMounted = true;
 	}
 	hjlog.out(text.debug.ValidatingSettings, Debug);
-	auto remSlash = [&](auto& ...var){(removeSlashesFromEnd(var), ...);};
+	auto remSlash = [&](auto& ...var) {
+		(removeSlashesFromEnd(var), ...);
+	};
 	remSlash(file, path, device, exec);
 	eliminateSpaces(file, path, device, exec, method, flags, name);
 	#if defined(_WIN64) || defined(_WIN32)

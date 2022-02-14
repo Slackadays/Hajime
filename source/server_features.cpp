@@ -68,6 +68,17 @@ void Server::processTerminalBuffer(string input) {
 	}
 }
 
+void Server::processChatKicks(string input) {
+	try {
+		std::regex kickreg("\\[.+\\]: <.+> " + chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
+		if (std::regex_search(input, kickreg)) {
+			writeToServerTerminal("kick " + lastCommandUser + " §4§LForbidden word in chat, please do not say that!");
+		}
+	} catch(...) {
+		hjlog.out("Invalid chat kick regex", Error);
+	}
+}
+
 void Server::processServerCommand(string input) {
 	std::smatch m;
 	std::regex_search(input, m, std::regex("\\[.+\\]: <(.+)> .+", std::regex_constants::optimize));
@@ -88,6 +99,8 @@ void Server::processServerCommand(string input) {
 		commandDiscord();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.name.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandName();
+	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.info.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+		commandInfo();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.uptime.regex + "?(?!\\w)", std::regex_constants::optimize))) {
 		commandUptime();
 	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.restart.regex + "?(?!\\w)", std::regex_constants::optimize))) {
@@ -128,6 +141,7 @@ void Server::commandHelp() {
 	"{\"text\":\"" + text.server.command.hajime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.hajime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.hajime.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.help.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.help + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.help.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.name.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.name + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.name.regex, std::regex("(\\(|\\))"), "") + "\"}},"
+	"{\"text\":\"" + text.server.command.info.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.info + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.info.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.time.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.time + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.time.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.uptime.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.uptime + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.uptime.regex, std::regex("(\\(|\\))"), "") + "\"}},"
 	"{\"text\":\"" + text.server.command.system.regex + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.help.message.system + "\"},\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"" + std::regex_replace(text.server.command.system.regex, std::regex("(\\(|\\))"), "") + "\"}},"
@@ -171,6 +185,15 @@ void Server::commandDiscord() {
 void Server::commandName() {
 	string hajInfo = text.server.command.name.output + name;
 	writeToServerTerminal(formatWrapper(hajInfo));
+}
+
+void Server::commandInfo() {
+	if (customMessage != "") {
+		string hajInfo = "[Hajime] " + customMessage;
+		writeToServerTerminal(formatWrapper(hajInfo));
+	} else {
+		writeToServerTerminal(formatWrapper("[Hajime] This server does not have a custom message set."));
+	}
 }
 
 void Server::commandUptime() {
@@ -644,6 +667,9 @@ void Server::processServerTerminal() {
 		string terminalOutput = readFromServer();
 		if (doCommands) {
 			processServerCommand(terminalOutput);
+		}
+		if (chatKickRegex != "") {
+			processChatKicks(terminalOutput);
 		}
 		processRestartAlert(terminalOutput);
 		processTerminalBuffer(terminalOutput);

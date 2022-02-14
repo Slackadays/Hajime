@@ -239,6 +239,7 @@ class Text {
 						string discord;
 						string help;
 						string name;
+						string info;
 						string uptime;
 						string system;
 						string perf;
@@ -279,6 +280,10 @@ class Text {
 					string output;
 				};
 				Name name;
+				struct Info {
+					string regex;
+				};
+				Info info;
 				struct Uptime {
 					string regex;
 					string output1;

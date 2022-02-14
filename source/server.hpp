@@ -64,6 +64,7 @@ class Server {
 	void writeToServerTerminal(string input);
 	void processTerminalBuffer(string input);
 	void processServerCommand(string input);
+	void processChatKicks(string input);
 	void processPerfStats();
 	void updateCPUusage(std::list<long long>& CPUreadings);
 	void updateRAMusage();
@@ -75,6 +76,7 @@ class Server {
 	void commandCoinflip();
 	void commandDiscord();
 	void commandName();
+	void commandInfo();
 	void commandUptime();
 	void commandRestart();
 	void commandSystem();
@@ -210,6 +212,7 @@ class Server {
 	long long CPUjiffies, PIDjiffies;
 
 	string lastCommandUser;
+	string chatKickRegex;
 
 	bool startedRfdThread = false;
 	bool startedPerfThread = false;
@@ -219,7 +222,7 @@ class Server {
 	std::list<string> lines; //make this so the program only has one copy of lines available
 
 	public:
-		string name, exec, file, path, command, flags, confFile, device, method, cmdline;
+		string name, exec, file, path, command, flags, confFile, device, method, cmdline, customMessage;
 		bool isRunning = false;
 		void startServer(string confFile);
 		void terminalAccessWrapper();
