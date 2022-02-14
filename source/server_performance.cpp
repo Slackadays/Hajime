@@ -538,13 +538,13 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 		procstatinfo.push_back(m.str());
 	}
 	try {
-		new_pidjiffies = (std::stoi(pidcpuinfo[13]) + std::stoi(pidcpuinfo[14]));
+		new_pidjiffies = (std::stol(pidcpuinfo[13]) + std::stol(pidcpuinfo[14]));
 	} catch(...) {
 		hjlog.out("Failed to add PID jiffies", Error);
 	}
 	for (new_cpujiffies = 0; const auto& it : procstatinfo) { //add together all the number parameters in procstatinfo
 		try {
-			new_cpujiffies += std::stoi(it); //even though we are adding the PID of the process, it doesn't matter because we will only care about the deltas
+			new_cpujiffies += std::stol(it); //even though we are adding the PID of the process, it doesn't matter because we will only care about the deltas
 		} catch(...) {
 			hjlog.out("Failed to add CPU jiffies", Error);
 		}
@@ -560,6 +560,7 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 	} catch(...) {
 		hjlog.out("Error updating CPU usage", Error);
 	}
+	procstat.close();
 	#else
 	//macOS and BSD here
 	#endif
@@ -597,6 +598,7 @@ void Server::updateRAMusage() {
 	} catch(...) {
 		hjlog.out("Error adding RAM percent", Error);
 	}
+	pidprocstatm.close();
 	#else
 	#endif
 }
