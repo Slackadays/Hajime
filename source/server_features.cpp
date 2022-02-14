@@ -500,95 +500,95 @@ string Server::getProcesses() {
 }
 
 string Server::getCPUusage() {
-	return to_string(cpuusagereadings.back()) + "% last 1 minute, " + to_string(averageVal(cpuusagereadings, 5)) + "% last 5, " + to_string(averageVal(cpuusagereadings, 15)) + "% last 15 (Lower is better)";
+	return to_string(averageVal(cpuusagereadings, 1)) + "% last 1 minute, " + to_string(averageVal(cpuusagereadings, 5)) + "% last 5, " + to_string(averageVal(cpuusagereadings, 15)) + "% last 15 (Lower is better)";
 }
 
 string Server::getCPUmigs() {
-	return to_string(cpumigrationreadings.back()) + " last 1 minute, " + to_string(averageVal(cpumigrationreadings, 5)) + " last 5, " + to_string(averageVal(cpumigrationreadings, 15)) + " last 15";
+	return to_string(averageVal(cpumigrationreadings, 1)) + " last 1 minute, " + to_string(averageVal(cpumigrationreadings, 5)) + " last 5, " + to_string(averageVal(cpumigrationreadings, 15)) + " last 15";
 }
 
 string Server::getRAMusage() {
-	return to_string(rampercentreadings.back()) + "% last 1 minute, " + to_string(averageVal(rampercentreadings, 5)) + "% last 5, " + to_string(averageVal(rampercentreadings, 15)) + "% last 15 (" + to_string((rambytereadings.back() / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 5) / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
+	return to_string(averageVal(rampercentreadings, 1)) + "% last 1 minute, " + to_string(averageVal(rampercentreadings, 5)) + "% last 5, " + to_string(averageVal(rampercentreadings, 15)) + "% last 15 (" + to_string((averageVal(rambytereadings, 1) / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 5) / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
 }
 
 string Server::getIPC() {
-	return to_string((double)cpuinstructionreadings.back() / (double)cpucyclereadings.back()) + " last 1 minute, " + to_string((double)averageVal(cpuinstructionreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + " last 5, " + to_string((double)averageVal(cpuinstructionreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + " last 15 (Higher is better)";
+	return to_string((double)averageVal(cpuinstructionreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + " last 1 minute, " + to_string((double)averageVal(cpuinstructionreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + " last 5, " + to_string((double)averageVal(cpuinstructionreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + " last 15 (Higher is better)";
 }
 
 string Server::getIPS() {
-	return to_string((cpuinstructionreadings.back() / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
+	return to_string((averageVal(cpuinstructionreadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getCPS() {
-	return to_string((cpucyclereadings.back() / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
+	return to_string((averageVal(cpucyclereadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getContextSwitches() {
-	return to_string(contextswitchreadings.back()) + " (" + to_string(100.0 * (double)contextswitchreadings.back() / (double)cpuinstructionreadings.back()) + "% of CPU) last 1 minute, " + to_string(averageVal(contextswitchreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 5) / (double)averageVal(cpuinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(contextswitchreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 15) / (double)averageVal(cpuinstructionreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(contextswitchreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 1) / (double)averageVal(cpuinstructionreadings, 1)) + "% of CPU) last 1 minute, " + to_string(averageVal(contextswitchreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 5) / (double)averageVal(cpuinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(contextswitchreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 15) / (double)averageVal(cpuinstructionreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getStalledCyclesFrontend() {
-	return to_string(stalledcyclesfrontendreadings.back()) + " (" + to_string(100.0 * (double)stalledcyclesfrontendreadings.back() / (double)cpucyclereadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesfrontendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesfrontendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(stalledcyclesfrontendreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesfrontendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesfrontendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getStalledCyclesBackend() {
-	return to_string(stalledcyclesbackendreadings.back()) + " (" + to_string(100.0 * (double)stalledcyclesbackendreadings.back() / (double)cpucyclereadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesbackendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesbackendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(stalledcyclesbackendreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesbackendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesbackendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getBusCycles() {
-	return to_string(buscyclereadings.back()) + " last 1 minute, " + to_string(averageVal(buscyclereadings, 5)) + " last 5, " + to_string(averageVal(buscyclereadings, 15)) + " last 15 (Lower is better)";
+	return to_string(averageVal(buscyclereadings, 1)) + " last 1 minute, " + to_string(averageVal(buscyclereadings, 5)) + " last 5, " + to_string(averageVal(buscyclereadings, 15)) + " last 15 (Lower is better)";
 }
 
 string Server::getBranchMisses() {
-	return to_string(branchmissreadings.back()) + " (" + to_string(100.0 * (double)branchmissreadings.back() / (double)branchinstructionreadings.back()) + "% of all branch instructions) last 1 minute, " + to_string(averageVal(branchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 5) / (double)averageVal(branchinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(branchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 15) / (double)averageVal(branchinstructionreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(branchmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 1) / (double)averageVal(branchinstructionreadings, 1)) + "% of all branch instructions) last 1 minute, " + to_string(averageVal(branchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 5) / (double)averageVal(branchinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(branchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 15) / (double)averageVal(branchinstructionreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getCacheMisses() {
-	return to_string(cachemissreadings.back()) + " (" + to_string(100.0 * (double)cachemissreadings.back() / (double)cachereferencereadings.back()) + "% of total) last 1 minute, " + to_string(averageVal(cachemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 5) / (double)averageVal(cachereferencereadings, 5)) + "%) last 5, " + to_string(averageVal(cachemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 15) / (double)averageVal(cachereferencereadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(cachemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 1) / (double)averageVal(cachereferencereadings, 1)) + "% of total) last 1 minute, " + to_string(averageVal(cachemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 5) / (double)averageVal(cachereferencereadings, 5)) + "%) last 5, " + to_string(averageVal(cachemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 15) / (double)averageVal(cachereferencereadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getAlignmentFaults() {
-	return to_string(alignmentfaultreadings.back()) + " last 1 minute, " + to_string(averageVal(alignmentfaultreadings, 5)) + " last 5, " + to_string(averageVal(alignmentfaultreadings, 15)) + " last 15 (Lower is better)";
+	return to_string(averageVal(alignmentfaultreadings, 1)) + " last 1 minute, " + to_string(averageVal(alignmentfaultreadings, 5)) + " last 5, " + to_string(averageVal(alignmentfaultreadings, 15)) + " last 15 (Lower is better)";
 }
 
 string Server::getEmulationFaults() {
-	return to_string(emulationfaultreadings.back()) + " last 1 minute, " + to_string(averageVal(emulationfaultreadings, 5)) + " last 5, " + to_string(averageVal(emulationfaultreadings, 15)) + " last 15 (Lower is better)";
+	return to_string(averageVal(emulationfaultreadings, 1)) + " last 1 minute, " + to_string(averageVal(emulationfaultreadings, 5)) + " last 5, " + to_string(averageVal(emulationfaultreadings, 15)) + " last 15 (Lower is better)";
 }
 
 string Server::getMinorPagefaults() {
-	return to_string(minorpagefaultreadings.back()) + " (" + to_string(100.0 * (double)minorpagefaultreadings.back() / (double)pagefaultreadings.back()) + "% of total) last 1 minute, " + to_string(averageVal(minorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(minorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 15) / (double)averageVal(pagefaultreadings, 15)) + "%) last 15";
+	return to_string(averageVal(minorpagefaultreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 1) / (double)averageVal(pagefaultreadings, 1)) + "% of total) last 1 minute, " + to_string(averageVal(minorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(minorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 15) / (double)averageVal(pagefaultreadings, 15)) + "%) last 15";
 }
 
 string Server::getMajorPagefaults() {
-	return to_string(majorpagefaultreadings.back()) + " (" + to_string(100.0 * (double)majorpagefaultreadings.back() / (double)pagefaultreadings.back()) + "% of total) last 1 minute, " + to_string(averageVal(majorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(majorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 15) / (double)averageVal(majorpagefaultreadings, 15)) + "%) last 15";
+	return to_string(averageVal(majorpagefaultreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 1) / (double)averageVal(pagefaultreadings, 1)) + "% of total) last 1 minute, " + to_string(averageVal(majorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(majorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 15) / (double)averageVal(majorpagefaultreadings, 15)) + "%) last 15";
 }
 
 string Server::getL1dReadMisses() {
-	return to_string(l1dreadmissreadings.back()) + " (" + to_string(100.0 * (double)l1dreadmissreadings.back() / (double)l1dreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 5) / (double)averageVal(l1dreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 15) / (double)averageVal(l1dreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(l1dreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 1) / (double)averageVal(l1dreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 5) / (double)averageVal(l1dreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 15) / (double)averageVal(l1dreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getLLReadMisses() {
-	return to_string(llreadmissreadings.back()) + " (" + to_string(100.0 * (double)llreadmissreadings.back() / (double)llreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(llreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 5) / (double)averageVal(llreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 15) / (double)averageVal(llreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(llreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 1) / (double)averageVal(llreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(llreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 5) / (double)averageVal(llreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 15) / (double)averageVal(llreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getLLWriteMisses() {
-	return to_string(llwritemissreadings.back()) + " (" + to_string(100.0 * (double)llwritemissreadings.back() / (double)llwriteaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(llwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 5) / (double)averageVal(llwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 15) / (double)averageVal(llwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(llwritemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 1) / (double)averageVal(llwriteaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(llwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 5) / (double)averageVal(llwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 15) / (double)averageVal(llwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getdTLBReadMisses() {
-	return to_string(dtlbreadmissreadings.back()) + " (" + to_string(100.0 * (double)dtlbreadmissreadings.back() / (double)dtlbreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 5) / (double)averageVal(dtlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 15) / (double)averageVal(dtlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(dtlbreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 1) / (double)averageVal(dtlbreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 5) / (double)averageVal(dtlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 15) / (double)averageVal(dtlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getdTLBWriteMisses() {
-	return to_string(dtlbwritemissreadings.back()) + " (" + to_string(100.0 * (double)dtlbwritemissreadings.back() / (double)dtlbwriteaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 5) / (double)averageVal(dtlbwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 15) / (double)averageVal(dtlbwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(dtlbwritemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 1) / (double)averageVal(dtlbwriteaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 5) / (double)averageVal(dtlbwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 15) / (double)averageVal(dtlbwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getiTLBReadMisses() {
-	return to_string(itlbreadmissreadings.back()) + " (" + to_string(100.0 * (double)itlbreadmissreadings.back() / (double)itlbreadaccessreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(itlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 5) / (double)averageVal(itlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(itlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 15) / (double)averageVal(itlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(itlbreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 1) / (double)averageVal(itlbreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(itlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 5) / (double)averageVal(itlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(itlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 15) / (double)averageVal(itlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getBPUReadMisses() {
-	return to_string(bpureadmissreadings.back()) + " (" + to_string(100.0 * (double)bpureadmissreadings.back() / (double)bpureadmissreadings.back()) + "% of all cycles) last 1 minute, " + to_string(averageVal(bpureadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 5) / (double)averageVal(bpureadmissreadings, 5)) + "%) last 5, " + to_string(averageVal(bpureadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 15) / (double)averageVal(bpureadmissreadings, 15)) + "%) last 15 (Lower is better)";
+	return to_string(averageVal(bpureadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 1) / (double)averageVal(bpureadmissreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(bpureadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 5) / (double)averageVal(bpureadmissreadings, 5)) + "%) last 5, " + to_string(averageVal(bpureadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 15) / (double)averageVal(bpureadmissreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 void Server::processRestartAlert(string input) {
