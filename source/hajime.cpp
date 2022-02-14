@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal color compatibility
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
-	if (!SetConsoleMode(hOut, (dwMode += ENABLE_VIRTUAL_TERMINAL_PROCESSING))) {
+	if (!SetConsoleMode(hOut, (dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT))) {
 		hjlog.noColors = true;
 	}
 	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
