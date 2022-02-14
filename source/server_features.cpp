@@ -72,7 +72,8 @@ void Server::processChatKicks(string input) {
 	try {
 		std::regex kickreg("\\[.+\\]: <.+> " + chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
 		if (std::regex_search(input, kickreg)) {
-			writeToServerTerminal("kick " + lastCommandUser + " §4§LForbidden word in chat, please do not say that!");
+			writeToServerTerminal("kick " + lastCommandUser + " §4§LForbidden word in chat; please do not say that!");
+			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + lastCommandUser + " for a chat infraction"));
 		}
 	} catch(...) {
 		hjlog.out("Invalid chat kick regex", Error);
