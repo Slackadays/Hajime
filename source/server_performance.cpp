@@ -528,6 +528,7 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 	if (pidcpuinfo.size() < 15) {
 		hjlog.out("Could not get CPU usage info", Error);
 	}
+	pidprocstat.close();
 	//std::cout << "userjiffies = " << pidcpuinfo[13] << " kerneljiffies = " << pidcpuinfo[14] << std::endl;
 	std::fstream procstat("/proc/stat", std::fstream::in);
 	std::getline(procstat, line);
