@@ -171,125 +171,95 @@ void Server::setupCounter(auto& s) {
 	//std::cout << "cpu cycles" << std::endl;
 	//group 1: hardware
 	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES);
-	//s->gfd[0][0] = syscall(__NR_perf_event_open, &(s->perfstruct[0][0]), s->pid, -1, -1, 0); //create the group file descriptor to share
 	setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
 
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
-	//s->gfd[0][1] = syscall(__NR_perf_event_open, &(s->perfstruct[0][1]), s->pid, -1, s->gfd[0][0], 0); //use our group file descriptor
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
 
 	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
-	//s->gfd[0][2] = syscall(__NR_perf_event_open, &(s->perfstruct[0][2]), s->pid, -1, s->gfd[0][0], 0);
 	setupEvent(s->gfd[0][2], s->gid[0][2], s->perfstruct[0][2], s->gfd[0][0]);
 
 	configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS);
-	//s->gfd[0][3] = syscall(__NR_perf_event_open, &(s->perfstruct[0][3]), s->pid, -1, s->gfd[0][0], 0);
 	setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][0]);
 
 	configureStruct(s->perfstruct[0][4], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES);
-	//s->gfd[0][4] = syscall(__NR_perf_event_open, &(s->perfstruct[0][4]), s->pid, -1, s->gfd[0][0], 0);
 	setupEvent(s->gfd[0][4], s->gid[0][4], s->perfstruct[0][4], s->gfd[0][0]);
 
 	configureStruct(s->perfstruct[0][5], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
-	//s->gfd[0][5] = syscall(__NR_perf_event_open, &(s->perfstruct[0][5]), s->pid, -1, s->gfd[0][0], 0);
 	setupEvent(s->gfd[0][5], s->gid[0][5], s->perfstruct[0][5], s->gfd[0][0]);
 	//std::cout << "stalled cycles" << std::endl;
 	configureStruct(s->perfstruct[0][6], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
-	//s->gfd[0][6] = syscall(__NR_perf_event_open, &(s->perfstruct[0][6]), s->pid, -1, s->gfd[0][0], 0);
 	setupEvent(s->gfd[0][6], s->gid[0][6], s->perfstruct[0][6], s->gfd[0][0]);
 
 	configureStruct(s->perfstruct[0][7], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
-	//s->gfd[0][7] = syscall(__NR_perf_event_open, &(s->perfstruct[0][7]), s->pid, -1, s->gfd[0][0], 0);
 	setupEvent(s->gfd[0][7], s->gid[0][7], s->perfstruct[0][7], s->gfd[0][0]);
 	//std::cout << "bus cycles" << std::endl;
 	configureStruct(s->perfstruct[0][8], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
-	//s->gfd[0][8] = syscall(__NR_perf_event_open, &(s->perfstruct[0][8]), s->pid, -1, s->gfd[0][0], 0);
 	setupEvent(s->gfd[0][8], s->gid[0][8], s->perfstruct[0][8], s->gfd[0][0]);
 	//group 2: software
 	//std::cout << "page faults" << std::endl;
 	configureStruct(s->perfstruct[1][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS);
-	//s->gfd[1][0] = syscall(__NR_perf_event_open, &(s->perfstruct[1][0]), s->pid, -1, -1, 0);
 	setupEvent(s->gfd[1][0], s->gid[1][0], s->perfstruct[1][0], -1);
 
 	configureStruct(s->perfstruct[1][1], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CONTEXT_SWITCHES);
-	//s->gfd[1][1] = syscall(__NR_perf_event_open, &(s->perfstruct[1][1]), s->pid, -1, s->gfd[1][0], 0); //use our group file descriptor
 	setupEvent(s->gfd[1][1], s->gid[1][1], s->perfstruct[1][1], s->gfd[1][0]);
 
 	configureStruct(s->perfstruct[1][2], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CPU_MIGRATIONS);
-	//s->gfd[1][2] = syscall(__NR_perf_event_open, &(s->perfstruct[1][2]), s->pid, -1, s->gfd[1][0], 0);
 	setupEvent(s->gfd[1][2], s->gid[1][2], s->perfstruct[1][2], s->gfd[1][0]);
 
 	configureStruct(s->perfstruct[1][3], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_ALIGNMENT_FAULTS);
-	//s->gfd[1][3] = syscall(__NR_perf_event_open, &(s->perfstruct[1][3]), s->pid, -1, s->gfd[1][0], 0);
 	setupEvent(s->gfd[1][3], s->gid[1][3], s->perfstruct[1][3], s->gfd[1][0]);
 
 	configureStruct(s->perfstruct[1][4], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_EMULATION_FAULTS);
-	//s->gfd[1][4] = syscall(__NR_perf_event_open, &(s->perfstruct[1][4]), s->pid, -1, s->gfd[1][0], 0);
 	setupEvent(s->gfd[1][4], s->gid[1][4], s->perfstruct[1][4], s->gfd[1][0]);
 
 	configureStruct(s->perfstruct[1][5], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MIN);
-	//s->gfd[1][5] = syscall(__NR_perf_event_open, &(s->perfstruct[1][5]), s->pid, -1, s->gfd[1][0], 0);
 	setupEvent(s->gfd[1][5], s->gid[1][5], s->perfstruct[1][5], s->gfd[1][0]);
 
 	configureStruct(s->perfstruct[1][6], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MAJ);
-	//s->gfd[1][6] = syscall(__NR_perf_event_open, &(s->perfstruct[1][6]), s->pid, -1, s->gfd[1][0], 0);
 	setupEvent(s->gfd[1][6], s->gid[1][6], s->perfstruct[1][6], s->gfd[1][0]);
 	//group 3: cache
 	//std::cout << "l1d cache" << std::endl;
 	configureStruct(s->perfstruct[2][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	//s->gfd[2][0] = syscall(__NR_perf_event_open, &(s->perfstruct[2][0]), s->pid, -1, -1, 0); //create the group file descriptor to share
 	setupEvent(s->gfd[2][0], s->gid[2][0], s->perfstruct[2][0], -1);
  	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
 	configureStruct(s->perfstruct[2][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	//s->gfd[2][1] = syscall(__NR_perf_event_open, &(s->perfstruct[2][1]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][1], s->gid[2][1], s->perfstruct[2][1], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	//s->gfd[2][2] = syscall(__NR_perf_event_open, &(s->perfstruct[2][2]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][2], s->gid[2][2], s->perfstruct[2][2], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][3], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	//s->gfd[2][3] = syscall(__NR_perf_event_open, &(s->perfstruct[2][3]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][3], s->gid[2][3], s->perfstruct[2][3], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][4], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	//s->gfd[2][4] = syscall(__NR_perf_event_open, &(s->perfstruct[2][4]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][4], s->gid[2][4], s->perfstruct[2][4], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][5], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	//s->gfd[2][5] = syscall(__NR_perf_event_open, &(s->perfstruct[2][5]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][5], s->gid[2][5], s->perfstruct[2][5], s->gfd[2][0]);
 	//std::cout << "dtlb write" << std::endl;
 	configureStruct(s->perfstruct[2][6], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	//s->gfd[2][6] = syscall(__NR_perf_event_open, &(s->perfstruct[2][6]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][6], s->gid[2][6], s->perfstruct[2][6], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][7], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	//s->gfd[2][7] = syscall(__NR_perf_event_open, &(s->perfstruct[2][7]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][7], s->gid[2][7], s->perfstruct[2][7], s->gfd[2][0]);
 	//std::cout << "itlb read" << std::endl;
 	configureStruct(s->perfstruct[2][8], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_ITLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	//s->gfd[2][8] = syscall(__NR_perf_event_open, &(s->perfstruct[2][8]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][8], s->gid[2][8], s->perfstruct[2][8], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][9], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_ITLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	//s->gfd[2][9] = syscall(__NR_perf_event_open, &(s->perfstruct[2][9]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][9], s->gid[2][9], s->perfstruct[2][9], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][10], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	//s->gfd[2][10] = syscall(__NR_perf_event_open, &(s->perfstruct[2][10]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][10], s->gid[2][10], s->perfstruct[2][10], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][11], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	//s->gfd[2][11] = syscall(__NR_perf_event_open, &(s->perfstruct[2][11]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][11], s->gid[2][11], s->perfstruct[2][11], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][12], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	//s->gfd[2][12] = syscall(__NR_perf_event_open, &(s->perfstruct[2][12]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][12], s->gid[2][12], s->perfstruct[2][12], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[2][13], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	//s->gfd[2][13] = syscall(__NR_perf_event_open, &(s->perfstruct[2][13]), s->pid, -1, s->gfd[2][0], 0);
 	setupEvent(s->gfd[2][13], s->gid[2][13], s->perfstruct[2][13], s->gfd[2][0]);
 }
 
