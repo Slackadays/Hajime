@@ -31,6 +31,7 @@ Output::Output() {
 	debug = 0;
 	threadCounter = 0;
 	logToFile = false;
+	threadless = false;
 }
 
 void Output::init(const string& file, bool debugOrNot) {
@@ -38,32 +39,6 @@ void Output::init(const string& file, bool debugOrNot) {
 	logFilename = file;
 	debug = debugOrNot;
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
-}
-
-void Output::out(string data, outType type, bool keepEndlines, bool endLineAtEnd) {
-	processOutput(data, type, keepEndlines, endLineAtEnd);
-	if (hajimeTerminal && (type != None) && endLineAtEnd) {
-		terminalDispatch('\r' + text.info.EnterCommand, None, 0);
-	}
-}
-
-void Output::processOutput(string data, outType type, bool keepEndlines, bool endLineAtEnd) {
-	if (isExcluded(type)) {
-		return;
-	}
-	if (type == Question) {
-		endLineAtEnd = false;
-	}
-	string outputString;
-	outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
-	outputString = processMonochrome(outputString);
-	if (hajimeTerminal && (type != None) && endLineAtEnd) {
-		outputString = '\r' + outputString;
-	}
-	terminalDispatch(outputString, type, endLineAtEnd);
-	if (logToFile) {
-		fileDispatch(outputString, type, endLineAtEnd);
-	}
 }
 
 void Output::end() {
@@ -79,7 +54,7 @@ string Output::removeEndlines(string input, bool keepEndlines) {
 	return input;
 }
 
-bool Output::isExcluded(outType type) {
+bool Output::isExcluded(outFlag type) {
 	if (normalDisabled && !debug) {
 		return true;
 	} else if (!debug && type == Debug) {
@@ -97,7 +72,7 @@ string Output::processMonochrome(string input) {
 	}
 }
 
-void Output::terminalDispatch(string input, outType type, bool endLineAtEnd) {
+void Output::terminalDispatch(string input, outFlag type, bool endLineAtEnd) {
 	std::lock_guard<std::mutex> lock(outMutex);
 	if (type == Error) {
 		std::cerr << input;
@@ -122,7 +97,7 @@ void Output::terminalDispatch(string input, outType type, bool endLineAtEnd) {
 	}
 }
 
-void Output::fileDispatch(string input, outType type, bool endLineAtEnd) {
+void Output::fileDispatch(string input, outFlag type, bool endLineAtEnd) {
 	input = std::regex_replace(input, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 	fileObj << input;
 	if (endLineAtEnd) {
@@ -130,7 +105,7 @@ void Output::fileDispatch(string input, outType type, bool endLineAtEnd) {
 	}
 }
 
-string Output::addPrefixByType(string input, outType type) {
+string Output::addPrefixByType(string input, outFlag type) {
 	string prefix = "";
 	bool blank = false;
 	if (verbose) {
@@ -195,7 +170,7 @@ string Output::addPrefixByType(string input, outType type) {
 	if (blank) {
 		return input;
 	}
-	if (main_thread == std::this_thread::get_id()) {
+	if (main_thread == std::this_thread::get_id() || threadless) {
 		if (verbose) {
 			prefix += "Hajime]";
 		} else {

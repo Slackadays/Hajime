@@ -24,13 +24,13 @@ void Wizard::dividerLine() {
 	CONSOLE_SCREEN_BUFFER_INFO w;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
-		hjlog.out("─", None, 0, 0);
+		hjlog.out("─", None, NoEndline);
 	}
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
-		hjlog.out("─", None, 0, 0);
+		hjlog.out("─", None, NoEndline);
 	}
 	#endif
 	std::cout << std::endl;
@@ -67,7 +67,7 @@ void Wizard::pause(float mean, float stdev) {
 void Wizard::doHajimeStep() {
 	hjlog.out(text.info.wizard.HajimeFile, Info);
 	pause(200, 200);
-	hjlog.out(text.question.MakeHajimeConfig, Question, 0, 0);
+	hjlog.out(text.question.MakeHajimeConfig, Question, NoEndline);
 	if (hjlog.getYN()) {
 		pause(400, 400);
 		hjlog.out(text.question.HajimeLanguage, Question);
@@ -95,7 +95,7 @@ void Wizard::doHajimeStep() {
 void Wizard::doServerStep() {
 	hjlog.out(text.info.wizard.ServerFile, Info);
 	pause(200, 200);
-	hjlog.out(text.question.WizardServerFile, Question, 1, 1);
+	hjlog.out(text.question.WizardServerFile, Question, KeepEndlines);
 	int choice = hjlog.getYN(text.option.MakeServerFileManually, text.option.LetHajimeDeduce, text.option.SkipStep);
 	switch (choice) {
 		case 1:
@@ -158,7 +158,7 @@ void Wizard::doServerStep() {
 				}
 				hjlog.out(text.question.CreateAnotherServerFile, Question);
 				if (hjlog.getYN()) {
-					hjlog.out(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2, Info, 0, 0);
+					hjlog.out(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2, Info, NoEndline);
 					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);
@@ -202,9 +202,9 @@ void Wizard::doNextStepStep() {
 		} else if (servers.size() == 2) {
 			hjlog.out(text.info.wizard.NextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.wizard.NextStepServerFile2, Info);
 		} else if (servers.size() > 2) {
-			hjlog.out(text.info.wizard.NextStepServerFile1, Info, 0, 0);
+			hjlog.out(text.info.wizard.NextStepServerFile1, Info, NoEndline);
 			for (int i = 0; i < (servers.size() - 1); i++) {
-				hjlog.out(servers[i] + ", ", None, 0, 0);
+				hjlog.out(servers[i] + ", ", None, NoEndline);
 			}
 			hjlog.out("& " + servers.back() + text.info.wizard.NextStepServerFile2, None);
 		}
