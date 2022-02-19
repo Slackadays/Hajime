@@ -172,6 +172,8 @@ class Server {
 	bool doCommands = true;
 	bool silentCommands = false;
 
+	inline static std::vector<unsigned long long> knownBadEvents = {};
+
 	std::list<long long> cpuusagereadings{0};
 	std::list<double> rampercentreadings{0.0};
 	std::list<unsigned long long> rambytereadings{0};
