@@ -65,12 +65,12 @@ struct read_format {
 struct pcounter {
 	long pid;
 
-	vector<vector<struct perf_event_attr>> perfstruct{vector<struct perf_event_attr>(9), vector<struct perf_event_attr>(7), vector<struct perf_event_attr>(14)};
-	vector<vector<unsigned long long>> gid{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)};
-	vector<vector<unsigned long long>> gv{vector<unsigned long long>(9, 0), vector<unsigned long long>(7, 0), vector<unsigned long long>(14, 0)};
-	vector<vector<int>> gfd{vector<int>(9, 0), vector<int>(7, 0), vector<int>(14, 0)};
+	vector<vector<struct perf_event_attr>> perfstruct{vector<struct perf_event_attr>(10), vector<struct perf_event_attr>(8), vector<struct perf_event_attr>(15)};
+	vector<vector<unsigned long long>> gid{vector<unsigned long long>(10, 0), vector<unsigned long long>(8, 0), vector<unsigned long long>(15, 0)};
+	vector<vector<unsigned long long>> gv{vector<unsigned long long>(10, 0), vector<unsigned long long>(8, 0), vector<unsigned long long>(15, 0)};
+	vector<vector<int>> gfd{vector<int>(10, 0), vector<int>(8, 0), vector<int>(15, 0)};
 
-	char buf[512];
+	char buf[1024];
 	struct read_format* data = (struct read_format*)buf;
 };
 
@@ -106,6 +106,7 @@ void Server::setupCounter(auto& s) {
 			return;
 		}
 		fd = syscall(__NR_perf_event_open, &(st), s->pid, -1, gfd, 0);
+		//std::cout << "fd = " << to_string(fd) << std::endl;
 		if (performanceCounterCompat == -1) {
 			return;
 		} else if (fd != -1) {
@@ -114,14 +115,14 @@ void Server::setupCounter(auto& s) {
 		} else if (fd == -1) {
 			switch(errno) {
 				case E2BIG:
-					hjlog.out("perfstruct is too small", Error);
+					hjlog.out("Event perfstruct is too small", Error);
 					return;
 				case EACCES:
-					hjlog.out("Error: performance counters not permitted; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability", Error);
+					hjlog.out("Performance counters not permitted; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability", Error);
 					performanceCounterCompat = -1;
 					return;
 				case EBADF:
-					if (gfd > 0) {
+					if (gfd > -1) {
 						hjlog.out("Event group_fd not valid, group_fd = " + to_string(gfd), Error);
 					}
 					return;
@@ -158,10 +159,10 @@ void Server::setupCounter(auto& s) {
 					hjlog.out("Unsupported event exclusion setting", Error);
 					return;
 				case ESRCH:
-					hjlog.out("Invalid PID", Error);
+					hjlog.out("Invalid PID for event", Error);
 					return;
 				default:
-					hjlog.out("Unknown performance counter error; errno = " + std::to_string(errno), Error);
+					hjlog.out("Other performance counter error; errno = " + std::to_string(errno), Error);
 					return;
 			}
 		}
@@ -170,97 +171,106 @@ void Server::setupCounter(auto& s) {
 	//std::cout << "setting up counters for pid " << s->pid << std::endl;
 	//std::cout << "cpu cycles" << std::endl;
 	//group 1: hardware
-	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES);
+	configureStruct(s->perfstruct[0][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_DUMMY);
 	setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
 
-	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
+	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
 
-	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
+	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	setupEvent(s->gfd[0][2], s->gid[0][2], s->perfstruct[0][2], s->gfd[0][0]);
 
-	configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS);
+	configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
 	setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][0]);
 
-	configureStruct(s->perfstruct[0][4], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES);
+	configureStruct(s->perfstruct[0][4], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS);
 	setupEvent(s->gfd[0][4], s->gid[0][4], s->perfstruct[0][4], s->gfd[0][0]);
 
-	configureStruct(s->perfstruct[0][5], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
+	configureStruct(s->perfstruct[0][5], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES);
 	setupEvent(s->gfd[0][5], s->gid[0][5], s->perfstruct[0][5], s->gfd[0][0]);
-	//std::cout << "stalled cycles" << std::endl;
-	configureStruct(s->perfstruct[0][6], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
-	setupEvent(s->gfd[0][6], s->gid[0][6], s->perfstruct[0][6], s->gfd[0][0]);
 
-	configureStruct(s->perfstruct[0][7], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
+	configureStruct(s->perfstruct[0][6], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
+	setupEvent(s->gfd[0][6], s->gid[0][6], s->perfstruct[0][6], s->gfd[0][0]);
+	//std::cout << "stalled cycles" << std::endl;
+	configureStruct(s->perfstruct[0][7], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
 	setupEvent(s->gfd[0][7], s->gid[0][7], s->perfstruct[0][7], s->gfd[0][0]);
-	//std::cout << "bus cycles" << std::endl;
-	configureStruct(s->perfstruct[0][8], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
+
+	configureStruct(s->perfstruct[0][8], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
 	setupEvent(s->gfd[0][8], s->gid[0][8], s->perfstruct[0][8], s->gfd[0][0]);
+	//std::cout << "bus cycles" << std::endl;
+	configureStruct(s->perfstruct[0][9], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
+	setupEvent(s->gfd[0][9], s->gid[0][9], s->perfstruct[0][9], s->gfd[0][0]);
 	//group 2: software
 	//std::cout << "page faults" << std::endl;
-	configureStruct(s->perfstruct[1][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS);
+	configureStruct(s->perfstruct[1][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_DUMMY);
 	setupEvent(s->gfd[1][0], s->gid[1][0], s->perfstruct[1][0], -1);
 
-	configureStruct(s->perfstruct[1][1], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CONTEXT_SWITCHES);
+	configureStruct(s->perfstruct[1][1], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS);
 	setupEvent(s->gfd[1][1], s->gid[1][1], s->perfstruct[1][1], s->gfd[1][0]);
 
-	configureStruct(s->perfstruct[1][2], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CPU_MIGRATIONS);
+	configureStruct(s->perfstruct[1][2], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CONTEXT_SWITCHES);
 	setupEvent(s->gfd[1][2], s->gid[1][2], s->perfstruct[1][2], s->gfd[1][0]);
 
-	configureStruct(s->perfstruct[1][3], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_ALIGNMENT_FAULTS);
+	configureStruct(s->perfstruct[1][3], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CPU_MIGRATIONS);
 	setupEvent(s->gfd[1][3], s->gid[1][3], s->perfstruct[1][3], s->gfd[1][0]);
 
-	configureStruct(s->perfstruct[1][4], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_EMULATION_FAULTS);
+	configureStruct(s->perfstruct[1][4], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_ALIGNMENT_FAULTS);
 	setupEvent(s->gfd[1][4], s->gid[1][4], s->perfstruct[1][4], s->gfd[1][0]);
 
-	configureStruct(s->perfstruct[1][5], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MIN);
+	configureStruct(s->perfstruct[1][5], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_EMULATION_FAULTS);
 	setupEvent(s->gfd[1][5], s->gid[1][5], s->perfstruct[1][5], s->gfd[1][0]);
 
-	configureStruct(s->perfstruct[1][6], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MAJ);
+	configureStruct(s->perfstruct[1][6], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MIN);
 	setupEvent(s->gfd[1][6], s->gid[1][6], s->perfstruct[1][6], s->gfd[1][0]);
+
+	configureStruct(s->perfstruct[1][7], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MAJ);
+	setupEvent(s->gfd[1][7], s->gid[1][7], s->perfstruct[1][7], s->gfd[1][0]);
 	//group 3: cache
 	//std::cout << "l1d cache" << std::endl;
-	configureStruct(s->perfstruct[2][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	configureStruct(s->perfstruct[2][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_DUMMY);
 	setupEvent(s->gfd[2][0], s->gid[2][0], s->perfstruct[2][0], -1);
- 	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
-	configureStruct(s->perfstruct[2][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	setupEvent(s->gfd[2][1], s->gid[2][1], s->perfstruct[2][1], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	configureStruct(s->perfstruct[2][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	setupEvent(s->gfd[2][1], s->gid[2][1], s->perfstruct[2][1], s->gfd[2][0]);
+ 	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
+	configureStruct(s->perfstruct[2][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[2][2], s->gid[2][2], s->perfstruct[2][2], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][3], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	configureStruct(s->perfstruct[2][3], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[2][3], s->gid[2][3], s->perfstruct[2][3], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][4], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	configureStruct(s->perfstruct[2][4], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[2][4], s->gid[2][4], s->perfstruct[2][4], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][5], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	configureStruct(s->perfstruct[2][5], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[2][5], s->gid[2][5], s->perfstruct[2][5], s->gfd[2][0]);
-	//std::cout << "dtlb write" << std::endl;
-	configureStruct(s->perfstruct[2][6], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+
+	configureStruct(s->perfstruct[2][6], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[2][6], s->gid[2][6], s->perfstruct[2][6], s->gfd[2][0]);
-
-	configureStruct(s->perfstruct[2][7], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	//std::cout << "dtlb write" << std::endl;
+	configureStruct(s->perfstruct[2][7], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[2][7], s->gid[2][7], s->perfstruct[2][7], s->gfd[2][0]);
-	//std::cout << "itlb read" << std::endl;
-	configureStruct(s->perfstruct[2][8], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_ITLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	setupEvent(s->gfd[2][8], s->gid[2][8], s->perfstruct[2][8], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][9], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_ITLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	configureStruct(s->perfstruct[2][8], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[2][8], s->gid[2][8], s->perfstruct[2][8], s->gfd[2][0]);
+	//std::cout << "itlb read" << std::endl;
+	configureStruct(s->perfstruct[2][9], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_ITLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[2][9], s->gid[2][9], s->perfstruct[2][9], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][10], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	configureStruct(s->perfstruct[2][10], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_ITLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[2][10], s->gid[2][10], s->perfstruct[2][10], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][11], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	configureStruct(s->perfstruct[2][11], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[2][11], s->gid[2][11], s->perfstruct[2][11], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][12], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	configureStruct(s->perfstruct[2][12], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_BPU | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[2][12], s->gid[2][12], s->perfstruct[2][12], s->gfd[2][0]);
 
-	configureStruct(s->perfstruct[2][13], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	configureStruct(s->perfstruct[2][13], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[2][13], s->gid[2][13], s->perfstruct[2][13], s->gfd[2][0]);
+
+	configureStruct(s->perfstruct[2][14], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[2][14], s->gid[2][14], s->perfstruct[2][14], s->gfd[2][0]);
 }
 
 void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
@@ -314,10 +324,8 @@ void Server::readCounters(auto& counters) {
 		long size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
 		//std::cout << "size for g1 = " << size << std::endl;
 		for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
-			if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
-				s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
-			} else if (s->data->values[i].id == s->gid[0][1]) {
-				s->gv[0][1] = s->data->values[i].value;
+			if (s->data->values[i].id == s->gid[0][1]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
+				s->gv[0][1] = s->data->values[i].value; //store the counter value in g1v1
 			} else if (s->data->values[i].id == s->gid[0][2]) {
 				s->gv[0][2] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[0][3]) {
@@ -332,15 +340,15 @@ void Server::readCounters(auto& counters) {
 				s->gv[0][7] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[0][8]) {
 				s->gv[0][8] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[0][9]) {
+				s->gv[0][9] = s->data->values[i].value;
 			}
 		}
 		//memset(&(s->buf), 0, sizeof(s->buf));
 		size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
 		//std::cout << "size for g2 = " << size << std::endl;
 		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[1][0]) {
-				s->gv[1][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[1][1]) {
+			if (s->data->values[i].id == s->gid[1][1]) {
 				s->gv[1][1] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[1][2]) {
 				s->gv[1][2] = s->data->values[i].value;
@@ -352,15 +360,15 @@ void Server::readCounters(auto& counters) {
 				s->gv[1][5] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[1][6]) {
 				s->gv[1][6] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[1][7]) {
+				s->gv[1][7] = s->data->values[i].value;
 			}
 		}
 		//memset(&(s->buf), 0, sizeof(s->buf));
 		size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
 		//std::cout << "size for g3 = " << size << std::endl;
 		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[2][0]) {
-				s->gv[2][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[2][1]) {
+			if (s->data->values[i].id == s->gid[2][1]) {
 				s->gv[2][1] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[2][2]) {
 				s->gv[2][2] = s->data->values[i].value;
@@ -386,6 +394,8 @@ void Server::readCounters(auto& counters) {
 				s->gv[2][12] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[2][13]) {
 				s->gv[2][13] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][14]) {
+				s->gv[2][14] = s->data->values[i].value;
 			}
 		}
 	}
@@ -402,11 +412,12 @@ void Server::processPerfStats() {
 		hjlog.out("error changing limits, errno = " + std::to_string(errno), Error);
 	}
 	std::vector<struct pcounter*> MyCounters = {};
-	//std::cout << "creating counters" << std::endl;
+	std::cout << "creating counters" << std::endl;
 	vector<long> newPids = {};
 	vector<long> diffPids = {};
 	vector<long> currentPids = getProcessChildPids(pid);
 	createCounters(MyCounters, currentPids);
+	std::cout << "done making counters" << std::endl;
 	#endif
 	while (true) {
 		#if defined(__linux__)
@@ -452,36 +463,36 @@ void Server::processPerfStats() {
 			bpureadaccessreadings.emplace_back(0);
 			bpureadmissreadings.emplace_back(0);
 			for (const auto& s : MyCounters) {
-				cpucyclereadings.back() += s->gv[0][0];
-				cpuinstructionreadings.back() += s->gv[0][1];
-				cachemissreadings.back() += s->gv[0][2];
-				branchinstructionreadings.back() += s->gv[0][3];
-				branchmissreadings.back() += s->gv[0][4];
-				cachereferencereadings.back() += s->gv[0][5];
-				stalledcyclesfrontendreadings.back() += s->gv[0][6];
-				stalledcyclesbackendreadings.back() += s->gv[0][7];
-				buscyclereadings.back() += s->gv[0][8];
-				pagefaultreadings.back() += s->gv[1][0];
-				contextswitchreadings.back() += s->gv[1][1];
-				cpumigrationreadings.back() += s->gv[1][2];
-				alignmentfaultreadings.back() += s->gv[1][3];
-				emulationfaultreadings.back() += s->gv[1][4];
-				minorpagefaultreadings.back() += s->gv[1][5];
-				majorpagefaultreadings.back() += s->gv[1][6];
-				l1dreadaccessreadings.back() += s->gv[2][0];
-				l1dreadmissreadings.back() += s->gv[2][1];
-				llreadaccessreadings.back() += s->gv[2][2];
-				llreadmissreadings.back() += s->gv[2][3];
-				dtlbreadaccessreadings.back() += s->gv[2][4];
-				dtlbreadmissreadings.back() += s->gv[2][5];
-				dtlbwriteaccessreadings.back() += s->gv[2][6];
-				dtlbwritemissreadings.back() += s->gv[2][7];
-				itlbreadaccessreadings.back() += s->gv[2][8];
-				itlbreadmissreadings.back() += s->gv[2][9];
-				bpureadaccessreadings.back() += s->gv[2][10];
-				bpureadmissreadings.back() += s->gv[2][11];
-				llwriteaccessreadings.back() += s->gv[2][12];
-				llwritemissreadings.back() += s->gv[2][13];
+				cpucyclereadings.back() += s->gv[0][1];
+				cpuinstructionreadings.back() += s->gv[0][2];
+				cachemissreadings.back() += s->gv[0][3];
+				branchinstructionreadings.back() += s->gv[0][4];
+				branchmissreadings.back() += s->gv[0][5];
+				cachereferencereadings.back() += s->gv[0][6];
+				stalledcyclesfrontendreadings.back() += s->gv[0][7];
+				stalledcyclesbackendreadings.back() += s->gv[0][8];
+				buscyclereadings.back() += s->gv[0][9];
+				pagefaultreadings.back() += s->gv[1][1];
+				contextswitchreadings.back() += s->gv[1][2];
+				cpumigrationreadings.back() += s->gv[1][3];
+				alignmentfaultreadings.back() += s->gv[1][4];
+				emulationfaultreadings.back() += s->gv[1][5];
+				minorpagefaultreadings.back() += s->gv[1][6];
+				majorpagefaultreadings.back() += s->gv[1][7];
+				l1dreadaccessreadings.back() += s->gv[2][1];
+				l1dreadmissreadings.back() += s->gv[2][2];
+				llreadaccessreadings.back() += s->gv[2][3];
+				llreadmissreadings.back() += s->gv[2][4];
+				dtlbreadaccessreadings.back() += s->gv[2][5];
+				dtlbreadmissreadings.back() += s->gv[2][6];
+				dtlbwriteaccessreadings.back() += s->gv[2][7];
+				dtlbwritemissreadings.back() += s->gv[2][8];
+				itlbreadaccessreadings.back() += s->gv[2][9];
+				itlbreadmissreadings.back() += s->gv[2][10];
+				bpureadaccessreadings.back() += s->gv[2][11];
+				bpureadmissreadings.back() += s->gv[2][12];
+				llwriteaccessreadings.back() += s->gv[2][13];
+				llwritemissreadings.back() += s->gv[2][14];
 			}
 			//std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
 			auto cullList = [](auto& list) {
