@@ -115,7 +115,7 @@ void Installer::installStartupService(const string& sysService) {
 		bool continueInstall = true;
 		if (fs::is_regular_file("/etc/init.d/hajime.sh")) {
 			hjlog.out(text.warning.FoundSysvinitService, Warning);
-			hjlog.out(text.question.MakeNewSysvinitService, Question, 0, 0);
+			hjlog.out(text.question.MakeNewSysvinitService, Question, NoEndline);
 			if (hjlog.getYN()) {
 				continueInstall = true;
 				hjlog.out(text.info.InstallingNewSysvinit, Info);
@@ -126,10 +126,10 @@ void Installer::installStartupService(const string& sysService) {
 		if (continueInstall) {
 			ofstream service("/etc/init.d/hajime.sh");
 			string user;
-			hjlog.out(text.question.SysvinitUser, Question, 0, 0);
+			hjlog.out(text.question.SysvinitUser, Question, NoEndline);
 			std::cin >> user;
 			string group;
-			hjlog.out(text.question.SysvinitGroup, Question, 0, 0);
+			hjlog.out(text.question.SysvinitGroup, Question, NoEndline);
 			std::cin >> group;
 			service << "#!/bin/sh\n"
 			"### BEGIN INIT INFO\n"
@@ -194,7 +194,7 @@ void Installer::installStartupService(const string& sysService) {
 		bool continueInstall = true;
 		if (fs::is_regular_file("/Library/LaunchAgents/Hajime.plist")) {
 			hjlog.out(text.warning.LaunchdServPresent, Warning);
-			hjlog.out(text.question.MakeLaunchdServ, Question, 0, 0);
+			hjlog.out(text.question.MakeLaunchdServ, Question, NoEndline);
 			if (hjlog.getYN()) {
 					continueInstall = true;
 					hjlog.out(text.info.InstallingNewLaunchdServ, Info);

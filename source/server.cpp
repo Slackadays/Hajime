@@ -65,13 +65,13 @@ void Server::startServer(string confFile) {
 			return;
 		}
 		hjlog.out("----" + name + "----", Info);
-		hjlog.out(text.info.ServerFile + file + " | ", Info, 0, 0);
+		hjlog.out(text.info.ServerFile + file + " | ", Info, NoEndline);
 		hjlog.out(text.info.ServerPath + path, None);
-		hjlog.out(text.info.ServerCommand + command + " | ", Info, 0, 0);
+		hjlog.out(text.info.ServerCommand + command + " | ", Info, NoEndline);
 		hjlog.out(text.info.ServerMethod + method, None);
-		hjlog.out(text.info.ServerDebug + to_string(hjlog.debug) + " | ", Info, 0, 0); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+		hjlog.out(text.info.ServerDebug + to_string(hjlog.debug) + " | ", Info, NoEndline); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		hjlog.out(text.info.ServerDevice + device, None);
-		hjlog.out("Restart interval: " + to_string(restartMins) + " | ", Info, 0, 0);
+		hjlog.out("Restart interval: " + to_string(restartMins) + " | ", Info, NoEndline);
 		hjlog.out("Silent commands: " + to_string(silentCommands), None);
 		hjlog.hajimeTerminal = true;
 		if (!fs::is_regular_file(file)) {

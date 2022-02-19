@@ -241,13 +241,13 @@ void dividerLine() {
 	CONSOLE_SCREEN_BUFFER_INFO w;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
-		hjlog.out("─", None, 0, 0);
+		hjlog.out("─", None, NoEndline);
 	}
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
-		hjlog.out("─", None, 0, 0);
+		hjlog.out("─", None, NoEndline);
 	}
 	#endif
 	std::cout << std::endl;
