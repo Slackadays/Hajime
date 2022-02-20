@@ -60,7 +60,11 @@ bool isUserPrivileged();
 int main(int argc, char *argv[]) {
 	atexit([]{
 		dividerLine();
+		#if defined(__APPLE__)
+		exit(0);
+		#else
 		quick_exit(0);
+		#endif
 	});
 	signal(SIGINT, hajimeExit);
 	signal(SIGSEGV, [](int sig){
