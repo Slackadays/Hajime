@@ -1,3 +1,3 @@
 #include <string>
 
-const std::string hajime_version = "0.1.11";
+const std::string hajime_version = "0.2.0";

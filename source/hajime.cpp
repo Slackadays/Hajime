@@ -8,6 +8,7 @@ namespace fs = std::filesystem;
 #include <sys/ioctl.h>
 #include <unistd.h>
 #endif
+#include <signal.h>
 #include <fstream>
 #include <memory>
 #include <thread>
@@ -16,6 +17,7 @@ namespace fs = std::filesystem;
 #include <string>
 #include <stdlib.h>
 #include <regex>
+#include <chrono>
 #ifdef _MSC_VER
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
 #define jthread thread
@@ -49,6 +51,7 @@ string version;
 
 bool readSettings();
 void dividerLine();
+void hajimeExit(int sig);
 vector<string> getServerFiles();
 vector<string> toVec(string input);
 void processHajimeCommand(vector<string> input);
@@ -56,6 +59,7 @@ bool isUserPrivileged();
 
 int main(int argc, char *argv[]) {
 	atexit(dividerLine);
+	signal(SIGINT, hajimeExit);
 	#if defined(_WIN64) || defined (_WIN32)
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal color compatibility
 	DWORD dwMode = 0;
@@ -225,6 +229,17 @@ bool readSettings() {
 	}
 	hjlog.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);
 	return 1;
+}
+
+void hajimeExit(int sig) {
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+	static std::chrono::time_point<std::chrono::system_clock> then;
+	if (std::chrono::duration_cast<std::chrono::seconds>(now - then).count() <= 3) {
+		std::cout << std::endl;
+		exit(0);
+	}
+	std::cout << std::endl << "Attempt to exit again within 3 seconds to exit Hajime" << std::flush;
+	then = std::chrono::system_clock::now();
 }
 
 void dividerLine() {

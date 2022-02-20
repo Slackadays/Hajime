@@ -3,10 +3,7 @@
 #include <string>
 #include <fstream>
 
-#pragma once
-
 using std::string;
 using std::vector;
 
 vector<string> getVarsFromFile(const string& filename, const vector<string>& inputVars);
-vector<string> getVarsFromFile(const string& filename);
