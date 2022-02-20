@@ -58,8 +58,14 @@ void processHajimeCommand(vector<string> input);
 bool isUserPrivileged();
 
 int main(int argc, char *argv[]) {
-	atexit(dividerLine);
+	atexit([]{
+		dividerLine();
+		quick_exit(0);
+	});
 	signal(SIGINT, hajimeExit);
+	signal(SIGSEGV, [](int sig){
+		hjlog.out<Error, Threadless>("Segmentation fault detected");
+	});
 	#if defined(_WIN64) || defined (_WIN32)
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal color compatibility
 	DWORD dwMode = 0;
@@ -247,13 +253,13 @@ void dividerLine() {
 	CONSOLE_SCREEN_BUFFER_INFO w;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
-		hjlog.out<None, NoEndline>("─");
+		std::cout << "─" << std::flush;
 	}
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
-		hjlog.out<None, NoEndline>("─");
+		std::cout << "─" << std::flush;
 	}
 	#endif
 	std::cout << std::endl;
