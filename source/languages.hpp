@@ -49,16 +49,13 @@ class Text {
 			string StartupServiceWindowsAdmin;
 			string SystemdRoot;
 			string NoSystemd;
-			string ServersFilePresent;
 			string ServerFileNotPresent1;
 			string ServerFileNotPresent2;
-			string ServersFileNotCreated;
 			string CouldntSetPath;
 			string Generic;
 			string MethodNotValid;
 			string CreatingDirectory;
 			string FilesInPath;
-			string NoServersFile;
 			string Mount;
 			string Code;
 			string HajFileNotMade;
@@ -92,7 +89,6 @@ class Text {
 			string MakeHajimeConfig;
 			string MakeServerConfig;
 			string MakeNewSysvinitService;
-			string WizardServersFile;
 			string WizardServerFile;
 			string WizardStartupService;
 			string SysvinitUser;
@@ -172,15 +168,11 @@ class Text {
 			string InstalledLaunchServ;
 			string AbortedLaunchServ;
 			string MakingSystemdServ;
-			string InstallingServersFile;
-			string CheckingExistingServersFile;
-			string MadeServersFile;
 			string EnterNewNameForServer1;
 			string EnterNewNameForServer2;
 			string EnterCommand;
 			struct Wizard {
 				string HajimeFile;
-				string ServersFile;
 				string ServerFile;
 				string StartupService;
 				string Complete;

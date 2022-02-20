@@ -49,7 +49,6 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 	} else {
 		ofstream outConf(fileLocation);
 		outConf << "version=" << hajime_version << endl;
-		outConf << "serversfile=servers.conf" << endl;
 		outConf << "defserverconf=MyServer.server" << endl;
 		outConf << "logfile=hajime.log" << endl;
 		outConf << "lang=" << lang << endl;
@@ -244,24 +243,6 @@ void Installer::installStartupService(const string& sysService) {
 		}
 	}
 	#endif
-}
-
-void Installer::installDefaultServersFile(string serversFile, bool skipFileCheck, std::vector<string> servers) {
-	hjlog.out<Info>(text.info.InstallingServersFile + serversFile + "...");
-	hjlog.out<Info>(text.info.CheckingExistingServersFile);
-	if (fs::is_regular_file(serversFile) && !skipFileCheck) {
-		throw 0;
-	} else {
-		ofstream outConf(serversFile);
-		for (const auto& it : servers) {
-			outConf << it << endl;
-		}
-		outConf.close();
-		hjlog.out<Info>(text.info.MadeServersFile);
-		if (!fs::is_regular_file(serversFile)) {
-			throw 1;
-		}
-	}
 }
 
 Installer installer;

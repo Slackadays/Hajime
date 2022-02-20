@@ -176,15 +176,6 @@ void Wizard::doServerStep() {
 	}
 }
 
-void Wizard::doServersStep() {
-	hjlog.out<Info>(text.info.wizard.ServersFile);
-	hjlog.out<Question>(text.question.WizardServersFile);
-	if (hjlog.getYN()) {
-		pause(500, 800);
-		wizardStep(serversFile, installer.installDefaultServersFile, text.error.ServersFilePresent, text.error.ServersFileNotCreated, servers);
-	}
-}
-
 void Wizard::doStartupStep() {
 	hjlog.out<Info>(text.info.wizard.StartupService);
 	pause(200, 200);
@@ -211,11 +202,10 @@ void Wizard::doNextStepStep() {
 	}
 }
 
-void Wizard::initialHajimeSetup(string tempConfFile, string tempServersFile, string tempServerFile, string tempSysdService) {
+void Wizard::initialHajimeSetup(string tempConfFile, string tempServerFile, string tempSysdService) {
 	servers.clear();
 	installedS = false;
 	confFile = tempConfFile;
-	serversFile = tempServersFile;
 	serverFile = tempServerFile;
 	sysdService = tempSysdService;
 	pause(400, 400);
@@ -225,9 +215,7 @@ void Wizard::initialHajimeSetup(string tempConfFile, string tempServersFile, str
 	doServerStep();
 	pause(400, 400);
 	dividerLine();
-	doServersStep();
 	pause(400, 400);
-	dividerLine();
 	doStartupStep();
 	pause(400, 400);
 	dividerLine();

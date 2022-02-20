@@ -42,7 +42,6 @@ bool ee = false;
 vector<Server*> serverVec = {}; //create an array of individual server objects
 vector<std::jthread> threadVec = {}; //create an array of thread objects
 string defaultServerConfFile = "MyServer.server";
-string defaultServersFile = "servers.conf";
 string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile = "";
 string hajConfFile = "";
@@ -50,6 +49,7 @@ string version;
 
 bool readSettings();
 void dividerLine();
+vector<string> getServerFiles();
 vector<string> toVec(string input);
 void processHajimeCommand(vector<string> input);
 bool isUserPrivileged();
@@ -116,10 +116,6 @@ int main(int argc, char *argv[]) {
 		if (flag("-p", "--privileged")) {
 			bypassPriviligeCheck = true;
 		}
-		if (flag("-ss", "--install-servers-file")) {
-			wizard.wizardStep(defaultServersFile, installer.installDefaultServersFile, text.error.ServersFilePresent, text.error.ServersFileNotCreated, std::vector<string>{defaultServerConfFile});
-			return 0;
-		}
 		if (flag("-s", "--install-default-server")) {
 			wizard.wizardStep(defaultServerConfFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + defaultServerConfFile, text.error.ServerConfNotCreated, "", "server.jar");
 			return 0;
@@ -141,7 +137,7 @@ int main(int argc, char *argv[]) {
 			ee = true;
 		}
 		if (flag("-i", "--install-hajime")) {
-			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
+			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServerConfFile, sysdService);
 			return 0;
 		}
 		if (flag("-np", "--no-pauses")) {
@@ -166,7 +162,7 @@ int main(int argc, char *argv[]) {
 		switch (hjlog.getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
 			case 1:
 				dividerLine();
-				wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
+				wizard.initialHajimeSetup(hajDefaultConfFile, defaultServerConfFile, sysdService);
 				hjlog.out<Question, NoEndline>(text.question.StartHajime);
 				if (!hjlog.getYN()) {
 					return 0;
@@ -178,10 +174,6 @@ int main(int argc, char *argv[]) {
 			case 3:
 				return 0;
 		}
-	}
-	if (!fs::is_regular_file(defaultServersFile)) {
-		hjlog.out<Error>(text.error.NoServersFile);
-		return 0;
 	}
 	for (int i = 1; i < argc; i++) {
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
@@ -196,7 +188,7 @@ int main(int argc, char *argv[]) {
 		hjlog.out<Error>("Hajime must not be run by a privileged user");
 		return 1;
 	}
-	for (const auto& serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
+	for (const auto& serverIt : getServerFiles()) { //loop through all the server files found
 		serverVec.emplace_back(new Server); //add a copy of server to use
 		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
@@ -214,7 +206,7 @@ int main(int argc, char *argv[]) {
 }
 
 bool readSettings() {
-	vector<string> settings{"version", "serversfile", "defserverconf", "logfile", "systemdlocation", "debug", "threadcolors"};
+	vector<string> settings{"version", "defserverconf", "logfile", "systemdlocation", "debug", "threadcolors"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		hjlog.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
 		return 0;
@@ -225,12 +217,11 @@ bool readSettings() {
 		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
 		hjlog.out<Debug>(text.debug.ReadingReadsettings);
 		setVar(settings[0], version);
-		setVar(settings[1], defaultServersFile);
-		setVar(settings[2], defaultServerConfFile);
-		setVar(settings[3], logFile);
-		setVar(settings[4], sysdService);
-		setVari(settings[5], hjlog.debug);
-		setVari(settings[6], hjlog.showThreadsAsColors);
+		setVar(settings[1], defaultServerConfFile);
+		setVar(settings[2], logFile);
+		setVar(settings[3], sysdService);
+		setVari(settings[4], hjlog.debug);
+		setVari(settings[5], hjlog.showThreadsAsColors);
 	}
 	hjlog.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);
 	return 1;
@@ -251,6 +242,16 @@ void dividerLine() {
 	}
 	#endif
 	std::cout << std::endl;
+}
+
+vector<string> getServerFiles() {
+	vector<string> results;
+	for (const auto& file : fs::directory_iterator{fs::current_path()}) {
+		if (std::regex_match(file.path().filename().string(), std::regex(".+\\.server(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
+			results.emplace_back(file.path().filename().string());
+		}
+	}
+	return results;
 }
 
 vector<string> toVec(string input) {

@@ -47,7 +47,7 @@ vector<string> getVarsFromFile(const string& filename, const vector<string>& inp
 	}
 	return outputVars;
 }
-
+/*
 vector<string> getVarsFromFile(const string& filename) {
 	std::fstream file(filename, std::fstream::in);
 	vector<string> outputVars;
@@ -64,3 +64,4 @@ vector<string> getVarsFromFile(const string& filename) {
 	file.close();
 	return outputVars;
 }
+*/
