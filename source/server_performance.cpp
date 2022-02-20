@@ -81,7 +81,7 @@ vector<long> Server::getProcessChildPids(long pid) {
 		try {
 			pids.emplace_back(stol(std::regex_replace(dir.path().string(), re, "")));
 		} catch(...) {
-			hjlog.out("Could not add PID to list", Error, Threadless);
+			hjlog.out<Error, Threadless>("Could not add PID to list");
 		}
 	}
 	return pids;
@@ -115,54 +115,54 @@ void Server::setupCounter(auto& s) {
 		} else if (fd == -1) {
 			switch(errno) {
 				case E2BIG:
-					hjlog.out("Event perfstruct is too small", Error, Threadless);
+					hjlog.out<Error, Threadless>("Event perfstruct is too small");
 					return;
 				case EACCES:
-					hjlog.out("Performance counters not permitted; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability", Error, Threadless);
+					hjlog.out<Error, Threadless>("Performance counters not permitted; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability");
 					performanceCounterCompat = -1;
 					return;
 				case EBADF:
 					if (gfd > -1) {
-						hjlog.out("Event group_fd not valid, group_fd = " + to_string(gfd), Error, Threadless);
+						hjlog.out<Error, Threadless>("Event group_fd not valid, group_fd = " + to_string(gfd));
 					}
 					return;
 				case EBUSY:
-					hjlog.out("Another process has exclusive access to performance counters", Error, Threadless);
+					hjlog.out<Error, Threadless>("Another process has exclusive access to performance counters");
 					performanceCounterCompat = -1;
 					return;
 				case EFAULT:
-					hjlog.out("Invalid memory address", Error, Threadless);
+					hjlog.out<Error, Threadless>("Invalid memory address");
 					return;
 				case EINVAL:
-					hjlog.out("Invalid event", Error, Threadless);
+					hjlog.out<Error, Threadless>("Invalid event");
 					knownBadEvents.push_back(st.config);
 					return;
 				case EMFILE:
-					hjlog.out("Not enough file descriptors available", Error, Threadless);
+					hjlog.out<Error, Threadless>("Not enough file descriptors available");
 					return;
 				case ENODEV:
-					hjlog.out("Event not supported on this CPU", Error, Threadless);
+					hjlog.out<Error, Threadless>("Event not supported on this CPU");
 					knownBadEvents.push_back(st.config);
 					return;
 				case ENOENT:
-					hjlog.out("Invalid event type", Error, Threadless);
+					hjlog.out<Error, Threadless>("Invalid event type");
 					knownBadEvents.push_back(st.config);
 					return;
 				case ENOSPC:
-					hjlog.out("Too many hardware breakpoint events", Error, Threadless);
+					hjlog.out<Error, Threadless>("Too many hardware breakpoint events");
 					return;
 				case EOPNOTSUPP:
-					hjlog.out("Hardware support not available", Error, Threadless);
+					hjlog.out<Error, Threadless>("Hardware support not available");
 					knownBadEvents.push_back(st.config);
 					return;
 				case EPERM:
-					hjlog.out("Unsupported event exclusion setting", Error, Threadless);
+					hjlog.out<Error, Threadless>("Unsupported event exclusion setting");
 					return;
 				case ESRCH:
-					hjlog.out("Invalid PID for event", Error, Threadless);
+					hjlog.out<Error, Threadless>("Invalid PID for event");
 					return;
 				default:
-					hjlog.out("Other performance counter error; errno = " + std::to_string(errno), Error, Threadless);
+					hjlog.out<Error, Threadless>("Other performance counter error; errno = " + std::to_string(errno));
 					return;
 			}
 		}
@@ -409,7 +409,7 @@ void Server::processPerfStats() {
 	rlimits.rlim_cur = 8192; //soft
 	rlimits.rlim_max = 8192; //hard
 	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		hjlog.out("error changing limits, errno = " + std::to_string(errno), Error, Threadless);
+		hjlog.out<Error, Threadless>("error changing limits, errno = " + std::to_string(errno));
 	}
 	std::vector<struct pcounter*> MyCounters = {};
 	std::cout << "creating counters" << std::endl;
@@ -562,7 +562,7 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 		pidcpuinfo.push_back(m.str());
 	}
 	if (pidcpuinfo.size() < 15) {
-		hjlog.out("Could not get CPU usage info", Error, Threadless);
+		hjlog.out<Error, Threadless>("Could not get CPU usage info");
 	}
 	pidprocstat.close();
 	//std::cout << "userjiffies = " << pidcpuinfo[13] << " kerneljiffies = " << pidcpuinfo[14] << std::endl;
@@ -577,13 +577,13 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 	try {
 		new_pidjiffies = (std::stol(pidcpuinfo[13]) + std::stol(pidcpuinfo[14]));
 	} catch(...) {
-		hjlog.out("Failed to add PID jiffies", Error, Threadless);
+		hjlog.out<Error, Threadless>("Failed to add PID jiffies");
 	}
 	for (new_cpujiffies = 0; const auto& it : procstatinfo) { //add together all the number parameters in procstatinfo
 		try {
 			new_cpujiffies += std::stol(it); //even though we are adding the PID of the process, it doesn't matter because we will only care about the deltas
 		} catch(...) {
-			hjlog.out("Failed to add CPU jiffies", Error, Threadless);
+			hjlog.out<Error, Threadless>("Failed to add CPU jiffies");
 		}
 	}
 	try {
@@ -595,7 +595,7 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 		PIDjiffies = new_pidjiffies;
 		CPUjiffies = new_cpujiffies;
 	} catch(...) {
-		hjlog.out("Error updating CPU usage", Error, Threadless);
+		hjlog.out<Error, Threadless>("Error updating CPU usage");
 	}
 	procstat.close();
 	#else
@@ -626,14 +626,14 @@ void Server::updateRAMusage() {
 	try {
 		addReading(rambytereadings, stol(pidmeminfo.at(1)) * sysconf(_SC_PAGESIZE)); //calculate the bytes of RAM usage
 	} catch(...) {
-		hjlog.out("Error adding RAM bytes", Error, Threadless);
+		hjlog.out<Error, Threadless>("Error adding RAM bytes");
 	}
 	struct sysinfo info;
 	sysinfo(&info);
 	try {
 		addReading(rampercentreadings, (100.0 * (double)stol(pidmeminfo.at(1)) * (double)sysconf(_SC_PAGESIZE)) / info.totalram);
 	} catch(...) {
-		hjlog.out("Error adding RAM percent", Error, Threadless);
+		hjlog.out<Error, Threadless>("Error adding RAM percent");
 	}
 	pidprocstatm.close();
 	#else

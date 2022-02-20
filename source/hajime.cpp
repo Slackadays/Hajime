@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 			if ((i < (argc - 1)) && string(argv[i + 1]).front() != '-') {
 				text.applyLang(argv[i + 1]);
 			} else {
-				hjlog.out(text.error.NotEnoughArgs, Error);
+				hjlog.out<Error>(text.error.NotEnoughArgs);
 				return 0;
 			}
 		}
@@ -96,13 +96,13 @@ int main(int argc, char *argv[]) {
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
 		if (flag("-f", "--server-file")) {
 			if (!assignNextToVar(defaultServerConfFile)) {
-				hjlog.out(text.error.NotEnoughArgs, Error);
+				hjlog.out<Error>(text.error.NotEnoughArgs);
 				return 0;
 			}
 		}
 		if (flag("-hf", "--hajime-file")) {
 			if (!assignNextToVar(hajDefaultConfFile)) {
-				hjlog.out(text.error.NotEnoughArgs, Error);
+				hjlog.out<Error>(text.error.NotEnoughArgs);
 				return 0;
 			}
 		}
@@ -159,28 +159,28 @@ int main(int argc, char *argv[]) {
 	}
 	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
-		empty(logFile) ? hjlog.out(text.info.NoLogFile, Info) : hjlog.init(logFile);
+		empty(logFile) ? hjlog.out<Info>(text.info.NoLogFile) : hjlog.init(logFile);
 	} else {
-		hjlog.out(text.error.ConfDoesNotExist1 + hajDefaultConfFile + text.error.ConfDoesNotExist2, Error);
-		hjlog.out(text.question.DoSetupInstaller, Question);
+		hjlog.out<Error>(text.error.ConfDoesNotExist1 + hajDefaultConfFile + text.error.ConfDoesNotExist2);
+		hjlog.out<Question, NoEndline>(text.question.DoSetupInstaller);
 		switch (hjlog.getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
 			case 1:
 				dividerLine();
 				wizard.initialHajimeSetup(hajDefaultConfFile, defaultServersFile, defaultServerConfFile, sysdService);
-				hjlog.out(text.question.StartHajime, Question);
+				hjlog.out<Question, NoEndline>(text.question.StartHajime);
 				if (!hjlog.getYN()) {
 					return 0;
 				}
 				break;
 			case 2:
-				hjlog.out(text.error.OptionNotAvailable, Error);
+				hjlog.out<Error>(text.error.OptionNotAvailable);
 				break;
 			case 3:
 				return 0;
 		}
 	}
 	if (!fs::is_regular_file(defaultServersFile)) {
-		hjlog.out(text.error.NoServersFile, Error);
+		hjlog.out<Error>(text.error.NoServersFile);
 		return 0;
 	}
 	for (int i = 1; i < argc; i++) {
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	if (!bypassPriviligeCheck && isUserPrivileged()) {
-		hjlog.out("Hajime must not be run by a privileged user", Error);
+		hjlog.out<Error>("Hajime must not be run by a privileged user");
 		return 1;
 	}
 	for (const auto& serverIt : getVarsFromFile(defaultServersFile)) { //loop through all the server files found
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
 		if (command != "") {
 			processHajimeCommand(toVec(command));
 		} else {
-			hjlog.out("Command must not be empty", Error);
+			hjlog.out<Error>("Command must not be empty");
 		}
 	}
 	return 0;
@@ -216,14 +216,14 @@ int main(int argc, char *argv[]) {
 bool readSettings() {
 	vector<string> settings{"version", "serversfile", "defserverconf", "logfile", "systemdlocation", "debug", "threadcolors"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		hjlog.out(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2, Debug);
+		hjlog.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
 		return 0;
 	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
 		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
-		hjlog.out(text.debug.ReadingReadsettings, Debug);
+		hjlog.out<Debug>(text.debug.ReadingReadsettings);
 		setVar(settings[0], version);
 		setVar(settings[1], defaultServersFile);
 		setVar(settings[2], defaultServerConfFile);
@@ -232,7 +232,7 @@ bool readSettings() {
 		setVari(settings[5], hjlog.debug);
 		setVari(settings[6], hjlog.showThreadsAsColors);
 	}
-	hjlog.out(text.debug.ReadReadsettings + hajDefaultConfFile, Debug);
+	hjlog.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);
 	return 1;
 }
 
@@ -241,13 +241,13 @@ void dividerLine() {
 	CONSOLE_SCREEN_BUFFER_INFO w;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
 	for (int i = 0; i < w.dwSize.X; i++) {
-		hjlog.out("─", None, NoEndline);
+		hjlog.out<None, NoEndline>("─");
 	}
 	#else
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	for (int i = 0; i < w.ws_col; i++) {
-		hjlog.out("─", None, NoEndline);
+		hjlog.out<None, NoEndline>("─");
 	}
 	#endif
 	std::cout << std::endl;
@@ -277,7 +277,7 @@ void processHajimeCommand(vector<string> input) {
 		if (input.size() >= 2) {
 			try {
 				if (stoi(input[1]) > serverVec.size() || stoi(input[1]) < 1) {
-					hjlog.out(text.error.InvalidServerNumber, Error);
+					hjlog.out<Error>(text.error.InvalidServerNumber);
 				} else {
 					hjlog.hajimeTerminal = false;
 					serverVec[stoi(input[1]) - 1]->terminalAccessWrapper();
@@ -295,19 +295,19 @@ void processHajimeCommand(vector<string> input) {
 					}
 				}
 				if (!attachSuccess) {
-					hjlog.out(text.error.ServerSelectionInvalid, Error);
+					hjlog.out<Error>(text.error.ServerSelectionInvalid);
 				}
 			}
 		} else {
-			hjlog.out(text.error.NotEnoughArgs, Error);
+			hjlog.out<Error>(text.error.NotEnoughArgs);
 		}
 	} else if (input[0] == "ee" && ee && text.language == "en") {
 		hjlog.out("https://www.youtube.com/watch?v=ccY25Cb3im0");
 	} else if (input[0] == "ee" && ee && text.language == "es") {
 		hjlog.out("https://www.youtube.com/watch?v=iFClTRUnmKc");
 	} else {
-		hjlog.out(text.error.InvalidCommand, Error);
-		hjlog.out(text.error.InvalidHajCommand1, Error);
+		hjlog.out<Error>(text.error.InvalidCommand);
+		hjlog.out<Error>(text.error.InvalidHajCommand1);
 	}
 }
 

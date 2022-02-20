@@ -52,13 +52,13 @@ string Text::getUserLanguage() {
 	std::unique_ptr<wchar_t[]> locale(new wchar_t[LOCALE_NAME_MAX_LENGTH]);
 	int ret = GetUserDefaultLocaleName(locale.get(), LOCALE_NAME_MAX_LENGTH);
 	if (!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		hjlog.out("Too small buffer for locale", outFlag::Error);
+		hjlog.out<outFlag::Error>("Too small buffer for locale");
 	} else {
-		hjlog.out("ret = " + std::to_string(ret), outFlag::Debug);
+		hjlog.out<outFlag::Debug>("ret = " + std::to_string(ret));
 	}
 	int len = WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, locale.get(), ret - 1, nullptr, 0, NULL, NULL);
 	if (!len) {
-		hjlog.out("Error in WideCharToMultiByte", outFlag::Error);
+		hjlog.out<outFlag::Error>("Error in WideCharToMultiByte");
 	}
 	string result(len, '\0');
 	WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, locale.get(), ret - 1, result.data(), len, NULL, NULL);
@@ -72,7 +72,7 @@ string Text::getUserLanguage() {
 		result = (string)getenv("LANG");
 	}
 	#endif
-	hjlog.out("result = " + result, outFlag::Debug);
+	hjlog.out<outFlag::Debug>("result = " + result);
 	return result;
 }
 

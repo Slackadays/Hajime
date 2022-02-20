@@ -25,52 +25,33 @@ class Output {
 	std::thread::id main_thread = std::this_thread::get_id();
 	ofstream fileObj;
 
-	void processOutput(string data, std::same_as<outFlag> auto ...flags) {
-		outFlag type;
-		bool force = false;
-		bool keepEndlines = false;
-		bool endLineAtEnd = true;
-		bool oldThreadless = threadless;
-		auto processFlags = [&](outFlag& flags) constexpr {
-			switch (flags) {
-				case None:
-					type = None;
-					break;
-				case Info:
-					type = Info;
-					break;
-				case Error:
-					type = Error;
-					break;
-				case Warning:
-					type = Warning;
-					break;
-				case Debug:
-					type = Debug;
-					break;
-				case Question:
-					type = Question;
-					break;
-				case Force:
-					force = true;
-					break;
-				case NoEndline:
-					endLineAtEnd = false;
-					break;
-				case KeepEndlines:
-					keepEndlines = true;
-					break;
-				case Threadless:
-					threadless = true;
-					break;
+	template <std::same_as<outFlag> auto... flags>
+	void processOutput(string data) {
+		constexpr bool force = ((flags == Force) || ...);
+		constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
+		const bool oldThreadless = threadless;
+		constexpr outFlag type = [] {
+			for (auto flag : std::initializer_list<outFlag>{flags...}) {
+        switch (flag) {
+					case None:
+						return None;
+					case Info:
+						return Info;
+					case Error:
+						return Error;
+					case Warning:
+						return Warning;
+					case Debug:
+						return Debug;
+					case Question:
+						return Question;
+        }
 			}
-		};
-		(processFlags(flags), ...);
+			return None;
+		}();
+		constexpr bool endLineAtEnd = (type != Question) && !((flags == NoEndline) || ...);
 		if (isExcluded(type)) {
 			return;
-		}
-		if (type == Question) {
-			endLineAtEnd = false;
 		}
 		string outputString;
 		outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
@@ -99,36 +80,29 @@ class Output {
 	inline static string logFilename;
 
 	public:
-		void out(string data, std::same_as<outFlag> auto ...flags) {
-			processOutput(data, flags...);
-			outFlag type;
-			bool endLineAtEnd = true;
-			auto processFlags = [&](outFlag& flags) constexpr {
-				switch (flags) {
-					case None:
-						type = None;
-						break;
-					case Info:
-						type = Info;
-						break;
-					case Error:
-						type = Error;
-						break;
-					case Warning:
-						type = Warning;
-						break;
-					case Debug:
-						type = Debug;
-						break;
-					case Question:
-						type = Question;
-						break;
-					case NoEndline:
-						endLineAtEnd = false;
-						break;
+		template <std::same_as<outFlag> auto... flags>
+		void out(string data) {
+			processOutput<flags...>(data);
+			constexpr bool endLineAtEnd = !((flags == NoEndline) || ... );
+			constexpr outFlag type = [] {
+				for (auto flag : std::initializer_list<outFlag>{flags...}) {
+					switch (flag) {
+						case None:
+							return None;
+						case Info:
+							return Info;
+						case Error:
+							return Error;
+						case Warning:
+							return Warning;
+						case Debug:
+							return Debug;
+						case Question:
+							return Question;
+					}
 				}
-			};
-			(processFlags(flags), ...);
+				return None;
+			}();
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
 				terminalDispatch('\r' + text.info.EnterCommand, None, 0);
 			}
@@ -141,14 +115,14 @@ class Output {
 			int i = 0;
 			if constexpr ((std::is_same_v<string, T> || ...)) { //check if we get a string in it or not
 				isComplex = true;
-				this->out("\n\033[1m" + string(" ─> " + text.option.ChooseOptionBelow), None, KeepEndlines);
-				(this->out(("\033[1m " + std::to_string(++i) + ")\033[0m " + options), None), ...);
-				this->out("\033[1m" + string(" ─> " + text.option.YourChoice), None, NoEndline);
+				this->out<None, KeepEndlines>("\n\033[1m" + string(" ─> " + text.option.ChooseOptionBelow));
+				(this->out<None>(("\033[1m " + std::to_string(++i) + ")\033[0m " + options)), ...);
+				this->out<None, NoEndline>("\033[1m" + string(" ─> " + text.option.YourChoice));
 			} else {
-				this->out("\033[1m " + text.question.Prompt + ' ', None, NoEndline);
+				this->out<None, NoEndline>("\033[1m " + text.question.Prompt + ' ');
 			}
 			std::getline(std::cin, response);
-			this->out("\033[0m", None, NoEndline);
+			this->out<None, NoEndline>("\033[0m");
 			if (!isComplex) {
 				if (std::regex_match(text.question.Prompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
 					return true;
@@ -164,10 +138,10 @@ class Output {
 						}
 						return stoi(response);
 					} catch(...) {
-						this->out("Answer not valid", Error);
-						this->out("\033[1mYour choice: ", None, NoEndline);
+						this->out<Error>("Answer not valid");
+						this->out<None, NoEndline>("\033[1mYour choice: ");
 						std::getline(std::cin, response);
-						this->out("\033[0m", None, NoEndline);
+						this->out<None, NoEndline>("\033[0m");
 					}
 				}
 			}

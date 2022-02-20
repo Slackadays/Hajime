@@ -76,7 +76,7 @@ void Server::processChatKicks(string input) {
 			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + lastCommandUser + " for a chat infraction"));
 		}
 	} catch(...) {
-		hjlog.out("Invalid chat kick regex", Error);
+		hjlog.out<Error>("Invalid chat kick regex");
 	}
 }
 
@@ -651,14 +651,14 @@ void Server::writeToServerTerminal(string input) {
 	#if defined(_WIN64) || defined(_WIN32)
 	DWORD byteswritten;
 	if (!WriteFile(inputwrite, input.c_str(), input.size(), &byteswritten, NULL)) {// write to input pipe
-		hjlog.out("Unable to write to pipe", Error);
+		hjlog.out<Error>("Unable to write to pipe");
 	} else if (byteswritten != input.size()) {
 		std::cout << "Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()) << std::endl;
 	}
 	#else
 	int len = write(fd, input.c_str(), input.length());
 	if (len == -1) {
-		hjlog.out("Error writing to server terminal", Error);
+		hjlog.out<Error>("Error writing to server terminal");
 	}
 	#endif
 }
@@ -682,14 +682,14 @@ string Server::readFromServer() {
 	#if defined(_WIN32) || defined (_WIN64)
 	DWORD length = 0;
 	if (!ReadFile(outputread, input, 1000, &length, NULL)) {
-		hjlog.out("ReadFile failed (unable to read from pipe)", Error);
+		hjlog.out<Error>("ReadFile failed (unable to read from pipe)");
 		return std::string();
 	}
 	#else
 	errno = 0;
 	ssize_t length = read(fd, input, sizeof(input));
 	if (length == -1 || errno == EAGAIN || errno == EINTR) {
-	hjlog.out("Error reading file descriptor (errno = " + to_string(errno) + ")", Error);
+	hjlog.out<Error>("Error reading file descriptor (errno = " + to_string(errno) + ")");
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 	#endif
