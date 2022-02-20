@@ -123,7 +123,7 @@ void Server::setupCounter(auto& s) {
 					return;
 				case EBADF:
 					if (gfd > -1) {
-						hjlog.out<Error, Threadless>("Event group_fd not valid, group_fd = " + to_string(gfd));
+						hjlog.out<Error, Threadless>("Event group_fd not valid");
 					}
 					return;
 				case EBUSY:
@@ -159,7 +159,7 @@ void Server::setupCounter(auto& s) {
 					hjlog.out<Error, Threadless>("Unsupported event exclusion setting");
 					return;
 				case ESRCH:
-					hjlog.out<Error, Threadless>("Invalid PID for event, PID = " + to_string(s->pid));
+					hjlog.out<Error, Threadless>("Invalid PID for event; PID = " + to_string(s->pid));
 					return;
 				default:
 					hjlog.out<Error, Threadless>("Other performance counter error; errno = " + std::to_string(errno));
@@ -171,43 +171,43 @@ void Server::setupCounter(auto& s) {
 	//std::cout << "setting up counters for pid " << s->pid << std::endl;
 	//std::cout << "cpu cycles" << std::endl;
 	//group 1: hardware
-	std::cout << "cpu cycles" << std::endl;
+	//std::cout << "cpu cycles" << std::endl;
 	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
 	setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
 
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
-std::cout << "cache misses" << std::endl;
+	//std::cout << "cache misses" << std::endl;
 	configureStruct(s->perfstruct[1][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
 	setupEvent(s->gfd[1][0], s->gid[1][0], s->perfstruct[1][0], -1);
 
 	configureStruct(s->perfstruct[2][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS);
 	setupEvent(s->gfd[2][0], s->gid[2][0], s->perfstruct[2][0], -1);
-std::cout << "branch misses" << std::endl;
+	//std::cout << "branch misses" << std::endl;
 	configureStruct(s->perfstruct[2][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES);
 	setupEvent(s->gfd[2][1], s->gid[2][1], s->perfstruct[2][1], s->gfd[2][0]);
 
 	configureStruct(s->perfstruct[1][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
 	setupEvent(s->gfd[1][1], s->gid[1][1], s->perfstruct[1][1], s->gfd[1][0]);
-std::cout << "stalled cycles" << std::endl;
+	//std::cout << "stalled cycles" << std::endl;
 	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
 	setupEvent(s->gfd[0][2], s->gid[0][2], s->perfstruct[0][2], s->gfd[0][0]);
 
 	configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
 	setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][0]);
-	std::cout << "bus cycles" << std::endl;
+	//std::cout << "bus cycles" << std::endl;
 	configureStruct(s->perfstruct[0][4], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
 	setupEvent(s->gfd[0][4], s->gid[0][4], s->perfstruct[0][4], s->gfd[0][0]);
 	//group 2: software
-	std::cout << "page faults" << std::endl;
+	//std::cout << "page faults" << std::endl;
 	configureStruct(s->perfstruct[3][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS);
 	setupEvent(s->gfd[3][0], s->gid[3][0], s->perfstruct[3][0], -1);
 
-	//configureStruct(s->perfstruct[3][1], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MIN);
-	//setupEvent(s->gfd[3][1], s->gid[3][1], s->perfstruct[3][1], s->gfd[3][0]);
+	configureStruct(s->perfstruct[3][1], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MIN);
+	setupEvent(s->gfd[3][1], s->gid[3][1], s->perfstruct[3][1], s->gfd[3][0]);
 
-	//configureStruct(s->perfstruct[3][2], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MAJ);
-	//setupEvent(s->gfd[3][2], s->gid[3][2], s->perfstruct[3][2], s->gfd[3][0]);
+	configureStruct(s->perfstruct[3][2], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS_MAJ);
+	setupEvent(s->gfd[3][2], s->gid[3][2], s->perfstruct[3][2], s->gfd[3][0]);
 
 	configureStruct(s->perfstruct[4][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CONTEXT_SWITCHES);
 	setupEvent(s->gfd[4][0], s->gid[4][0], s->perfstruct[4][0], -1);
@@ -217,11 +217,11 @@ std::cout << "stalled cycles" << std::endl;
 
 	configureStruct(s->perfstruct[4][2], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_ALIGNMENT_FAULTS);
 	setupEvent(s->gfd[4][2], s->gid[4][2], s->perfstruct[4][2], s->gfd[4][0]);
-	std::cout << "emu faults" << std::endl;
+	//std::cout << "emu faults" << std::endl;
 	configureStruct(s->perfstruct[4][3], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_EMULATION_FAULTS);
 	setupEvent(s->gfd[4][3], s->gid[4][3], s->perfstruct[4][3], s->gfd[4][0]);
 	//group 3: cache
-	std::cout << "l1d cache" << std::endl;
+	//std::cout << "l1d cache" << std::endl;
 	configureStruct(s->perfstruct[5][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[5][0], s->gid[5][0], s->perfstruct[5][0], -1);
  	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
@@ -263,7 +263,7 @@ std::cout << "stalled cycles" << std::endl;
 
 	configureStruct(s->perfstruct[11][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[11][1], s->gid[11][1], s->perfstruct[11][1], s->gfd[11][0]);
-	std::cout << "end" << std::endl;
+	//std::cout << "end" << std::endl;
 }
 
 void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
