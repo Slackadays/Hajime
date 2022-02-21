@@ -1,10 +1,13 @@
 #include <string>
 
+using std::string;
+
 class Deduce {
 
 	public:
-		std::string deduceServerFile();
-		std::string deduceUsagePattern();
+		string hajimeFile();
+		string serverFile();
+		string usagePattern();
 };
 
-extern Deduce deducer;
+extern Deduce deduce;

@@ -16,10 +16,10 @@
 using std::cout;
 using std::endl;
 
+#include "constants.hpp"
 #include "output.hpp"
 #include "languages.hpp"
 #include "installer.hpp"
-#include "constants.hpp"
 
 namespace fs = std::filesystem;
 

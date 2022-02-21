@@ -25,6 +25,8 @@ namespace fs = std::filesystem;
 #elif (__cplusplus <= 201703L || defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__) || defined(__clang__)) //jthreads are only in C++20 and up and not supported by Apple Clang yet
 #define jthread thread
 #endif
+
+#include "constants.hpp"
 #include "output.hpp"
 #include "languages.hpp"
 #include "installer.hpp"
@@ -43,8 +45,6 @@ using std::vector;
 bool ee = false;
 vector<Server*> serverVec = {}; //create an array of individual server objects
 vector<std::jthread> threadVec = {}; //create an array of thread objects
-string defaultServerConfFile = "MyServer.server";
-string sysdService = "/etc/systemd/system/hajime.service"; //systemd service file location
 string logFile = "";
 string hajConfFile = "";
 string version;
@@ -106,8 +106,18 @@ int main(int argc, char *argv[]) {
 	}
 	bool bypassPriviligeCheck = false;
 	for (int i = 1; i < argc; i++) {//start at i = 1 to improve performance because we will never find a flag at 0
-		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
-		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
+		auto flag = [&i, &argv](auto ...fs){
+			return (!strcmp(fs, argv[i]) || ...);
+		};
+		auto assignNextToVar = [&argc, &argv, &i](auto &var){
+			if (i == (argc - 1)) {
+				return false;
+			} else {
+				var = argv[(i + 1)];
+				i++;
+				return true;
+			}
+		}; //tries to assign the next argv argument to some variable; if it is not valid, then return an error
 		if (flag("-f", "--server-file")) {
 			if (!assignNextToVar(defaultServerConfFile)) {
 				hjlog.out<Error>(text.error.NotEnoughArgs);
@@ -121,10 +131,13 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		if (flag("-ih", "--install-hajime-config")) { //can accept either no added file or an added file
+			string tempHajConfFile;
 			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
-				hajDefaultConfFile = var;
+				tempHajConfFile = var;
+			} else {
+				tempHajConfFile = hajDefaultConfFile;
 			}
-			wizard.wizardStep(hajDefaultConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, text.language);
+			wizard.wizardStep(tempHajConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, text.language);
 			return 0;
 		}
 		if (flag("-p", "--privileged")) {
@@ -135,7 +148,7 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		if (flag("-S", "--install-service")) {
-			installer.installStartupService(sysdService);
+			installer.installStartupService("/etc/systemd/system/hajime.service");
 			return 0;
 		}
 		if (flag("-v", "--verbose")) {
@@ -151,7 +164,7 @@ int main(int argc, char *argv[]) {
 			ee = true;
 		}
 		if (flag("-i", "--install-hajime")) {
-			wizard.initialHajimeSetup(hajDefaultConfFile, defaultServerConfFile, sysdService);
+			wizard.initialHajimeSetupAttended(hajDefaultConfFile, defaultServerConfFile);
 			return 0;
 		}
 		if (flag("-np", "--no-pauses")) {
@@ -175,13 +188,14 @@ int main(int argc, char *argv[]) {
 		switch (hjlog.getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
 			case 1:
 				dividerLine();
-				wizard.initialHajimeSetup(hajDefaultConfFile, defaultServerConfFile, sysdService);
+				wizard.initialHajimeSetupAttended(hajDefaultConfFile, defaultServerConfFile);
 				hjlog.out<Question, NoEndline>(text.question.StartHajime);
 				if (!hjlog.getYN()) {
 					return 0;
 				}
 				break;
 			case 2:
+				wizard.initialHajimeSetupUnattended(hajDefaultConfFile, defaultServerConfFile);
 				hjlog.out<Error>(text.error.OptionNotAvailable);
 				break;
 			case 3:
@@ -219,7 +233,7 @@ int main(int argc, char *argv[]) {
 }
 
 bool readSettings() {
-	vector<string> settings{"version", "defserverconf", "logfile", "systemdlocation", "debug", "threadcolors"};
+	vector<string> settings{"version", "logfile", "debug", "threadcolors"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		hjlog.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
 		return 0;
@@ -230,11 +244,9 @@ bool readSettings() {
 		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
 		hjlog.out<Debug>(text.debug.ReadingReadsettings);
 		setVar(settings[0], version);
-		setVar(settings[1], defaultServerConfFile);
-		setVar(settings[2], logFile);
-		setVar(settings[3], sysdService);
-		setVari(settings[4], hjlog.debug);
-		setVari(settings[5], hjlog.showThreadsAsColors);
+		setVar(settings[1], logFile);
+		setVari(settings[2], hjlog.debug);
+		setVari(settings[3], hjlog.showThreadsAsColors);
 	}
 	hjlog.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);
 	return 1;

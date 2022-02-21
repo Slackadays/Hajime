@@ -1,5 +1,7 @@
 #include <vector>
 
+#include "constants.hpp"
+
 using std::string;
 
 #pragma once
@@ -395,5 +397,4 @@ class Text {
 		string fileServerConfComment;
 };
 
-extern string hajDefaultConfFile;
 extern Text text;

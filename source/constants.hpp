@@ -1,3 +1,9 @@
+#pragma once
+
 #include <string>
 
-const std::string hajime_version = "0.2.0";
+extern const std::string hajime_version;
+
+extern std::string defaultServerConfFile;
+
+extern std::string hajDefaultConfFile;

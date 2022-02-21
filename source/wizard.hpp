@@ -5,7 +5,7 @@
 
 class Wizard {
 
-	string confFile, serverFile, sysdService, defaultLang;
+	string confFile, serverFile, defaultLang;
 
 	std::vector<string> servers;
 
@@ -22,7 +22,8 @@ class Wizard {
 	public:
 		bool doArtificialPauses = true;
 
-		void initialHajimeSetup(string tempConfFile, string tempServerFile, string tempSysdService);
+		void initialHajimeSetupAttended(string tempConfFile, string tempServerFile);
+		void initialHajimeSetupUnattended(string tempConfFile, string tempServerFile);
 
 		template<typename Fn, typename ...Fx>
 		bool wizardStep(string filename, Fn func, string foundFile, string fileNotMade, Fx... extras) { //allow for 0 or more extra flags to be passed to the inner function that we call

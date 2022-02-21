@@ -13,10 +13,10 @@
 namespace fs = std::filesystem;
 using std::string;
 
+#include "constants.hpp"
 #include "getvarsfromfile.hpp"
 #include "languages.hpp"
 #include "output.hpp"
-#include "constants.hpp"
 
 void Text::applyLang(const string& lang) {
 	//the fallack is English
@@ -91,5 +91,4 @@ Text::Text(string file) {
 	}
 }
 
-string hajDefaultConfFile = "hajime.conf";
 Text text(hajDefaultConfFile);

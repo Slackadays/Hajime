@@ -187,7 +187,7 @@ void Wizard::doStartupStep() {
 	hjlog.out<Question>(text.question.WizardStartupService);
 	if (hjlog.getYN()) {
 		pause(400, 400);
-		installer.installStartupService(sysdService);
+		installer.installStartupService("/etc/systemd/system/hajime.service");
 	}
 }
 
@@ -207,12 +207,17 @@ void Wizard::doNextStepStep() {
 	}
 }
 
-void Wizard::initialHajimeSetup(string tempConfFile, string tempServerFile, string tempSysdService) {
+void Wizard::initialHajimeSetupUnattended(string tempConfFile, string tempServerFile) {
+	std::cout << deduce.hajimeFile() << std::endl;
+	std::cout << deduce.serverFile() << std::endl;
+	exit(0);
+}
+
+void Wizard::initialHajimeSetupAttended(string tempConfFile, string tempServerFile) {
 	servers.clear();
 	installedS = false;
 	confFile = tempConfFile;
 	serverFile = tempServerFile;
-	sysdService = tempSysdService;
 	pause(400, 400);
 	doLanguageStep();
 	pause(400, 400);
