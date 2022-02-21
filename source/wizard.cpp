@@ -64,30 +64,35 @@ void Wizard::pause(float mean, float stdev) {
 	}
 }
 
+void Wizard::doLanguageStep() {
+	hjlog.out<Question>(text.question.HajimeLanguage);
+	switch (hjlog.getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
+		case 1:
+			defaultLang = text.language;
+			break;
+		case 2:
+			defaultLang = "en";
+			text.applyLang(defaultLang);
+			break;
+		case 3:
+			defaultLang = "es";
+			text.applyLang(defaultLang);
+			break;
+		case 4:
+			defaultLang = "pt";
+			text.applyLang(defaultLang);
+			break;
+		case 5:
+			break;
+	}
+}
+
 void Wizard::doHajimeStep() {
 	hjlog.out<Info>(text.info.wizard.HajimeFile);
 	pause(200, 200);
 	hjlog.out<Question, NoEndline>(text.question.MakeHajimeConfig);
 	if (hjlog.getYN()) {
 		pause(400, 400);
-		hjlog.out<Question>(text.question.HajimeLanguage);
-		string defaultLang = "";
-		switch (hjlog.getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
-			case 1:
-				defaultLang = text.language;
-				break;
-			case 2:
-				defaultLang = "en";
-				break;
-			case 3:
-				defaultLang = "es";
-				break;
-			case 4:
-				defaultLang = "pt";
-				break;
-			case 5:
-				break;
-		}
 		wizardStep(confFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, defaultLang);
 	}
 }
@@ -209,6 +214,9 @@ void Wizard::initialHajimeSetup(string tempConfFile, string tempServerFile, stri
 	serverFile = tempServerFile;
 	sysdService = tempSysdService;
 	pause(400, 400);
+	doLanguageStep();
+	pause(400, 400);
+	dividerLine();
 	doHajimeStep();
 	pause(400, 400);
 	dividerLine();

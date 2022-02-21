@@ -5,12 +5,13 @@
 
 class Wizard {
 
-	string confFile, serverFile, sysdService;
+	string confFile, serverFile, sysdService, defaultLang;
 
 	std::vector<string> servers;
 
 	bool installedS = false;
 
+	void doLanguageStep();
 	void dividerLine();
 	void pause(float mean, float stdev);
 	void doHajimeStep();

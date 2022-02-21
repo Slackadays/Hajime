@@ -171,8 +171,7 @@ int main(int argc, char *argv[]) {
 		readSettings();
 		empty(logFile) ? hjlog.out<Info>(text.info.NoLogFile) : hjlog.init(logFile);
 	} else {
-		hjlog.out<Error>(text.error.ConfDoesNotExist1 + hajDefaultConfFile + text.error.ConfDoesNotExist2);
-		hjlog.out<Question, NoEndline>(text.question.DoSetupInstaller);
+		hjlog.out<Question>(text.question.DoSetupInstaller);
 		switch (hjlog.getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
 			case 1:
 				dividerLine();
@@ -248,7 +247,7 @@ void hajimeExit(int sig) {
 		std::cout << std::endl;
 		exit(0);
 	}
-	std::cout << std::endl << "Attempt to exit again within 3 seconds to exit Hajime" << std::flush;
+	std::cout << std::endl << "\033[1mAttempt to exit again within 3 seconds to exit Hajime" << std::flush;
 	then = std::chrono::system_clock::now();
 }
 
