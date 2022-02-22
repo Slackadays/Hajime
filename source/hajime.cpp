@@ -5,6 +5,7 @@ namespace fs = std::filesystem;
 #include <Windows.h>
 #include <shlobj.h>
 #else
+#include <sys/resource.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #endif
@@ -95,6 +96,16 @@ int main(int argc, char *argv[]) {
 		hjlog.noColors = true;
 	}
 	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
+	#else
+	struct rlimit rlimits;
+	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
+		hjlog.out<Error, Threadless>("Error getting resource limits; errno = " + std::to_string(errno));
+	}
+	rlimits.rlim_cur = rlimits.rlim_max; //resize soft limit to max limit; the max limit is a ceiling for the soft limit
+	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
+		hjlog.out<Error, Threadless>("Error changing resource limits; errno = " + std::to_string(errno));
+	}
+	hjlog.out<Debug>("New soft file descriptor soft limit = " + to_string(rlimits.rlim_cur));
 	#endif
 	dividerLine();
 	for (int i = 1; i < argc; i++) { //search for the help flag first

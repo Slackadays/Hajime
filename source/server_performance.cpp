@@ -471,19 +471,13 @@ void Server::readCounters(auto& counters) {
 void Server::processPerfStats() {
 	std::this_thread::sleep_for(std::chrono::seconds(15));
 	#if defined(__linux__)
-	struct rlimit rlimits;
-	rlimits.rlim_cur = 8192; //soft
-	rlimits.rlim_max = 8192; //hard
-	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		hjlog.out<Error, Threadless>("error changing limits, errno = " + std::to_string(errno));
-	}
 	std::vector<struct pcounter*> MyCounters = {};
-	std::cout << "creating counters" << std::endl;
+	hjlog.out<Debug>("Making performance counters");
 	vector<long> newPids = {};
 	vector<long> diffPids = {};
 	vector<long> currentPids = getProcessChildPids(pid);
 	createCounters(MyCounters, currentPids);
-	std::cout << "done making counters" << std::endl;
+	hjlog.out<Debug>("Done making performance counters");
 	#endif
 	while (true) {
 		#if defined(__linux__)
