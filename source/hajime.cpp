@@ -256,10 +256,10 @@ void hajimeExit(int sig) {
 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 	static std::chrono::time_point<std::chrono::system_clock> then;
 	if (std::chrono::duration_cast<std::chrono::seconds>(now - then).count() <= 3) {
-		std::cout << std::endl;
+		std::cout << "\b\b  " << std::endl;
 		exit(0);
 	}
-	std::cout << std::endl << "\033[1mAttempt to exit again within 3 seconds to exit Hajime" << std::flush;
+	std::cout << "\b\b  " << std::endl << "\033[1mTry again within 3 seconds to exit Hajime" << std::flush;
 	then = std::chrono::system_clock::now();
 }
 
