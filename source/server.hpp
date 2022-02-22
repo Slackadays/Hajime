@@ -131,10 +131,13 @@ class Server {
 	string getMinorPagefaults();
 	string getMajorPagefaults();
 	string getL1dReadMisses();
+	string getL1dPrefetchMisses();
 	string getLLReadMisses();
 	string getLLWriteMisses();
+	string getLLPrefetchMisses();
 	string getdTLBReadMisses();
 	string getdTLBWriteMisses();
+	string getdTLBPrefetchMisses();
 	string getiTLBReadMisses();
 	string getBPUReadMisses();
 	string addNumberColors(string input);
@@ -198,18 +201,23 @@ class Server {
 
 	std::list<unsigned long long> l1dreadaccessreadings{0};
 	std::list<unsigned long long> l1dreadmissreadings{0};
+	std::list<unsigned long long> l1dprefetchaccessreadings{0};
+	std::list<unsigned long long> l1dprefetchmissreadings{0};
 	std::list<unsigned long long> llreadaccessreadings{0};
 	std::list<unsigned long long> llreadmissreadings{0};
 	std::list<unsigned long long> dtlbreadaccessreadings{0};
 	std::list<unsigned long long> dtlbreadmissreadings{0};
 	std::list<unsigned long long> dtlbwriteaccessreadings{0};
 	std::list<unsigned long long> dtlbwritemissreadings{0};
+	std::list<unsigned long long> dtlbprefetchaccessreadings{0};
+	std::list<unsigned long long> dtlbprefetchmissreadings{0};
 	std::list<unsigned long long> itlbreadaccessreadings{0};
 	std::list<unsigned long long> itlbreadmissreadings{0};
 	std::list<unsigned long long> bpureadaccessreadings{0};
 	std::list<unsigned long long> bpureadmissreadings{0};
 	std::list<unsigned long long> llwriteaccessreadings{0};
 	std::list<unsigned long long> llwritemissreadings{0};
+	std::list<unsigned long long> llprefetchmissreadings{0};
 
 	long long CPUjiffies, PIDjiffies;
 

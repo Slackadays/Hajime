@@ -340,10 +340,13 @@ class Text {
 						string emufaults;
 						string alignfaults;
 						string l1dreadmisses;
+						string l1dprefetchmisses;
 						string llcreadmisses;
 						string llcwritemisses;
+						string llcprefetchmisses;
 						string dtlbreadmisses;
 						string dtlbwritemisses;
+						string dtlbprefetchmisses;
 						string itlbreadmisses;
 						string bpureadmisses;
 					};
@@ -366,10 +369,13 @@ class Text {
 						string emufaults;
 						string alignfaults;
 						string l1dreadmisses;
+						string l1dprefetchmisses;
 						string llcreadmisses;
 						string llcwritemisses;
+						string llcprefetchmisses;
 						string dtlbreadmisses;
 						string dtlbwritemisses;
+						string dtlbprefetchmisses;
 						string itlbreadmisses;
 						string bpureadmisses;
 					};

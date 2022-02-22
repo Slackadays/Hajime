@@ -244,10 +244,13 @@ void Server::commandPerf() {
 	"{\"text\":\"" + text.server.command.perf.key.emufaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.emufaults + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.alignfaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.alignfaults + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.l1dreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.l1dreadmisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.l1dprefetchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.l1dprefetchmisses + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.llcreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.llcreadmisses + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.llcwritemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.llcwritemisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.llcprefetchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.llcprefetchmisses + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.dtlbreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.dtlbreadmisses + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.dtlbwritemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.dtlbwritemisses + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.dtlbprefetchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.dtlbprefetchmisses + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.itlbreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.itlbreadmisses + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.bpureadmisses + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.bpureadmisses + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
@@ -282,10 +285,13 @@ void Server::commandSWPerf() {
 void Server::commandCAPerf() {
 	string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + text.server.command.perf.key.l1dreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dReadMisses() + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.l1dprefetchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dPrefetchMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.llcreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLLReadMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.llcwritemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLLWriteMisses() + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.llcprefetchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLLPrefetchMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.dtlbreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getdTLBReadMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.dtlbwritemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getdTLBWriteMisses() + "\"}},"
+	"{\"text\":\"" + text.server.command.perf.key.dtlbprefetchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getdTLBPrefetchMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.itlbreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getiTLBReadMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.bpureadmisses + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getBPUReadMisses() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
@@ -591,6 +597,10 @@ string Server::getL1dReadMisses() {
 	return to_string(averageVal(l1dreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 1) / (double)averageVal(l1dreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 5) / (double)averageVal(l1dreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 15) / (double)averageVal(l1dreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
+string Server::getL1dPrefetchMisses() {
+	return to_string(averageVal(l1dprefetchmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1dprefetchmissreadings, 1) / (double)averageVal(l1dprefetchaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dprefetchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dprefetchmissreadings, 5) / (double)averageVal(l1dprefetchaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dprefetchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dprefetchmissreadings, 15) / (double)averageVal(l1dprefetchaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
 string Server::getLLReadMisses() {
 	return to_string(averageVal(llreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 1) / (double)averageVal(llreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(llreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 5) / (double)averageVal(llreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 15) / (double)averageVal(llreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
@@ -599,12 +609,20 @@ string Server::getLLWriteMisses() {
 	return to_string(averageVal(llwritemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 1) / (double)averageVal(llwriteaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(llwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 5) / (double)averageVal(llwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 15) / (double)averageVal(llwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
+string Server::getLLPrefetchMisses() {
+	return to_string(averageVal(llprefetchmissreadings, 1)) + " last 1 minute, " + to_string(averageVal(llprefetchmissreadings, 5)) + " last 5, " + to_string(averageVal(llprefetchmissreadings, 15)) + " last 15 (Lower is better)";
+}
+
 string Server::getdTLBReadMisses() {
 	return to_string(averageVal(dtlbreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 1) / (double)averageVal(dtlbreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 5) / (double)averageVal(dtlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 15) / (double)averageVal(dtlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getdTLBWriteMisses() {
 	return to_string(averageVal(dtlbwritemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 1) / (double)averageVal(dtlbwriteaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 5) / (double)averageVal(dtlbwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 15) / (double)averageVal(dtlbwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
+}
+
+string Server::getdTLBPrefetchMisses() {
+	return to_string(averageVal(dtlbprefetchmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbprefetchmissreadings, 1) / (double)averageVal(dtlbprefetchaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbprefetchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbprefetchmissreadings, 5) / (double)averageVal(dtlbprefetchaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbprefetchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbprefetchmissreadings, 15) / (double)averageVal(dtlbprefetchaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getiTLBReadMisses() {

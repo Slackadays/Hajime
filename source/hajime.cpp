@@ -68,7 +68,23 @@ int main(int argc, char *argv[]) {
 	});
 	signal(SIGINT, hajimeExit);
 	signal(SIGSEGV, [](int sig){
-		hjlog.out<Error, Threadless>("Segmentation fault detected");
+		hjlog.out<Error>("Segmentation fault detected; exiting now");
+		exit(0);
+	});
+	signal(SIGABRT, [](int sig){
+		hjlog.out<Error>("Hajime ending execution abnormally; exiting now");
+		exit(0);
+	});
+	signal(SIGILL, [](int sig){
+		hjlog.out<Error>("Illegal instruction detected; try recompiling Hajime");
+		exit(0);
+	});
+	signal(SIGFPE, [](int sig){
+		hjlog.out<Error>("Illegal math operation; exiting Hajime now");
+		exit(0);
+	});
+	signal(SIGTERM, [](int sig){
+		hjlog.out<Error>("Termination requested; exiting Hajime now");
 		exit(0);
 	});
 	#if defined(_WIN64) || defined (_WIN32)
@@ -259,8 +275,9 @@ void hajimeExit(int sig) {
 	if (std::chrono::duration_cast<std::chrono::seconds>(now - then).count() <= 3) {
 		std::cout << "\b\b  " << std::endl;
 		exit(0);
+	} else {
+		std::cout << "\b\b  " << std::endl << "\033[1mTry again within 3 seconds to exit Hajime" << std::flush;
 	}
-	std::cout << "\b\b  " << std::endl << "\033[1mTry again within 3 seconds to exit Hajime" << std::flush;
 	then = std::chrono::system_clock::now();
 }
 

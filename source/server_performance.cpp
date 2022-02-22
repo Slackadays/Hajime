@@ -65,10 +65,10 @@ struct read_format {
 struct pcounter {
 	long pid;
 
-	std::array<std::array<struct perf_event_attr, 4>, 12> perfstruct;
-	std::array<std::array<unsigned long long, 4>, 12> gid;
-	std::array<std::array<unsigned long long, 4>, 12> gv;
-	std::array<std::array<int, 4>, 12> gfd;
+	std::array<std::array<struct perf_event_attr, 4>, 13> perfstruct;
+	std::array<std::array<unsigned long long, 4>, 13> gid;
+	std::array<std::array<unsigned long long, 4>, 13> gv;
+	std::array<std::array<int, 4>, 13> gfd;
 
 	char buf[1024];
 	struct read_format* data = (struct read_format*)buf;
@@ -196,10 +196,9 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
 	setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][0]);
 	//std::cout << "bus cycles" << std::endl;
-	configureStruct(s->perfstruct[0][4], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
-	setupEvent(s->gfd[0][4], s->gid[0][4], s->perfstruct[0][4], s->gfd[0][0]);
+	configureStruct(s->perfstruct[2][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
+	setupEvent(s->gfd[2][2], s->gid[2][2], s->perfstruct[2][2], s->gfd[2][0]);
 	//group 2: software
-	//std::cout << "page faults" << std::endl;
 	configureStruct(s->perfstruct[3][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS);
 	setupEvent(s->gfd[3][0], s->gid[3][0], s->perfstruct[3][0], -1);
 
@@ -227,6 +226,12 @@ void Server::setupCounter(auto& s) {
  	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
 	configureStruct(s->perfstruct[5][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[5][1], s->gid[5][1], s->perfstruct[5][1], s->gfd[5][0]);
+
+	configureStruct(s->perfstruct[5][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	setupEvent(s->gfd[5][2], s->gid[5][2], s->perfstruct[5][2], s->gfd[5][0]);
+
+	configureStruct(s->perfstruct[5][3], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[5][3], s->gid[5][3], s->perfstruct[5][3], s->gfd[5][0]);
 
 	configureStruct(s->perfstruct[6][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[6][0], s->gid[6][0], s->perfstruct[6][0], -1);
@@ -263,6 +268,15 @@ void Server::setupCounter(auto& s) {
 
 	configureStruct(s->perfstruct[11][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[11][1], s->gid[11][1], s->perfstruct[11][1], s->gfd[11][0]);
+
+	configureStruct(s->perfstruct[11][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[11][2], s->gid[11][2], s->perfstruct[11][2], s->gfd[11][0]);
+
+	configureStruct(s->perfstruct[12][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	setupEvent(s->gfd[12][0], s->gid[12][0], s->perfstruct[12][0], -1);
+
+	configureStruct(s->perfstruct[12][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[12][1], s->gid[12][1], s->perfstruct[12][1], s->gfd[12][0]);
 	//std::cout << "end" << std::endl;
 }
 
@@ -325,8 +339,6 @@ void Server::readCounters(auto& counters) {
 				s->gv[0][2] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[0][3]) {
 				s->gv[0][3] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[0][4]) {
-				s->gv[0][4] = s->data->values[i].value;
 			}
 		}
 		//memset(&(s->buf), 0, sizeof(s->buf));
@@ -347,6 +359,8 @@ void Server::readCounters(auto& counters) {
 				s->gv[2][0] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[2][1]) {
 				s->gv[2][1] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[2][2]) {
+				s->gv[2][2] = s->data->values[i].value;
 			}
 		}
 		size = read(s->gfd[3][0], s->buf, sizeof(s->buf)); //get information from the counters
@@ -380,6 +394,10 @@ void Server::readCounters(auto& counters) {
 				s->gv[5][0] = s->data->values[i].value;
 			} else if (s->data->values[i].id == s->gid[5][1]) {
 				s->gv[5][1] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[5][2]) {
+				s->gv[5][2] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[5][3]) {
+				s->gv[5][3] = s->data->values[i].value;
 			}
 		}
 		size = read(s->gfd[6][0], s->buf, sizeof(s->buf)); //get information from the counters
@@ -436,6 +454,16 @@ void Server::readCounters(auto& counters) {
 				s->gv[11][1] = s->data->values[i].value;
 			}
 		}
+
+		size = read(s->gfd[12][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		for (int i = 0; i < s->data->nr; i++) {
+			if (s->data->values[i].id == s->gid[12][0]) {
+				s->gv[12][0] = s->data->values[i].value;
+			} else if (s->data->values[i].id == s->gid[12][1]) {
+				s->gv[12][1] = s->data->values[i].value;
+			}
+		}
 	}
 }
 #endif
@@ -488,10 +516,13 @@ void Server::processPerfStats() {
 			majorpagefaultreadings.emplace_back(0);
 			l1dreadaccessreadings.emplace_back(0);
 			l1dreadmissreadings.emplace_back(0);
+			l1dprefetchaccessreadings.emplace_back(0);
+			l1dprefetchmissreadings.emplace_back(0);
 			llreadaccessreadings.emplace_back(0);
 			llreadmissreadings.emplace_back(0);
 			llwriteaccessreadings.emplace_back(0);
 			llwritemissreadings.emplace_back(0);
+			llprefetchmissreadings.emplace_back(0);
 			dtlbreadaccessreadings.emplace_back(0);
 			dtlbreadmissreadings.emplace_back(0);
 			dtlbwriteaccessreadings.emplace_back(0);
@@ -500,6 +531,8 @@ void Server::processPerfStats() {
 			itlbreadmissreadings.emplace_back(0);
 			bpureadaccessreadings.emplace_back(0);
 			bpureadmissreadings.emplace_back(0);
+			dtlbprefetchaccessreadings.emplace_back(0);
+			dtlbprefetchmissreadings.emplace_back(0);
 			for (const auto& s : MyCounters) {
 				cpucyclereadings.back() += s->gv[0][0];
 				cpuinstructionreadings.back() += s->gv[0][1];
@@ -509,7 +542,7 @@ void Server::processPerfStats() {
 				cachereferencereadings.back() += s->gv[1][1];
 				stalledcyclesfrontendreadings.back() += s->gv[0][2];
 				stalledcyclesbackendreadings.back() += s->gv[0][3];
-				buscyclereadings.back() += s->gv[0][4];
+				buscyclereadings.back() += s->gv[2][2];
 				pagefaultreadings.back() += s->gv[3][0];
 				contextswitchreadings.back() += s->gv[4][0];
 				cpumigrationreadings.back() += s->gv[4][1];
@@ -519,6 +552,8 @@ void Server::processPerfStats() {
 				majorpagefaultreadings.back() += s->gv[3][2];
 				l1dreadaccessreadings.back() += s->gv[5][0];
 				l1dreadmissreadings.back() += s->gv[5][1];
+				l1dprefetchaccessreadings.back() += s->gv[5][2];
+				l1dprefetchmissreadings.back() += s->gv[5][3];
 				llreadaccessreadings.back() += s->gv[6][0];
 				llreadmissreadings.back() += s->gv[6][1];
 				dtlbreadaccessreadings.back() += s->gv[7][0];
@@ -531,6 +566,9 @@ void Server::processPerfStats() {
 				bpureadmissreadings.back() += s->gv[10][1];
 				llwriteaccessreadings.back() += s->gv[11][0];
 				llwritemissreadings.back() += s->gv[11][1];
+				llprefetchmissreadings.back() += s->gv[11][2];
+				dtlbprefetchaccessreadings.back() += s->gv[12][0];
+				dtlbprefetchmissreadings.back() += s->gv[12][1];
 			}
 			//std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
 			auto cullList = [](auto& list) {
@@ -555,14 +593,20 @@ void Server::processPerfStats() {
 			cullList(majorpagefaultreadings);
 			cullList(l1dreadaccessreadings);
 			cullList(l1dreadmissreadings);
+			cullList(l1dprefetchaccessreadings);
+			cullList(l1dprefetchmissreadings);
 			cullList(llreadaccessreadings);
 			cullList(llreadmissreadings);
 			cullList(llwriteaccessreadings);
 			cullList(llwritemissreadings);
+			cullList(llprefetchmissreadings);
 			cullList(dtlbreadaccessreadings);
 			cullList(dtlbreadmissreadings);
 			cullList(dtlbwriteaccessreadings);
+			cullList(dtlbprefetchaccessreadings);
+			cullList(dtlbprefetchmissreadings);
 			cullList(itlbreadaccessreadings);
+			cullList(itlbreadmissreadings);
 			cullList(bpureadaccessreadings);
 			cullList(bpureadmissreadings);
 			newPids = getProcessChildPids(pid);
