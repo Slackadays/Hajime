@@ -32,7 +32,7 @@ class Output {
 		const bool oldThreadless = threadless;
 		constexpr outFlag type = [] {
 			for (auto flag : std::initializer_list<outFlag>{flags...}) {
-        switch (flag) {
+				switch (flag) {
 					case None:
 						return None;
 					case Info:
@@ -45,7 +45,15 @@ class Output {
 						return Debug;
 					case Question:
 						return Question;
-        }
+					case KeepEndlines: //prevent a warning from Clang
+						break;
+					case Force:
+						break;
+					case NoEndline:
+						break;
+					case Threadless:
+						break;
+				}
 			}
 			return None;
 		}();
@@ -99,6 +107,15 @@ class Output {
 							return Debug;
 						case Question:
 							return Question;
+						case KeepEndlines:
+        	                                        break;
+	                                        case Force:
+        	                                        break;
+        	                                case NoEndline:
+        	                                        break;
+        	                                case Threadless:
+        	                                        break;
+
 					}
 				}
 				return None;
