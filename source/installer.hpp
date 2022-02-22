@@ -18,6 +18,10 @@ using std::endl;
 #include "languages.hpp"
 
 class Installer {
+	void installWindows();
+	void installSysVInit();
+	void installLaunchd();
+	void installSystemd(const string& location);
 	public:
 		void installStartupService(const string& sysService);
 		static void installNewServerConfigFile(const string& fileLocation, const bool& skipFileCheck, const string& flags, const string& serverFile);

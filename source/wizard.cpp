@@ -209,7 +209,19 @@ void Wizard::doNextStepStep() {
 
 void Wizard::initialHajimeSetupUnattended(string tempConfFile, string tempServerFile) {
 	std::cout << deduce.hajimeFile() << std::endl;
-	std::cout << deduce.serverFile() << std::endl;
+	std::cout << deduce.serverConfig() << std::endl;
+	for (const auto& it : deduce.serverFiles(fs::current_path())) {
+		std::cout << "found server jar " << it << std::endl;
+	}
+	installer.installDefaultHajConfFile(deduce.hajimeFile(), true, text.filterLanguage(text.getUserLanguage()));
+	installer.installNewServerConfigFile(deduce.serverConfig(), true, aikarFlags,  deduce.serverFiles(fs::current_path()).at(0));
+	/*for (auto dir = fs::recursive_directory_iterator{fs::current_path()}; dir != fs::recursive_directory_iterator(); ++dir) {
+		if (dir->is_directory()) {
+			for (const auto& it : deduce.serverFiles(dir->path())) {
+				std::cout << "found server jar " << it << std::endl;
+			}
+		}
+	}*/
 	exit(0);
 }
 

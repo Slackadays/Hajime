@@ -9,6 +9,7 @@ using std::string;
 class Text {
 	public:
 		void autoSetLanguage();
+		string filterLanguage(const string& input);
 		string getUserLanguage();
 		void applyLang(const string& lang);
 		explicit Text(string lang);

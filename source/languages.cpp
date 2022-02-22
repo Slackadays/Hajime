@@ -35,15 +35,18 @@ void Text::applyLang(const string& lang) {
 }
 
 void Text::autoSetLanguage() {
-	string lang = getUserLanguage();
-	if (std::regex_search(lang, std::regex("en[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
-		applyLang("en");
-	} else if (std::regex_search(lang, std::regex("es[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
-		applyLang("es");
-	} else if (std::regex_search(lang, std::regex("pt[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
-		applyLang("pt");
+	applyLang(filterLanguage(getUserLanguage()));
+}
+
+string Text::filterLanguage(const string& input) {
+	if (std::regex_search(input, std::regex("en[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
+		return "en";
+	} else if (std::regex_search(input, std::regex("es[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
+		return "es";
+	} else if (std::regex_search(input, std::regex("pt[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
+		return "pt";
 	} else {
-		applyLang("en");
+		return "en";
 	}
 }
 

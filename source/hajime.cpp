@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, hajimeExit);
 	signal(SIGSEGV, [](int sig){
 		hjlog.out<Error, Threadless>("Segmentation fault detected");
+		exit(0);
 	});
 	#if defined(_WIN64) || defined (_WIN32)
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal color compatibility
