@@ -34,10 +34,9 @@ Output::Output() {
 	threadless = false;
 }
 
-void Output::init(const string& file, bool debugOrNot) {
+void Output::init(const string& file) {
 	logToFile = true;
 	logFilename = file;
-	debug = debugOrNot;
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
 }
 

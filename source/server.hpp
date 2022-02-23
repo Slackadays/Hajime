@@ -112,6 +112,7 @@ class Server {
 	string getRAM();
 	string getSwap();
 	string getProcesses();
+	string formatReadingsLIB(const std::list<unsigned long long>& little, const std::list<unsigned long long>& big);
 	string getUptime();
 	string getLoadavg();
 	string getCPUusage();
@@ -132,6 +133,9 @@ class Server {
 	string getMajorPagefaults();
 	string getL1dReadMisses();
 	string getL1dPrefetchMisses();
+	string getL1dWriteMisses();
+	string getL1iReadMisses();
+	string getL1iPrefetchMisses();
 	string getLLReadMisses();
 	string getLLWriteMisses();
 	string getLLPrefetchMisses();
@@ -218,6 +222,12 @@ class Server {
 	std::list<unsigned long long> llwriteaccessreadings{0};
 	std::list<unsigned long long> llwritemissreadings{0};
 	std::list<unsigned long long> llprefetchmissreadings{0};
+	std::list<unsigned long long> l1dwriteaccessreadings{0};
+	std::list<unsigned long long> l1dwritemissreadings{0};
+	std::list<unsigned long long> l1ireadaccessreadings{0};
+	std::list<unsigned long long> l1ireadmissreadings{0};
+	std::list<unsigned long long> l1iprefetchaccessreadings{0};
+	std::list<unsigned long long> l1iprefetchmissreadings{0};
 
 	long long CPUjiffies, PIDjiffies;
 

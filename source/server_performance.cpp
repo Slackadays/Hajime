@@ -65,10 +65,10 @@ struct read_format {
 struct pcounter {
 	long pid;
 
-	std::array<std::array<struct perf_event_attr, 4>, 13> perfstruct;
-	std::array<std::array<unsigned long long, 4>, 13> gid;
-	std::array<std::array<unsigned long long, 4>, 13> gv;
-	std::array<std::array<int, 4>, 13> gfd;
+	std::array<std::array<struct perf_event_attr, 4>, 17> perfstruct;
+	std::array<std::array<unsigned long long, 4>, 17> gid{0, 0, 0, 0};
+	std::array<std::array<unsigned long long, 4>, 17> gv{0, 0, 0, 0};
+	std::array<std::array<int, 4>, 17> gfd{0, 0, 0, 0};
 
 	char buf[1024];
 	struct read_format* data = (struct read_format*)buf;
@@ -102,14 +102,12 @@ void Server::setupCounter(auto& s) {
 	};
 
 	auto setupEvent = [&](auto& fd, auto& id, auto& st, auto gfd) {
-		if (std::find(knownBadEvents.begin(), knownBadEvents.end(), st.config) != knownBadEvents.end()) {
+		if (std::find(knownBadEvents.begin(), knownBadEvents.end(), st.config) != knownBadEvents.end() || performanceCounterCompat == -1) {
 			return;
 		}
 		fd = syscall(__NR_perf_event_open, &(st), s->pid, -1, gfd, 0);
 		//std::cout << "fd = " << to_string(fd) << std::endl;
-		if (performanceCounterCompat == -1) {
-			return;
-		} else if (fd != -1) {
+		if (fd != -1) {
 			performanceCounterCompat = 1;
 			ioctl(fd, PERF_EVENT_IOC_ID, &(id));
 		} else if (fd == -1) {
@@ -139,6 +137,7 @@ void Server::setupCounter(auto& s) {
 					return;
 				case EMFILE:
 					hjlog.out<Error, Threadless>("Not enough file descriptors available");
+					performanceCounterCompat = -1;
 					return;
 				case ENODEV:
 					hjlog.out<Error, Threadless>("Event not supported on this CPU");
@@ -167,12 +166,11 @@ void Server::setupCounter(auto& s) {
 			}
 		}
 	};
-
 	//std::cout << "setting up counters for pid " << s->pid << std::endl;
 	//std::cout << "cpu cycles" << std::endl;
 	//group 1: hardware
 	//std::cout << "cpu cycles" << std::endl;
-	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
+	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES);
 	setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
 
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
@@ -227,12 +225,6 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[5][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[5][1], s->gid[5][1], s->perfstruct[5][1], s->gfd[5][0]);
 
-	configureStruct(s->perfstruct[5][2], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
-	setupEvent(s->gfd[5][2], s->gid[5][2], s->perfstruct[5][2], s->gfd[5][0]);
-
-	configureStruct(s->perfstruct[5][3], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
-	setupEvent(s->gfd[5][3], s->gid[5][3], s->perfstruct[5][3], s->gfd[5][0]);
-
 	configureStruct(s->perfstruct[6][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 	setupEvent(s->gfd[6][0], s->gid[6][0], s->perfstruct[6][0], -1);
 
@@ -278,6 +270,29 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[12][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[12][1], s->gid[12][1], s->perfstruct[12][1], s->gfd[12][0]);
 	//std::cout << "end" << std::endl;
+	configureStruct(s->perfstruct[13][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	setupEvent(s->gfd[13][0], s->gid[13][0], s->perfstruct[13][0], -1);
+
+	configureStruct(s->perfstruct[13][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[13][1], s->gid[13][1], s->perfstruct[13][1], s->gfd[13][0]);
+
+	configureStruct(s->perfstruct[14][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	setupEvent(s->gfd[14][0], s->gid[14][0], s->perfstruct[14][0], -1);
+ 	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
+	configureStruct(s->perfstruct[14][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[14][1], s->gid[14][1], s->perfstruct[14][1], s->gfd[14][0]);
+
+	configureStruct(s->perfstruct[15][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1I | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	setupEvent(s->gfd[15][0], s->gid[15][0], s->perfstruct[15][0], -1);
+ 	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
+	configureStruct(s->perfstruct[15][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1I | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[15][1], s->gid[15][1], s->perfstruct[15][1], s->gfd[15][0]);
+
+	configureStruct(s->perfstruct[16][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1I | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
+	setupEvent(s->gfd[16][0], s->gid[16][0], s->perfstruct[16][0], -1);
+ 	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
+	configureStruct(s->perfstruct[16][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1I | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
+	setupEvent(s->gfd[16][1], s->gid[16][1], s->perfstruct[16][1], s->gfd[16][0]);
 }
 
 void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
@@ -296,6 +311,7 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 				for (const auto group : s->gfd) {
 					for (const auto filedescriptor : group) {
 						if (filedescriptor > 2) { //check that we are not closing a built-in file descriptor for stdout, stdin, or stderr
+							std::cout << "closing fd " << filedescriptor << std::endl;
 							close(filedescriptor);
 						}
 					}
@@ -330,138 +346,220 @@ void Server::readCounters(auto& counters) {
 		//memset(&(s->buf), 0, sizeof(s->buf));
 		long size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
 		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
-			if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
-				s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
-			} else if (s->data->values[i].id == s->gid[0][1]) {
-				s->gv[0][1] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[0][2]) {
-				s->gv[0][2] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[0][3]) {
-				s->gv[0][3] = s->data->values[i].value;
-			}
-		}
-		//memset(&(s->buf), 0, sizeof(s->buf));
-		size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
-		//std::cout << "size for g2 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[1][0]) {
-				s->gv[1][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[1][1]) {
-				s->gv[1][1] = s->data->values[i].value;
-			}
-		}
-		//memset(&(s->buf), 0, sizeof(s->buf));
-		size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
-		//std::cout << "size for g3 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[2][0]) {
-				s->gv[2][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[2][1]) {
-				s->gv[2][1] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[2][2]) {
-				s->gv[2][2] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[3][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[3][0]) {
-				s->gv[3][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[3][1]) {
-				s->gv[3][1] = s->data->values[i].value;
-			}  else if (s->data->values[i].id == s->gid[3][2]) {
-				s->gv[3][2] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[4][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[4][0]) {
-				s->gv[4][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[4][1]) {
-				s->gv[4][1] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[4][2]) {
-				s->gv[4][2] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[4][3]) {
-				s->gv[4][3] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[5][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[5][0]) {
-				s->gv[5][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[5][1]) {
-				s->gv[5][1] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[5][2]) {
-				s->gv[5][2] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[5][3]) {
-				s->gv[5][3] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[6][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[6][0]) {
-				s->gv[6][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[6][1]) {
-				s->gv[6][1] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[7][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[7][0]) {
-				s->gv[7][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[7][1]) {
-				s->gv[7][1] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[8][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[8][0]) {
-				s->gv[8][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[8][1]) {
-				s->gv[8][1] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[9][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[9][0]) {
-				s->gv[9][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[9][1]) {
-				s->gv[9][1] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[10][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[10][0]) {
-				s->gv[10][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[10][1]) {
-				s->gv[10][1] = s->data->values[i].value;
-			}
-		}
-		size = read(s->gfd[11][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[11][0]) {
-				s->gv[11][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[11][1]) {
-				s->gv[11][1] = s->data->values[i].value;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
+				if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
+					s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
+				} else if (s->data->values[i].id == s->gid[0][1]) {
+					s->gv[0][1] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[0][2]) {
+					s->gv[0][2] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[0][3]) {
+					s->gv[0][3] = s->data->values[i].value;
+				}
 			}
 		}
 
+		//memset(&(s->buf), 0, sizeof(s->buf));
+		size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
+		//std::cout << "size for g2 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[1][0]) {
+					s->gv[1][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[1][1]) {
+					s->gv[1][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		//memset(&(s->buf), 0, sizeof(s->buf));
+		size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
+		//std::cout << "size for g3 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[2][0]) {
+					s->gv[2][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][1]) {
+					s->gv[2][1] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[2][2]) {
+					s->gv[2][2] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[3][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[3][0]) {
+					s->gv[3][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[3][1]) {
+					s->gv[3][1] = s->data->values[i].value;
+				}  else if (s->data->values[i].id == s->gid[3][2]) {
+					s->gv[3][2] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[4][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[4][0]) {
+					s->gv[4][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[4][1]) {
+					s->gv[4][1] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[4][2]) {
+					s->gv[4][2] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[4][3]) {
+					s->gv[4][3] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[5][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[5][0]) {
+					s->gv[5][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[5][1]) {
+					s->gv[5][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[6][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[6][0]) {
+					s->gv[6][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[6][1]) {
+					s->gv[6][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[7][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[7][0]) {
+					s->gv[7][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[7][1]) {
+					s->gv[7][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[8][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[8][0]) {
+					s->gv[8][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[8][1]) {
+					s->gv[8][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[9][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[9][0]) {
+					s->gv[9][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[9][1]) {
+					s->gv[9][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[10][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[10][0]) {
+					s->gv[10][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[10][1]) {
+					s->gv[10][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[11][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[11][0]) {
+					s->gv[11][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[11][1]) {
+					s->gv[11][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+
 		size = read(s->gfd[12][0], s->buf, sizeof(s->buf)); //get information from the counters
 		//std::cout << "size for g1 = " << size << std::endl;
-		for (int i = 0; i < s->data->nr; i++) {
-			if (s->data->values[i].id == s->gid[12][0]) {
-				s->gv[12][0] = s->data->values[i].value;
-			} else if (s->data->values[i].id == s->gid[12][1]) {
-				s->gv[12][1] = s->data->values[i].value;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[12][0]) {
+					s->gv[12][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[12][1]) {
+					s->gv[12][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[13][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[13][0]) {
+					s->gv[13][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[13][1]) {
+					s->gv[13][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[14][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[14][0]) {
+					s->gv[14][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[14][1]) {
+					s->gv[14][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[15][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[15][0]) {
+					s->gv[15][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[15][1]) {
+					s->gv[15][1] = s->data->values[i].value;
+				}
+			}
+		}
+
+		size = read(s->gfd[16][0], s->buf, sizeof(s->buf)); //get information from the counters
+		//std::cout << "size for g1 = " << size << std::endl;
+		if (size != -1) {
+			for (int i = 0; i < s->data->nr; i++) {
+				if (s->data->values[i].id == s->gid[16][0]) {
+					s->gv[16][0] = s->data->values[i].value;
+				} else if (s->data->values[i].id == s->gid[16][1]) {
+					s->gv[16][1] = s->data->values[i].value;
+				}
 			}
 		}
 	}
@@ -527,6 +625,12 @@ void Server::processPerfStats() {
 			bpureadmissreadings.emplace_back(0);
 			dtlbprefetchaccessreadings.emplace_back(0);
 			dtlbprefetchmissreadings.emplace_back(0);
+			l1dwriteaccessreadings.emplace_back(0);
+			l1dwritemissreadings.emplace_back(0);
+			l1ireadaccessreadings.emplace_back(0);
+			l1ireadmissreadings.emplace_back(0);
+			l1iprefetchaccessreadings.emplace_back(0);
+			l1iprefetchmissreadings.emplace_back(0);
 			for (const auto& s : MyCounters) {
 				cpucyclereadings.back() += s->gv[0][0];
 				cpuinstructionreadings.back() += s->gv[0][1];
@@ -546,8 +650,6 @@ void Server::processPerfStats() {
 				majorpagefaultreadings.back() += s->gv[3][2];
 				l1dreadaccessreadings.back() += s->gv[5][0];
 				l1dreadmissreadings.back() += s->gv[5][1];
-				l1dprefetchaccessreadings.back() += s->gv[5][2];
-				l1dprefetchmissreadings.back() += s->gv[5][3];
 				llreadaccessreadings.back() += s->gv[6][0];
 				llreadmissreadings.back() += s->gv[6][1];
 				dtlbreadaccessreadings.back() += s->gv[7][0];
@@ -563,10 +665,18 @@ void Server::processPerfStats() {
 				llprefetchmissreadings.back() += s->gv[11][2];
 				dtlbprefetchaccessreadings.back() += s->gv[12][0];
 				dtlbprefetchmissreadings.back() += s->gv[12][1];
+				l1dprefetchaccessreadings.back() += s->gv[13][0];
+				l1dprefetchmissreadings.back() += s->gv[13][1];
+				l1dwriteaccessreadings.back() += s->gv[14][0];
+				l1dwritemissreadings.back() += s->gv[14][1];
+				l1ireadaccessreadings.back() += s->gv[15][0];
+				l1ireadmissreadings.back() += s->gv[15][1];
+				l1iprefetchaccessreadings.back() += s->gv[16][0];
+				l1iprefetchmissreadings.back() += s->gv[16][1];
 			}
 			//std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
 			auto cullList = [](auto& list) {
-				while (list.size() > 60) {
+				while (list.size() > 240) {
 					list.pop_front();
 				}
 			};
@@ -603,6 +713,12 @@ void Server::processPerfStats() {
 			cullList(itlbreadmissreadings);
 			cullList(bpureadaccessreadings);
 			cullList(bpureadmissreadings);
+			cullList(l1dwriteaccessreadings);
+			cullList(l1dwritemissreadings);
+			cullList(l1ireadaccessreadings);
+			cullList(l1ireadmissreadings);
+			cullList(l1iprefetchaccessreadings);
+			cullList(l1iprefetchmissreadings);
 			newPids = getProcessChildPids(pid);
 			diffPids.clear();
 			std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
@@ -651,7 +767,7 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 		procstatinfo.push_back(m.str());
 	}
 	try {
-		new_pidjiffies = (std::stol(pidcpuinfo[13]) + std::stol(pidcpuinfo[14]));
+		new_pidjiffies = (std::stol(pidcpuinfo.at(13)) + std::stol(pidcpuinfo.at(14)));
 	} catch(...) {
 		hjlog.out<Error, Threadless>("Failed to add PID jiffies");
 	}

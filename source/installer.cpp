@@ -31,7 +31,7 @@ void Installer::installNewServerConfigFile(const string& fileLocation, const boo
 		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl;
 		outConf << "exec=java # The file that gets called in the \"new\" method." << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " # This is where your Java flags go." << endl << "file=" + serverFile  + " # The server file you want to start."<< endl;
 		outConf << "command= # Only use this if you using the \"old\" method."<< endl << "method=new" << endl << "device=" << endl << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << endl;
-		outConf << "commands=1" << endl << "silentcommands=0" << endl << "custommsg=" << endl << "chatkickregex=" << endl;
+		outConf << "commands=1" << endl << "silentcommands=0" << endl << "custommsg=" << endl << "chatkickregex=" << endl << "counters=1" << endl;
 		outConf << text.fileServerConfComment << endl;
 		hjlog.out<Info>(text.info.CreatedServerConfig1 + fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();
@@ -49,12 +49,10 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 	} else {
 		ofstream outConf(fileLocation);
 		outConf << "version=" << hajime_version << endl;
-		outConf << "defserverconf=MyServer.server" << endl;
 		outConf << "logfile=hajime.log" << endl;
 		outConf << "lang=" << lang << endl;
 		outConf << "debug=0" << endl;
 		outConf << "threadcolors=1" << endl;
-		outConf << "systemdlocation=/etc/systemd/system/hajime.service" << endl;
 		outConf.close();
 		hjlog.out<Info>(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2);
 		if (!fs::is_regular_file(fileLocation)) {

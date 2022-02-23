@@ -44,7 +44,7 @@ using std::make_shared;
 using std::vector;
 
 bool ee = false;
-vector<Server*> serverVec = {}; //create an array of individual server objects
+vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
 vector<std::jthread> threadVec = {}; //create an array of thread objects
 string logFile = "";
 string hajConfFile = "";
@@ -69,23 +69,23 @@ int main(int argc, char *argv[]) {
 	});
 	signal(SIGINT, hajimeExit);
 	signal(SIGSEGV, [](int sig){
-		hjlog.out<Error>("Segmentation fault detected; exiting now");
+		cout << "Segmentation fault detected; exiting Hajime now" << endl;
 		exit(0);
 	});
 	signal(SIGABRT, [](int sig){
-		hjlog.out<Error>("Hajime ending execution abnormally; exiting now");
+		cout << "Hajime ending execution abnormally; exiting Hajime now" << endl;
 		exit(0);
 	});
 	signal(SIGILL, [](int sig){
-		hjlog.out<Error>("Illegal instruction detected; try recompiling Hajime");
+		cout << "Illegal instruction detected; try recompiling Hajime" << endl;
 		exit(0);
 	});
 	signal(SIGFPE, [](int sig){
-		hjlog.out<Error>("Illegal math operation; exiting Hajime now");
+		cout << "Illegal math operation; exiting Hajime now" << endl;
 		exit(0);
 	});
 	signal(SIGTERM, [](int sig){
-		hjlog.out<Error>("Termination requested; exiting Hajime now");
+		cout << "Termination requested; exiting Hajime now" << endl;
 		exit(0);
 	});
 	#if defined(_WIN64) || defined (_WIN32)
@@ -96,16 +96,6 @@ int main(int argc, char *argv[]) {
 		hjlog.noColors = true;
 	}
 	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
-	#else
-	struct rlimit rlimits;
-	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		hjlog.out<Error, Threadless>("Error getting resource limits; errno = " + std::to_string(errno));
-	}
-	rlimits.rlim_cur = rlimits.rlim_max; //resize soft limit to max limit; the max limit is a ceiling for the soft limit
-	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		hjlog.out<Error, Threadless>("Error changing resource limits; errno = " + std::to_string(errno));
-	}
-	hjlog.out<Debug>("New soft file descriptor soft limit = " + to_string(rlimits.rlim_cur));
 	#endif
 	dividerLine();
 	for (int i = 1; i < argc; i++) { //search for the help flag first
@@ -243,14 +233,26 @@ int main(int argc, char *argv[]) {
 		hjlog.out<Error>("Hajime must not be run by a privileged user");
 		return 1;
 	}
+	#if !defined(_WIN64) && !defined(_WIN32)
+	struct rlimit rlimits;
+	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
+		hjlog.out<Error, Threadless>("Error getting resource limits; errno = " + std::to_string(errno));
+	}
+	rlimits.rlim_cur = rlimits.rlim_max; //resize soft limit to max limit; the max limit is a ceiling for the soft limit
+	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
+		hjlog.out<Error, Threadless>("Error changing resource limits; errno = " + std::to_string(errno));
+	}
+	hjlog.out<Debug>("New soft file descriptor soft limit = " + to_string(rlimits.rlim_cur));
+	#endif
 	for (const auto& serverIt : getServerFiles()) { //loop through all the server files found
-		serverVec.emplace_back(new Server); //add a copy of server to use
+		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
 		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 	hjlog.hajimeTerminal = true;
 	while(true) {
 		string command = "";
 		std::getline(std::cin, command);
+		std::cout << "\033[0m" << std::flush;
 		if (command != "") {
 			processHajimeCommand(toVec(command));
 		} else {
@@ -268,12 +270,26 @@ bool readSettings() {
 	}
 	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
-		auto setVar = [&](string name, string& tempVar){if (*firstSetIterator == name) {tempVar = *secondSetIterator;}};
-		auto setVari = [&](string name, int& tempVar){if (*firstSetIterator == name) {try {tempVar = stoi(*secondSetIterator);} catch(...) {tempVar = 0;}}};
+		auto setVar = [&](string name, string& tempVar){
+			if (*firstSetIterator == name) {
+				tempVar = *secondSetIterator;
+			}
+		};
+		auto setVari = [&](string name, int& tempVar){
+			if (*firstSetIterator == name) {
+				try {
+					tempVar = stoi(*secondSetIterator);
+				} catch(...) {
+					tempVar = 0;
+				}
+			}
+		};
 		hjlog.out<Debug>(text.debug.ReadingReadsettings);
 		setVar(settings[0], version);
 		setVar(settings[1], logFile);
-		setVari(settings[2], hjlog.debug);
+		if (!hjlog.debug) {
+			setVari(settings[2], hjlog.debug);
+		}
 		setVari(settings[3], hjlog.showThreadsAsColors);
 	}
 	hjlog.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);

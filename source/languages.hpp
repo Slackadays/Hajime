@@ -341,6 +341,9 @@ class Text {
 						string alignfaults;
 						string l1dreadmisses;
 						string l1dprefetchmisses;
+						string l1dwritemisses;
+						string l1ireadmisses;
+						string l1iprefetchmisses;
 						string llcreadmisses;
 						string llcwritemisses;
 						string llcprefetchmisses;
@@ -370,6 +373,9 @@ class Text {
 						string alignfaults;
 						string l1dreadmisses;
 						string l1dprefetchmisses;
+						string l1dwritemisses;
+						string l1ireadmisses;
+						string l1iprefetchmisses;
 						string llcreadmisses;
 						string llcwritemisses;
 						string llcprefetchmisses;

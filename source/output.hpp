@@ -30,6 +30,7 @@ class Output {
 		constexpr bool force = ((flags == Force) || ...);
 		constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
 		const bool oldThreadless = threadless;
+		threadless = ((flags == Threadless) || ...);
 		constexpr outFlag type = [] {
 			for (auto flag : std::initializer_list<outFlag>{flags...}) {
 				switch (flag) {
@@ -108,20 +109,19 @@ class Output {
 						case Question:
 							return Question;
 						case KeepEndlines:
-        	                                        break;
-	                                        case Force:
-        	                                        break;
-        	                                case NoEndline:
-        	                                        break;
-        	                                case Threadless:
-        	                                        break;
-
+        	    break;
+	          case Force:
+        	   	break;
+        	  case NoEndline:
+        	    break;
+        	  case Threadless:
+        	    break;
 					}
 				}
 				return None;
 			}();
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
-				terminalDispatch('\r' + text.info.EnterCommand, None, 0);
+				terminalDispatch("\r\033[96m\033[1m" + text.info.EnterCommand + "\033[0m\033[1m", None, 0);
 			}
 		}
 
@@ -165,7 +165,7 @@ class Output {
 		}
 
 		inline static bool isWindows;
-		void init(const string& file, bool debugOrNot = false);
+		void init(const string& file);
 		void addServerName(const string& name);
 		void end();
 		inline static bool threadless;
