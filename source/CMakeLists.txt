@@ -11,10 +11,22 @@ set(CMAKE_THREAD_PREFER_PTHREAD True)
 set(THREADS_PREFER_PTHREAD_FLAG True)
 find_package(Threads REQUIRED)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
+
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 add_executable(hajime hajime.cpp server.cpp server_features.cpp server_performance.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp constants.cpp)
+
+if(lto_supported)
+    set_property(TARGET hajime PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+		if(CMAKE_COMPILER_IS_GNUCXX)
+        list(APPEND CMAKE_CXX_COMPILE_OPTIONS_IPO "-flto=auto")
+    endif()
+else()
+    message(STATUS "IPO/LTO not supported: ${lto_error}")
+endif()
 
 set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
 
