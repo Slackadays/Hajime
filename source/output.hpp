@@ -121,7 +121,7 @@ class Output {
 				return None;
 			}();
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
-				terminalDispatch("\r\033[96m\033[1m" + text.info.EnterCommand + "\033[0m\033[1m", None, 0);
+				terminalDispatch("\r\033[92m\033[1m" + text.info.EnterCommand + "\033[0m", None, 0);
 			}
 		}
 

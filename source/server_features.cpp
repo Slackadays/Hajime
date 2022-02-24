@@ -794,7 +794,7 @@ void Server::terminalAccessWrapper() {
 			std::cout << text.error.InvalidCommand << std::endl;
 			std::cout << text.error.InvalidServerCommand1 << std::endl;
 		} else {
-			std::cout << "sending to server" << std::endl;
+			//std::cout << "sending to server" << std::endl;
 			writeToServerTerminal(user_input); //write to the master side of the pterminal with user_input converted into a c-style string
 		}
 	}
