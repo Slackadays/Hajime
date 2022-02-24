@@ -232,6 +232,10 @@ void Server::startProgram(string method = "new") {
 			hjlog.out<Debug>(text.debug.flag.Array1 + (string)flagArray[1]);
 			wantsLiveOutput = false;
 			fd = posix_openpt(O_RDWR);
+			if (fd == -1) {
+				hjlog.out<Error>("Could not open pseudoterminal device; bailing out");
+				return;
+			}
 			grantpt(fd);
 			unlockpt(fd);
 			slave_fd = open(ptsname(fd), O_RDWR);

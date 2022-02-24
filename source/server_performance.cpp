@@ -66,12 +66,12 @@ struct pcounter {
 	long pid;
 
 	std::array<std::array<struct perf_event_attr, 4>, 17> perfstruct;
-	std::array<std::array<unsigned long long, 4>, 17> gid{0, 0, 0, 0};
-	std::array<std::array<unsigned long long, 4>, 17> gv{0, 0, 0, 0};
-	std::array<std::array<int, 4>, 17> gfd{0, 0, 0, 0};
+	std::array<std::array<unsigned long long, 4>, 17> gid;
+	std::array<std::array<unsigned long long, 4>, 17> gv;
+	std::array<std::array<int, 4>, 17> gfd;
 
-	char buf[1024];
-	struct read_format* data = (struct read_format*)buf;
+	char buf[128];
+	struct read_format* data = reinterpret_cast<struct read_format*>(buf);
 };
 
 vector<long> Server::getProcessChildPids(long pid) {
@@ -91,7 +91,16 @@ void Server::setupCounter(auto& s) {
 	if (performanceCounterCompat == -1) {
 		return;
 	}
-
+	auto initArrays = [](auto& arr) {
+		for (auto& outergroup : arr) {
+			for (auto& innerelement : outergroup) {
+				innerelement = 0;
+			}
+		}
+	};
+	initArrays(s->gid);
+	initArrays(s->gv);
+	initArrays(s->gfd);
 	auto configureStruct = [&](auto& st, const auto perftype, const auto config) {
 		memset(&(st), 0, sizeof(struct perf_event_attr)); //fill the struct with 0s
 		st.type = perftype; //the type of event
@@ -293,6 +302,7 @@ void Server::setupCounter(auto& s) {
  	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
 	configureStruct(s->perfstruct[16][1], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1I | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_MISS << 16));
 	setupEvent(s->gfd[16][1], s->gid[16][1], s->perfstruct[16][1], s->gfd[16][0]);
+
 }
 
 void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
@@ -311,13 +321,12 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 				for (const auto group : s->gfd) {
 					for (const auto filedescriptor : group) {
 						if (filedescriptor > 2) { //check that we are not closing a built-in file descriptor for stdout, stdin, or stderr
-							std::cout << "closing fd " << filedescriptor << std::endl;
+							//std::cout << "closing fd " << filedescriptor << std::endl;
 							close(filedescriptor);
 						}
 					}
 				}
 				//std::cout << "culling counter for pid " << s->pid << std::endl;
-				delete s;
 				counters.erase(std::find(begin(counters), end(counters), s));
 			}
 		}
@@ -342,223 +351,252 @@ void Server::disableCounters(auto& counters) {
 }
 
 void Server::readCounters(auto& counters) {
+	long size;
 	for (auto& s : counters) {
+		if (s->gfd[0][0] > 2) {
+			size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 72) {
+				for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
+					if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
+						s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
+					} else if (s->data->values[i].id == s->gid[0][1]) {
+						s->gv[0][1] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[0][2]) {
+						s->gv[0][2] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[0][3]) {
+						s->gv[0][3] = s->data->values[i].value;
+					}
+				}
+			}
+		}
 		//memset(&(s->buf), 0, sizeof(s->buf));
-		long size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
-				if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
-					s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
-				} else if (s->data->values[i].id == s->gid[0][1]) {
-					s->gv[0][1] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[0][2]) {
-					s->gv[0][2] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[0][3]) {
-					s->gv[0][3] = s->data->values[i].value;
+		if (s->gfd[1][0] > 2) {
+			size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
+			//std::cout << "size = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[1][0]) {
+						s->gv[1][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[1][1]) {
+						s->gv[1][1] = s->data->values[i].value;
+					}
+				}
+			}
+		}
+		if (s->gfd[2][0] > 2) {
+			size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
+			//std::cout << "size = " << size << std::endl;
+			if (size >= 56) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[2][0]) {
+						s->gv[2][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[2][1]) {
+						s->gv[2][1] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[2][2]) {
+						s->gv[2][2] = s->data->values[i].value;
+					}
+				}
+			}
+		}
+		if (s->gfd[3][0] > 2) {
+			size = read(s->gfd[3][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size = " << size << std::endl;
+			if (size >= 56) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[3][0]) {
+						s->gv[3][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[3][1]) {
+						s->gv[3][1] = s->data->values[i].value;
+					}  else if (s->data->values[i].id == s->gid[3][2]) {
+						s->gv[3][2] = s->data->values[i].value;
+					}
+				}
+			}
+		}
+		if (s->gfd[4][0] > 2) {
+			size = read(s->gfd[4][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size = " << size << std::endl;
+			if (size >= 72) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[4][0]) {
+						s->gv[4][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[4][1]) {
+						s->gv[4][1] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[4][2]) {
+						s->gv[4][2] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[4][3]) {
+						s->gv[4][3] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		//memset(&(s->buf), 0, sizeof(s->buf));
-		size = read(s->gfd[1][0], s->buf, sizeof(s->buf));
-		//std::cout << "size for g2 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[1][0]) {
-					s->gv[1][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[1][1]) {
-					s->gv[1][1] = s->data->values[i].value;
+		if (s->gfd[5][0] > 2) {
+			size = read(s->gfd[5][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[5][0]) {
+						s->gv[5][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[5][1]) {
+						s->gv[5][1] = s->data->values[i].value;
+					}
+				}
+			}
+		}
+		if (s->gfd[6][0] > 2) {
+			size = read(s->gfd[6][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[6][0]) {
+						s->gv[6][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[6][1]) {
+						s->gv[6][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		//memset(&(s->buf), 0, sizeof(s->buf));
-		size = read(s->gfd[2][0], s->buf, sizeof(s->buf));
-		//std::cout << "size for g3 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[2][0]) {
-					s->gv[2][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][1]) {
-					s->gv[2][1] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[2][2]) {
-					s->gv[2][2] = s->data->values[i].value;
+		if (s->gfd[7][0] > 2) {
+			size = read(s->gfd[7][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[7][0]) {
+						s->gv[7][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[7][1]) {
+						s->gv[7][1] = s->data->values[i].value;
+					}
+				}
+			}
+		}
+		if (s->gfd[8][0] > 2) {
+			size = read(s->gfd[8][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[8][0]) {
+						s->gv[8][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[8][1]) {
+						s->gv[8][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		size = read(s->gfd[3][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[3][0]) {
-					s->gv[3][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[3][1]) {
-					s->gv[3][1] = s->data->values[i].value;
-				}  else if (s->data->values[i].id == s->gid[3][2]) {
-					s->gv[3][2] = s->data->values[i].value;
+		if (s->gfd[9][0] > 2) {
+			size = read(s->gfd[9][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[9][0]) {
+						s->gv[9][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[9][1]) {
+						s->gv[9][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		size = read(s->gfd[4][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[4][0]) {
-					s->gv[4][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[4][1]) {
-					s->gv[4][1] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[4][2]) {
-					s->gv[4][2] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[4][3]) {
-					s->gv[4][3] = s->data->values[i].value;
+		if (s->gfd[10][0] > 2) {
+			size = read(s->gfd[10][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[10][0]) {
+						s->gv[10][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[10][1]) {
+						s->gv[10][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		size = read(s->gfd[5][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[5][0]) {
-					s->gv[5][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[5][1]) {
-					s->gv[5][1] = s->data->values[i].value;
-				}
-			}
-		}
-
-		size = read(s->gfd[6][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[6][0]) {
-					s->gv[6][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[6][1]) {
-					s->gv[6][1] = s->data->values[i].value;
-				}
-			}
-		}
-
-		size = read(s->gfd[7][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[7][0]) {
-					s->gv[7][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[7][1]) {
-					s->gv[7][1] = s->data->values[i].value;
-				}
-			}
-		}
-
-		size = read(s->gfd[8][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[8][0]) {
-					s->gv[8][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[8][1]) {
-					s->gv[8][1] = s->data->values[i].value;
-				}
-			}
-		}
-
-		size = read(s->gfd[9][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[9][0]) {
-					s->gv[9][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[9][1]) {
-					s->gv[9][1] = s->data->values[i].value;
-				}
-			}
-		}
-
-		size = read(s->gfd[10][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[10][0]) {
-					s->gv[10][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[10][1]) {
-					s->gv[10][1] = s->data->values[i].value;
-				}
-			}
-		}
-
-		size = read(s->gfd[11][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[11][0]) {
-					s->gv[11][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[11][1]) {
-					s->gv[11][1] = s->data->values[i].value;
+		if (s->gfd[11][0] > 2) {
+			size = read(s->gfd[11][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[11][0]) {
+						s->gv[11][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[11][1]) {
+						s->gv[11][1] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[11][2]) {
+						s->gv[11][2] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
 
-		size = read(s->gfd[12][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[12][0]) {
-					s->gv[12][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[12][1]) {
-					s->gv[12][1] = s->data->values[i].value;
+		if (s->gfd[12][0] > 2) {
+			size = read(s->gfd[12][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[12][0]) {
+						s->gv[12][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[12][1]) {
+						s->gv[12][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		size = read(s->gfd[13][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[13][0]) {
-					s->gv[13][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[13][1]) {
-					s->gv[13][1] = s->data->values[i].value;
+		if (s->gfd[13][0]) {
+			size = read(s->gfd[13][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[13][0]) {
+						s->gv[13][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[13][1]) {
+						s->gv[13][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		size = read(s->gfd[14][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[14][0]) {
-					s->gv[14][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[14][1]) {
-					s->gv[14][1] = s->data->values[i].value;
+		if (s->gfd[14][0] > 2) {
+			size = read(s->gfd[14][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[14][0]) {
+						s->gv[14][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[14][1]) {
+						s->gv[14][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		size = read(s->gfd[15][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[15][0]) {
-					s->gv[15][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[15][1]) {
-					s->gv[15][1] = s->data->values[i].value;
+		if (s->gfd[15][0] > 2) {
+			size = read(s->gfd[15][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[15][0]) {
+						s->gv[15][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[15][1]) {
+						s->gv[15][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
 
-		size = read(s->gfd[16][0], s->buf, sizeof(s->buf)); //get information from the counters
-		//std::cout << "size for g1 = " << size << std::endl;
-		if (size != -1) {
-			for (int i = 0; i < s->data->nr; i++) {
-				if (s->data->values[i].id == s->gid[16][0]) {
-					s->gv[16][0] = s->data->values[i].value;
-				} else if (s->data->values[i].id == s->gid[16][1]) {
-					s->gv[16][1] = s->data->values[i].value;
+		if (s->gfd[16][0] > 2) {
+			size = read(s->gfd[16][0], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) {
+					if (s->data->values[i].id == s->gid[16][0]) {
+						s->gv[16][0] = s->data->values[i].value;
+					} else if (s->data->values[i].id == s->gid[16][1]) {
+						s->gv[16][1] = s->data->values[i].value;
+					}
 				}
 			}
 		}
@@ -567,7 +605,7 @@ void Server::readCounters(auto& counters) {
 #endif
 
 void Server::processPerfStats() {
-	std::this_thread::sleep_for(std::chrono::seconds(15));
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 	#if defined(__linux__)
 	std::vector<struct pcounter*> MyCounters = {};
 	hjlog.out<Debug>("Making performance counters");

@@ -564,7 +564,6 @@ string Server::getCPS() {
 
 string Server::getContextSwitches() {
 	return formatReadingsLIB(contextswitchreadings, cpuinstructionreadings);
-	//return to_string(averageVal(contextswitchreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 1) / (double)averageVal(cpuinstructionreadings, 1)) + "% of CPU) last 1 minute, " + to_string(averageVal(contextswitchreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 5) / (double)averageVal(cpuinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(contextswitchreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(contextswitchreadings, 15) / (double)averageVal(cpuinstructionreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getStalledCyclesFrontend() {
@@ -573,7 +572,6 @@ string Server::getStalledCyclesFrontend() {
 
 string Server::getStalledCyclesBackend() {
 	return formatReadingsLIB(stalledcyclesbackendreadings, cpucyclereadings);
-	//return to_string(averageVal(stalledcyclesbackendreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesbackendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesbackendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesbackendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getBusCycles() {
@@ -582,12 +580,10 @@ string Server::getBusCycles() {
 
 string Server::getBranchMisses() {
 	return formatReadingsLIB(branchmissreadings, branchinstructionreadings);
-	//return to_string(averageVal(branchmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 1) / (double)averageVal(branchinstructionreadings, 1)) + "% of all branch instructions) last 1 minute, " + to_string(averageVal(branchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 5) / (double)averageVal(branchinstructionreadings, 5)) + "%) last 5, " + to_string(averageVal(branchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(branchmissreadings, 15) / (double)averageVal(branchinstructionreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getCacheMisses() {
 	return formatReadingsLIB(cachemissreadings, cachereferencereadings);
-	//return to_string(averageVal(cachemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 1) / (double)averageVal(cachereferencereadings, 1)) + "% of total) last 1 minute, " + to_string(averageVal(cachemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 5) / (double)averageVal(cachereferencereadings, 5)) + "%) last 5, " + to_string(averageVal(cachemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(cachemissreadings, 15) / (double)averageVal(cachereferencereadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getAlignmentFaults() {
@@ -600,47 +596,38 @@ string Server::getEmulationFaults() {
 
 string Server::getMinorPagefaults() {
 	return formatReadingsLIB(minorpagefaultreadings, pagefaultreadings);
-	//return to_string(averageVal(minorpagefaultreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 1) / (double)averageVal(pagefaultreadings, 1)) + "% of total) last 1 minute, " + to_string(averageVal(minorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(minorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(minorpagefaultreadings, 15) / (double)averageVal(pagefaultreadings, 15)) + "%) last 15";
 }
 
 string Server::getMajorPagefaults() {
 	return formatReadingsLIB(majorpagefaultreadings, pagefaultreadings);
-	//return to_string(averageVal(majorpagefaultreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 1) / (double)averageVal(pagefaultreadings, 1)) + "% of total) last 1 minute, " + to_string(averageVal(majorpagefaultreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 5) / (double)averageVal(pagefaultreadings, 5)) + "%) last 5, " + to_string(averageVal(majorpagefaultreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(majorpagefaultreadings, 15) / (double)averageVal(majorpagefaultreadings, 15)) + "%) last 15";
 }
 
 string Server::getL1dReadMisses() {
 	return formatReadingsLIB(l1dreadmissreadings, l1dreadaccessreadings);
-	//return to_string(averageVal(l1dreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 1) / (double)averageVal(l1dreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 5) / (double)averageVal(l1dreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dreadmissreadings, 15) / (double)averageVal(l1dreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getL1dPrefetchMisses() {
 	return formatReadingsLIB(l1dprefetchmissreadings, l1dprefetchaccessreadings);
-	//return to_string(averageVal(l1dprefetchmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1dprefetchmissreadings, 1) / (double)averageVal(l1dprefetchaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dprefetchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dprefetchmissreadings, 5) / (double)averageVal(l1dprefetchaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dprefetchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dprefetchmissreadings, 15) / (double)averageVal(l1dprefetchaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getL1dWriteMisses() {
 	return formatReadingsLIB(l1dwritemissreadings, l1dwriteaccessreadings);
-	//return to_string(averageVal(l1dwritemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1dwritemissreadings, 1) / (double)averageVal(l1dwriteaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1dwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1dwritemissreadings, 5) / (double)averageVal(l1dwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1dwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1dwritemissreadings, 15) / (double)averageVal(l1dwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getL1iReadMisses() {
 	return formatReadingsLIB(l1ireadmissreadings, l1ireadaccessreadings);
-	//return to_string(averageVal(l1ireadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1ireadmissreadings, 1) / (double)averageVal(l1ireadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1ireadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1ireadmissreadings, 5) / (double)averageVal(l1ireadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1ireadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1ireadmissreadings, 15) / (double)averageVal(l1ireadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getL1iPrefetchMisses() {
 	return formatReadingsLIB(l1iprefetchmissreadings, l1iprefetchaccessreadings);
-	//return to_string(averageVal(l1iprefetchmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(l1iprefetchmissreadings, 1) / (double)averageVal(l1iprefetchaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(l1iprefetchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(l1iprefetchmissreadings, 5) / (double)averageVal(l1iprefetchaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(l1iprefetchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(l1iprefetchmissreadings, 15) / (double)averageVal(l1iprefetchaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getLLReadMisses() {
 	return formatReadingsLIB(llreadmissreadings, llreadaccessreadings);
-	//return to_string(averageVal(llreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 1) / (double)averageVal(llreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(llreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 5) / (double)averageVal(llreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llreadmissreadings, 15) / (double)averageVal(llreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getLLWriteMisses() {
 	return formatReadingsLIB(llwritemissreadings, llwriteaccessreadings);
-	//return to_string(averageVal(llwritemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 1) / (double)averageVal(llwriteaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(llwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 5) / (double)averageVal(llwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(llwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(llwritemissreadings, 15) / (double)averageVal(llwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getLLPrefetchMisses() {
@@ -649,27 +636,22 @@ string Server::getLLPrefetchMisses() {
 
 string Server::getdTLBReadMisses() {
 	return formatReadingsLIB(dtlbreadmissreadings, dtlbreadaccessreadings);
-	//return to_string(averageVal(dtlbreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 1) / (double)averageVal(dtlbreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 5) / (double)averageVal(dtlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbreadmissreadings, 15) / (double)averageVal(dtlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getdTLBWriteMisses() {
 	return formatReadingsLIB(dtlbwritemissreadings, dtlbwriteaccessreadings);
-	//return to_string(averageVal(dtlbwritemissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 1) / (double)averageVal(dtlbwriteaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbwritemissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 5) / (double)averageVal(dtlbwriteaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbwritemissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbwritemissreadings, 15) / (double)averageVal(dtlbwriteaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getdTLBPrefetchMisses() {
 	return formatReadingsLIB(dtlbprefetchmissreadings, dtlbprefetchaccessreadings);
-	//return to_string(averageVal(dtlbprefetchmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(dtlbprefetchmissreadings, 1) / (double)averageVal(dtlbprefetchaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(dtlbprefetchmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(dtlbprefetchmissreadings, 5) / (double)averageVal(dtlbprefetchaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(dtlbprefetchmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(dtlbprefetchmissreadings, 15) / (double)averageVal(dtlbprefetchaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getiTLBReadMisses() {
 	return formatReadingsLIB(itlbreadmissreadings, itlbreadaccessreadings);
-	//return to_string(averageVal(itlbreadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 1) / (double)averageVal(itlbreadaccessreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(itlbreadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 5) / (double)averageVal(itlbreadaccessreadings, 5)) + "%) last 5, " + to_string(averageVal(itlbreadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(itlbreadmissreadings, 15) / (double)averageVal(itlbreadaccessreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 string Server::getBPUReadMisses() {
 	return formatReadingsLIB(bpureadmissreadings, bpureadaccessreadings);
-	//return to_string(averageVal(bpureadmissreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 1) / (double)averageVal(bpureadmissreadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(bpureadmissreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 5) / (double)averageVal(bpureadmissreadings, 5)) + "%) last 5, " + to_string(averageVal(bpureadmissreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(bpureadmissreadings, 15) / (double)averageVal(bpureadmissreadings, 15)) + "%) last 15 (Lower is better)";
 }
 
 void Server::processRestartAlert(string input) {
@@ -802,8 +784,8 @@ void Server::terminalAccessWrapper() {
 	for (const auto& it : lines) {
 		std::cout << it << std::flush;
 	}
+	std::string user_input = "";
 	while (true) {
-		std::string user_input = "";
 		std::getline(std::cin, user_input); //getline allows for spaces
 		if (user_input == ".d") {
 			wantsLiveOutput = false;
@@ -812,6 +794,7 @@ void Server::terminalAccessWrapper() {
 			std::cout << text.error.InvalidCommand << std::endl;
 			std::cout << text.error.InvalidServerCommand1 << std::endl;
 		} else {
+			std::cout << "sending to server" << std::endl;
 			writeToServerTerminal(user_input); //write to the master side of the pterminal with user_input converted into a c-style string
 		}
 	}

@@ -239,7 +239,7 @@ class Server {
 
 	bool wantsLiveOutput;
 
-	std::list<string> lines; //make this so the program only has one copy of lines available
+	std::list<string> lines; 
 
 	public:
 		string name, exec, file, path, command, flags, confFile, device, method, cmdline, customMessage;
