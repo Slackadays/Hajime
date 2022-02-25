@@ -1,7 +1,7 @@
 # Hajime 
 <img src="HJ.png" alt="Hajime logo" width="100"/>
 
-**The ultimate Minecraft server startup script!**
+**The ultimate Minecraft server startup system!**
 
 [![CodeFactor](https://www.codefactor.io/repository/github/slackadays/hajime/badge)](https://www.codefactor.io/repository/github/slackadays/hajime)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/18effdc4e4ca4d62ae5d160314f6f200)](https://www.codacy.com/gh/Slackadays/Hajime/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Slackadays/Hajime&amp;utm_campaign=Badge_Grade)
@@ -17,10 +17,11 @@ Join our Discord server at https://discord.gg/J6asnc3pEG!
 
 # Get Hajime ⬇️
 ### Linux, macOS & FreeBSD 🐧🍎👿
-Copy and paste this command into the terminal to install. Or, go to the [GitHub Releases page](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
+Copy and paste this into the terminal to install.
 ```
 sh <(curl -L https://gethaji.me)
 ```
+Or, go to the [GitHub Releases page](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
 ### Windows 🪟
 Go to the [GitHub Releases page](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
 
@@ -48,11 +49,12 @@ Check out the official Hajime tutorial video series!
 
 Hajime fills in a gaping void in the Minecraft server management world. On one end of the spectrum, you have startmc.sh. startmc.sh is super easy to use but offers no features at all. On the other end there are mark2 and Pterodactyl. These offer a lot of features, but are difficult to install and use. Hajime changes all of this by aiming to be extremely easy to use while offering all the features you could possibly want. 
 
-As a comparison, remember the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in smartness and ease-of-use.
+As a comparison, remember the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in smartness and ease-of-use at the same time.
 
 ## Features 🎛️
 - Keeps your server running in the background so you can keep playing!
 - Super simple installation and setup!
+- Monitor your server with advanced performance counters!
 - Optimize your server with Aikar's Flags and more!
 - Works with English, Spanish, and Portuguese!
 - Run multiple servers at once!
