@@ -81,7 +81,7 @@ void Server::startServer(string confFile) {
 			term.out<Error>(text.error.ServerFileNotPresent1 + confFile + text.error.ServerFileNotPresent2);
 			return;
 		}
-		term.out<Info>("----" + name + "----");
+		term.dividerLine("Starting server " + name);
 		term.out<Info, NoEndline>(text.info.ServerFile + file + " | ");
 		term.out<None>(text.info.ServerPath + path);
 		term.out<Info, NoEndline>(text.info.ServerCommand + command + " | ");

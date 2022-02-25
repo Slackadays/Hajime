@@ -262,7 +262,12 @@ int main(int argc, char *argv[]) {
 	#endif
 	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
 	//exit(0);
-	for (const auto& serverIt : getServerFiles()) { //loop through all the server files found
+	vector<string> serverFiles = getServerFiles();
+	if (serverFiles.size() == 0) {
+		term.out<Error>("No server files found (Hint: all server files end with .server)");
+		exit(0);
+	}
+	for (const auto& serverIt : serverFiles) { //loop through all the server files found
 		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
 		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
