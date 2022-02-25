@@ -52,6 +52,7 @@ As a comparison, remember the original iPhone presentation in 2007 when Steve Jo
 - Keeps your server running in the background!
 - Super simple setup and installation!
 - Monitor your server with advanced performance counters!
+- Written in Modern C++20!
 - Optimize your server with Aikar's Flags and more!
 - Works with English, Spanish, and Portuguese!
 - Run multiple servers at once!
@@ -70,11 +71,9 @@ Other languages like Python may seem technically better, but using Python create
 Your platform is probably supported here. If it isn't, CMake is here to help.
 
 ## Setup 🪛
-Hajime will automtically start the installation wizard if it cannot find the configuation file. This is automatically the case when you download Hajime. To do the installer manually, use `-i` as a flag option.
+Hajime will start the installation wizard if it can't find the configuation file, which will happen if this is your first time. Add `-i` as a flag option to do it manually.
 
-## More Info 
-
-Check out the [Hajime Wiki!](https://github.com/Slackadays/Hajime/wiki)
+For more info, check out the [Hajime Wiki!](https://github.com/Slackadays/Hajime/wiki)
 
 ## Compiling with CMake ⚙️
 Hajime can use CMake to compile. If you've just cloned the repo, these two commands will do the trick:
