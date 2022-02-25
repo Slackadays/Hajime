@@ -58,7 +58,7 @@ then
   echo "Can't find a supported platform; compiling Hajime now"
   update_and_install
 fi
-if [ "$(uname -s)" = "Linu" ]
+if [ "$(uname -s)" = "Linux" ]
 then
 	echo "Linux detected"
   echo "Updating and installing the unzip package..."
