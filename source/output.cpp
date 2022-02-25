@@ -18,7 +18,9 @@
 #include <Windows.h>
 #include <shlobj.h>
 #else
+#include <sys/resource.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 #endif
 
 #include <iostream>
