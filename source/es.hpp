@@ -1,3 +1,19 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 help.push_back("\033[1m¡Bienvenido a Hajime " + hajime_version + ", el programa definitivo para el encendido de servidores de Minecraft!\033[0m");
 help.push_back("Esta versión de Hajime fue compilada esta fecha: " __DATE__ ".");
 help.push_back("\033[32mUso:\033[0m ");

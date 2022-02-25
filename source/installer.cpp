@@ -1,3 +1,19 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 #include <fstream>
 #include <filesystem>
 #include <cstring>
@@ -33,7 +49,7 @@ void Installer::installNewServerConfigFile(const string& fileLocation, const boo
 		outConf << "command= # Only use this if you using the \"old\" method."<< endl << "method=new" << endl << "device=" << endl << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << endl;
 		outConf << "commands=1" << endl << "silentcommands=0" << endl << "custommsg=" << endl << "chatkickregex=" << endl << "counters=1" << endl;
 		outConf << text.fileServerConfComment << endl;
-		hjlog.out<Info>(text.info.CreatedServerConfig1 + fileLocation + text.info.CreatedServerConfig2);
+		term.out<Info>(text.info.CreatedServerConfig1 + fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();
 		if (!fs::is_regular_file(fileLocation)) {
 			throw 1;
@@ -42,8 +58,8 @@ void Installer::installNewServerConfigFile(const string& fileLocation, const boo
 }
 
 void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck, const string& lang) {
-	hjlog.out<Info>(text.info.InstallingDefHajConf + fileLocation + "...");
-	hjlog.out<Info>(text.info.CheckingExistingFile);
+	term.out<Info>(text.info.InstallingDefHajConf + fileLocation + "...");
+	term.out<Info>(text.info.CheckingExistingFile);
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
@@ -54,7 +70,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 		outConf << "debug=0" << endl;
 		outConf << "threadcolors=1" << endl;
 		outConf.close();
-		hjlog.out<Info>(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2);
+		term.out<Info>(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2);
 		if (!fs::is_regular_file(fileLocation)) {
 			throw 1;
 		}
@@ -63,60 +79,60 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 
 void Installer::installStartupService(const string& sysService) {
 	#if defined(_WIN64) || defined (_WIN32)
-	hjlog.out<Info>(text.info.InstallingWStartServ);
+	term.out<Info>(text.info.InstallingWStartServ);
 	installWindows();
 	#else
 	if (fs::is_directory("/etc/init.d") && !fs::is_regular_file("/lib/systemd/systemd")) {
-		hjlog.out<Info>(text.info.InstallingSysvinit);
+		term.out<Info>(text.info.InstallingSysvinit);
 		bool continueInstall = true;
 		if (fs::is_regular_file("/etc/init.d/hajime.sh")) {
-			hjlog.out<Warning>(text.warning.FoundSysvinitService);
-			hjlog.out<Question, NoEndline>(text.question.MakeNewSysvinitService);
-			if (hjlog.getYN()) {
+			term.out<Warning>(text.warning.FoundSysvinitService);
+			term.out<Question, NoEndline>(text.question.MakeNewSysvinitService);
+			if (term.getYN()) {
 				continueInstall = true;
-				hjlog.out<Info>(text.info.InstallingNewSysvinit);
+				term.out<Info>(text.info.InstallingNewSysvinit);
 			} else {
 				continueInstall = false;
 			}
 		}
 		if (continueInstall) {
 			installSysVInit();
-			hjlog.out<Info>(text.info.InstalledSysvinit);
+			term.out<Info>(text.info.InstalledSysvinit);
 		} else {
-			hjlog.out<Info>(text.info.AbortedSysvinit);
+			term.out<Info>(text.info.AbortedSysvinit);
 		}
 	} else if (fs::is_directory("/Library/LaunchAgents")) { //macOS agent directory
-		hjlog.out<Info>(text.info.InstallingLaunchdServ);
+		term.out<Info>(text.info.InstallingLaunchdServ);
 		bool continueInstall = true;
 		if (fs::is_regular_file("/Library/LaunchAgents/Hajime.plist")) {
-			hjlog.out<Warning>(text.warning.LaunchdServPresent);
-			hjlog.out<Question, NoEndline>(text.question.MakeLaunchdServ);
-			if (hjlog.getYN()) {
+			term.out<Warning>(text.warning.LaunchdServPresent);
+			term.out<Question, NoEndline>(text.question.MakeLaunchdServ);
+			if (term.getYN()) {
 					continueInstall = true;
-					hjlog.out<Info>(text.info.InstallingNewLaunchdServ);
+					term.out<Info>(text.info.InstallingNewLaunchdServ);
 			} else {
 					continueInstall = false;
 			}
 		}
 		if (continueInstall) {
 			installLaunchd();
-			hjlog.out<Info>(text.info.InstalledLaunchServ);
+			term.out<Info>(text.info.InstalledLaunchServ);
 		} else {
-			hjlog.out<Info>(text.info.AbortedLaunchServ);
+			term.out<Info>(text.info.AbortedLaunchServ);
 		}
 	} else {
 		if (fs::is_directory("/etc/systemd") && fs::is_regular_file(sysService)) {
-			hjlog.out<Warning>(text.warning.FoundSystemdService);
+			term.out<Warning>(text.warning.FoundSystemdService);
 		}
 		if (fs::is_directory("/etc/systemd") && !fs::is_regular_file(sysService)) {
-			hjlog.out<Info>(text.info.MakingSystemdServ + sysService + "...");
+			term.out<Info>(text.info.MakingSystemdServ + sysService + "...");
 			if (getuid()) {
-				hjlog.out<Error>(text.error.SystemdRoot);
+				term.out<Error>(text.error.SystemdRoot);
 			}
 			installSystemd(sysService);
 		}
 		if (!fs::is_directory("/etc/systemd")) {
-			hjlog.out<Error>(text.error.NoSystemd);
+			term.out<Error>(text.error.NoSystemd);
 		}
 	}
 	#endif
@@ -131,7 +147,7 @@ void Installer::installWindows() {
 	h = SHGetKnownFolderPath(FOLDERID_Startup, NULL, NULL, startupfolder);
 	if (!SUCCEEDED(h))
 	{
-		hjlog.out<Error>("SHGetKnownFolderPath failed");
+		term.out<Error>("SHGetKnownFolderPath failed");
 		CoTaskMemFree(startupfolder);
 		delete[] executablename;
 		delete[] directoryname;
@@ -155,13 +171,13 @@ void Installer::installWindows() {
 		}
 		else
 		{
-			hjlog.out<Error>("QueryInterface failed");
+			term.out<Error>("QueryInterface failed");
 		}
 		shortcut->Release();
 	}
 	else
 	{
-		hjlog.out<Error>("CoCreateInstance failed");
+		term.out<Error>("CoCreateInstance failed");
 	}
 	CoTaskMemFree(startupfolder);
 	delete[] executablename;
@@ -172,10 +188,10 @@ void Installer::installWindows() {
 void Installer::installSysVInit() {
 	ofstream service("/etc/init.d/hajime.sh");
 	string user;
-	hjlog.out<Question, NoEndline>(text.question.SysvinitUser);
+	term.out<Question, NoEndline>(text.question.SysvinitUser);
 	std::cin >> user;
 	string group;
-	hjlog.out<Question, NoEndline>(text.question.SysvinitGroup);
+	term.out<Question, NoEndline>(text.question.SysvinitGroup);
 	std::cin >> group;
 	service << "#!/bin/sh\n"
 	"### BEGIN INIT INFO\n"

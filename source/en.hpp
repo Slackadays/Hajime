@@ -1,3 +1,19 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 help.push_back("\033[1mWelcome to Hajime " + hajime_version + ", the ultimate Minecraft server startup script!\033[0m");
 help.push_back("This version of Hajime was compiled on " __DATE__ ".");
 help.push_back("\033[32mUsage: \033[0m");
@@ -19,6 +35,9 @@ help.push_back("-tc or --thread-colors | Show colors by thread ID instead of mes
 help.push_back("-ntc or --no-thread-colors | Show colors by message type instead of by thread ID.");
 help.push_back("-it or --show-info-type | Explicitly display the type of information in log messages.");
 help.push_back("\033[32mNeed more help?\033[0m Join our Discord group at https://discord.gg/J6asnc3pEG");
+help.push_back("Hajime Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com");
+help.push_back("This program comes with ABSOLUTELY NO WARRANTY.");
+help.push_back("This is free software, and you are welcome to redistribute it under certain conditions; see LICENSE in source for details.");
 eno.NotPermitted = "Not permitted. Is the device correct?";
 eno.NoFileOrDir = "No such file or directory.";
 eno.PermissionDenied = "Permission denied. Is Hajime being run under root?";

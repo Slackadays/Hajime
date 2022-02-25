@@ -1,3 +1,19 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
@@ -76,7 +92,7 @@ void Server::processChatKicks(string input) {
 			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + lastCommandUser + " for a chat infraction"));
 		}
 	} catch(...) {
-		hjlog.out<Error>("Invalid chat kick regex");
+		term.out<Error>("Invalid chat kick regex");
 	}
 }
 
@@ -725,14 +741,14 @@ void Server::writeToServerTerminal(string input) {
 	#if defined(_WIN64) || defined(_WIN32)
 	DWORD byteswritten;
 	if (!WriteFile(inputwrite, input.c_str(), input.size(), &byteswritten, NULL)) {// write to input pipe
-		hjlog.out<Error>("Unable to write to pipe");
+		term.out<Error>("Unable to write to pipe");
 	} else if (byteswritten != input.size()) {
 		std::cout << "Wrote " + std::to_string(byteswritten) + "bytes, expected " + std::to_string(input.size()) << std::endl;
 	}
 	#else
 	int len = write(fd, input.c_str(), input.length());
 	if (len == -1) {
-		hjlog.out<Error>("Error writing to server terminal");
+		term.out<Error>("Error writing to server terminal");
 	}
 	#endif
 }
@@ -757,7 +773,7 @@ string Server::readFromServer() {
 	#if defined(_WIN32) || defined (_WIN64)
 	DWORD length = 0;
 	if (!ReadFile(outputread, input, 1000, &length, NULL)) {
-		hjlog.out<Error, Threadless>("ReadFile failed (unable to read from pipe)");
+		term.out<Error, Threadless>("ReadFile failed (unable to read from pipe)");
 		return std::string();
 	}
 	#else
@@ -767,19 +783,19 @@ string Server::readFromServer() {
 		if (length == -1) {
 			switch(errno) {
 				case EAGAIN:
-					hjlog.out<Error, Threadless>("Error reading file descriptor; not a socket and is nonblocking");
+					term.out<Error, Threadless>("Error reading file descriptor; not a socket and is nonblocking");
 					break;
 				case EINTR:
-					hjlog.out<Error, Threadless>("Error reading file descriptor; interrupted before read could complete");
+					term.out<Error, Threadless>("Error reading file descriptor; interrupted before read could complete");
 					break;
 				case EBADF:
-					hjlog.out<Error, Threadless>("Error reading file descriptor; not valid or not available for reading");
+					term.out<Error, Threadless>("Error reading file descriptor; not valid or not available for reading");
 					break;
 				case EIO:
-					hjlog.out<Error, Threadless>("Error reading file descriptor; I/O error (the server is likely down)");
+					term.out<Error, Threadless>("Error reading file descriptor; I/O error (the server is likely down)");
 					break;
 				default:
-					hjlog.out<Error, Threadless>("Other error reading file descriptor; errno = " + to_string(errno));
+					term.out<Error, Threadless>("Other error reading file descriptor; errno = " + to_string(errno));
 					break;
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -813,7 +829,7 @@ void Server::processAutoRestart() {
 }
 
 void Server::terminalAccessWrapper() {
-	hjlog.normalDisabled = true;
+	term.normalDisabled = true;
 	std::cout << "----->" << name << std::endl;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {
@@ -834,5 +850,5 @@ void Server::terminalAccessWrapper() {
 		}
 	}
 	std::cout << "Hajime<-----" << std::endl;
-	hjlog.normalDisabled = false;
+	term.normalDisabled = false;
 }

@@ -1,3 +1,26 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
+#if defined(_WIN64) || defined(_WIN32)
+#include <Windows.h>
+#include <shlobj.h>
+#else
+#include <sys/ioctl.h>
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -34,6 +57,51 @@ Output::Output() {
 	threadless = false;
 }
 
+int Output::getTerminalWidth() {
+	#if defined(_WIN64) || defined(_WIN32)
+	CONSOLE_SCREEN_BUFFER_INFO w;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
+	return w.dwSize.X;
+	#else
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	return w.ws_col;
+	#endif
+}
+
+void Output::dividerLine(string tx) {
+	string line;
+	int totalWidth = getTerminalWidth();
+	int currentWidth = 0;
+	if (lastOutput == "") {
+		line += "┏";
+		currentWidth++;
+	}
+	if (tx == "") {
+		for (; currentWidth < totalWidth; currentWidth++) {
+			line += "━";
+		}
+	} else {
+		for (; currentWidth < ((totalWidth - tx.length()) / 2) - 1; currentWidth++) {
+			line += "━";
+		}
+		line += "┫";
+		currentWidth++;
+		line += tx;
+		currentWidth += tx.length();
+		line += "┣";
+		currentWidth++;
+		for (; currentWidth < totalWidth - (lastOutput.empty() ? 1 : 0); currentWidth++) {
+			line += "━";
+		}
+		if (lastOutput == "") {
+			line += "┓";
+			currentWidth++;
+		}
+	}
+	term.out<None>(line);
+}
+
 void Output::init(const string& file) {
 	logToFile = true;
 	logFilename = file;
@@ -63,22 +131,18 @@ bool Output::isExcluded(outFlag type) {
 	}
 }
 
-string Output::processMonochrome(string input) {
-	if (noColors) {
-		return std::regex_replace(input, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
-	} else {
-		return input;
-	}
+string Output::makeMonochrome(string input) {
+	return std::regex_replace(input, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 }
 
 void Output::terminalDispatch(string input, outFlag type, bool endLineAtEnd) {
 	std::lock_guard<std::mutex> lock(outMutex);
 	if (type == Error) {
-		std::cerr << input;
+		std::cerr << input << std::flush;
 	} else {
-		std::cout << input;
+		std::cout << input << std::flush;
 		if (hajimeTerminal && (type != None) && endLineAtEnd) {
-			std::cout << '\r';
+			std::cout << '\r' << std::flush;
 		}
 	}
 	if (endLineAtEnd) {
@@ -193,7 +257,7 @@ string Output::addPrefixByType(string input, outFlag type) {
 	return (prefix + input);
 }
 
-void Output::addServerName(const string& serverName) {
+void Output::registerServerName(const string& serverName) {
 	if (!threadToNameMap.count(std::this_thread::get_id())) {
 		threadToNameMap[std::this_thread::get_id()] = serverName;
 	} else {

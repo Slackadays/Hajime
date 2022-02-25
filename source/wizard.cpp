@@ -1,3 +1,19 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 #include <iostream>
 #include <filesystem>
 #include <vector>
@@ -18,23 +34,6 @@ const string aikarFlags = "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPau
 const string hillttyFlags = "-XX:+UseLargePages -XX:LargePageSizeInBytes=2M -XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu -XX:+UseNUMA -XX:+AlwaysPreTouch -XX:-UseBiasedLocking -XX:+DisableExplicitGC -Dfile.encoding=UTF-8";
 const string froggeMCFlags = "-XX:+IgnoreUnrecognizedVMOptions -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:-OmitStackTraceInFastThrow -XX:+ShowCodeDetailsInExceptionMessages -XX:+DisableExplicitGC -XX:-UseParallelGC -XX:-UseParallelOldGC -XX:+PerfDisableSharedMem -XX:+UseZGC -XX:-ZUncommit -XX:ZUncommitDelay=300 -XX:ZCollectionInterval=5 -XX:ZAllocationSpikeTolerance=2.0 -XX:+AlwaysPreTouch -XX:+UseTransparentHugePages -XX:LargePageSizeInBytes=2M -XX:+UseLargePages -XX:+ParallelRefProcEnabled";
 const string basicZGCFlags = "-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-UseParallelGC -XX:-UseG1GC -XX:+UseZGC";
-
-void Wizard::dividerLine() {
-	#if defined(_WIN64) || defined(_WIN32)
-	CONSOLE_SCREEN_BUFFER_INFO w;
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &w);
-	for (int i = 0; i < w.dwSize.X; i++) {
-		hjlog.out<None, NoEndline>("─");
-	}
-	#else
-	struct winsize w;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-	for (int i = 0; i < w.ws_col; i++) {
-		hjlog.out<None, NoEndline>("─");
-	}
-	#endif
-	std::cout << std::endl;
-}
 
 void Wizard::pause(float mean, float stdev) {
 	if (doArtificialPauses) {
@@ -65,8 +64,8 @@ void Wizard::pause(float mean, float stdev) {
 }
 
 void Wizard::doLanguageStep() {
-	hjlog.out<Question>(text.question.HajimeLanguage);
-	switch (hjlog.getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
+	term.out<Question>(text.question.HajimeLanguage);
+	switch (term.getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
 		case 1:
 			defaultLang = text.language;
 			break;
@@ -88,20 +87,20 @@ void Wizard::doLanguageStep() {
 }
 
 void Wizard::doHajimeStep() {
-	hjlog.out<Info>(text.info.wizard.HajimeFile);
+	term.out<Info>(text.info.wizard.HajimeFile);
 	pause(200, 200);
-	hjlog.out<Question, NoEndline>(text.question.MakeHajimeConfig);
-	if (hjlog.getYN()) {
+	term.out<Question, NoEndline>(text.question.MakeHajimeConfig);
+	if (term.getYN()) {
 		pause(400, 400);
 		wizardStep(confFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, defaultLang);
 	}
 }
 
 void Wizard::doServerStep() {
-	hjlog.out<Info>(text.info.wizard.ServerFile);
+	term.out<Info>(text.info.wizard.ServerFile);
 	pause(200, 200);
-	hjlog.out<Question, KeepEndlines, NoEndline>(text.question.WizardServerFile);
-	int choice = hjlog.getYN(text.option.MakeServerFileManually, text.option.LetHajimeDeduce, text.option.SkipStep);
+	term.out<Question, KeepEndlines, NoEndline>(text.question.WizardServerFile);
+	int choice = term.getYN(text.option.MakeServerFileManually, text.option.LetHajimeDeduce, text.option.SkipStep);
 	switch (choice) {
 		case 1:
 			while (true) {
@@ -111,11 +110,11 @@ void Wizard::doServerStep() {
 				}
 				string file = "server.jar";
 				string flags;
-				hjlog.out<Question>(text.question.ApplyConfigToServerFile);
-				switch (hjlog.getYN(text.option.DoManually, text.option.LetHajimeDeduce, text.option.SkipStep)) {
+				term.out<Question>(text.question.ApplyConfigToServerFile);
+				switch (term.getYN(text.option.DoManually, text.option.LetHajimeDeduce, text.option.SkipStep)) {
 					case 1:
-						hjlog.out<Question>(text.question.UseFlags);
-						switch (hjlog.getYN(text.option.AikarFlags, text.option.HillttyFlags, text.option.FroggeMCFlags, text.option.BasicZGCFlags, text.option.CustomFlags, text.option.SkipStep)) {
+						term.out<Question>(text.question.UseFlags);
+						switch (term.getYN(text.option.AikarFlags, text.option.HillttyFlags, text.option.FroggeMCFlags, text.option.BasicZGCFlags, text.option.CustomFlags, text.option.SkipStep)) {
 							case 1:
 								flags = aikarFlags;
 								break;
@@ -128,21 +127,21 @@ void Wizard::doServerStep() {
 							case 4:
 								flags = basicZGCFlags;
 							case 5:
-								hjlog.out<Question>(text.question.EnterCustomFlags);
+								term.out<Question>(text.question.EnterCustomFlags);
 								std::getline(std::cin, flags);
 							case 6:
 								flags = "";
 								break;
 						}
-						hjlog.out<Question>(text.question.UseDefaultServerFile1 + file + text.question.UseDefaultServerFile2);
-						switch (hjlog.getYN(text.option.UseDefault, text.option.LetHajimeDeduce, text.option.EnterManually, text.option.SkipStep)) {
+						term.out<Question>(text.question.UseDefaultServerFile1 + file + text.question.UseDefaultServerFile2);
+						switch (term.getYN(text.option.UseDefault, text.option.LetHajimeDeduce, text.option.EnterManually, text.option.SkipStep)) {
 							case 1:
 								break;
 							case 2:
-								hjlog.out<Error>(text.error.OptionNotAvailable);
+								term.out<Error>(text.error.OptionNotAvailable);
 								break;
 							case 3:
-								hjlog.out<Question>(text.question.EnterNewServerFile);
+								term.out<Question>(text.question.EnterNewServerFile);
 								std::getline(std::cin, file);
 								break;
 							case 4:
@@ -150,21 +149,21 @@ void Wizard::doServerStep() {
 								break;
 						}
 						doAdvancedServerStep();
-						hjlog.out<Info>(text.info.InstallingDefServConf + serverFile + "...");
+						term.out<Info>(text.info.InstallingDefServConf + serverFile + "...");
 						if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);
 						}
-						hjlog.out<Info>(text.info.InstallingNewServConf + serverFile + "...");
+						term.out<Info>(text.info.InstallingNewServConf + serverFile + "...");
 						break;
 					case 2:
-						hjlog.out<Error>(text.error.OptionNotAvailable);
+						term.out<Error>(text.error.OptionNotAvailable);
 						break;
 					case 3:
 						break;
 				}
-				hjlog.out<Question>(text.question.CreateAnotherServerFile);
-				if (hjlog.getYN()) {
-					hjlog.out<Info, NoEndline>(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2);
+				term.out<Question>(text.question.CreateAnotherServerFile);
+				if (term.getYN()) {
+					term.out<Info, NoEndline>(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2);
 					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);
@@ -175,7 +174,7 @@ void Wizard::doServerStep() {
 			installedS = true;
 			break;
 		case 2:
-			hjlog.out<Error>(text.error.OptionNotAvailable);
+			term.out<Error>(text.error.OptionNotAvailable);
 			break;
 		case 3:
 			break;
@@ -183,25 +182,25 @@ void Wizard::doServerStep() {
 }
 
 void Wizard::doAdvancedServerStep() {
-	hjlog.out<Question>("Would you like to apply an advanced configuration to this server?");
-	if (hjlog.getYN()) {
+	term.out<Question>("Would you like to apply an advanced configuration to this server?");
+	if (term.getYN()) {
 		doStartupStep();
 	}
 }
 
 void Wizard::doAdvancedHajimeStep() {
-	hjlog.out<Question>("Would you like to apply an advanced configuration to Hajime?");
-	if (hjlog.getYN()) {
+	term.out<Question>("Would you like to apply an advanced configuration to Hajime?");
+	if (term.getYN()) {
 		pause(400, 400);
 		doStartupStep();
 	}
 }
 
 void Wizard::doStartupStep() {
-	hjlog.out<Info>(text.info.wizard.StartupService);
+	term.out<Info>(text.info.wizard.StartupService);
 	pause(200, 200);
-	hjlog.out<Question>(text.question.WizardStartupService);
-	if (hjlog.getYN()) {
+	term.out<Question>(text.question.WizardStartupService);
+	if (term.getYN()) {
 		pause(400, 400);
 		installer.installStartupService("/etc/systemd/system/hajime.service");
 	}
@@ -210,15 +209,15 @@ void Wizard::doStartupStep() {
 void Wizard::doNextStepStep() {
 	if (installedS) {
 		if (servers.size() == 1) {
-			hjlog.out<Info>(text.info.wizard.NextStepServerFile1 + servers[0] + text.info.wizard.NextStepServerFile2);
+			term.out<Info>(text.info.wizard.NextStepServerFile1 + servers[0] + text.info.wizard.NextStepServerFile2);
 		} else if (servers.size() == 2) {
-			hjlog.out<Info>(text.info.wizard.NextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.wizard.NextStepServerFile2);
+			term.out<Info>(text.info.wizard.NextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.wizard.NextStepServerFile2);
 		} else if (servers.size() > 2) {
-			hjlog.out<Info, NoEndline>(text.info.wizard.NextStepServerFile1);
+			term.out<Info, NoEndline>(text.info.wizard.NextStepServerFile1);
 			for (int i = 0; i < (servers.size() - 1); i++) {
-				hjlog.out<None, NoEndline>(servers[i] + ", ");
+				term.out<None, NoEndline>(servers[i] + ", ");
 			}
-			hjlog.out<None>("& " + servers.back() + text.info.wizard.NextStepServerFile2);
+			term.out<None>("& " + servers.back() + text.info.wizard.NextStepServerFile2);
 		}
 	}
 }
@@ -241,7 +240,7 @@ void Wizard::initialHajimeSetupUnattended(string tempConfFile, string tempServer
 }
 
 void Wizard::applySteps() {
-	hjlog.out<Info>("This part is currently not implemented yet");
+	term.out<Info>("This part is currently not implemented yet");
 }
 
 void Wizard::initialHajimeSetupAttended(string tempConfFile, string tempServerFile) {
@@ -252,19 +251,19 @@ void Wizard::initialHajimeSetupAttended(string tempConfFile, string tempServerFi
 	pause(400, 400);
 	doLanguageStep();
 	pause(400, 400);
-	dividerLine();
+	term.dividerLine();
 	doHajimeStep();
 	pause(400, 400);
-	dividerLine();
+	term.dividerLine();
 	doServerStep();
 	pause(400, 400);
-	dividerLine();
+	term.dividerLine();
 	pause(400, 400);
 	doAdvancedHajimeStep();
 	pause(400, 400);
-	dividerLine();
-	hjlog.out<Info>(text.info.wizard.Complete);
-	hjlog.out<Info>("Finalizing your installation");
+	term.dividerLine();
+	term.out<Info>(text.info.wizard.Complete);
+	term.out<Info>("Finalizing your installation");
 	applySteps();
 	pause(200, 200);
 	doNextStepStep();

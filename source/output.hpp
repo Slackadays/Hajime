@@ -1,3 +1,19 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 #pragma once //this guards against g++ error "redefinition of class Output"
 
 #include <iostream>
@@ -25,60 +41,10 @@ class Output {
 	std::thread::id main_thread = std::this_thread::get_id();
 	ofstream fileObj;
 
-	template <std::same_as<outFlag> auto... flags>
-	void processOutput(string data) {
-		constexpr bool force = ((flags == Force) || ...);
-		constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
-		const bool oldThreadless = threadless;
-		threadless = ((flags == Threadless) || ...);
-		constexpr outFlag type = [] {
-			for (auto flag : std::initializer_list<outFlag>{flags...}) {
-				switch (flag) {
-					case None:
-						return None;
-					case Info:
-						return Info;
-					case Error:
-						return Error;
-					case Warning:
-						return Warning;
-					case Debug:
-						return Debug;
-					case Question:
-						return Question;
-					case KeepEndlines: //prevent a warning from Clang
-						break;
-					case Force:
-						break;
-					case NoEndline:
-						break;
-					case Threadless:
-						break;
-				}
-			}
-			return None;
-		}();
-		constexpr bool endLineAtEnd = (type != Question) && !((flags == NoEndline) || ...);
-		if (isExcluded(type)) {
-			return;
-		}
-		string outputString;
-		outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
-		outputString = processMonochrome(outputString);
-		if (hajimeTerminal && (type != None) && endLineAtEnd) {
-			outputString = '\r' + outputString;
-		}
-		terminalDispatch(outputString, type, endLineAtEnd);
-		if (logToFile) {
-			fileDispatch(outputString, type, endLineAtEnd);
-		}
-		threadless = oldThreadless;
-	}
-
 	string removeEndlines(string input, bool keepEndlines = false);
 	string addPrefixByType(string data = "", outFlag type = None);
 	string getColorByID();
-	string processMonochrome(string input);
+	string makeMonochrome(string input);
 	bool isExcluded(outFlag type);
 	void terminalDispatch(string input, outFlag type, bool endLineAtEnd);
 	void fileDispatch(string input, outFlag type, bool endLineAtEnd);
@@ -89,10 +55,15 @@ class Output {
 	inline static string logFilename;
 
 	public:
+		int getTerminalWidth();
+		void dividerLine(string tx = "");
+
 		template <std::same_as<outFlag> auto... flags>
 		void out(string data) {
-			processOutput<flags...>(data);
-			constexpr bool endLineAtEnd = !((flags == NoEndline) || ... );
+			constexpr bool force = ((flags == Force) || ...);
+			constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
+			const bool oldThreadless = threadless;
+			threadless = ((flags == Threadless) || ...);
 			constexpr outFlag type = [] {
 				for (auto flag : std::initializer_list<outFlag>{flags...}) {
 					switch (flag) {
@@ -108,21 +79,49 @@ class Output {
 							return Debug;
 						case Question:
 							return Question;
-						case KeepEndlines:
-        	    break;
-	          case Force:
-        	   	break;
-        	  case NoEndline:
-        	    break;
-        	  case Threadless:
-        	    break;
+						case KeepEndlines: //prevent a warning from Clang
+							break;
+						case Force:
+							break;
+						case NoEndline:
+							break;
+						case Threadless:
+							break;
 					}
 				}
 				return None;
 			}();
+			constexpr bool endLineAtEnd = (type != Question) && !((flags == NoEndline) || ...);
+			if (isExcluded(type)) {
+				return;
+			}
+			string outputString;
+			outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
+			if (noColors) {
+				outputString = makeMonochrome(outputString);
+			}
+			if (type != None) {
+				outputString = "┃" + string(getTerminalWidth() - 2, ' ') + "┃\r┃" + outputString;
+			}
+			//std::cout << "first char of last output = " << makeMonochrome(lastOutput.substr(0, 3)) << std::endl;
+			//std::cout << "new output = " << makeMonochrome(outputString.substr(0, 18)) << std::endl;
+			/*if (!lastOutput.empty() && makeMonochrome(lastOutput.substr(0, 3)) == "━" && makeMonochrome(outputString.substr(0, 18)) == "┃") {
+				lastOutput = "┏" + lastOutput;
+				lastOutput.erase(lastOutput.length() - 1, 1);
+				terminalDispatch('\r' + lastOutput, None, false);
+			}*/
+			if (hajimeTerminal && (type != None) && endLineAtEnd) {
+				outputString = '\r' + outputString;
+			}
+			terminalDispatch(outputString, type, endLineAtEnd);
+			if (logToFile) {
+				fileDispatch(outputString, type, endLineAtEnd);
+			}
+			threadless = oldThreadless;
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
 				terminalDispatch("\r\033[92m\033[1m" + text.info.EnterCommand + "\033[0m", None, 0);
 			}
+			lastOutput = outputString;
 		}
 
 		template<typename ...T>
@@ -166,8 +165,9 @@ class Output {
 
 		inline static bool isWindows;
 		void init(const string& file);
-		void addServerName(const string& name);
+		void registerServerName(const string& name);
 		void end();
+		inline static string lastOutput;
 		inline static bool threadless;
 		inline static int showThreadsAsColors;
 		inline static bool showExplicitInfoType;
@@ -180,4 +180,4 @@ class Output {
 		Output();
 };
 
-static Output hjlog;
+static Output term;

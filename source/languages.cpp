@@ -1,3 +1,19 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
 #include <string>
 #include <vector>
 #include <filesystem>
@@ -55,13 +71,13 @@ string Text::getUserLanguage() {
 	std::unique_ptr<wchar_t[]> locale(new wchar_t[LOCALE_NAME_MAX_LENGTH]);
 	int ret = GetUserDefaultLocaleName(locale.get(), LOCALE_NAME_MAX_LENGTH);
 	if (!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		hjlog.out<outFlag::Error>("Too small buffer for locale");
+		term.out<outFlag::Error>("Too small buffer for locale");
 	} else {
-		hjlog.out<outFlag::Debug>("ret = " + std::to_string(ret));
+		term.out<outFlag::Debug>("ret = " + std::to_string(ret));
 	}
 	int len = WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, locale.get(), ret - 1, nullptr, 0, NULL, NULL);
 	if (!len) {
-		hjlog.out<outFlag::Error>("Error in WideCharToMultiByte");
+		term.out<outFlag::Error>("Error in WideCharToMultiByte");
 	}
 	string result(len, '\0');
 	WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, locale.get(), ret - 1, result.data(), len, NULL, NULL);
@@ -75,7 +91,7 @@ string Text::getUserLanguage() {
 		result = (string)getenv("LANG");
 	}
 	#endif
-	hjlog.out<outFlag::Debug>("result = " + result);
+	term.out<outFlag::Debug>("result = " + result);
 	return result;
 }
 
