@@ -466,8 +466,9 @@ string Server::getRAM() {
   long int memtotal;
   sysctlbyname("hw.memsize", &memtotal, &len, NULL, 0);
   return to_string(memtotal) + "B total";
+	#else
+	return "Not available yet";
 	#endif
-	return "Only available on Linux or Windows";
 }
 
 string Server::getUptime() {
@@ -485,7 +486,7 @@ string Server::getUptime() {
 		return "Error parsing memory";
 	}
 	#else
-	return string("Only works on Linux");
+	return string("Not available yet");
 	#endif
 }
 
@@ -508,7 +509,7 @@ string Server::getLoadavg() {
 	string result = "last 1 minute: " + loadinfo[0] + ", last 5 minutes: " + loadinfo[1] + ", last 10 minutes: " + loadinfo[2];
 	return result;
 	#else
-	return "Not available";
+	return "Not available yet";
 	#endif
 }
 
@@ -534,8 +535,42 @@ string Server::getProcesses() {
 	#endif
 }
 
+bool Server::areCountersAvailable() {
+	#if defined(_WIN32) || defined(_WIN64)
+	return false;
+	#elif defined(__linux__)
+	if (performanceCounterCompat == -1) {
+		return false;
+	} else {
+		return true;
+	}
+	#else
+	return false;
+	#endif
+}
+
 string Server::formatReadingsLIB(const std::list<unsigned long long>& little, const std::list<unsigned long long>& big) {
-	return to_string(averageVal(little, 1)) + " (" + to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "% of total) last 1 minute, " + to_string(averageVal(little, 5)) + " (" + to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + to_string(averageVal(little, 15)) + " (" + to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15 (Lower is better)";
+	if (areCountersAvailable()) {
+		return to_string(averageVal(little, 1)) + " (" + to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "% of total) last 1 minute, " + to_string(averageVal(little, 5)) + " (" + to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + to_string(averageVal(little, 15)) + " (" + to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15 (Lower is better)";
+	} else {
+		return "Currently not available on this server";
+	}
+}
+
+string Server::formatReadingsLIB(const std::list<unsigned long long>& readings) {
+	if (areCountersAvailable()) {
+		return to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15 (Lower is better)";
+	} else {
+		return "Currently not available on this server";
+	}
+}
+
+string Server::formatReadingsHIB(const std::list<unsigned long long>& readings) {
+	if (areCountersAvailable()) {
+		return to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15 (Higher is better)";
+	} else {
+		return "Currently not available on this server";
+	}
 }
 
 string Server::getCPUusage() {
@@ -567,15 +602,15 @@ string Server::getContextSwitches() {
 }
 
 string Server::getStalledCyclesFrontend() {
-	return to_string(averageVal(stalledcyclesfrontendreadings, 1)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + "% of all cycles) last 1 minute, " + to_string(averageVal(stalledcyclesfrontendreadings, 5)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + "%) last 5, " + to_string(averageVal(stalledcyclesfrontendreadings, 15)) + " (" + to_string(100.0 * (double)averageVal(stalledcyclesfrontendreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + "%) last 15 (Lower is better)";
+	return formatReadingsLIB(stalledcyclesfrontendreadings);
 }
 
 string Server::getStalledCyclesBackend() {
-	return formatReadingsLIB(stalledcyclesbackendreadings, cpucyclereadings);
+	return formatReadingsLIB(stalledcyclesbackendreadings);
 }
 
 string Server::getBusCycles() {
-	return to_string(averageVal(buscyclereadings, 1)) + " last 1 minute, " + to_string(averageVal(buscyclereadings, 5)) + " last 5, " + to_string(averageVal(buscyclereadings, 15)) + " last 15 (Higher is better)";
+	return formatReadingsHIB(buscyclereadings);
 }
 
 string Server::getBranchMisses() {
@@ -587,11 +622,11 @@ string Server::getCacheMisses() {
 }
 
 string Server::getAlignmentFaults() {
-	return to_string(averageVal(alignmentfaultreadings, 1)) + " last 1 minute, " + to_string(averageVal(alignmentfaultreadings, 5)) + " last 5, " + to_string(averageVal(alignmentfaultreadings, 15)) + " last 15 (Lower is better)";
+	return formatReadingsLIB(alignmentfaultreadings);
 }
 
 string Server::getEmulationFaults() {
-	return to_string(averageVal(emulationfaultreadings, 1)) + " last 1 minute, " + to_string(averageVal(emulationfaultreadings, 5)) + " last 5, " + to_string(averageVal(emulationfaultreadings, 15)) + " last 15 (Lower is better)";
+	return formatReadingsLIB(emulationfaultreadings);
 }
 
 string Server::getMinorPagefaults() {
@@ -631,7 +666,7 @@ string Server::getLLWriteMisses() {
 }
 
 string Server::getLLPrefetchMisses() {
-	return to_string(averageVal(llprefetchmissreadings, 1)) + " last 1 minute, " + to_string(averageVal(llprefetchmissreadings, 5)) + " last 5, " + to_string(averageVal(llprefetchmissreadings, 15)) + " last 15 (Lower is better)";
+	return formatReadingsLIB(llprefetchmissreadings);
 }
 
 string Server::getdTLBReadMisses() {

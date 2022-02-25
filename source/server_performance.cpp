@@ -70,7 +70,7 @@ struct pcounter {
 	std::array<std::array<unsigned long long, 4>, 17> gv;
 	std::array<std::array<int, 4>, 17> gfd;
 
-	char buf[128];
+	char buf[96];
 	struct read_format* data = reinterpret_cast<struct read_format*>(buf);
 };
 
@@ -122,26 +122,26 @@ void Server::setupCounter(auto& s) {
 		} else if (fd == -1) {
 			switch(errno) {
 				case E2BIG:
-					hjlog.out<Error, Threadless>("Event perfstruct is too small");
+					hjlog.out<Debug, Threadless>("Event perfstruct is too small");
 					return;
 				case EACCES:
-					hjlog.out<Error, Threadless>("Performance counters not permitted; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability");
+					hjlog.out<Warning, Threadless>("Performance counters not permitted or available; try using a newer Linux kernel or assigning Hajime the CAP_PERFMON capability");
 					performanceCounterCompat = -1;
 					return;
 				case EBADF:
 					if (gfd > -1) {
-						hjlog.out<Error, Threadless>("Event group_fd not valid");
+						hjlog.out<Debug, Threadless>("Event group_fd not valid");
 					}
 					return;
 				case EBUSY:
-					hjlog.out<Error, Threadless>("Another process has exclusive access to performance counters");
+					hjlog.out<Debug, Threadless>("Another process has exclusive access to performance counters");
 					performanceCounterCompat = -1;
 					return;
 				case EFAULT:
-					hjlog.out<Error, Threadless>("Invalid memory address");
+					hjlog.out<Debug, Threadless>("Invalid memory address");
 					return;
 				case EINVAL:
-					hjlog.out<Error, Threadless>("Invalid event");
+					hjlog.out<Debug, Threadless>("Invalid event");
 					knownBadEvents.push_back(st.config);
 					return;
 				case EMFILE:
@@ -149,28 +149,28 @@ void Server::setupCounter(auto& s) {
 					performanceCounterCompat = -1;
 					return;
 				case ENODEV:
-					hjlog.out<Error, Threadless>("Event not supported on this CPU");
+					hjlog.out<Debug, Threadless>("Event not supported on this CPU");
 					knownBadEvents.push_back(st.config);
 					return;
 				case ENOENT:
-					hjlog.out<Error, Threadless>("Invalid event type");
+					hjlog.out<Debug, Threadless>("Invalid event type");
 					knownBadEvents.push_back(st.config);
 					return;
 				case ENOSPC:
-					hjlog.out<Error, Threadless>("Too many hardware breakpoint events");
+					hjlog.out<Debug, Threadless>("Too many hardware breakpoint events");
 					return;
 				case EOPNOTSUPP:
-					hjlog.out<Error, Threadless>("Hardware support not available");
+					hjlog.out<Debug, Threadless>("Hardware support not available");
 					knownBadEvents.push_back(st.config);
 					return;
 				case EPERM:
-					hjlog.out<Error, Threadless>("Unsupported event exclusion setting");
+					hjlog.out<Debug, Threadless>("Unsupported event exclusion setting");
 					return;
 				case ESRCH:
-					hjlog.out<Error, Threadless>("Invalid PID for event; PID = " + to_string(s->pid));
+					hjlog.out<Debug, Threadless>("Invalid PID for event; PID = " + to_string(s->pid));
 					return;
 				default:
-					hjlog.out<Error, Threadless>("Other performance counter error; errno = " + std::to_string(errno));
+					hjlog.out<Debug, Threadless>("Other performance counter error; errno = " + std::to_string(errno));
 					return;
 			}
 		}
@@ -197,11 +197,11 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[1][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
 	setupEvent(s->gfd[1][1], s->gid[1][1], s->perfstruct[1][1], s->gfd[1][0]);
 	//std::cout << "stalled cycles" << std::endl;
-	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND);
-	setupEvent(s->gfd[0][2], s->gid[0][2], s->perfstruct[0][2], s->gfd[0][0]);
+	configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND); //this event creates another group within the [0] group because we needed to separate these from the first group
+	setupEvent(s->gfd[0][2], s->gid[0][2], s->perfstruct[0][2], -1);
 
 	configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
-	setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][0]);
+	setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][2]);
 	//std::cout << "bus cycles" << std::endl;
 	configureStruct(s->perfstruct[2][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
 	setupEvent(s->gfd[2][2], s->gid[2][2], s->perfstruct[2][2], s->gfd[2][0]);
@@ -362,8 +362,17 @@ void Server::readCounters(auto& counters) {
 						s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
 					} else if (s->data->values[i].id == s->gid[0][1]) {
 						s->gv[0][1] = s->data->values[i].value;
-					} else if (s->data->values[i].id == s->gid[0][2]) {
-						s->gv[0][2] = s->data->values[i].value;
+					}
+				}
+			}
+		}
+		if (s->gfd[0][2] > 2) {
+			size = read(s->gfd[0][2], s->buf, sizeof(s->buf)); //get information from the counters
+			//std::cout << "size for g1 = " << size << std::endl;
+			if (size >= 40) {
+				for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
+					if (s->data->values[i].id == s->gid[0][2]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
+						s->gv[0][2] = s->data->values[i].value; //store the counter value in g1v1
 					} else if (s->data->values[i].id == s->gid[0][3]) {
 						s->gv[0][3] = s->data->values[i].value;
 					}
@@ -622,53 +631,58 @@ void Server::processPerfStats() {
 		updateCPUusage(cpuusagereadings);
 		updateRAMusage();
 		std::this_thread::sleep_for(std::chrono::seconds(15));
+		//auto then = std::chrono::high_resolution_clock::now();
 		if (performanceCounterCompat != -1) {
 			#if defined(__linux__)
 			disableCounters(MyCounters);
 			readCounters(MyCounters);
-			cpucyclereadings.emplace_back(0);
-			cpuinstructionreadings.emplace_back(0);
-			cpuusagereadings.emplace_back(0);
-			cpumigrationreadings.emplace_back(0);
-			rambytereadings.emplace_back(0);
-			contextswitchreadings.emplace_back(0);
-			pagefaultreadings.emplace_back(0);
-			branchinstructionreadings.emplace_back(0);
-			branchmissreadings.emplace_back(0);
-			cachemissreadings.emplace_back(0);
-			cachereferencereadings.emplace_back(0);
-			stalledcyclesfrontendreadings.emplace_back(0);
-			stalledcyclesbackendreadings.emplace_back(0);
-			buscyclereadings.emplace_back(0);
-			alignmentfaultreadings.emplace_back(0);
-			emulationfaultreadings.emplace_back(0);
-			minorpagefaultreadings.emplace_back(0);
-			majorpagefaultreadings.emplace_back(0);
-			l1dreadaccessreadings.emplace_back(0);
-			l1dreadmissreadings.emplace_back(0);
-			l1dprefetchaccessreadings.emplace_back(0);
-			l1dprefetchmissreadings.emplace_back(0);
-			llreadaccessreadings.emplace_back(0);
-			llreadmissreadings.emplace_back(0);
-			llwriteaccessreadings.emplace_back(0);
-			llwritemissreadings.emplace_back(0);
-			llprefetchmissreadings.emplace_back(0);
-			dtlbreadaccessreadings.emplace_back(0);
-			dtlbreadmissreadings.emplace_back(0);
-			dtlbwriteaccessreadings.emplace_back(0);
-			dtlbwritemissreadings.emplace_back(0);
-			itlbreadaccessreadings.emplace_back(0);
-			itlbreadmissreadings.emplace_back(0);
-			bpureadaccessreadings.emplace_back(0);
-			bpureadmissreadings.emplace_back(0);
-			dtlbprefetchaccessreadings.emplace_back(0);
-			dtlbprefetchmissreadings.emplace_back(0);
-			l1dwriteaccessreadings.emplace_back(0);
-			l1dwritemissreadings.emplace_back(0);
-			l1ireadaccessreadings.emplace_back(0);
-			l1ireadmissreadings.emplace_back(0);
-			l1iprefetchaccessreadings.emplace_back(0);
-			l1iprefetchmissreadings.emplace_back(0);
+			auto bumpAndCull = [](auto& list) {
+				list.emplace_back(0);
+				while (list.size() > 240) {
+					list.pop_front();
+				}
+			};
+			bumpAndCull(cpucyclereadings);
+			bumpAndCull(cpuinstructionreadings);
+			bumpAndCull(cachemissreadings);
+			bumpAndCull(branchinstructionreadings);
+			bumpAndCull(branchmissreadings);
+			bumpAndCull(cachereferencereadings);
+			bumpAndCull(stalledcyclesfrontendreadings);
+			bumpAndCull(stalledcyclesbackendreadings);
+			bumpAndCull(buscyclereadings);
+			bumpAndCull(pagefaultreadings);
+			bumpAndCull(contextswitchreadings);
+			bumpAndCull(cpumigrationreadings);
+			bumpAndCull(alignmentfaultreadings);
+			bumpAndCull(emulationfaultreadings);
+			bumpAndCull(minorpagefaultreadings);
+			bumpAndCull(majorpagefaultreadings);
+			bumpAndCull(l1dreadaccessreadings);
+			bumpAndCull(l1dreadmissreadings);
+			bumpAndCull(l1dprefetchaccessreadings);
+			bumpAndCull(l1dprefetchmissreadings);
+			bumpAndCull(llreadaccessreadings);
+			bumpAndCull(llreadmissreadings);
+			bumpAndCull(llwriteaccessreadings);
+			bumpAndCull(llwritemissreadings);
+			bumpAndCull(llprefetchmissreadings);
+			bumpAndCull(dtlbreadaccessreadings);
+			bumpAndCull(dtlbreadmissreadings);
+			bumpAndCull(dtlbwriteaccessreadings);
+			bumpAndCull(dtlbwritemissreadings);
+			bumpAndCull(dtlbprefetchaccessreadings);
+			bumpAndCull(dtlbprefetchmissreadings);
+			bumpAndCull(itlbreadaccessreadings);
+			bumpAndCull(itlbreadmissreadings);
+			bumpAndCull(bpureadaccessreadings);
+			bumpAndCull(bpureadmissreadings);
+			bumpAndCull(l1dwriteaccessreadings);
+			bumpAndCull(l1dwritemissreadings);
+			bumpAndCull(l1ireadaccessreadings);
+			bumpAndCull(l1ireadmissreadings);
+			bumpAndCull(l1iprefetchaccessreadings);
+			bumpAndCull(l1iprefetchmissreadings);
 			for (const auto& s : MyCounters) {
 				cpucyclereadings.back() += s->gv[0][0];
 				cpuinstructionreadings.back() += s->gv[0][1];
@@ -713,50 +727,6 @@ void Server::processPerfStats() {
 				l1iprefetchmissreadings.back() += s->gv[16][1];
 			}
 			//std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
-			auto cullList = [](auto& list) {
-				while (list.size() > 240) {
-					list.pop_front();
-				}
-			};
-			cullList(cpucyclereadings);
-			cullList(cpuinstructionreadings);
-			cullList(cachemissreadings);
-			cullList(branchinstructionreadings);
-			cullList(branchmissreadings);
-			cullList(cachereferencereadings);
-			cullList(stalledcyclesfrontendreadings);
-			cullList(stalledcyclesbackendreadings);
-			cullList(pagefaultreadings);
-			cullList(contextswitchreadings);
-			cullList(cpumigrationreadings);
-			cullList(alignmentfaultreadings);
-			cullList(emulationfaultreadings);
-			cullList(minorpagefaultreadings);
-			cullList(majorpagefaultreadings);
-			cullList(l1dreadaccessreadings);
-			cullList(l1dreadmissreadings);
-			cullList(l1dprefetchaccessreadings);
-			cullList(l1dprefetchmissreadings);
-			cullList(llreadaccessreadings);
-			cullList(llreadmissreadings);
-			cullList(llwriteaccessreadings);
-			cullList(llwritemissreadings);
-			cullList(llprefetchmissreadings);
-			cullList(dtlbreadaccessreadings);
-			cullList(dtlbreadmissreadings);
-			cullList(dtlbwriteaccessreadings);
-			cullList(dtlbprefetchaccessreadings);
-			cullList(dtlbprefetchmissreadings);
-			cullList(itlbreadaccessreadings);
-			cullList(itlbreadmissreadings);
-			cullList(bpureadaccessreadings);
-			cullList(bpureadmissreadings);
-			cullList(l1dwriteaccessreadings);
-			cullList(l1dwritemissreadings);
-			cullList(l1ireadaccessreadings);
-			cullList(l1ireadmissreadings);
-			cullList(l1iprefetchaccessreadings);
-			cullList(l1iprefetchmissreadings);
 			newPids = getProcessChildPids(pid);
 			diffPids.clear();
 			std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
@@ -765,6 +735,7 @@ void Server::processPerfStats() {
 			std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids;
 			cullCounters(MyCounters, diffPids);
 			currentPids = newPids;
+			//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
 			#endif
 		}
 	}
@@ -836,7 +807,7 @@ void Server::updateCPUusage(std::list<long long>& CPUreadings) {
 void Server::updateRAMusage() {
 	auto addReading = [](auto& list, const auto& entry) {
 		list.push_back(entry);
-		while (list.size() > 60) {
+		while (list.size() > 240) {
 			list.pop_front();
 		}
 	};

@@ -149,6 +149,7 @@ void Wizard::doServerStep() {
 								file = "";
 								break;
 						}
+						doAdvancedServerStep();
 						hjlog.out<Info>(text.info.InstallingDefServConf + serverFile + "...");
 						if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);
@@ -181,6 +182,21 @@ void Wizard::doServerStep() {
 	}
 }
 
+void Wizard::doAdvancedServerStep() {
+	hjlog.out<Question>("Would you like to apply an advanced configuration to this server?");
+	if (hjlog.getYN()) {
+		doStartupStep();
+	}
+}
+
+void Wizard::doAdvancedHajimeStep() {
+	hjlog.out<Question>("Would you like to apply an advanced configuration to Hajime?");
+	if (hjlog.getYN()) {
+		pause(400, 400);
+		doStartupStep();
+	}
+}
+
 void Wizard::doStartupStep() {
 	hjlog.out<Info>(text.info.wizard.StartupService);
 	pause(200, 200);
@@ -208,8 +224,8 @@ void Wizard::doNextStepStep() {
 }
 
 void Wizard::initialHajimeSetupUnattended(string tempConfFile, string tempServerFile) {
-	std::cout << deduce.hajimeFile() << std::endl;
-	std::cout << deduce.serverConfig() << std::endl;
+	//std::cout << deduce.hajimeFile() << std::endl;
+	//std::cout << deduce.serverConfig() << std::endl;
 	for (const auto& it : deduce.serverFiles(fs::current_path())) {
 		std::cout << "found server jar " << it << std::endl;
 	}
@@ -222,7 +238,10 @@ void Wizard::initialHajimeSetupUnattended(string tempConfFile, string tempServer
 			}
 		}
 	}*/
-	exit(0);
+}
+
+void Wizard::applySteps() {
+	hjlog.out<Info>("This part is currently not implemented yet");
 }
 
 void Wizard::initialHajimeSetupAttended(string tempConfFile, string tempServerFile) {
@@ -241,10 +260,12 @@ void Wizard::initialHajimeSetupAttended(string tempConfFile, string tempServerFi
 	pause(400, 400);
 	dividerLine();
 	pause(400, 400);
-	doStartupStep();
+	doAdvancedHajimeStep();
 	pause(400, 400);
 	dividerLine();
 	hjlog.out<Info>(text.info.wizard.Complete);
+	hjlog.out<Info>("Finalizing your installation");
+	applySteps();
 	pause(200, 200);
 	doNextStepStep();
 	pause(400, 400);

@@ -112,7 +112,10 @@ class Server {
 	string getRAM();
 	string getSwap();
 	string getProcesses();
+	bool areCountersAvailable();
 	string formatReadingsLIB(const std::list<unsigned long long>& little, const std::list<unsigned long long>& big);
+	string formatReadingsLIB(const std::list<unsigned long long>& readings);
+	string formatReadingsHIB(const std::list<unsigned long long>& readings);
 	string getUptime();
 	string getLoadavg();
 	string getCPUusage();
@@ -239,7 +242,7 @@ class Server {
 
 	bool wantsLiveOutput;
 
-	std::list<string> lines; 
+	std::list<string> lines;
 
 	public:
 		string name, exec, file, path, command, flags, confFile, device, method, cmdline, customMessage;

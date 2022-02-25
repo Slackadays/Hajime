@@ -20,14 +20,20 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 add_executable(hajime hajime.cpp server.cpp server_features.cpp server_performance.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp constants.cpp)
 
 if(lto_supported)
-    set_property(TARGET hajime PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-		if(CMAKE_COMPILER_IS_GNUCXX)
-        list(APPEND CMAKE_CXX_COMPILE_OPTIONS_IPO "-flto=auto")
-    endif()
+  set_property(TARGET hajime PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    list(APPEND CMAKE_CXX_COMPILE_OPTIONS_IPO "-flto=auto") # set the thread amount to what is available on the CPU
+  endif()
 else()
     message(STATUS "IPO/LTO not supported: ${lto_error}")
 endif()
 
 set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") # strip the binary for reduced size
+  endif()
+endif()
 
 target_link_libraries(hajime Threads::Threads)

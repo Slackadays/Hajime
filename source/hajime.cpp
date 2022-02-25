@@ -9,6 +9,7 @@ namespace fs = std::filesystem;
 #include <sys/ioctl.h>
 #include <unistd.h>
 #endif
+
 #include <signal.h>
 #include <fstream>
 #include <memory>
@@ -59,6 +60,7 @@ void processHajimeCommand(vector<string> input);
 bool isUserPrivileged();
 
 int main(int argc, char *argv[]) {
+	//auto then = std::chrono::high_resolution_clock::now();
 	atexit([]{
 		dividerLine();
 		#if defined(__APPLE__)
@@ -244,6 +246,8 @@ int main(int argc, char *argv[]) {
 	}
 	hjlog.out<Debug>("New soft file descriptor soft limit = " + to_string(rlimits.rlim_cur));
 	#endif
+	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
+	//exit(0);
 	for (const auto& serverIt : getServerFiles()) { //loop through all the server files found
 		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
 		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter

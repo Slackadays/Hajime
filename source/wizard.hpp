@@ -16,8 +16,11 @@ class Wizard {
 	void pause(float mean, float stdev);
 	void doHajimeStep();
 	void doServerStep();
+	void doAdvancedServerStep();
+	void doAdvancedHajimeStep();
 	void doStartupStep();
 	void doNextStepStep();
+	void applySteps();
 
 	public:
 		bool doArtificialPauses = true;
