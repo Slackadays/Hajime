@@ -6,27 +6,24 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/slackadays/hajime/badge)](https://www.codefactor.io/repository/github/slackadays/hajime)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/18effdc4e4ca4d62ae5d160314f6f200)](https://www.codacy.com/gh/Slackadays/Hajime/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Slackadays/Hajime&amp;utm_campaign=Badge_Grade)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Slackadays/Hajime/CI)
-![Discord](https://img.shields.io/discord/891817791525629952?color=blue&logo=Discord)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/slackadays/hajime/latest)
 ![GitHub Repo stars](https://img.shields.io/github/stars/slackadays/hajime?style=social)
 
 [**Hajime en español**](README_es.md)
 
 # Discord 💬
-Join our Discord server at https://discord.gg/J6asnc3pEG!
+Join our Discord server at https://discord.gg/J6asnc3pEG, where most Hajime discussion happens.
 
 # Get Hajime ⬇️
-### Linux, macOS & FreeBSD 🐧🍎👿
+### Linux, macOS, & FreeBSD 🐧🍎👿
 Copy and paste this into the terminal to install.
 ```
 sh <(curl -L https://gethaji.me)
 ```
-Or, go to the [GitHub Releases page](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
+Or, go to [GitHub Releases](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
 ### Windows 🪟
-Go to the [GitHub Releases page](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
-
+Go to [GitHub Releases](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
 ### Tutorial Videos 🖵
-
 Check out the official Hajime tutorial video series!
 [**YouTube** | ](https://www.youtube.com/channel/UC0DeCW6yXXVr9DJctJVo7wg)
 [**Odysee** | ](https://odysee.com/@TheHajimeProject)
@@ -35,9 +32,9 @@ Check out the official Hajime tutorial video series!
 
 # An Introduction 👋
 
-### Imagine your Minecraft server working just fine, until it isn't. 
+### Imagine your Minecraft server working fine, until it isn't. 
 
-### Or, your server is running a bit too slow for your liking. 
+### Or, your server is running too slow for your liking. 
 
 ### Or, you want to gain insights into performance. 
 
@@ -52,8 +49,8 @@ Hajime fills in a gaping void in the Minecraft server management world. On one e
 As a comparison, remember the original iPhone presentation in 2007 when Steve Jobs showed off a graph of the iPhone putting all competitors to shame in smartness and ease-of-use at the same time.
 
 ## Features 🎛️
-- Keeps your server running in the background so you can keep playing!
-- Super simple installation and setup!
+- Keeps your server running in the background!
+- Super simple setup and installation!
 - Monitor your server with advanced performance counters!
 - Optimize your server with Aikar's Flags and more!
 - Works with English, Spanish, and Portuguese!
@@ -79,19 +76,13 @@ Hajime will automtically start the installation wizard if it cannot find the con
 
 Check out the [Hajime Wiki!](https://github.com/Slackadays/Hajime/wiki)
 
-## Compiling 📚
-
-### CMake ⚙️
+## Compiling with CMake ⚙️
 Hajime can use CMake to compile. If you've just cloned the repo, these two commands will do the trick:
 ```
 cmake source
-cmake --build . -j 8
+cmake --build . -j 11
 ```
 If you're on Windows, add `--config Release` to the end of the second command to get a Release build.
-
-### Fakemake 🤫
-Hajime can also use what we call the `fakemake` script. It's nothing more than a shell script that can compile Hajime in one step. Use fakemake by simply running
-`sh fakemake`. Fakemake will only work on POSIX systems.
    
 # Troubleshooting 🆘
 Open an issue in GitHub Issues or get quick support in our Discord server.
