@@ -33,7 +33,7 @@
 using std::string;
 using std::ofstream;
 
-enum outFlag {None, Info, Error, Warning, Debug, Question, Force, NoEndline, KeepEndlines, Threadless};
+enum outFlag {None, Info, Error, Warning, Debug, Question, Force, NoEndline, KeepEndlines, Threadless, Border};
 enum lines {Def = 2, True = 1, False = 0};
 
 class Output {
@@ -62,6 +62,7 @@ class Output {
 		void out(string data) {
 			constexpr bool force = ((flags == Force) || ...);
 			constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
+			constexpr bool borders = ((flags == Border) || ...);
 			const bool oldThreadless = threadless;
 			threadless = ((flags == Threadless) || ...);
 			constexpr outFlag type = [] {
@@ -100,7 +101,7 @@ class Output {
 			if (noColors) {
 				outputString = makeMonochrome(outputString);
 			}
-			if (type != None) {
+			if (type != None || borders) {
 				outputString = "┃" + string(getTerminalWidth() - 2, ' ') + "┃\r┃" + outputString;
 			}
 			//std::cout << "first char of last output = " << makeMonochrome(lastOutput.substr(0, 3)) << std::endl;
@@ -131,9 +132,10 @@ class Output {
 			int i = 0;
 			if constexpr ((std::is_same_v<string, T> || ...)) { //check if we get a string in it or not
 				isComplex = true;
-				this->out<None, KeepEndlines>("\n\033[1m" + string(" ─> " + text.option.ChooseOptionBelow));
-				(this->out<None>(("\033[1m " + std::to_string(++i) + ")\033[0m " + options)), ...);
-				this->out<None, NoEndline>("\033[1m" + string(" ─> " + text.option.YourChoice));
+				std::cout << std::endl;
+				this->out<None, KeepEndlines, Border>("\033[1m" + string(" ─> " + text.option.ChooseOptionBelow));
+				(this->out<None, Border>(("\033[1m " + std::to_string(++i) + ")\033[0m " + options)), ...);
+				this->out<None, NoEndline, Border>("\033[1m" + string(" ─> " + text.option.YourChoice));
 			} else {
 				this->out<None, NoEndline>("\033[1m " + text.question.Prompt + ' ');
 			}

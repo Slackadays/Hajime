@@ -829,8 +829,8 @@ void Server::processAutoRestart() {
 }
 
 void Server::terminalAccessWrapper() {
+	term.dividerLine(name);
 	term.normalDisabled = true;
-	std::cout << "----->" << name << std::endl;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {
 		std::cout << it << std::flush;
@@ -849,6 +849,6 @@ void Server::terminalAccessWrapper() {
 			writeToServerTerminal(user_input); //write to the master side of the pterminal with user_input converted into a c-style string
 		}
 	}
-	std::cout << "Hajime<-----" << std::endl;
 	term.normalDisabled = false;
+	term.dividerLine("Hajime");
 }

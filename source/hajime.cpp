@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 	}
 	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
 	#endif
-	term.dividerLine("Starting Hajime " + hajime_version);
+	term.dividerLine();
 	for (int i = 1; i < argc; i++) { //search for the help flag first
 		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
 		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 				it = std::regex_replace(it, std::regex("--(?=\\w+)", std::regex_constants::optimize), "$&\033[1m");
 				it = std::regex_replace(it, std::regex(" (?=\\w+ \\|)", std::regex_constants::optimize), "$&\033[3m");
 				it = std::regex_replace(it, std::regex("\\|", std::regex_constants::optimize), "\033[0m\033[1m$&\033[0m");
-				term.out(it);
+				term.out<Border>(it);
 			}
 			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
 		}
@@ -321,7 +321,8 @@ void hajimeExit(int sig) {
 		std::cout << "\b\b  " << std::endl;
 		exit(0);
 	} else {
-		std::cout << "\b\b  " << std::endl << "\033[1mTry again within 3 seconds to exit Hajime" << std::flush;
+		std::cout << "\b\b  " << std::endl;
+		term.out<None, KeepEndlines, NoEndline, Border>("\033[1mTry again within 3 seconds to exit Hajime");
 	}
 	then = std::chrono::system_clock::now();
 }

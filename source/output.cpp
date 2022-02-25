@@ -80,8 +80,12 @@ void Output::dividerLine(string tx) {
 		currentWidth++;
 	}
 	if (tx == "") {
-		for (; currentWidth < totalWidth; currentWidth++) {
+		for (; currentWidth < totalWidth - 1; currentWidth++) {
 			line += "━";
+		}
+		if (lastOutput == "") {
+			line += "┓";
+			currentWidth++;
 		}
 	} else {
 		for (; currentWidth < ((totalWidth - tx.length()) / 2) - 1; currentWidth++) {
