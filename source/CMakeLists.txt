@@ -31,7 +31,7 @@ endif()
 set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  if(NOT MSVC)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") # strip the binary for reduced size
   endif()
 endif()
