@@ -634,10 +634,11 @@ void Server::processPerfStats() {
 	std::vector<struct pcounter*> MyCounters = {};
 	vector<long> newPids = {};
 	vector<long> diffPids = {};
-	vector<long> currentPids = getProcessChildPids(pid);
+	vector<long> currentPids;
 	if (doCounters) {
 		#if defined(__linux__)
 		term.out<Debug>("Making performance counters");
+		currentPids = getProcessChildPids(pid);
 		createCounters(MyCounters, currentPids);
 		term.out<Debug>("Done making performance counters");
 		#endif
