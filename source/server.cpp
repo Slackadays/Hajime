@@ -27,6 +27,7 @@
 #include <termios.h>
 #endif
 
+#include <sstream>
 #include <iostream>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -90,7 +91,9 @@ void Server::startServer(string confFile) {
 		term.out<None>(text.info.ServerDevice + device);
 		term.out<Info, NoEndline>("Restart interval: " + to_string(restartMins) + " | ");
 		term.out<None>("Silent commands: " + to_string(silentCommands));
+		term.out<Info>("Auto update: " + autoUpdateName + ' ' + autoUpdateVersion);
 		term.hajimeTerminal = true;
+		processAutoUpdate(true);
 		if (!fs::is_regular_file(file)) {
 			term.out<Warning>(file + text.warning.FileDoesntExist);
 		}
@@ -144,6 +147,7 @@ void Server::startServer(string confFile) {
 				#endif
 			}
 			updateUptime();
+			processAutoUpdate();
 			processAutoRestart();
 		}
 	} catch(string& s) {
@@ -401,10 +405,11 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(const string confFile) {
+	string tempAutoUpdate;
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
-	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex"};
+	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex", "counters", "autoupdate"};
 	vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		term.out<Debug>(it);
@@ -438,8 +443,13 @@ void Server::readSettings(const string confFile) {
 		setVari(settings[10], doCommands);
 		setVar(settings[11], customMessage);
 		setVar(settings[12], chatKickRegex);
+		setVari(settings[13], doCounters);
+		setVar(settings[14], tempAutoUpdate);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
+	std::istringstream ss(tempAutoUpdate);
+	std::getline(ss, autoUpdateName, ' ');
+	std::getline(ss, autoUpdateVersion, ' ');
 	term.registerServerName(name); //send the name of the server name to term so that it can associate a name with a thread id
 	if (device == "") {
 		term.out<Info>(text.info.NoMount);

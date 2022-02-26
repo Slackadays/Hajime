@@ -631,24 +631,28 @@ void Server::readCounters(auto& counters) {
 
 void Server::processPerfStats() {
 	std::this_thread::sleep_for(std::chrono::seconds(5));
-	#if defined(__linux__)
 	std::vector<struct pcounter*> MyCounters = {};
-	term.out<Debug>("Making performance counters");
 	vector<long> newPids = {};
 	vector<long> diffPids = {};
 	vector<long> currentPids = getProcessChildPids(pid);
-	createCounters(MyCounters, currentPids);
-	term.out<Debug>("Done making performance counters");
-	#endif
-	while (true) {
+	if (doCounters) {
 		#if defined(__linux__)
-		resetAndEnableCounters(MyCounters);
+		term.out<Debug>("Making performance counters");
+		createCounters(MyCounters, currentPids);
+		term.out<Debug>("Done making performance counters");
 		#endif
+	}
+	while (true) {
+		if (doCounters && performanceCounterCompat != -1) {
+			#if defined(__linux__)
+			resetAndEnableCounters(MyCounters);
+			#endif
+		}
 		updateCPUusage(cpuusagereadings);
 		updateRAMusage();
 		std::this_thread::sleep_for(std::chrono::seconds(15));
 		//auto then = std::chrono::high_resolution_clock::now();
-		if (performanceCounterCompat != -1) {
+		if (doCounters && performanceCounterCompat != -1) {
 			#if defined(__linux__)
 			disableCounters(MyCounters);
 			readCounters(MyCounters);

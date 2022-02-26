@@ -168,6 +168,7 @@ class Server {
 	void mountDrive();
 	void makeDir();
 	void updateUptime();
+	void processAutoUpdate(bool force = false);
 	void processAutoRestart();
 	void startProgram(string method);
 	void readSettings(string confFile);
@@ -178,6 +179,8 @@ class Server {
 	auto toPointerArray(vector<string> &strings);
 
 	inline static std::atomic<int> performanceCounterCompat = 0;
+
+	bool doCounters = true;
 
 	#if defined(_WIN64) || defined(_WIN32)
 	STARTUPINFO si; // a variable that can specify parameters for windows created with it
@@ -261,7 +264,7 @@ class Server {
 	std::list<string> lines;
 
 	public:
-		string name, exec, file, path, command, flags, confFile, device, method, cmdline, customMessage;
+		string name, exec, file, path, command, flags, confFile, device, method, cmdline, customMessage, autoUpdateName, autoUpdateVersion;
 		bool isRunning = false;
 		void startServer(string confFile);
 		void terminalAccessWrapper();
