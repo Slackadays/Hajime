@@ -47,7 +47,7 @@ void Installer::installNewServerConfigFile(const string& fileLocation, const boo
 		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl << "path=" << fs::current_path().string() << endl;
 		outConf << "exec=java # The file that gets called in the \"new\" method." << endl << "flags=-jar -Xmx4G -Xms4G " + flags + " # This is where your Java flags go." << endl << "file=" + serverFile  + " # The server file you want to start."<< endl;
 		outConf << "command= # Only use this if you using the \"old\" method."<< endl << "method=new" << endl << "device=" << endl << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << endl;
-		outConf << "commands=1" << endl << "silentcommands=0" << endl << "custommsg=" << endl << "chatkickregex=" << endl << "counters=1" << endl;
+		outConf << "commands=1" << endl << "silentcommands=0" << endl << "custommsg=" << endl << "chatkickregex=" << endl << "counters=1" << endl << "autoupdate=" << endl;
 		outConf << text.fileServerConfComment << endl;
 		term.out<Info>(text.info.CreatedServerConfig1 + fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();
