@@ -71,7 +71,7 @@ int Output::getTerminalWidth() {
 	#endif
 }
 
-void Output::dividerLine(string tx) {
+void Output::dividerLine(string tx, bool exit) {
 	string line;
 	int totalWidth = getTerminalWidth();
 	int currentWidth = 0;
@@ -86,9 +86,16 @@ void Output::dividerLine(string tx) {
 		if (lastOutput == "") {
 			line += "┓";
 			currentWidth++;
+		} else {
+			line += "━";
+			currentWidth++;
 		}
 	} else {
-		for (; currentWidth < ((totalWidth - tx.length()) / 2) - 1; currentWidth++) {
+		if (exit) {
+			line += "┗";
+			currentWidth++;
+		}
+		for (; currentWidth < ((totalWidth - tx.length()) / 2) - (exit ? 1 : 0); currentWidth++) {
 			line += "━";
 		}
 		line += "┫";
@@ -97,13 +104,23 @@ void Output::dividerLine(string tx) {
 		currentWidth += tx.length();
 		line += "┣";
 		currentWidth++;
-		for (; currentWidth < totalWidth - (lastOutput.empty() ? 1 : 0); currentWidth++) {
+		for (; currentWidth < totalWidth - ((lastOutput.empty() && !exit) ? 2 : 1); currentWidth++) {
 			line += "━";
 		}
 		if (lastOutput == "") {
 			line += "┓";
 			currentWidth++;
 		}
+		if (exit) {
+			line += "┛";
+		}
+	}
+	//std::cout << "last output = " << lastOutput << std::endl;
+	//std::cout << "makeMonochrome(lastOutput).substr(0, 6) = " << makeMonochrome(lastOutput).substr(0, 120) << std::endl;
+	if (!lastOutput.empty() && makeMonochrome(lastOutput).substr(0, 3) == "┃" && !exit) {
+		line = "┣" + line;
+		line.erase(line.length() - 7, 6);
+		line += "┫";
 	}
 	term.out<None>(line);
 }

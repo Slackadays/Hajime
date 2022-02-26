@@ -76,7 +76,7 @@ bool isUserPrivileged();
 int main(int argc, char *argv[]) {
 	//auto then = std::chrono::high_resolution_clock::now();
 	atexit([]{
-		term.dividerLine("Exiting Hajime");
+		term.dividerLine("Exiting Hajime", true);
 		#if defined(__APPLE__)
 		exit(0);
 		#else

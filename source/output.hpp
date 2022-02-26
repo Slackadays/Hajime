@@ -33,7 +33,7 @@
 using std::string;
 using std::ofstream;
 
-enum outFlag {None, Info, Error, Warning, Debug, Question, Force, NoEndline, KeepEndlines, Threadless, Border};
+enum outFlag {None, Info, Error, Warning, Debug, Question, Force, NoEndline, KeepEndlines, Threadless, Border, NoSave};
 enum lines {Def = 2, True = 1, False = 0};
 
 class Output {
@@ -56,13 +56,14 @@ class Output {
 
 	public:
 		int getTerminalWidth();
-		void dividerLine(string tx = "");
+		void dividerLine(string tx = "", bool exit = false);
 
 		template <std::same_as<outFlag> auto... flags>
 		void out(string data) {
 			constexpr bool force = ((flags == Force) || ...);
 			constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
 			constexpr bool borders = ((flags == Border) || ...);
+			constexpr bool noSave = ((flags == NoSave) || ...);
 			const bool oldThreadless = threadless;
 			threadless = ((flags == Threadless) || ...);
 			constexpr outFlag type = [] {
@@ -106,11 +107,6 @@ class Output {
 			}
 			//std::cout << "first char of last output = " << makeMonochrome(lastOutput.substr(0, 3)) << std::endl;
 			//std::cout << "new output = " << makeMonochrome(outputString.substr(0, 18)) << std::endl;
-			/*if (!lastOutput.empty() && makeMonochrome(lastOutput.substr(0, 3)) == "━" && makeMonochrome(outputString.substr(0, 18)) == "┃") {
-				lastOutput = "┏" + lastOutput;
-				lastOutput.erase(lastOutput.length() - 1, 1);
-				terminalDispatch('\r' + lastOutput, None, false);
-			}*/
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
 				outputString = '\r' + outputString;
 			}
@@ -120,9 +116,12 @@ class Output {
 			}
 			threadless = oldThreadless;
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
-				terminalDispatch("\r\033[92m\033[1m" + text.info.EnterCommand + "\033[0m", None, 0);
+				terminalDispatch("\r┃\033[92m\033[1m" + text.info.EnterCommand + "\033[0m", None, 0);
 			}
-			lastOutput = outputString;
+			if (!noSave) {
+				lastOutput = outputString;
+			}
+			//std::cout << "last output = " << lastOutput << std::endl;
 		}
 
 		template<typename ...T>
@@ -137,10 +136,10 @@ class Output {
 				(this->out<None, Border>(("\033[1m " + std::to_string(++i) + ")\033[0m " + options)), ...);
 				this->out<None, NoEndline, Border>("\033[1m" + string(" ─> " + text.option.YourChoice));
 			} else {
-				this->out<None, NoEndline>("\033[1m " + text.question.Prompt + ' ');
+				this->out<None, NoEndline, NoSave>("\033[1m " + text.question.Prompt + ' ');
 			}
 			std::getline(std::cin, response);
-			this->out<None, NoEndline>("\033[0m");
+			this->out<None, NoEndline, NoSave>("\033[0m");
 			if (!isComplex) {
 				if (std::regex_match(text.question.Prompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
 					return true;
@@ -157,9 +156,9 @@ class Output {
 						return stoi(response);
 					} catch(...) {
 						this->out<Error>("Answer not valid");
-						this->out<None, NoEndline>("\033[1mYour choice: ");
+						this->out<None, NoEndline, Border>("\033[1mYour choice: ");
 						std::getline(std::cin, response);
-						this->out<None, NoEndline>("\033[0m");
+						this->out<None, NoEndline, NoSave>("\033[0m");
 					}
 				}
 			}
