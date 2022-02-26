@@ -60,21 +60,65 @@ using std::make_shared;
 using std::vector;
 
 bool ee = false;
+bool bypassPriviligeCheck = false;
 vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
 vector<std::jthread> threadVec = {}; //create an array of thread objects
 string logFile = "";
 string hajConfFile = "";
 string version;
 
+#if defined(_WIN64) || defined (_WIN32)
+void setupTerminal();
+#else
+void setupRLimits();
+#endif
+void doPreemptiveFlags(vector<string> flags);
+void doRegularFlags(vector<string> flags);
+void setupSignals();
 bool readSettings();
 void hajimeExit(int sig);
 vector<string> getServerFiles();
 vector<string> toVec(string input);
+void setupServers();
+void setupFirstTime();
 void processHajimeCommand(vector<string> input);
 bool isUserPrivileged();
+void doHajimeTerminal();
 
 int main(int argc, char *argv[]) {
 	//auto then = std::chrono::high_resolution_clock::now();
+	setupSignals();
+	#if defined(_WIN64) || defined (_WIN32)
+	setupTerminal();
+	#endif
+	term.dividerLine();
+	vector<string> flags;
+	for (int i = 0; i < argc; i++) {
+		flags.push_back(argv[i]);
+	}
+	doPreemptiveFlags(flags);
+	doRegularFlags(flags);
+	if (fs::is_regular_file(hajDefaultConfFile)) {
+		readSettings();
+		empty(logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(logFile);
+	} else {
+		setupFirstTime();
+	}
+	if (!bypassPriviligeCheck && isUserPrivileged()) {
+		term.out<Error>("Hajime must not be run by a privileged user");
+		return 1;
+	}
+	#if !defined(_WIN64) && !defined(_WIN32)
+	setupRLimits();
+	#endif
+	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
+	//exit(0);
+	setupServers();
+	doHajimeTerminal();
+	return 0;
+}
+
+void setupSignals() {
 	atexit([]{
 		term.dividerLine("Exiting Hajime", true);
 		#if defined(__APPLE__)
@@ -104,7 +148,10 @@ int main(int argc, char *argv[]) {
 		cout << "Termination requested; exiting Hajime now" << endl;
 		exit(0);
 	});
-	#if defined(_WIN64) || defined (_WIN32)
+}
+
+#if defined(_WIN64) || defined (_WIN32)
+void setupTerminal() {
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); //Windows terminal color compatibility
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
@@ -112,11 +159,35 @@ int main(int argc, char *argv[]) {
 		term.noColors = true;
 	}
 	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
-	#endif
-	term.dividerLine();
-	for (int i = 1; i < argc; i++) { //search for the help flag first
-		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);}; //compare flags with a parameter pack pattern
-		auto assignNextToVar = [&argc, &argv, &i](auto &var){if (i == (argc - 1)) {return false;} else {var = argv[(i + 1)]; i++; return true;}};
+}
+#else
+void setupRLimits() {
+	struct rlimit rlimits;
+	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
+		term.out<Error, Threadless>("Error getting resource limits; errno = " + std::to_string(errno));
+	}
+	rlimits.rlim_cur = rlimits.rlim_max; //resize soft limit to max limit; the max limit is a ceiling for the soft limit
+	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
+		term.out<Error, Threadless>("Error changing resource limits; errno = " + std::to_string(errno));
+	}
+	term.out<Debug>("New soft file descriptor soft limit = " + to_string(rlimits.rlim_cur));
+}
+#endif
+
+void doPreemptiveFlags(vector<string> flags) {
+	for (int i = 1; i < flags.size(); i++) { //search for the help flag first
+		auto flag = [&flags, &i](auto ...fs){
+			return ((fs == flags.at(i)) || ...);
+		}; //compare flags with a parameter pack pattern
+		auto assignNextToVar = [&flags, &i](auto &var){
+			if (i == (flags.size() - 1)) {
+				return false;
+			} else {
+				var = flags.at(i + 1);
+				i++;
+				return true;
+			}
+		};
 		if (flag("-h", "--help")) { //-h = --help = help
 			for (auto it : text.help) {
 				it = std::regex_replace(it, std::regex("^-(?=\\w+)", std::regex_constants::optimize), "\033[1m$&");
@@ -127,27 +198,29 @@ int main(int argc, char *argv[]) {
 				it = std::regex_replace(it, std::regex("\\|", std::regex_constants::optimize), "\033[0m\033[1m$&\033[0m");
 				term.out<Border>(it);
 			}
-			return 0; //if someone is asking for help, ignore any other flags and just display the help screen
+			exit(0); //if someone is asking for help, ignore any other flags and just display the help screen
 		}
 		if (flag("-l", "--language")) {
-			if ((i < (argc - 1)) && string(argv[i + 1]).front() != '-') {
-				text.applyLang(argv[i + 1]);
+			if ((i < (flags.size() - 1)) && flags.at(i + 1).front() != '-') {
+				text.applyLang(flags.at(i + 1));
 			} else {
 				term.out<Error>(text.error.NotEnoughArgs);
-				return 0;
+				exit(0);
 			}
 		}
 	}
-	bool bypassPriviligeCheck = false;
-	for (int i = 1; i < argc; i++) {//start at i = 1 to improve performance because we will never find a flag at 0
-		auto flag = [&i, &argv](auto ...fs){
-			return (!strcmp(fs, argv[i]) || ...);
+}
+
+void doRegularFlags(vector<string> flags) {
+	for (int i = 1; i < flags.size(); i++) {//start at i = 1 to improve performance because we will never find a flag at 0
+		auto flag = [&flags, &i](auto ...fs){
+			return ((fs == flags.at(i)) || ...);
 		};
-		auto assignNextToVar = [&argc, &argv, &i](auto &var){
-			if (i == (argc - 1)) {
+		auto assignNextToVar = [&flags, &i](auto &var){
+			if (i == (flags.size() - 1)) {
 				return false;
 			} else {
-				var = argv[(i + 1)];
+				var = flags.at(i + 1);
 				i++;
 				return true;
 			}
@@ -155,13 +228,13 @@ int main(int argc, char *argv[]) {
 		if (flag("-f", "--server-file")) {
 			if (!assignNextToVar(defaultServerConfFile)) {
 				term.out<Error>(text.error.NotEnoughArgs);
-				return 0;
+				exit(0);
 			}
 		}
 		if (flag("-hf", "--hajime-file")) {
 			if (!assignNextToVar(hajDefaultConfFile)) {
 				term.out<Error>(text.error.NotEnoughArgs);
-				return 0;
+				exit(0);
 			}
 		}
 		if (flag("-ih", "--install-hajime-config")) { //can accept either no added file or an added file
@@ -172,18 +245,18 @@ int main(int argc, char *argv[]) {
 				tempHajConfFile = hajDefaultConfFile;
 			}
 			wizard.wizardStep(tempHajConfFile, installer.installDefaultHajConfFile, text.warning.FoundHajConf, text.error.HajFileNotMade, text.language);
-			return 0;
+			exit(0);
 		}
 		if (flag("-p", "--privileged")) {
 			bypassPriviligeCheck = true;
 		}
 		if (flag("-s", "--install-default-server")) {
 			wizard.wizardStep(defaultServerConfFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + defaultServerConfFile, text.error.ServerConfNotCreated, "", "server.jar");
-			return 0;
+			exit(0);
 		}
 		if (flag("-S", "--install-service")) {
 			installer.installStartupService("/etc/systemd/system/hajime.service");
-			return 0;
+			exit(0);
 		}
 		if (flag("-v", "--verbose")) {
 			term.verbose = true;
@@ -199,7 +272,7 @@ int main(int argc, char *argv[]) {
 		}
 		if (flag("-i", "--install-hajime")) {
 			wizard.initialHajimeSetupAttended(hajDefaultConfFile, defaultServerConfFile);
-			return 0;
+			exit(0);
 		}
 		if (flag("-np", "--no-pauses")) {
 			wizard.doArtificialPauses = false;
@@ -214,75 +287,6 @@ int main(int argc, char *argv[]) {
 			term.showExplicitInfoType = true;
 		}
 	}
-	if (fs::is_regular_file(hajDefaultConfFile)) {
-		readSettings();
-		empty(logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(logFile);
-	} else {
-		term.out<Question>(text.question.DoSetupInstaller);
-		switch (term.getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
-			case 1:
-				term.dividerLine();
-				wizard.initialHajimeSetupAttended(hajDefaultConfFile, defaultServerConfFile);
-				term.out<Question, NoEndline>(text.question.StartHajime);
-				if (!term.getYN()) {
-					return 0;
-				}
-				break;
-			case 2:
-				wizard.initialHajimeSetupUnattended(hajDefaultConfFile, defaultServerConfFile);
-				term.out<Error>(text.error.OptionNotAvailable);
-				break;
-			case 3:
-				return 0;
-		}
-	}
-	for (int i = 1; i < argc; i++) {
-		auto flag = [&i, &argv](auto ...fs){return (!strcmp(fs, argv[i]) || ...);};
-		if (flag("-tc", "--thread-colors")) {
-			term.showThreadsAsColors = true;
-		}
-		if (flag("-ntc", "--no-thread-colors")) {
-			term.showThreadsAsColors = false;
-		}
-	}
-	if (!bypassPriviligeCheck && isUserPrivileged()) {
-		term.out<Error>("Hajime must not be run by a privileged user");
-		return 1;
-	}
-	#if !defined(_WIN64) && !defined(_WIN32)
-	struct rlimit rlimits;
-	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		term.out<Error, Threadless>("Error getting resource limits; errno = " + std::to_string(errno));
-	}
-	rlimits.rlim_cur = rlimits.rlim_max; //resize soft limit to max limit; the max limit is a ceiling for the soft limit
-	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		term.out<Error, Threadless>("Error changing resource limits; errno = " + std::to_string(errno));
-	}
-	term.out<Debug>("New soft file descriptor soft limit = " + to_string(rlimits.rlim_cur));
-	#endif
-	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
-	//exit(0);
-	vector<string> serverFiles = getServerFiles();
-	if (serverFiles.size() == 0) {
-		term.out<Error>("No server files found (Hint: all server files end with .server)");
-		exit(0);
-	}
-	for (const auto& serverIt : serverFiles) { //loop through all the server files found
-		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
-		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
-	}
-	term.hajimeTerminal = true;
-	while(true) {
-		string command = "";
-		std::getline(std::cin, command);
-		std::cout << "\033[0m" << std::flush;
-		if (command != "") {
-			processHajimeCommand(toVec(command));
-		} else {
-			term.out<Error>("Command must not be empty");
-		}
-	}
-	return 0;
 }
 
 bool readSettings() {
@@ -361,6 +365,38 @@ vector<string> toVec(string input) {
 	return output;
 }
 
+void setupServers() {
+	vector<string> serverFiles = getServerFiles();
+	if (serverFiles.size() == 0) {
+		term.out<Error>("No server files found (Hint: all server files end with .server)");
+		exit(0);
+	}
+	for (const auto& serverIt : serverFiles) { //loop through all the server files found
+		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
+		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+	}
+}
+
+void setupFirstTime() {
+	term.out<Question>(text.question.DoSetupInstaller);
+	switch (term.getYN(text.option.AttendedInstallation, text.option.UnattendedInstallation, text.option.SkipSetup)) {
+		case 1:
+			term.dividerLine();
+			wizard.initialHajimeSetupAttended(hajDefaultConfFile, defaultServerConfFile);
+			term.out<Question, NoEndline>(text.question.StartHajime);
+			if (!term.getYN()) {
+				exit(0);
+			}
+			break;
+		case 2:
+			wizard.initialHajimeSetupUnattended(hajDefaultConfFile, defaultServerConfFile);
+			term.out<Error>(text.error.OptionNotAvailable);
+			break;
+		case 3:
+			exit(0);
+	}
+}
+
 void processHajimeCommand(vector<string> input) {
 	if (input[0] == "term" || input[0] == "t") {
 		if (input.size() >= 2) {
@@ -414,4 +450,18 @@ bool isUserPrivileged() {
 		return false;
 	}
 	#endif
+}
+
+void doHajimeTerminal() {
+	term.hajimeTerminal = true;
+	while(true) {
+		string command = "";
+		std::getline(std::cin, command);
+		std::cout << "\033[0m" << std::flush;
+		if (command != "") {
+			processHajimeCommand(toVec(command));
+		} else {
+			term.out<Error>("Command must not be empty");
+		}
+	}
 }

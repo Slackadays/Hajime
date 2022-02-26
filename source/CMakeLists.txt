@@ -17,7 +17,7 @@ check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
-add_executable(hajime hajime.cpp server.cpp server_features.cpp server_performance.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp constants.cpp)
+add_executable(hajime hajime.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp constants.cpp)
 
 if(lto_supported)
   set_property(TARGET hajime PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
