@@ -50,8 +50,8 @@ jobs:
           sudo apt update
           sudo apt install -y g++-10-multilib
           cd source
-          echo hajime.cpp getvarsfromfile.cpp constants.cpp server.cpp server_features.cpp server_performance.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++-10 -m32 -c -Ofast -std=c++20
-          g++-10 -m32 -o hajime hajime.o constants.o server.o server_features.o server_performance.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+          echo hajime.cpp getvarsfromfile.cpp constants.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++-10 -m32 -c -Ofast -std=c++20
+          g++-10 -m32 -o hajime hajime.o constants.o server.o server_features.o server_performance.o server_performance_counters.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
 
       - uses: actions/upload-artifact@v2
         with:
@@ -89,8 +89,8 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd source
-          echo hajime.cpp getvarsfromfile.cpp constants.cpp server.cpp server_features.cpp server_performance.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
-          clang++ -target arm64-apple-macos -o hajime constants.o hajime.o server.o server_features.o server_performance.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
+          echo hajime.cpp getvarsfromfile.cpp constants.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
+          clang++ -target arm64-apple-macos -o hajime constants.o hajime.o server.o server_features.o server_performance.o server_performance_counters.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
 
       - uses: actions/upload-artifact@v2
         with:
@@ -357,8 +357,8 @@ jobs:
   #        curl -L -o fbsd_temp.iso https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-dvd1.iso
   #        sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
   #        cd source
-  #        echo hajime.cpp getvarsfromfile.cpp server.cpp server_features.cpp server_performance.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -c -O3 -std=c++20
-  #        clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -o hajime hajime.o server.o server_features.o server_performance.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+  #        echo hajime.cpp getvarsfromfile.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -c -O3 -std=c++20
+  #        clang++ -target x86_64-unknown-freebsd13.0 --sysroot=../temp/ -o hajime hajime.o server.o server_features.o server_performance.o server_performance_counters.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
 
   #    - uses: actions/upload-artifact@v2
   #      with:

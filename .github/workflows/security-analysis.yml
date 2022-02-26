@@ -64,8 +64,8 @@ jobs:
 
     - run: |
        cd source
-       echo hajime.cpp constants.cpp getvarsfromfile.cpp deduce.cpp server.cpp server_features.cpp server_performance.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++-10 -c -Ofast -std=c++20 && g++-10 -o hajime hajime.o server.o server_features.o server_performance.o getvarsfromfile.o constants.o installer.o output.o deduce.o languages.o wizard.o -pthread
-       
+       echo hajime.cpp constants.cpp getvarsfromfile.cpp deduce.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp output.cpp languages.cpp installer.cpp wizard.cpp | xargs -n 1 -P 7 g++-10 -c -Ofast -std=c++20 && g++-10 -o hajime hajime.o server.o server_features.o server_performance.o server_performance_counters.o getvarsfromfile.o constants.o installer.o output.o deduce.o languages.o wizard.o -pthread
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
   lint:
@@ -81,7 +81,7 @@ jobs:
 
       - name: Run DevSkim scanner
         uses: microsoft/DevSkim-Action@v1
-        
+
       - name: Upload DevSkim scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v1
         with:
