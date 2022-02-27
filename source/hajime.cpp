@@ -212,6 +212,9 @@ void doPreemptiveFlags(vector<string> flags) {
 }
 
 void doRegularFlags(vector<string> flags) {
+	if (getenv("NO_COLOR") != NULL) {
+		term.noColors = true;
+	}
 	for (int i = 1; i < flags.size(); i++) {//start at i = 1 to improve performance because we will never find a flag at 0
 		auto flag = [&flags, &i](auto ...fs){
 			return ((fs == flags.at(i)) || ...);
