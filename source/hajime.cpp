@@ -175,6 +175,9 @@ void setupRLimits() {
 #endif
 
 void doPreemptiveFlags(vector<string> flags) {
+	if (getenv("NO_COLOR") != NULL) {
+		term.noColors = true;
+	}
 	for (int i = 1; i < flags.size(); i++) { //search for the help flag first
 		auto flag = [&flags, &i](auto ...fs){
 			return ((fs == flags.at(i)) || ...);
