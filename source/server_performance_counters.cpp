@@ -195,14 +195,9 @@ void Server::setupCounter(auto& s) {
 	//std::cout << "cpu cycles" << std::endl;
 	//group 1: hardware
 	//std::cout << "cpu cycles" << std::endl;
-	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES);
+	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
 	setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
 	//std::cout << "errno 1 = " << errno << std::endl;
-	if (errno == ENOENT) {
-		std::cout << "Using the alternative event" << std::endl;
-		configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
-		setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
-	}
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
 	//std::cout << "errno 2 = " << errno << std::endl;
