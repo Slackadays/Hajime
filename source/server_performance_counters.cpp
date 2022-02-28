@@ -197,9 +197,22 @@ void Server::setupCounter(auto& s) {
 	//std::cout << "cpu cycles" << std::endl;
 	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES);
 	setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
-
+	//std::cout << "errno 1 = " << errno << std::endl;
+	if (errno == ENOENT) {
+		std::cout << "Using the alternative event" << std::endl;
+		configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
+		setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
+	}
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
+	//std::cout << "errno 2 = " << errno << std::endl;
+	if (errno == EBADF || errno == ENOENT) {
+		configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
+		setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
+
+		configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
+		setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
+	}
 	//std::cout << "cache misses" << std::endl;
 	configureStruct(s->perfstruct[1][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
 	setupEvent(s->gfd[1][0], s->gid[1][0], s->perfstruct[1][0], -1);
@@ -372,7 +385,7 @@ void Server::readCounters(auto& counters) {
 		if (s->gfd[0][0] > 2) {
 			size = read(s->gfd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
-			if (size >= 72) {
+			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
 					if (s->data->values[i].id == s->gid[0][0]) { //data->values[i].id points to an event id, and we want to match this id to the one belonging to event 1
 						s->gv[0][0] = s->data->values[i].value; //store the counter value in g1v1
@@ -542,7 +555,7 @@ void Server::readCounters(auto& counters) {
 		if (s->gfd[11][0] > 2) {
 			size = read(s->gfd[11][0], s->buf, sizeof(s->buf)); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
-			if (size >= 40) {
+			if (size >= 56) {
 				for (int i = 0; i < s->data->nr; i++) {
 					if (s->data->values[i].id == s->gid[11][0]) {
 						s->gv[11][0] = s->data->values[i].value;
