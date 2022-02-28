@@ -132,7 +132,7 @@ void Server::setupCounter(auto& s) {
 		}
 		fd = syscall(__NR_perf_event_open, &(st), s->pid, -1, gfd, 0);
 		//std::cout << "fd = " << to_string(fd) << std::endl;
-		if (fd != -1) {
+		if (fd > 0) {
 			performanceCounterCompat = 1;
 			ioctl(fd, PERF_EVENT_IOC_ID, &(id));
 		} else if (fd == -1) {
@@ -195,9 +195,16 @@ void Server::setupCounter(auto& s) {
 	//std::cout << "cpu cycles" << std::endl;
 	//group 1: hardware
 	//std::cout << "cpu cycles" << std::endl;
-	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
+	errno = 0;
+	configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_REF_CPU_CYCLES);
 	setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
+	//std::cout << "Setting up the event and doing the check" << std::endl;
 	//std::cout << "errno 1 = " << errno << std::endl;
+	if (errno != 0 || std::find(knownBadEvents.begin(), knownBadEvents.end(), s->perfstruct[0][0].config) != knownBadEvents.end()) {
+		//std::cout << "Using the alternative event" << std::endl;
+		configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
+		setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
+	}
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
 	//std::cout << "errno 2 = " << errno << std::endl;
