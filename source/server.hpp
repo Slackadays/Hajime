@@ -70,8 +70,8 @@ class Server {
 	void setupCounter(auto& s);
 	void createCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
 	void cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
-	void resetAndEnableCounters(auto& counters);
-	void disableCounters(auto& counters);
+	void resetAndEnableCounters(const auto& counters);
+	void disableCounters(const auto& counters);
 	void readCounters(auto& counters);
 	#endif
 
@@ -103,7 +103,7 @@ class Server {
 
 	template<typename T>
 	T averageVal(list<T> myList, unsigned int minutes) {
-		minutes *= 4; //convert to 15-second intervals
+		minutes *= 12; //convert to 5-second intervals
 		int readings = 0;
 		T temp = 0;
 		myList.reverse();

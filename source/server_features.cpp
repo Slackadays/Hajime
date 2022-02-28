@@ -567,7 +567,7 @@ bool Server::areCountersAvailable() {
 
 string Server::formatReadingsLIB(const std::list<unsigned long long>& little, const std::list<unsigned long long>& big) {
 	if (areCountersAvailable()) {
-		return to_string(averageVal(little, 1)) + " (" + to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "% of total) last 1 minute, " + to_string(averageVal(little, 5)) + " (" + to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + to_string(averageVal(little, 15)) + " (" + to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15 (Lower is better)";
+		return to_string(little.back()) + " (" + to_string(100.0 * (double)little.back() / (double)big.back()) + "% of total) last 5 seconds, " + to_string(averageVal(little, 1)) + " (" + to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "%) last 1 minute, " + to_string(averageVal(little, 5)) + " (" + to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + to_string(averageVal(little, 15)) + " (" + to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15, " + to_string(averageVal(little, 60)) + " (" + to_string(100.0 * (double)averageVal(little, 60) / (double)averageVal(big, 60)) + "%) last 1 hour (Lower is better)";
 	} else {
 		return "Currently not available on this server";
 	}
@@ -575,7 +575,7 @@ string Server::formatReadingsLIB(const std::list<unsigned long long>& little, co
 
 string Server::formatReadingsLIB(const std::list<unsigned long long>& readings) {
 	if (areCountersAvailable()) {
-		return to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15 (Lower is better)";
+		return to_string(readings.back()) + " last 5 seconds, " + to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15, " + to_string(averageVal(readings, 60)) + " last 1 hour (Lower is better)";
 	} else {
 		return "Currently not available on this server";
 	}
@@ -583,7 +583,7 @@ string Server::formatReadingsLIB(const std::list<unsigned long long>& readings) 
 
 string Server::formatReadingsHIB(const std::list<unsigned long long>& readings) {
 	if (areCountersAvailable()) {
-		return to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15 (Higher is better)";
+		return to_string(readings.back()) + " last 5 seconds, " + to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15, " + to_string(averageVal(readings, 60)) + " last 1 hour (Higher is better)";
 	} else {
 		return "Currently not available on this server";
 	}

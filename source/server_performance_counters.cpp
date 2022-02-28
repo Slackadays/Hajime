@@ -349,18 +349,18 @@ void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>
 	}
 }
 
-void Server::resetAndEnableCounters(auto& counters) {
-	for (auto& s : counters) {
-		for (auto& group : s->gfd) {
+void Server::resetAndEnableCounters(const auto& counters) {
+	for (const auto& s : counters) {
+		for (const auto& group : s->gfd) {
 			ioctl(group[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP); //reset the counters for ALL the events that are members of group 1 (g1fd1)
 			ioctl(group[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
 		}
 	}
 }
 
-void Server::disableCounters(auto& counters) {
-	for (auto& s : counters) {
-		for (auto& group : s->gfd) {
+void Server::disableCounters(const auto& counters) {
+	for (const auto& s : counters) {
+		for (const auto& group : s->gfd) {
 			ioctl(group[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP); //disable all counters in the groups
 		}
 	}
@@ -643,6 +643,7 @@ void Server::processPerfStats() {
 		term.out<Debug>("Done making performance counters");
 		#endif
 	}
+	//auto then = std::chrono::high_resolution_clock::now();
 	while (true) {
 		if (doCounters && performanceCounterCompat != -1) {
 			#if defined(__linux__)
@@ -651,15 +652,14 @@ void Server::processPerfStats() {
 		}
 		updateCPUusage(cpuusagereadings);
 		updateRAMusage();
-		std::this_thread::sleep_for(std::chrono::seconds(15));
-		//auto then = std::chrono::high_resolution_clock::now();
+		//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+		//then = std::chrono::high_resolution_clock::now();
 		if (doCounters && performanceCounterCompat != -1) {
 			#if defined(__linux__)
-			disableCounters(MyCounters);
-			readCounters(MyCounters);
 			auto bumpAndCull = [](auto& list) {
 				list.emplace_back(0);
-				while (list.size() > 240) {
+				while (list.size() > 720) {
 					list.pop_front();
 				}
 			};
@@ -704,6 +704,8 @@ void Server::processPerfStats() {
 			bumpAndCull(l1ireadmissreadings);
 			bumpAndCull(l1iprefetchaccessreadings);
 			bumpAndCull(l1iprefetchmissreadings);
+			disableCounters(MyCounters);
+			readCounters(MyCounters);
 			for (const auto& s : MyCounters) {
 				cpucyclereadings.back() += s->gv[0][0];
 				cpuinstructionreadings.back() += s->gv[0][1];
@@ -753,10 +755,9 @@ void Server::processPerfStats() {
 			std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
 			createCounters(MyCounters, diffPids);
 			diffPids.clear();
-			std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids;
+			std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in OldPids that isn't in NewPids
 			cullCounters(MyCounters, diffPids);
 			currentPids = newPids;
-			//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
 			#endif
 		}
 	}
