@@ -201,13 +201,6 @@ void Server::setupCounter(auto& s) {
 	configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
 	//std::cout << "errno 2 = " << errno << std::endl;
-	if (errno == EBADF || errno == ENOENT) {
-		configureStruct(s->perfstruct[0][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES);
-		setupEvent(s->gfd[0][0], s->gid[0][0], s->perfstruct[0][0], -1);
-
-		configureStruct(s->perfstruct[0][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS);
-		setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
-	}
 	//std::cout << "cache misses" << std::endl;
 	configureStruct(s->perfstruct[1][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
 	setupEvent(s->gfd[1][0], s->gid[1][0], s->perfstruct[1][0], -1);
