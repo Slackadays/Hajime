@@ -29,7 +29,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           cmake source -D CMAKE_CXX_COMPILER=g++-10
-          cmake --build . -j 8
+          cmake --build . -j 3
 
       - uses: actions/upload-artifact@v2
         with:
@@ -49,14 +49,13 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y g++-10-multilib
-          cd source
-          echo hajime.cpp getvarsfromfile.cpp constants.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++-10 -m32 -c -Ofast -std=c++20
-          g++-10 -m32 -o hajime hajime.o constants.o server.o server_features.o server_performance.o server_performance_counters.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+          cmake -DADD_FLAGS="-m32" -DCMAKE_CXX_COMPILER=g++-10
+          cmake --build . -j 4
 
       - uses: actions/upload-artifact@v2
         with:
           name: hajime-linux-x86
-          path: source/hajime
+          path: hajime
   build-macos-amd64:
     # The type of runner that the job will run on
     runs-on: macos-latest
@@ -88,14 +87,13 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          cd source
-          echo hajime.cpp getvarsfromfile.cpp constants.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 clang++ -target arm64-apple-macos -c -Ofast -std=c++20
-          clang++ -target arm64-apple-macos -o hajime constants.o hajime.o server.o server_features.o server_performance.o server_performance_counters.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o
+          cmake -DADD_FLAGS="-target arm64-apple-macos" -DCMAKE_CXX_COMPILER=clang++
+          cmake --build . -j 3
 
       - uses: actions/upload-artifact@v2
         with:
           name: hajime-macos-arm64
-          path: source/hajime
+          path: hajime
   build-linux-arm64:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
