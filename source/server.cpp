@@ -180,7 +180,7 @@ vector<string> Server::toArray(string input) {
 		term.out<Debug>(text.debug.flag.VecInFor + flagVector[0]);
 	}
 	flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
-	flagVector.push_back("--nogui");
+	flagVector.push_back("nogui");
 	term.out<Debug>(text.debug.flag.VecOutFor + flagVector[0]);
 	return flagVector;
 }
