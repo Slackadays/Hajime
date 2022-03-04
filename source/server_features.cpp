@@ -818,7 +818,7 @@ void Server::updateUptime() {
 
 void Server::processAutoUpdate(bool force) {
 	if ((restartMins > 0 && uptime >= restartMins) || force) {
-		std::cout << "The updated server name: " << autoUpdateName << std::endl;
+		//std::cout << "The updated server name: " << autoUpdateName << std::endl;
 		if (autoUpdateName == "purpur") {
 			std::cout << "Purpur server detected!" << std::endl;
 		} else if (autoUpdateName == "paper") {
@@ -826,7 +826,7 @@ void Server::processAutoUpdate(bool force) {
 		} else if (autoUpdateName == "fabric") {
 			std::cout << "Fabric server detected!" << std::endl;
 		}
-		std::cout << "The updated server version: " << autoUpdateVersion << std::endl;
+		//std::cout << "The updated server version: " << autoUpdateVersion << std::endl;
 		if (autoUpdateVersion == "1.18.1") {
 			std::cout << "Minecraft 1.18.1 detected!" << std::endl;
 		}

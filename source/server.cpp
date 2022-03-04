@@ -92,6 +92,7 @@ void Server::startServer(string confFile) {
 		term.out<Info, NoEndline>("Restart interval: " + to_string(restartMins) + " | ");
 		term.out<None>("Silent commands: " + to_string(silentCommands));
 		term.out<Info>("Auto update: " + autoUpdateName + ' ' + autoUpdateVersion);
+		term.out<Info>("Counter setting: " + to_string(counterLevel));
 		term.hajimeTerminal = true;
 		processAutoUpdate(true);
 		if (!fs::is_regular_file(file)) {
@@ -406,6 +407,7 @@ void Server::removeSlashesFromEnd(string& var) {
 
 void Server::readSettings(const string confFile) {
 	string tempAutoUpdate;
+	string tempCounters;
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
@@ -443,7 +445,7 @@ void Server::readSettings(const string confFile) {
 		setVari(settings[10], doCommands);
 		setVar(settings[11], customMessage);
 		setVar(settings[12], chatKickRegex);
-		setVari(settings[13], doCounters);
+		setVar(settings[13], tempCounters);
 		setVar(settings[14], tempAutoUpdate);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
@@ -451,6 +453,15 @@ void Server::readSettings(const string confFile) {
 	std::getline(ss, autoUpdateName, ' ');
 	std::getline(ss, autoUpdateVersion, ' ');
 	term.registerServerName(name); //send the name of the server name to term so that it can associate a name with a thread id
+	if (tempCounters == "high") {
+		counterLevel = 3;
+	} else if (tempCounters == "medium") {
+		counterLevel = 2;
+	} else if (tempCounters == "low") {
+		counterLevel = 1;
+	} else if (tempCounters == "off") {
+		counterLevel = 0;
+	}
 	if (device == "") {
 		term.out<Info>(text.info.NoMount);
 		hasMounted = true;

@@ -98,6 +98,7 @@ int main(int argc, char *argv[]) {
 	}
 	doPreemptiveFlags(flags);
 	doRegularFlags(flags);
+	term.out<Info>("Starting Hajime...");
 	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
 		empty(logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(logFile);
@@ -120,7 +121,7 @@ int main(int argc, char *argv[]) {
 
 void setupSignals() {
 	atexit([]{
-		term.dividerLine("Exiting Hajime", true);
+		term.dividerLine("Exiting", true);
 		#if defined(__APPLE__)
 		exit(0);
 		#else

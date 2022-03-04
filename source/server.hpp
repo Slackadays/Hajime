@@ -180,7 +180,7 @@ class Server {
 
 	inline static std::atomic<int> performanceCounterCompat = 0;
 
-	bool doCounters = true;
+	int counterLevel = 0;
 
 	#if defined(_WIN64) || defined(_WIN32)
 	STARTUPINFO si; // a variable that can specify parameters for windows created with it
