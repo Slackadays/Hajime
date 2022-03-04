@@ -49,7 +49,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y g++-10-multilib
-          cmake -DADD_FLAGS="-m32" -DCMAKE_CXX_COMPILER=g++-10
+          cmake -DADD_FLAGS="-m32" -DCMAKE_CXX_COMPILER=g++-10 source
           cmake --build . -j 4
 
       - uses: actions/upload-artifact@v2
@@ -87,7 +87,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          cmake -DADD_FLAGS="-target arm64-apple-macos" -DCMAKE_CXX_COMPILER=clang++
+          cmake -DADD_FLAGS="-target arm64-apple-macos" -DCMAKE_CXX_COMPILER=clang++ source
           cmake --build . -j 3
 
       - uses: actions/upload-artifact@v2
