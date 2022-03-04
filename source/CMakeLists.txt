@@ -17,6 +17,14 @@ check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
+#include(CheckCXXCompilerFlag)
+#CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+#if(COMPILER_SUPPORTS_MARCH_NATIVE)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+#endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_FLAGS}")
+
 add_executable(hajime hajime.cpp server.cpp server_features.cpp server_performance.cpp server_performance_counters.cpp getvarsfromfile.cpp output.cpp installer.cpp deduce.cpp languages.cpp wizard.cpp constants.cpp)
 
 if(lto_supported)
