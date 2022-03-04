@@ -26,7 +26,9 @@
 #include <memory>
 #include <unordered_map>
 #include <type_traits>
+#if !defined(__FreeBSD__)
 #include <concepts>
+#endif
 
 #include "languages.hpp"
 
@@ -58,7 +60,11 @@ class Output {
 		int getTerminalWidth();
 		void dividerLine(string tx = "", bool exit = false);
 
+		#if defined(__FreeBSD__)
+		template<auto... flags>
+		#else
 		template <std::same_as<outFlag> auto... flags>
+		#endif
 		void out(string data) {
 			constexpr bool force = ((flags == Force) || ...);
 			constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
