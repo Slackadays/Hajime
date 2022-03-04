@@ -51,7 +51,7 @@ jobs:
           sudo apt update
           sudo apt install -y g++-11
           cmake source -DADD_FLAGS="-march=x86-64-v3" -DCMAKE_CXX_COMPILER=g++-11
-          VERBOSE=1 cmake --build . -j 4
+          cmake --build . -j 4
 
       - uses: actions/upload-artifact@v2
         with:
@@ -377,11 +377,36 @@ jobs:
           curl -L -o fbsd_temp.iso https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-dvd1.iso
           sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
           cmake -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/" -DCMAKE_CXX_COMPILER=clang++ source
-          VERBOSE=1 cmake --build . -j 4
+          cmake --build . -j 4
           
       - uses: actions/upload-artifact@v2
         with:
           name: hajime-freebsd-amd64
+          path: hajime
+  build-freebsd-amd64-avx2:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          mkdir temp
+          curl -L -o fbsd_temp.iso https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-dvd1.iso
+          sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install -y clang-12
+          cmake -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -march=x86-64-v3" -DCMAKE_CXX_COMPILER=clang++-12 source
+          cmake --build . -j 4
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-freebsd-amd64-avx2
           path: hajime
   build-linux-arm32l:
     # The type of runner that the job will run on
