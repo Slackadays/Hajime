@@ -481,7 +481,7 @@ jobs:
           cd ncurses-6.3/
           CC="aarch64-linux-gnu-gcc-10" LDSHARED="aarch64-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/aarch64-linux-gnu --build x86_64-linux-gnu --host aarch64-linux-gnu --with-shared
           make -j 2
-          sudo make install
+          sudo make --ignore-errors install
           sudo ln -s /usr/aarch64-linux-gnu/lib/libncurses.so.6 /usr/aarch64-linux-gnu/lib/libtinfo.so.5
           cd ../
           wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang+llvm-12.0.1-aarch64-linux-gnu.tar.xz
