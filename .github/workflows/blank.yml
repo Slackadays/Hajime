@@ -469,7 +469,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y qemu-user g++-10-aarch64-linux-gnu
-          wget http://zlib.net/zlib-1.2.11.tar.gz
+          wget https://zlib.net/zlib-1.2.11.tar.gz
           tar -xvf zlib-1.2.11.tar.gz
           cd zlib-1.2.11/
           CC="aarch64-linux-gnu-gcc-10" LDSHARED="aarch64-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/aarch64-linux-gnu
@@ -518,7 +518,7 @@ jobs:
         run: |
           sudo apt update #Update our cache for packages.
           sudo apt install -y qemu-user g++-10-powerpc64le-linux-gnu #Install the emulator, and a cross-compiler to get libraries for the emulator and compile the libraries.
-          wget http://zlib.net/zlib-1.2.11.tar.gz #Clang needs this to start, although we won't need it to compile
+          wget https://zlib.net/zlib-1.2.11.tar.gz #Clang needs this to start, although we won't need it to compile
           tar -xvf zlib-1.2.11.tar.gz
           cd zlib-1.2.11/
           CC="powerpc64le-linux-gnu-gcc-10" LDSHARED="powerpc64le-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/powerpc64le-linux-gnu #Specify the cross-compiler we want 
