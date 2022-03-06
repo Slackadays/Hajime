@@ -521,7 +521,7 @@ jobs:
           wget http://zlib.net/zlib-1.2.11.tar.gz #Clang needs this to start, although we won't need it to compile
           tar -xvf zlib-1.2.11.tar.gz
           cd zlib-1.2.11/
-          CC="aarch64-linux-gnu-gcc-10" LDSHARED="powerpc64le-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/powerpc64le-linux-gnu #Specify the cross-compiler we want 
+          CC="powerpc64le-linux-gnu-gcc-10" LDSHARED="powerpc64le-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/powerpc64le-linux-gnu #Specify the cross-compiler we want 
           make -j 2
           sudo make install
           cd ../
