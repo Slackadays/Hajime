@@ -825,6 +825,7 @@ void Server::processAutoUpdate(bool force) {
 		//std::cout << "The updated server name: " << autoUpdateName << std::endl;
 		if (autoUpdateName == "purpur") {
 			std::cout << "Purpur server detected!" << std::endl;
+			std::string content;
 			std::string target = "/v2/purpur/" + autoUpdateVersion + "/latest/download";
 			#if defined(CPPHTTPLIB_OPENSSL_SUPPORT)
 			httplib::SSLClient cli("api.purpurmc.org");
@@ -834,9 +835,10 @@ void Server::processAutoUpdate(bool force) {
 			#endif
 			#if defined(CPPHTTPLIB_ZLIB_SUPPORT)
 			httplib::Headers headers = { {"Accept-Encoding", "gzip, deflate"} };
-			#endif
-			std::string content;
 			auto res = cli.Get(target.c_str(), headers, [&](const char * data, size_t length) {
+			#else
+			auto res = cli.Get(target.c_str(), [&](const char * data, size_t length) {
+			#endif
 				content.append(data, length);
 				return true;
 			});
