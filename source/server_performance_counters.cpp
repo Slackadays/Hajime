@@ -41,6 +41,7 @@
 #include <fstream>
 #include <thread>
 #include <list>
+#include <deque>
 #include <atomic>
 #include <cstring>
 #include <string>
@@ -209,9 +210,18 @@ void Server::setupCounter(auto& s) {
 	setupEvent(s->gfd[0][1], s->gid[0][1], s->perfstruct[0][1], s->gfd[0][0]);
 	//std::cout << "errno 2 = " << errno << std::endl;
 	//std::cout << "cache misses" << std::endl;
+	if (counterLevel >= 3) {
+		configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND); //this event creates another group within the [0] group because we needed to separate these from the first group
+		setupEvent(s->gfd[0][2], s->gid[0][2], s->perfstruct[0][2], -1);
+
+		configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
+		setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][2]);
+	}
 	configureStruct(s->perfstruct[1][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES);
 	setupEvent(s->gfd[1][0], s->gid[1][0], s->perfstruct[1][0], -1);
 
+	configureStruct(s->perfstruct[1][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
+	setupEvent(s->gfd[1][1], s->gid[1][1], s->perfstruct[1][1], s->gfd[1][0]);
 	if (counterLevel >= 2) {
 		configureStruct(s->perfstruct[2][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS);
 		setupEvent(s->gfd[2][0], s->gid[2][0], s->perfstruct[2][0], -1);
@@ -219,16 +229,8 @@ void Server::setupCounter(auto& s) {
 		configureStruct(s->perfstruct[2][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES);
 		setupEvent(s->gfd[2][1], s->gid[2][1], s->perfstruct[2][1], s->gfd[2][0]);
 	}
-	configureStruct(s->perfstruct[1][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
-	setupEvent(s->gfd[1][1], s->gid[1][1], s->perfstruct[1][1], s->gfd[1][0]);
 	//std::cout << "stalled cycles" << std::endl;
-
 	if (counterLevel >= 3) {
-		configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND); //this event creates another group within the [0] group because we needed to separate these from the first group
-		setupEvent(s->gfd[0][2], s->gid[0][2], s->perfstruct[0][2], -1);
-
-		configureStruct(s->perfstruct[0][3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_BACKEND);
-		setupEvent(s->gfd[0][3], s->gid[0][3], s->perfstruct[0][3], s->gfd[0][2]);
 		//std::cout << "bus cycles" << std::endl;
 		configureStruct(s->perfstruct[2][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
 		setupEvent(s->gfd[2][2], s->gid[2][2], s->perfstruct[2][2], s->gfd[2][0]);
@@ -685,7 +687,7 @@ void Server::processPerfStats() {
 			#if defined(__linux__)
 			auto bumpAndCull = [](auto& list) {
 				list.emplace_back(0);
-				while (list.size() > 720) {
+				while (list.size() > (12 * 60 * 24 * 7)) {
 					list.pop_front();
 				}
 			};

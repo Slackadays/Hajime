@@ -14,6 +14,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
+#include "httplib/httplib.h"
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
@@ -54,6 +55,7 @@
 #include <fstream>
 #include <thread>
 #include <list>
+#include <deque>
 #include <atomic>
 #include <cstring>
 #include <string>
@@ -66,6 +68,8 @@
 //#include <format>
 #include <random>
 #include <array>
+
+namespace fs = std::filesystem;
 
 #include "getvarsfromfile.hpp"
 #include "server.hpp"
@@ -565,7 +569,7 @@ bool Server::areCountersAvailable() {
 	#endif
 }
 
-string Server::formatReadingsLIB(const std::list<unsigned long long>& little, const std::list<unsigned long long>& big) {
+string Server::formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big) {
 	if (areCountersAvailable()) {
 		return to_string(little.back()) + " (" + to_string(100.0 * (double)little.back() / (double)big.back()) + "% of total) last 5 seconds, " + to_string(averageVal(little, 1)) + " (" + to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "%) last 1 minute, " + to_string(averageVal(little, 5)) + " (" + to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + to_string(averageVal(little, 15)) + " (" + to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15, " + to_string(averageVal(little, 60)) + " (" + to_string(100.0 * (double)averageVal(little, 60) / (double)averageVal(big, 60)) + "%) last 1 hour (Lower is better)";
 	} else {
@@ -573,7 +577,7 @@ string Server::formatReadingsLIB(const std::list<unsigned long long>& little, co
 	}
 }
 
-string Server::formatReadingsLIB(const std::list<unsigned long long>& readings) {
+string Server::formatReadingsLIB(const std::deque<long long>& readings) {
 	if (areCountersAvailable()) {
 		return to_string(readings.back()) + " last 5 seconds, " + to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15, " + to_string(averageVal(readings, 60)) + " last 1 hour (Lower is better)";
 	} else {
@@ -581,7 +585,7 @@ string Server::formatReadingsLIB(const std::list<unsigned long long>& readings) 
 	}
 }
 
-string Server::formatReadingsHIB(const std::list<unsigned long long>& readings) {
+string Server::formatReadingsHIB(const std::deque<long long>& readings) {
 	if (areCountersAvailable()) {
 		return to_string(readings.back()) + " last 5 seconds, " + to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15, " + to_string(averageVal(readings, 60)) + " last 1 hour (Higher is better)";
 	} else {
@@ -821,15 +825,30 @@ void Server::processAutoUpdate(bool force) {
 		//std::cout << "The updated server name: " << autoUpdateName << std::endl;
 		if (autoUpdateName == "purpur") {
 			std::cout << "Purpur server detected!" << std::endl;
+			std::string target = "/v2/purpur/" + autoUpdateVersion + "/latest/download";
+			httplib::SSLClient cli("api.purpurmc.org");
+			cli.enable_server_certificate_verification(false);
+			httplib::Headers headers = { {"Accept-Encoding", "gzip, deflate"} };
+			std::string content;
+			auto res = cli.Get(target.c_str(), headers, [&](const char * data, size_t length) {
+				content.append(data, length);
+				return true;
+			});
+			std::fstream file("purpur.jar", std::fstream::out);
+			file << content;
+			if (fs::file_size("purpur.jar") > 0) {
+				std::cout << "Successfully downloaded Purpur" << std::endl;
+			} else if (fs::file_size("purpur.jar") == 0) {
+				std::cout << "There was an error downloading Purpur" << std::endl;
+			} else if (fs::file_size("purpur.jar") == -1) {
+				std::cout << "There was an error reading the Purpur file" << std::endl;
+			}
 		} else if (autoUpdateName == "paper") {
 			std::cout << "Paper server detected!" << std::endl;
 		} else if (autoUpdateName == "fabric") {
 			std::cout << "Fabric server detected!" << std::endl;
 		}
 		//std::cout << "The updated server version: " << autoUpdateVersion << std::endl;
-		if (autoUpdateVersion == "1.18.1") {
-			std::cout << "Minecraft 1.18.1 detected!" << std::endl;
-		}
 	}
 }
 

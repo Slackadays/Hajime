@@ -41,6 +41,7 @@
 #include <fstream>
 #include <thread>
 #include <list>
+#include <deque>
 #include <atomic>
 #include <cstring>
 #include <string>
@@ -68,7 +69,7 @@ using namespace std::chrono;
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
-void Server::updateCPUusage(std::list<long long>& CPUreadings) {
+void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
 	#if defined(_WIN32) || defined(_WIN64)
 	//do stuff here
 	//update the values in server.hpp

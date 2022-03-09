@@ -94,10 +94,10 @@ void Server::startServer(string confFile) {
 		term.out<Info>("Auto update: " + autoUpdateName + ' ' + autoUpdateVersion);
 		term.out<Info>("Counter setting: " + to_string(counterLevel));
 		term.hajimeTerminal = true;
-		processAutoUpdate(true);
 		if (!fs::is_regular_file(file)) {
 			term.out<Warning>(file + text.warning.FileDoesntExist);
 		}
+		processAutoUpdate(true);
 		while (true) {
 			try {
 				fs::current_path(path);

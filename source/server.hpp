@@ -33,10 +33,12 @@
 #include <fstream>
 #include <thread>
 #include <list>
+#include <deque>
 #include <atomic>
 #include <cstring>
 #include <string>
 #include <vector>
+#include <deque>
 #include <chrono>
 #include <filesystem>
 #include <errno.h>
@@ -54,6 +56,7 @@ using std::ofstream;
 using std::ios;
 using std::vector;
 using std::list;
+using std::deque;
 using std::cout;
 
 class Server {
@@ -82,7 +85,7 @@ class Server {
 	void processServerCommand(string input);
 	void processChatKicks(string input);
 	void processPerfStats();
-	void updateCPUusage(std::list<long long>& CPUreadings);
+	void updateCPUusage(std::deque<long long>& CPUreadings);
 	void updateRAMusage();
 	void commandHajime();
 	void commandTime();
@@ -102,11 +105,11 @@ class Server {
 	void commandCAPerf();
 
 	template<typename T>
-	T averageVal(list<T> myList, unsigned int minutes) {
+	T averageVal(deque<T> myList, unsigned int minutes) {
 		minutes *= 12; //convert to 5-second intervals
 		int readings = 0;
 		T temp = 0;
-		myList.reverse();
+		reverse(myList.begin(), myList.end());
 		for (const auto& value : myList) {
 			if (value != 0) {
 				temp += value;
@@ -129,9 +132,9 @@ class Server {
 	string getSwap();
 	string getProcesses();
 	bool areCountersAvailable();
-	string formatReadingsLIB(const std::list<unsigned long long>& little, const std::list<unsigned long long>& big);
-	string formatReadingsLIB(const std::list<unsigned long long>& readings);
-	string formatReadingsHIB(const std::list<unsigned long long>& readings);
+	string formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big);
+	string formatReadingsLIB(const std::deque<long long>& readings);
+	string formatReadingsHIB(const std::deque<long long>& readings);
 	string getUptime();
 	string getLoadavg();
 	string getCPUusage();
@@ -201,55 +204,55 @@ class Server {
 	bool doCommands = true;
 	bool silentCommands = false;
 
-	inline static std::vector<unsigned long long> knownBadEvents = {};
+	inline static std::vector<long long> knownBadEvents = {};
 
-	std::list<long long> cpuusagereadings{0};
-	std::list<double> rampercentreadings{0.0};
-	std::list<unsigned long long> rambytereadings{0};
+	std::deque<long long> cpuusagereadings{0};
+	std::deque<double> rampercentreadings{0.0};
+	std::deque<long long> rambytereadings{0};
 
-	std::list<unsigned long long> cpucyclereadings{0};
-	std::list<unsigned long long> cpuinstructionreadings{0};
-	std::list<unsigned long long> cachemissreadings{0};
-	std::list<unsigned long long> branchinstructionreadings{0};
-	std::list<unsigned long long> branchmissreadings{0};
-	std::list<unsigned long long> cachereferencereadings{0};
-	std::list<unsigned long long> stalledcyclesfrontendreadings{0};
-	std::list<unsigned long long> stalledcyclesbackendreadings{0};
-	std::list<unsigned long long> buscyclereadings{0};
+	std::deque<long long> cpucyclereadings{0};
+	std::deque<long long> cpuinstructionreadings{0};
+	std::deque<long long> cachemissreadings{0};
+	std::deque<long long> branchinstructionreadings{0};
+	std::deque<long long> branchmissreadings{0};
+	std::deque<long long> cachereferencereadings{0};
+	std::deque<long long> stalledcyclesfrontendreadings{0};
+	std::deque<long long> stalledcyclesbackendreadings{0};
+	std::deque<long long> buscyclereadings{0};
 
-	std::list<unsigned long long> pagefaultreadings{0};
-	std::list<unsigned long long> contextswitchreadings{0};
-	std::list<unsigned long long> cpumigrationreadings{0};
-	std::list<unsigned long long> alignmentfaultreadings{0};
-	std::list<unsigned long long> emulationfaultreadings{0};
-	std::list<unsigned long long> minorpagefaultreadings{0};
-	std::list<unsigned long long> majorpagefaultreadings{0};
+	std::deque<long long> pagefaultreadings{0};
+	std::deque<long long> contextswitchreadings{0};
+	std::deque<long long> cpumigrationreadings{0};
+	std::deque<long long> alignmentfaultreadings{0};
+	std::deque<long long> emulationfaultreadings{0};
+	std::deque<long long> minorpagefaultreadings{0};
+	std::deque<long long> majorpagefaultreadings{0};
 
-	std::list<unsigned long long> l1dreadaccessreadings{0};
-	std::list<unsigned long long> l1dreadmissreadings{0};
-	std::list<unsigned long long> l1dprefetchaccessreadings{0};
-	std::list<unsigned long long> l1dprefetchmissreadings{0};
-	std::list<unsigned long long> llreadaccessreadings{0};
-	std::list<unsigned long long> llreadmissreadings{0};
-	std::list<unsigned long long> dtlbreadaccessreadings{0};
-	std::list<unsigned long long> dtlbreadmissreadings{0};
-	std::list<unsigned long long> dtlbwriteaccessreadings{0};
-	std::list<unsigned long long> dtlbwritemissreadings{0};
-	std::list<unsigned long long> dtlbprefetchaccessreadings{0};
-	std::list<unsigned long long> dtlbprefetchmissreadings{0};
-	std::list<unsigned long long> itlbreadaccessreadings{0};
-	std::list<unsigned long long> itlbreadmissreadings{0};
-	std::list<unsigned long long> bpureadaccessreadings{0};
-	std::list<unsigned long long> bpureadmissreadings{0};
-	std::list<unsigned long long> llwriteaccessreadings{0};
-	std::list<unsigned long long> llwritemissreadings{0};
-	std::list<unsigned long long> llprefetchmissreadings{0};
-	std::list<unsigned long long> l1dwriteaccessreadings{0};
-	std::list<unsigned long long> l1dwritemissreadings{0};
-	std::list<unsigned long long> l1ireadaccessreadings{0};
-	std::list<unsigned long long> l1ireadmissreadings{0};
-	std::list<unsigned long long> l1iprefetchaccessreadings{0};
-	std::list<unsigned long long> l1iprefetchmissreadings{0};
+	std::deque<long long> l1dreadaccessreadings{0};
+	std::deque<long long> l1dreadmissreadings{0};
+	std::deque<long long> l1dprefetchaccessreadings{0};
+	std::deque<long long> l1dprefetchmissreadings{0};
+	std::deque<long long> llreadaccessreadings{0};
+	std::deque<long long> llreadmissreadings{0};
+	std::deque<long long> dtlbreadaccessreadings{0};
+	std::deque<long long> dtlbreadmissreadings{0};
+	std::deque<long long> dtlbwriteaccessreadings{0};
+	std::deque<long long> dtlbwritemissreadings{0};
+	std::deque<long long> dtlbprefetchaccessreadings{0};
+	std::deque<long long> dtlbprefetchmissreadings{0};
+	std::deque<long long> itlbreadaccessreadings{0};
+	std::deque<long long> itlbreadmissreadings{0};
+	std::deque<long long> bpureadaccessreadings{0};
+	std::deque<long long> bpureadmissreadings{0};
+	std::deque<long long> llwriteaccessreadings{0};
+	std::deque<long long> llwritemissreadings{0};
+	std::deque<long long> llprefetchmissreadings{0};
+	std::deque<long long> l1dwriteaccessreadings{0};
+	std::deque<long long> l1dwritemissreadings{0};
+	std::deque<long long> l1ireadaccessreadings{0};
+	std::deque<long long> l1ireadmissreadings{0};
+	std::deque<long long> l1iprefetchaccessreadings{0};
+	std::deque<long long> l1iprefetchmissreadings{0};
 
 	long long CPUjiffies, PIDjiffies;
 
@@ -261,7 +264,7 @@ class Server {
 
 	bool wantsLiveOutput;
 
-	std::list<string> lines;
+	std::deque<string> lines;
 
 	public:
 		string name, exec, file, path, command, flags, confFile, device, method, cmdline, customMessage, autoUpdateName, autoUpdateVersion;
