@@ -14,10 +14,11 @@ find_package(Threads REQUIRED)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
 
-find_package(ZLIB REQUIRED)
-find_package(OpenSSL REQUIRED)
-
-add_compile_definitions(CPPHTTPLIB_OPENSSL_SUPPORT CPPHTTPLIB_ZLIB_SUPPORT)
+find_package(ZLIB)
+find_package(OpenSSL)
+if(ZLIB_FOUND AND OpenSSL_FOUND)
+  add_compile_definitions(CPPHTTPLIB_OPENSSL_SUPPORT CPPHTTPLIB_ZLIB_SUPPORT)
+endif()
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -63,8 +64,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 target_link_libraries(hajime Threads::Threads)
-target_link_libraries(hajime ZLIB::ZLIB)
-target_link_libraries(hajime OpenSSL::SSL)
-target_link_libraries(hajime OpenSSL::Crypto)
+
+if(ZLIB_FOUND AND OpenSSL_FOUND)
+  target_link_libraries(hajime ZLIB::ZLIB)
+  target_link_libraries(hajime OpenSSL::SSL)
+  target_link_libraries(hajime OpenSSL::Crypto)
+endif()
 
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
