@@ -52,36 +52,29 @@ namespace fs = std::filesystem;
 #include "wizard.hpp"
 #include "deduce.hpp"
 
-using std::cin;
-using std::cout;
-using std::endl;
-using std::shared_ptr;
-using std::make_shared;
-using std::vector;
-
 bool ee = false;
 bool bypassPriviligeCheck = false;
-vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
-vector<std::jthread> threadVec = {}; //create an array of thread objects
-string logFile = "";
-string hajConfFile = "";
-string version;
+std::vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
+std::vector<std::jthread> threadVec = {}; //create an array of thread objects
+std::string logFile = "";
+std::string hajConfFile = "";
+std::string version;
 
 #if defined(_WIN64) || defined (_WIN32)
 void setupTerminal();
 #else
 void setupRLimits();
 #endif
-void doPreemptiveFlags(vector<string> flags);
-void doRegularFlags(vector<string> flags);
+void doPreemptiveFlags(std::vector<std::string> flags);
+void doRegularFlags(std::vector<std::string> flags);
 void setupSignals();
 bool readSettings();
 void hajimeExit(int sig);
-vector<string> getServerFiles();
-vector<string> toVec(string input);
+std::vector<std::string> getServerFiles();
+std::vector<std::string> toVec(std::string input);
 void setupServers();
 void setupFirstTime();
-void processHajimeCommand(vector<string> input);
+void processHajimeCommand(std::vector<std::string> input);
 bool isUserPrivileged();
 void doHajimeTerminal();
 
@@ -92,7 +85,7 @@ int main(int argc, char *argv[]) {
 	setupTerminal();
 	#endif
 	term.dividerLine();
-	vector<string> flags;
+	std::vector<std::string> flags;
 	for (int i = 0; i < argc; i++) {
 		flags.push_back(argv[i]);
 	}
@@ -130,23 +123,23 @@ void setupSignals() {
 	});
 	signal(SIGINT, hajimeExit);
 	signal(SIGSEGV, [](int sig){
-		cout << "Segmentation fault detected; exiting Hajime now" << endl;
+		std::cout << "Segmentation fault detected; exiting Hajime now" << std::endl;
 		exit(0);
 	});
 	signal(SIGABRT, [](int sig){
-		cout << "Hajime ending execution abnormally; exiting Hajime now" << endl;
+		std::cout << "Hajime ending execution abnormally; exiting Hajime now" << std::endl;
 		exit(0);
 	});
 	signal(SIGILL, [](int sig){
-		cout << "Illegal instruction detected; try recompiling Hajime" << endl;
+		std::cout << "Illegal instruction detected; try recompiling Hajime" << std::endl;
 		exit(0);
 	});
 	signal(SIGFPE, [](int sig){
-		cout << "Illegal math operation; exiting Hajime now" << endl;
+		std::cout << "Illegal math operation; exiting Hajime now" << std::endl;
 		exit(0);
 	});
 	signal(SIGTERM, [](int sig){
-		cout << "Termination requested; exiting Hajime now" << endl;
+		std::cout << "Termination requested; exiting Hajime now" << std::endl;
 		exit(0);
 	});
 }
@@ -171,11 +164,11 @@ void setupRLimits() {
 	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
 		term.out<Error, Threadless>("Error changing resource limits; errno = " + std::to_string(errno));
 	}
-	term.out<Debug>("New soft file descriptor soft limit = " + to_string(rlimits.rlim_cur));
+	term.out<Debug>("New soft file descriptor soft limit = " + std::to_string(rlimits.rlim_cur));
 }
 #endif
 
-void doPreemptiveFlags(vector<string> flags) {
+void doPreemptiveFlags(std::vector<std::string> flags) {
 	if (getenv("NO_COLOR") != NULL) {
 		term.noColors = true;
 	}
@@ -215,7 +208,7 @@ void doPreemptiveFlags(vector<string> flags) {
 	}
 }
 
-void doRegularFlags(vector<string> flags) {
+void doRegularFlags(std::vector<std::string> flags) {
 	if (getenv("NO_COLOR") != NULL) {
 		term.noColors = true;
 	}
@@ -245,8 +238,8 @@ void doRegularFlags(vector<string> flags) {
 			}
 		}
 		if (flag("-ih", "--install-hajime-config")) { //can accept either no added file or an added file
-			string tempHajConfFile;
-			if (string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
+			std::string tempHajConfFile;
+			if (std::string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
 				tempHajConfFile = var;
 			} else {
 				tempHajConfFile = hajDefaultConfFile;
@@ -297,19 +290,19 @@ void doRegularFlags(vector<string> flags) {
 }
 
 bool readSettings() {
-	vector<string> settings{"version", "logfile", "debug", "threadcolors"};
+	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		term.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
 		return 0;
 	}
-	vector<string> results = getVarsFromFile(hajDefaultConfFile, settings);
-	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
-		auto setVar = [&](string name, string& tempVar){
+	std::vector<std::string> results = getVarsFromFile(hajDefaultConfFile, settings);
+	for (std::vector<std::string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
+		auto setVar = [&](std::string name, std::string& tempVar){
 			if (*firstSetIterator == name) {
 				tempVar = *secondSetIterator;
 			}
 		};
-		auto setVari = [&](string name, int& tempVar){
+		auto setVari = [&](std::string name, int& tempVar){
 			if (*firstSetIterator == name) {
 				try {
 					tempVar = stoi(*secondSetIterator);
@@ -343,8 +336,8 @@ void hajimeExit(int sig) {
 	then = std::chrono::system_clock::now();
 }
 
-vector<string> getServerFiles() {
-	vector<string> results;
+std::vector<std::string> getServerFiles() {
+	std::vector<std::string> results;
 	for (const auto& file : fs::directory_iterator{fs::current_path()}) {
 		if (std::regex_match(file.path().filename().string(), std::regex(".+\\.server(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
 			results.emplace_back(file.path().filename().string());
@@ -353,27 +346,27 @@ vector<string> getServerFiles() {
 	return results;
 }
 
-vector<string> toVec(string input) {
-	vector<string> output;
-	string temp = "";
+std::vector<std::string> toVec(std::string input) {
+	std::vector<std::string> output;
+	std::string temp = "";
 	for (int i = 0; i < input.length(); temp = "") {
 		while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
 			i++;
 		}
-		while (input[i] != ' ' && i < input.length()) { //add characters to a temp variable that will go into the vector
+		while (input[i] != ' ' && i < input.length()) { //add characters to a temp variable that will go into the std::vector
 			temp += input[i];
 			i++;
 		}
 		while (input[i] == ' ' && i < input.length()) { //skip any trailing whitespace
 			i++;
 		}
-		output.push_back(temp); //add the finished flag to the vector of flags
+		output.push_back(temp); //add the finished flag to the std::vector of flags
 	}
 	return output;
 }
 
 void setupServers() {
-	vector<string> serverFiles = getServerFiles();
+	std::vector<std::string> serverFiles = getServerFiles();
 	if (serverFiles.size() == 0) {
 		term.out<Error>("No server files found (Hint: all server files end with .server)");
 		exit(0);
@@ -404,7 +397,7 @@ void setupFirstTime() {
 	}
 }
 
-void processHajimeCommand(vector<string> input) {
+void processHajimeCommand(std::vector<std::string> input) {
 	if (input[0] == "term" || input[0] == "t") {
 		if (input.size() >= 2) {
 			try {
@@ -462,7 +455,7 @@ bool isUserPrivileged() {
 void doHajimeTerminal() {
 	term.hajimeTerminal = true;
 	while(true) {
-		string command = "";
+		std::string command = "";
 		std::getline(std::cin, command);
 		std::cout << "\033[0m" << std::flush;
 		if (command != "") {

@@ -55,17 +55,6 @@
 
 #include "server.hpp"
 
-using std::shared_ptr;
-using std::string;
-using std::fstream;
-using std::to_string;
-using std::ofstream;
-using std::ios;
-using std::vector;
-using std::array;
-using std::cout;
-using namespace std::chrono;
-
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
@@ -82,7 +71,7 @@ void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
 	long cpuNum = sysconf(_SC_NPROCESSORS_ONLN);
 	old_pidjiffies = PIDjiffies;
 	old_cpujiffies = CPUjiffies;
-	std::fstream pidprocstat("/proc/" + to_string(pid) + "/stat", std::fstream::in);
+	std::fstream pidprocstat("/proc/" + std::to_string(pid) + "/stat", std::fstream::in);
 	std::getline(pidprocstat, line);
 	std::regex repid("\\S+", std::regex_constants::optimize);
 	std::vector<std::string> pidcpuinfo;
@@ -144,7 +133,7 @@ void Server::updateRAMusage() {
 	//update the values in server.hpp
 	#elif defined(__linux__)
 	string line;
-	std::fstream pidprocstatm("/proc/" + to_string(pid) + "/statm", std::fstream::in);
+	std::fstream pidprocstatm("/proc/" + std::to_string(pid) + "/statm", std::fstream::in);
 	std::getline(pidprocstatm, line);
 	std::regex repid("\\S+", std::regex_constants::optimize);
 	std::vector<std::string> pidmeminfo;

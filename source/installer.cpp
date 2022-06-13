@@ -29,9 +29,6 @@
 #include <unistd.h>
 #endif
 
-using std::cout;
-using std::endl;
-
 #include "constants.hpp"
 #include "output.hpp"
 #include "languages.hpp"
@@ -39,23 +36,23 @@ using std::endl;
 
 namespace fs = std::filesystem;
 
-void Installer::installNewServerConfigFile(const string& fileLocation, const bool& skipFileCheck, const string& flags, const string& serverFile) {
+void Installer::installNewServerConfigFile(const std::string& fileLocation, const bool& skipFileCheck, const std::string& flags, const std::string& serverFile) {
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
-		ofstream outConf(fileLocation);
-		outConf << "version=" << hajime_version << endl;
-		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << endl;
-		outConf << "path=" << fs::current_path().string() << endl;
-		outConf << "exec=java # The file that gets called in the \"new\" method." << endl;
-		outConf << "flags=-jar -Xmx4G -Xms4G " + flags + " # This is where your Java flags go." << endl;
-		outConf << "file=" + serverFile  + " # The server file you want to start."<< endl;
-		outConf << "command= # Only use this if you using the \"old\" method."<< endl;
-		outConf << "method=new" << endl;
-		outConf << "device=" << endl;
-		outConf << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << endl;
-		outConf << "commands=1" << endl << "silentcommands=0" << endl << "custommsg=" << endl << "chatkickregex=" << endl << "counters=high" << endl << "autoupdate=" << endl;
-		outConf << text.fileServerConfComment << endl;
+		std::ofstream outConf(fileLocation);
+		outConf << "version=" << hajime_version << std::endl;
+		outConf << "name=" << std::regex_replace(fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << std::endl;
+		outConf << "path=" << fs::current_path().string() << std::endl;
+		outConf << "exec=java # The file that gets called in the \"new\" method." << std::endl;
+		outConf << "flags=-jar -Xmx4G -Xms4G " + flags + " # This is where your Java flags go." << std::endl;
+		outConf << "file=" + serverFile  + " # The server file you want to start."<< std::endl;
+		outConf << "command= # Only use this if you using the \"old\" method."<< std::endl;
+		outConf << "method=new" << std::endl;
+		outConf << "device=" << std::endl;
+		outConf << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << std::endl;
+		outConf << "commands=1" << std::endl << "silentcommands=0" << std::endl << "custommsg=" << std::endl << "chatkickregex=" << std::endl << "counters=high" << std::endl << "autoupdate=" << std::endl;
+		outConf << text.fileServerConfComment << std::endl;
 		term.out<Info>(text.info.CreatedServerConfig1 + fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();
 		if (!fs::is_regular_file(fileLocation)) {
@@ -64,18 +61,18 @@ void Installer::installNewServerConfigFile(const string& fileLocation, const boo
 	}
 }
 
-void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool skipFileCheck, const string& lang) {
+void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", bool skipFileCheck, const std::string& lang) {
 	term.out<Info>(text.info.InstallingDefHajConf + fileLocation + "...");
 	term.out<Info>(text.info.CheckingExistingFile);
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
-		ofstream outConf(fileLocation);
-		outConf << "version=" << hajime_version << endl;
-		outConf << "logfile=hajime.log" << endl;
-		outConf << "lang=" << lang << endl;
-		outConf << "debug=0" << endl;
-		outConf << "threadcolors=1" << endl;
+		std::ofstream outConf(fileLocation);
+		outConf << "version=" << hajime_version << std::endl;
+		outConf << "logfile=hajime.log" << std::endl;
+		outConf << "lang=" << lang << std::endl;
+		outConf << "debug=0" << std::endl;
+		outConf << "threadcolors=1" << std::endl;
 		outConf.close();
 		term.out<Info>(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2);
 		if (!fs::is_regular_file(fileLocation)) {
@@ -84,7 +81,7 @@ void Installer::installDefaultHajConfFile(string fileLocation = "(none)", bool s
 	}
 }
 
-void Installer::installStartupService(const string& sysService) {
+void Installer::installStartupService(const std::string& sysService) {
 	#if defined(_WIN64) || defined (_WIN32)
 	term.out<Info>(text.info.InstallingWStartServ);
 	installWindows();
@@ -193,7 +190,7 @@ void Installer::installWindows() {
 }
 
 void Installer::installSysVInit() {
-	ofstream service("/etc/init.d/hajime.sh");
+	std::ofstream service("/etc/init.d/hajime.sh");
 	string user;
 	term.out<Question, NoEndline>(text.question.SysvinitUser);
 	std::cin >> user;
@@ -252,12 +249,12 @@ void Installer::installSysVInit() {
 	"		echo \"Usage: $NAME (start|stop|restart|status)\" >&2\n"
 	"		exit 1\n"
 	"esac\n"
-	"exit 0" << endl;
+	"exit 0" << std::endl;
 	service.close();
 }
 
 void Installer::installLaunchd() {
-	ofstream service("/Library/LaunchAgents/Hajime.plist");
+	std::ofstream service("/Library/LaunchAgents/Hajime.plist");
 	service << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 	"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
 	"<plist version=\"1.0\">\n"
@@ -273,14 +270,14 @@ void Installer::installLaunchd() {
 	"		<key>KeepAlive</key>\n"
 	"		<true/>\n"
 	"	</dict>\n"
-	"</plist>" << endl;
+	"</plist>" << std::endl;
 	service.close();
 }
 
-void Installer::installSystemd(const string& location) {
-	ofstream service(location);
-	service << "[Unit]" << endl << "Description=Starts the Hajime startup system" << endl;
-	service << endl << "[Service]\nType=forking\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=screen -S hajime -d -m " << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
+void Installer::installSystemd(const std::string& location) {
+	std::ofstream service(location);
+	service << "[Unit]" << std::endl << "Description=Starts the Hajime startup system" << std::endl;
+	service << std::endl << "[Service]\nType=forking\nWorkingDirectory=" << fs::current_path().string() << "\nExecStart=screen -S hajime -d -m " << fs::current_path().string()  << "/hajime\n\n[Install]\nWantedBy=multi-user.target";
 	service.close();
 }
 

@@ -18,10 +18,8 @@
 
 #include "constants.hpp"
 
-using std::string;
+const std::string hajime_version = "0.2.0";
 
-const string hajime_version = "0.2.0";
+std::string defaultServerConfFile = "MyServer.server";
 
-string defaultServerConfFile = "MyServer.server";
-
-string hajDefaultConfFile = "hajime.conf";
+std::string hajDefaultConfFile = "hajime.conf";

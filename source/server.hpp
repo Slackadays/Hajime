@@ -48,17 +48,6 @@
 #include "output.hpp"
 #include "languages.hpp"
 
-using std::shared_ptr;
-using std::string;
-using std::fstream;
-using std::to_string;
-using std::ofstream;
-using std::ios;
-using std::vector;
-using std::list;
-using std::deque;
-using std::cout;
-
 class Server {
 	bool hasOutputUSB = false, hasMounted = false;
 
@@ -69,10 +58,10 @@ class Server {
 	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
 	#if defined(__linux__)
-	vector<long> getProcessChildPids(long pid);
+	std::vector<long> getProcessChildPids(long pid);
 	void setupCounter(auto& s);
-	void createCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
-	void cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids);
+	void createCounters(std::vector<struct pcounter*>& counters, const std::vector<long>& pids);
+	void cullCounters(std::vector<struct pcounter*>& counters, const std::vector<long>& pids);
 	void resetAndEnableCounters(const auto& counters);
 	void disableCounters(const auto& counters);
 	void readCounters(auto& counters);
@@ -105,7 +94,7 @@ class Server {
 	void commandCAPerf();
 
 	template<typename T>
-	T averageVal(deque<T> myList, unsigned int minutes) {
+	T averageVal(std::deque<T> myList, unsigned int minutes) {
 		minutes *= 12; //convert to 5-second intervals
 		int readings = 0;
 		T temp = 0;
@@ -178,8 +167,8 @@ class Server {
 	void removeSlashesFromEnd(string& var);
 	void processServerTerminal();
 	int getPID();
-	vector<string> toArray(string input);
-	auto toPointerArray(vector<string> &strings);
+	std::vector<string> toArray(std::string input);
+	auto toPointerArray(std::vector<std::string> &strings);
 
 	inline static std::atomic<int> performanceCounterCompat = 0;
 

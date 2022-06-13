@@ -439,7 +439,7 @@ string Server::getCPU() {
 	sysctlbyname("hw.ncpu", NULL, &len, NULL, 0);
   int cpucount;
   sysctlbyname("hw.ncpu", &cpucount, &len, NULL, 0);
-  return to_string(cpucount) + "x " + cpuname;
+  return std::to_string(cpucount) + "x " + cpuname;
 	#endif
 	return "Only available on Linux or Windows";
 }
@@ -485,7 +485,7 @@ string Server::getRAM() {
   sysctlbyname("hw.memsize", NULL, &len, NULL, 0);
   long int memtotal;
   sysctlbyname("hw.memsize", &memtotal, &len, NULL, 0);
-  return to_string(memtotal) + "B total";
+  return std::to_string(memtotal) + "B total";
 	#else
 	return "Not available yet";
 	#endif
@@ -501,7 +501,7 @@ string Server::getUptime() {
 	string temp2 = temp.str();
 	std::regex_search(temp2, m, std::regex("[0-9]+(\\.[0-9]+)?", std::regex_constants::optimize));
 	try {
-		return string(m[0]) + " seconds (" + to_string(stoi(m[0]) / 60) + string(" minutes, ") + to_string(stoi(m[0]) / 3600) + " hours)";
+		return string(m[0]) + " seconds (" + std::to_string(stoi(m[0]) / 60) + string(" minutes, ") + std::to_string(stoi(m[0]) / 3600) + " hours)";
 	} catch (...) {
 		return "Error parsing memory";
 	}
@@ -537,7 +537,7 @@ string Server::getSwap() {
 	#if defined(__linux__)
 	struct sysinfo info;
 	sysinfo(&info);
-	string result = to_string(info.totalswap / 1024) + "kB total, " + to_string(info.freeswap / 1024) + "kB available";
+	string result = std::to_string(info.totalswap / 1024) + "kB total, " + std::to_string(info.freeswap / 1024) + "kB available";
 	return result;
 	#else
 	return "Not available yet";
@@ -548,7 +548,7 @@ string Server::getProcesses() {
 	#if defined(__linux__)
 	struct sysinfo info;
 	sysinfo(&info);
-	string result = to_string(info.procs) + " total";
+	string result = std::to_string(info.procs) + " total";
 	return result;
 	#else
 	return "Not available yet";
@@ -571,7 +571,7 @@ bool Server::areCountersAvailable() {
 
 string Server::formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big) {
 	if (areCountersAvailable()) {
-		return to_string(little.back()) + " (" + to_string(100.0 * (double)little.back() / (double)big.back()) + "% of total) last 5 seconds, " + to_string(averageVal(little, 1)) + " (" + to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "%) last 1 minute, " + to_string(averageVal(little, 5)) + " (" + to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + to_string(averageVal(little, 15)) + " (" + to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15, " + to_string(averageVal(little, 60)) + " (" + to_string(100.0 * (double)averageVal(little, 60) / (double)averageVal(big, 60)) + "%) last 1 hour (Lower is better)";
+		return std::to_string(little.back()) + " (" + std::to_string(100.0 * (double)little.back() / (double)big.back()) + "% of total) last 5 seconds, " + std::to_string(averageVal(little, 1)) + " (" + std::to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "%) last 1 minute, " + std::to_string(averageVal(little, 5)) + " (" + std::to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + std::to_string(averageVal(little, 15)) + " (" + std::to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15, " + std::to_string(averageVal(little, 60)) + " (" + std::to_string(100.0 * (double)averageVal(little, 60) / (double)averageVal(big, 60)) + "%) last 1 hour (Lower is better)";
 	} else {
 		return "Currently not available on this server";
 	}
@@ -579,7 +579,7 @@ string Server::formatReadingsLIB(const std::deque<long long>& little, const std:
 
 string Server::formatReadingsLIB(const std::deque<long long>& readings) {
 	if (areCountersAvailable()) {
-		return to_string(readings.back()) + " last 5 seconds, " + to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15, " + to_string(averageVal(readings, 60)) + " last 1 hour (Lower is better)";
+		return std::to_string(readings.back()) + " last 5 seconds, " + std::to_string(averageVal(readings, 1)) + " last 1 minute, " + std::to_string(averageVal(readings, 5)) + " last 5, " + std::to_string(averageVal(readings, 15)) + " last 15, " + std::to_string(averageVal(readings, 60)) + " last 1 hour (Lower is better)";
 	} else {
 		return "Currently not available on this server";
 	}
@@ -587,34 +587,34 @@ string Server::formatReadingsLIB(const std::deque<long long>& readings) {
 
 string Server::formatReadingsHIB(const std::deque<long long>& readings) {
 	if (areCountersAvailable()) {
-		return to_string(readings.back()) + " last 5 seconds, " + to_string(averageVal(readings, 1)) + " last 1 minute, " + to_string(averageVal(readings, 5)) + " last 5, " + to_string(averageVal(readings, 15)) + " last 15, " + to_string(averageVal(readings, 60)) + " last 1 hour (Higher is better)";
+		return std::to_string(readings.back()) + " last 5 seconds, " + std::to_string(averageVal(readings, 1)) + " last 1 minute, " + std::to_string(averageVal(readings, 5)) + " last 5, " + std::to_string(averageVal(readings, 15)) + " last 15, " + std::to_string(averageVal(readings, 60)) + " last 1 hour (Higher is better)";
 	} else {
 		return "Currently not available on this server";
 	}
 }
 
 string Server::getCPUusage() {
-	return to_string(averageVal(cpuusagereadings, 1)) + "% last 1 minute, " + to_string(averageVal(cpuusagereadings, 5)) + "% last 5, " + to_string(averageVal(cpuusagereadings, 15)) + "% last 15 (Lower is better)";
+	return std::to_string(averageVal(cpuusagereadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(cpuusagereadings, 5)) + "% last 5, " + std::to_string(averageVal(cpuusagereadings, 15)) + "% last 15 (Lower is better)";
 }
 
 string Server::getCPUmigs() {
-	return to_string(averageVal(cpumigrationreadings, 1)) + " last 1 minute, " + to_string(averageVal(cpumigrationreadings, 5)) + " last 5, " + to_string(averageVal(cpumigrationreadings, 15)) + " last 15";
+	return std::to_string(averageVal(cpumigrationreadings, 1)) + " last 1 minute, " + std::to_string(averageVal(cpumigrationreadings, 5)) + " last 5, " + std::to_string(averageVal(cpumigrationreadings, 15)) + " last 15";
 }
 
 string Server::getRAMusage() {
-	return to_string(averageVal(rampercentreadings, 1)) + "% last 1 minute, " + to_string(averageVal(rampercentreadings, 5)) + "% last 5, " + to_string(averageVal(rampercentreadings, 15)) + "% last 15 (" + to_string((averageVal(rambytereadings, 1) / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 5) / 1024) / 1024) + "MB/" + to_string((averageVal(rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
+	return std::to_string(averageVal(rampercentreadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(rampercentreadings, 5)) + "% last 5, " + std::to_string(averageVal(rampercentreadings, 15)) + "% last 15 (" + std::to_string((averageVal(rambytereadings, 1) / 1024) / 1024) + "MB/" + std::to_string((averageVal(rambytereadings, 5) / 1024) / 1024) + "MB/" + std::to_string((averageVal(rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
 }
 
 string Server::getIPC() {
-	return to_string((double)averageVal(cpuinstructionreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + " last 1 minute, " + to_string((double)averageVal(cpuinstructionreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + " last 5, " + to_string((double)averageVal(cpuinstructionreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + " last 15 (Higher is better)";
+	return std::to_string((double)averageVal(cpuinstructionreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + " last 1 minute, " + std::to_string((double)averageVal(cpuinstructionreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + " last 5, " + std::to_string((double)averageVal(cpuinstructionreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + " last 15 (Higher is better)";
 }
 
 string Server::getIPS() {
-	return to_string((averageVal(cpuinstructionreadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
+	return std::to_string((averageVal(cpuinstructionreadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getCPS() {
-	return to_string((averageVal(cpucyclereadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + to_string((averageVal(cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + to_string((averageVal(cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
+	return std::to_string((averageVal(cpucyclereadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getContextSwitches() {
@@ -799,7 +799,7 @@ string Server::readFromServer() {
 					term.out<Error, Threadless>("Error reading file descriptor; I/O error (the server is likely down)");
 					break;
 				default:
-					term.out<Error, Threadless>("Other error reading file descriptor; errno = " + to_string(errno));
+					term.out<Error, Threadless>("Other error reading file descriptor; errno = " + std::to_string(errno));
 					break;
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -817,7 +817,7 @@ void Server::updateUptime() {
 	timeCurrent = std::chrono::steady_clock::now();
 	auto tempUptime = std::chrono::duration_cast<std::chrono::minutes>(timeCurrent - timeStart);
 	uptime = tempUptime.count();
-	//std::cout << "uptime = " + to_string(uptime) << std::endl;
+	//std::cout << "uptime = " + std::to_string(uptime) << std::endl;
 }
 
 void Server::processAutoUpdate(bool force) {

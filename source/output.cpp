@@ -34,9 +34,6 @@
 #include <unordered_map>
 #include <cmath>
 
-using std::string;
-using std::ofstream;
-
 #include "output.hpp"
 #include "languages.hpp"
 
@@ -71,8 +68,8 @@ int Output::getTerminalWidth() {
 	#endif
 }
 
-void Output::dividerLine(string tx, bool exit) {
-	string line;
+void Output::dividerLine(std::string tx, bool exit) {
+	std::string line;
 	int totalWidth = getTerminalWidth();
 	int currentWidth = 0;
 	if (lastOutput == "") {
@@ -125,7 +122,7 @@ void Output::dividerLine(string tx, bool exit) {
 	term.out<None>(line);
 }
 
-void Output::init(const string& file) {
+void Output::init(const std::string& file) {
 	logToFile = true;
 	logFilename = file;
 	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
@@ -137,7 +134,7 @@ void Output::end() {
 	logToFile = false;
 }
 
-string Output::removeEndlines(string input, bool keepEndlines) {
+std::string Output::removeEndlines(std::string input, bool keepEndlines) {
 	if (!keepEndlines) {
 		input.erase(std::remove(input.begin(), input.end(), '\n'), input.end());
 	}
@@ -154,11 +151,11 @@ bool Output::isExcluded(outFlag type) {
 	}
 }
 
-string Output::makeMonochrome(string input) {
+std::string Output::makeMonochrome(std::string input) {
 	return std::regex_replace(input, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 }
 
-void Output::terminalDispatch(string input, outFlag type, bool endLineAtEnd) {
+void Output::terminalDispatch(std::string input, outFlag type, bool endLineAtEnd) {
 	std::lock_guard<std::mutex> lock(outMutex);
 	if (type == Error) {
 		std::cerr << input << std::flush;
@@ -183,7 +180,7 @@ void Output::terminalDispatch(string input, outFlag type, bool endLineAtEnd) {
 	}
 }
 
-void Output::fileDispatch(string input, outFlag type, bool endLineAtEnd) {
+void Output::fileDispatch(std::string input, outFlag type, bool endLineAtEnd) {
 	input = std::regex_replace(input, std::regex("\\\033\\[(\\d+;)*\\d+m", std::regex_constants::optimize), ""); //I hate this
 	fileObj << input;
 	if (endLineAtEnd) {
@@ -191,8 +188,8 @@ void Output::fileDispatch(string input, outFlag type, bool endLineAtEnd) {
 	}
 }
 
-string Output::addPrefixByType(string input, outFlag type) {
-	string prefix = "";
+std::string Output::addPrefixByType(std::string input, outFlag type) {
+	std::string prefix = "";
 	bool blank = false;
 	if (verbose) {
 		switch (type) {
@@ -280,7 +277,7 @@ string Output::addPrefixByType(string input, outFlag type) {
 	return (prefix + input);
 }
 
-void Output::registerServerName(const string& serverName) {
+void Output::registerServerName(const std::string& serverName) {
 	if (!threadToNameMap.count(std::this_thread::get_id())) {
 		threadToNameMap[std::this_thread::get_id()] = serverName;
 	} else {
@@ -288,8 +285,8 @@ void Output::registerServerName(const string& serverName) {
 	}
 }
 
-string Output::getColorByID() {
-	std::hash<string> hasher;
+std::string Output::getColorByID() {
+	std::hash<std::string> hasher;
 	int selection;
 	if (threadToNameMap.count(std::this_thread::get_id())) { //do not access threadtonamemap directly because doing so would add the thread id as a key
 		selection = hasher(threadToNameMap[std::this_thread::get_id()]) % 211;
@@ -300,7 +297,7 @@ string Output::getColorByID() {
 	}
 	float dummy;
  	float bgID = std::modf(selection / 14.0, &dummy);
-	string returnedColor;
+	std::string returnedColor;
 	switch ((int)ceil(selection / 15.0)) {
 		case 1:
 			returnedColor += "\033[31m"; //dark red text

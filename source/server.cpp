@@ -58,15 +58,6 @@
 #include "server.hpp"
 #include "output.hpp"
 
-using std::shared_ptr;
-using std::string;
-using std::fstream;
-using std::to_string;
-using std::ofstream;
-using std::ios;
-using std::vector;
-using std::cout;
-
 using namespace std::chrono;
 
 namespace fs = std::filesystem;
@@ -87,12 +78,12 @@ void Server::startServer(string confFile) {
 		term.out<None>(text.info.ServerPath + path);
 		term.out<Info, NoEndline>(text.info.ServerCommand + command + " | ");
 		term.out<None>(text.info.ServerMethod + method);
-		term.out<Info, NoEndline>(text.info.ServerDebug + to_string(term.debug) + " | "); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+		term.out<Info, NoEndline>(text.info.ServerDebug + std::to_string(term.debug) + " | "); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		term.out<None>(text.info.ServerDevice + device);
-		term.out<Info, NoEndline>("Restart interval: " + to_string(restartMins) + " | ");
-		term.out<None>("Silent commands: " + to_string(silentCommands));
+		term.out<Info, NoEndline>("Restart interval: " + std::to_string(restartMins) + " | ");
+		term.out<None>("Silent commands: " + std::to_string(silentCommands));
 		term.out<Info>("Auto update: " + autoUpdateName + ' ' + autoUpdateVersion);
-		term.out<Info>("Counter setting: " + to_string(counterLevel));
+		term.out<Info>("Counter setting: " + std::to_string(counterLevel));
 		term.hajimeTerminal = true;
 		if (!fs::is_regular_file(file)) {
 			term.out<Warning>(file + text.warning.FileDoesntExist);
@@ -159,9 +150,9 @@ void Server::startServer(string confFile) {
 	}
 }
 
-vector<string> Server::toArray(string input) {
-	vector<string> flagVector;
-	vector<string> addToEndVector;
+std::vector<std::string> Server::toArray(std::string input) {
+	std::vector<string> flagVector;
+	std::vector<string> addToEndVector;
 	string temp = "";
 	string execFile;
 	execFile = path + '/' + exec;
@@ -186,8 +177,8 @@ vector<string> Server::toArray(string input) {
 	return flagVector;
 }
 
-auto Server::toPointerArray(vector<string> &strings) {
-	vector<char*> pointers; //the pointer array that we will pass to the exec command
+auto Server::toPointerArray(std::vector<std::string> &strings) {
+	std::vector<char*> pointers; //the pointer array that we will pass to the exec command
 	for (auto &string : strings) { //loop over the whole flag string vector
 		pointers.push_back(string.data()); //give the pointer array an address to a c-style string from the flag array
 	}
@@ -195,7 +186,7 @@ auto Server::toPointerArray(vector<string> &strings) {
 	return pointers;
 }
 
-void Server::startProgram(string method = "new") {
+void Server::startProgram(std::string method = "new") {
 	uptime = 0;
 	said15MinRestart = false;
 	said5MinRestart = false;
@@ -298,8 +289,8 @@ void Server::startProgram(string method = "new") {
 				close(slave_fd);
 				std::this_thread::sleep_for(std::chrono::seconds(4));
 				std::fstream cmdl;
-				cmdl.open("/proc/" + to_string(pid) + "/cmdline", std::fstream::in);
-				//std::cout << "opening cmdline file for pid " << pid << " at /proc/" << to_string(pid) << "/cmdline" << std::endl;
+				cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
+				//std::cout << "opening cmdline file for pid " << pid << " at /proc/" << std::to_string(pid) << "/cmdline" << std::endl;
 				getline(cmdl, cmdline);
 				//std::cout << "cmdline = " << cmdline << std::endl;
 				cmdl.close();
@@ -388,7 +379,7 @@ void Server::mountDrive() {
 					hasOutputUSB = true;
 					systemi = 0;
 				}
-				term.out<Error>(text.error.Code + to_string(errsv));
+				term.out<Error>(text.error.Code + std::to_string(errsv));
 			}
 		}
 		if (systemi < 6) {
@@ -411,12 +402,12 @@ void Server::readSettings(const string confFile) {
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
-	vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex", "counters", "autoupdate"};
-	vector<string> results = getVarsFromFile(confFile, settings);
+	std::vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex", "counters", "autoupdate"};
+	std::vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		term.out<Debug>(it);
 	}
-	for (vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
+	for (std::vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](auto name, auto& tempVar) {
 			if (*firstSetIterator == name) {
 				tempVar = *secondSetIterator;
@@ -485,7 +476,7 @@ int Server::getPID() {
 	if (method == "new") {
 		if (!kill(pid, 0)) {
 			std::fstream cmdl;
-			cmdl.open("/proc/" + to_string(pid) + "/cmdline", std::fstream::in);
+			cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
 			string temp = "";
 			getline(cmdl, temp);
 			//std::cout << "temp is " << temp << std::endl;
@@ -504,8 +495,8 @@ int Server::getPID() {
 		fs::directory_iterator End; //a dummy object to compare to
 		for (string dir = ""; Directory != End; Directory++) {
 			dir = Directory->path(); //assigns a formatted directory string to dir
-			fstream file; //create a file object
-			file.open(dir + "/cmdline", ios::in); //open the file of /proc/PID/cmdline for reading
+			std::fstream file; //create a file object
+			file.open(dir + "/cmdline", std::ios::in); //open the file of /proc/PID/cmdline for reading
 			string str = ""; //reset string
 			getline(file, str); //read cmdline (it is only 1 line)
 			if (str.length() > 0) { //if a cmdline is not used, there will be nothing

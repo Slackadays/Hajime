@@ -27,7 +27,6 @@
 #endif
 
 namespace fs = std::filesystem;
-using std::string;
 
 #include "constants.hpp"
 #include "getvarsfromfile.hpp"

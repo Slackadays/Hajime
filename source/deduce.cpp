@@ -25,9 +25,6 @@
 #include "deduce.hpp"
 #include "output.hpp"
 
-using std::string;
-using std::vector;
-
 namespace fs = std::filesystem;
 
 string Deduce::hajimeFile() {
@@ -39,8 +36,8 @@ string Deduce::hajimeFile() {
 	}
 }
 
-vector<string> Deduce::serverFiles(const fs::path& p) {
-	vector<string> results;
+std::vector<string> Deduce::serverFiles(const fs::path& p) {
+	std::vector<string> results;
 	auto path = fs::directory_iterator{p};
 	for (auto file = begin(path); file != end(path); ++file) {
 		if (std::regex_match(file->path().filename().string(), std::regex(".+\\.jar(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {

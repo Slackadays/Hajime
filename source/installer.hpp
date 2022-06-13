@@ -27,9 +27,6 @@
 #include <unistd.h>
 #endif
 
-using std::cout;
-using std::endl;
-
 #include "output.hpp"
 #include "languages.hpp"
 

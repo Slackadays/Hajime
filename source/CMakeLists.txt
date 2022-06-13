@@ -2,8 +2,14 @@ cmake_minimum_required(VERSION 3.15)
 
 project(Hajime LANGUAGES CXX)
 
+project(Hajime VERSION 0.2.0)
+
+add_subdirectory(zlib)
+include_directories(hajime zlib)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 #set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE Release)
 
@@ -14,22 +20,26 @@ find_package(Threads REQUIRED)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
 
+#set(OPENSSL_USE_STATIC_LIBS TRUE)
+
 if(NOT NO_SSL)
-  find_package(ZLIB)
   find_package(OpenSSL)
 endif()
-if(ZLIB_FOUND AND OpenSSL_FOUND)
-  add_compile_definitions(CPPHTTPLIB_OPENSSL_SUPPORT CPPHTTPLIB_ZLIB_SUPPORT)
+
+if(OpenSSL_FOUND)
+  add_compile_definitions(CPPHTTPLIB_OPENSSL_SUPPORT)
 endif()
+
+add_compile_definitions(CPPHTTPLIB_ZLIB_SUPPORT)
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
-#include(CheckCXXCompilerFlag)
-#CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
-#if(COMPILER_SUPPORTS_MARCH_NATIVE)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-#endif()
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+if(COMPILER_SUPPORTS_MARCH_NATIVE AND (NOT DEFINED ENV{CI})) #do not use a native uarch if we are in a CI environment
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_FLAGS}")
 
@@ -67,10 +77,16 @@ endif()
 
 target_link_libraries(hajime Threads::Threads)
 
-if(ZLIB_FOUND AND OpenSSL_FOUND)
-  target_link_libraries(hajime ZLIB::ZLIB)
+if(OpenSSL_FOUND)
   target_link_libraries(hajime OpenSSL::SSL)
   target_link_libraries(hajime OpenSSL::Crypto)
 endif()
 
-set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
+if(UNIX AND NOT APPLE)
+  set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${CMAKE_BINARY_DIR}/zlib/libz.a ${ADD_FLAGS}") #statically link zlib; this is the simplest way to do it
+else()
+  target_link_libraries(hajime zlib)
+  set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
+endif()
+
+

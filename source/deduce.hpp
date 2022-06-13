@@ -18,18 +18,15 @@
 #include <vector>
 #include <filesystem>
 
-using std::vector;
-using std::string;
-
 namespace fs = std::filesystem;
 
 class Deduce {
 
 	public:
-		vector<string> serverFiles(const fs::path& p);
-		string hajimeFile();
-		string serverConfig();
-		string usagePattern();
+		std::vector<std::string> serverFiles(const fs::path& p);
+		std::string hajimeFile();
+		std::string serverConfig();
+		std::string usagePattern();
 };
 
 extern Deduce deduce;

@@ -55,17 +55,6 @@
 
 #include "server.hpp"
 
-using std::shared_ptr;
-using std::string;
-using std::fstream;
-using std::to_string;
-using std::ofstream;
-using std::ios;
-using std::vector;
-using std::array;
-using std::cout;
-using namespace std::chrono;
-
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
@@ -91,7 +80,7 @@ struct pcounter {
 	struct read_format* data = reinterpret_cast<struct read_format*>(buf);
 };
 
-vector<long> Server::getProcessChildPids(long pid) {
+std::vector<long> Server::getProcessChildPids(long pid) {
 	std::vector<long> pids;
 	std::regex re("/proc/\\d+/task/", std::regex_constants::optimize);
 	for (const auto& dir : fs::directory_iterator{"/proc/" + std::to_string(pid) + "/task"}) {
@@ -132,7 +121,7 @@ void Server::setupCounter(auto& s) {
 			return;
 		}
 		fd = syscall(__NR_perf_event_open, &(st), s->pid, -1, gfd, 0);
-		//std::cout << "fd = " << to_string(fd) << std::endl;
+		//std::cout << "fd = " << std::to_string(fd) << std::endl;
 		if (fd > 0) {
 			performanceCounterCompat = 1;
 			ioctl(fd, PERF_EVENT_IOC_ID, &(id));
@@ -184,7 +173,7 @@ void Server::setupCounter(auto& s) {
 					term.out<Debug, Threadless>("Unsupported event exclusion setting");
 					return;
 				case ESRCH:
-					term.out<Debug, Threadless>("Invalid PID for event; PID = " + to_string(s->pid));
+					term.out<Debug, Threadless>("Invalid PID for event; PID = " + std::to_string(s->pid));
 					return;
 				default:
 					term.out<Debug, Threadless>("Other performance counter error; errno = " + std::to_string(errno));
@@ -349,7 +338,7 @@ void Server::setupCounter(auto& s) {
 	//std::cout << "end" << std::endl;
 }
 
-void Server::createCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
+void Server::createCounters(std::vector<struct pcounter*>& counters, const std::vector<long>& pids) {
 	for (const auto& it : pids) {
 		counters.emplace_back(new pcounter);
 		counters.back()->pid = it;
@@ -358,7 +347,7 @@ void Server::createCounters(vector<struct pcounter*>& counters, const vector<lon
 	}
 }
 
-void Server::cullCounters(vector<struct pcounter*>& counters, const vector<long>& pids) {
+void Server::cullCounters(std::vector<struct pcounter*>& counters, const std::vector<long>& pids) {
 	for (const auto culledpid : pids) {
 		for (auto& s : counters) {
 			if (s->pid == culledpid) {
@@ -660,9 +649,9 @@ void Server::readCounters(auto& counters) {
 void Server::processPerfStats() {
 	std::this_thread::sleep_for(std::chrono::seconds(5));
 	std::vector<struct pcounter*> MyCounters = {};
-	vector<long> newPids = {};
-	vector<long> diffPids = {};
-	vector<long> currentPids;
+	std::vector<long> newPids = {};
+	std::vector<long> diffPids = {};
+	std::vector<long> currentPids;
 	if (counterLevel > 0) {
 		#if defined(__linux__)
 		term.out<Debug>("Making performance counters");
