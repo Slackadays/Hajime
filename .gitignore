@@ -1,6 +1,4 @@
 /CMakeFiles/
-/Makefile/
-/cmake_install.cmake/
 /zlib/
 /zlib-prefix/
 /world/
@@ -19,3 +17,5 @@
 /*.txt
 /hajime
 /download
+/Makefile
+/cmake_install.cmake
