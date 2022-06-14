@@ -17,15 +17,11 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build-linux-amd64:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           cmake source -D CMAKE_CXX_COMPILER=g++-10
@@ -36,15 +32,11 @@ jobs:
           name: hajime-linux-amd64
           path: hajime
   build-linux-amd64-avx2:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -58,15 +50,11 @@ jobs:
           name: hajime-linux-amd64-avx2
           path: hajime
   build-linux-amd64-avx512:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -80,15 +68,11 @@ jobs:
           name: hajime-linux-amd64-avx512
           path: hajime
   build-linux-x86:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -101,15 +85,11 @@ jobs:
           name: hajime-linux-x86
           path: hajime
   build-macos-amd64:
-    # The type of runner that the job will run on
     runs-on: macos-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           cmake source
@@ -120,15 +100,11 @@ jobs:
           name: hajime-macos-amd64
           path: hajime
   build-macos-arm64:
-    # The type of runner that the job will run on
     runs-on: macos-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           cmake -DADD_FLAGS="-target arm64-apple-macos" -DCMAKE_CXX_COMPILER=clang++ source
@@ -139,15 +115,11 @@ jobs:
           name: hajime-macos-arm64
           path: hajime
   build-linux-arm64:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt-get update
@@ -160,15 +132,11 @@ jobs:
           name: hajime-linux-aarch64
           path: hajime
   build-linux-riscv64:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -181,15 +149,11 @@ jobs:
           name: hajime-linux-riscv64
           path: hajime
   build-linux-ppc64le:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -202,15 +166,11 @@ jobs:
           name: hajime-linux-ppc64le
           path: hajime
   build-linux-sparc64:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -223,15 +183,11 @@ jobs:
           name: hajime-linux-sparc64
           path: hajime
   build-linux-arm32hf:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt-get update
@@ -244,15 +200,11 @@ jobs:
           name: hajime-linux-arm32hf
           path: hajime
   build-linux-alpha:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -265,15 +217,11 @@ jobs:
           name: hajime-linux-alpha
           path: hajime
   build-linux-hppa:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -286,15 +234,11 @@ jobs:
           name: hajime-linux-hppa
           path: hajime
   build-linux-ppc64:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -307,15 +251,11 @@ jobs:
           name: hajime-linux-ppc64
           path: hajime
   build-linux-s390x:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -384,15 +324,11 @@ jobs:
           name: hajime-windows-arm64
           path: Release\hajime.exe
   build-freebsd-amd64:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           mkdir temp
@@ -406,15 +342,11 @@ jobs:
           name: hajime-freebsd-amd64
           path: hajime
   build-freebsd-amd64-avx2:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           mkdir temp
@@ -431,15 +363,11 @@ jobs:
           name: hajime-freebsd-amd64-avx2
           path: hajime
   build-freebsd-amd64-avx512:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           mkdir temp
@@ -456,15 +384,11 @@ jobs:
           name: hajime-freebsd-amd64-avx512
           path: hajime
   build-freebsd-arm64:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -505,15 +429,11 @@ jobs:
           name: hajime-freebsd-arm64
           path: hajime
   build-freebsd-ppc64le:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update #Update our cache for packages.
@@ -554,15 +474,11 @@ jobs:
           name: hajime-freebsd-ppc64le
           path: hajime
   build-linux-arm32l:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt-get update
@@ -574,15 +490,11 @@ jobs:
           name: hajime-linux-arm32l
           path: hajime
   build-linux-sh4:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -594,15 +506,11 @@ jobs:
           name: hajime-linux-sh4
           path: hajime
   build-linux-m68k:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
@@ -614,15 +522,11 @@ jobs:
           name: hajime-linux-m68k
           path: hajime
   build-linux-ppc:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           sudo apt update
