@@ -10,6 +10,7 @@
 /libraries/
 /logs/
 /versions/
+/plugins/
 /*.properties
 /*.json
 /*.yml
