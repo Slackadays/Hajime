@@ -15,7 +15,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 #include <filesystem>
-namespace fs = std::filesystem;
 #if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
 #include <shlobj.h>
@@ -51,6 +50,8 @@ namespace fs = std::filesystem;
 #include "getvarsfromfile.hpp"
 #include "wizard.hpp"
 #include "deduce.hpp"
+
+namespace fs = std::filesystem;
 
 bool ee = false;
 bool bypassPriviligeCheck = false;
@@ -405,7 +406,7 @@ void processHajimeCommand(std::vector<std::string> input) {
 					term.out<Error>(text.error.InvalidServerNumber);
 				} else {
 					term.hajimeTerminal = false;
-					serverVec[stoi(input[1]) - 1]->terminalAccessWrapper();
+					serverVec.at(stoi(input[1]) - 1)->terminalAccessWrapper();
 					term.hajimeTerminal = true;
 				}
 			} catch (...) {
@@ -438,17 +439,9 @@ void processHajimeCommand(std::vector<std::string> input) {
 
 bool isUserPrivileged() {
 	#if !defined(_WIN32) && !defined(_WIN64)
-	if (!geteuid()) {
-		return true;
-	} else {
-		return false;
-	}
+	return !geteuid();
 	#else
-	if (IsUserAnAdmin()) {
-		return true;
-	} else {
-		return false;
-	}
+	return IsUserAnAdmin();
 	#endif
 }
 

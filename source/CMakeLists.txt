@@ -4,8 +4,12 @@ project(Hajime LANGUAGES CXX)
 
 project(Hajime VERSION 0.2.0)
 
-add_subdirectory(zlib)
-include_directories(hajime zlib)
+find_package(ZLIB)
+
+if(NOT ZLIB_FOUND)
+  add_subdirectory(zlib)
+  include_directories(hajime zlib)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -46,11 +50,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADD_FLAGS}")
 
 add_executable(hajime
-hajime.cpp
+main.cpp
 server.cpp
 server_features.cpp
-server_performance.cpp
-server_performance_counters.cpp
+performance_counters/other_metrics.cpp
+performance_counters/linux.cpp
 getvarsfromfile.cpp output.cpp
 installer.cpp
 deduce.cpp
@@ -85,9 +89,17 @@ if(OpenSSL_FOUND)
 endif()
 
 if(UNIX AND NOT APPLE)
-  set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${CMAKE_BINARY_DIR}/zlib/libz.a ${ADD_FLAGS}") #statically link zlib; this is the simplest way to do it
+  if(ZLIB_FOUND)
+    target_link_libraries(hajime ZLIB::ZLIB)
+  else()
+    set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${CMAKE_BINARY_DIR}/zlib/libz.a ${ADD_FLAGS}") #statically link zlib; this is the simplest way to do it
+  endif()
 else()
-  target_link_libraries(hajime zlib)
+  if(ZLIB_FOUND)
+    target_link_libraries(hajime ZLIB::ZLIB)
+  else()
+    target_link_libraries(hajime zlib)
+  endif()
   set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
 endif()
 

@@ -53,7 +53,7 @@
 //#include <format>
 #include <array>
 
-#include "server.hpp"
+#include "../server.hpp"
 
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
