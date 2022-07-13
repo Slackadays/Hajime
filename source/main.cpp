@@ -252,7 +252,12 @@ void doRegularFlags(std::vector<std::string> flags) {
 			bypassPriviligeCheck = true;
 		}
 		if (flag("-s", "--install-default-server")) {
-			wizard.wizardStep(defaultServerConfFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + defaultServerConfFile, text.error.ServerConfNotCreated, "", "server.jar");
+			ServerConfigFile tempConfig;
+			tempConfig.fileLocation = defaultServerConfFile;
+			tempConfig.skipFileCheck = false;
+			tempConfig.flags = "";
+			tempConfig.serverFile = "server.jar";
+			installer.installNewServerConfigFile(tempConfig);
 			exit(0);
 		}
 		if (flag("-S", "--install-service")) {

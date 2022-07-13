@@ -30,6 +30,13 @@
 #include "output.hpp"
 #include "languages.hpp"
 
+struct ServerConfigFile {
+    std::string fileLocation;
+    bool skipFileCheck;
+    std::string flags;
+    std::string serverFile;
+};
+
 class Installer {
 	void installWindows();
 	void installSysVInit();
@@ -37,7 +44,7 @@ class Installer {
 	void installSystemd(const string& location);
 	public:
 		void installStartupService(const string& sysService);
-		static void installNewServerConfigFile(const string& fileLocation, const bool& skipFileCheck, const string& flags, const string& serverFile);
+		static void installNewServerConfigFile(const ServerConfigFile& conf);
 		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false, const string& lang = "en");
 		//explicit Installer(std::shared_ptr<Output> log);
 };

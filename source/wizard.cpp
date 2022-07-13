@@ -112,7 +112,7 @@ void Wizard::doServerStep() {
 				string flags;
 				term.out<Question>(text.question.ApplyConfigToServerFile);
 				switch (term.getYN(text.option.DoManually, text.option.LetHajimeDeduce, text.option.SkipStep)) {
-					case 1:
+					case 1: {
 						term.out<Question>(text.question.UseFlags);
 						switch (term.getYN(text.option.AikarFlags, text.option.HillttyFlags, text.option.FroggeMCFlags, text.option.BasicZGCFlags, text.option.CustomFlags, text.option.SkipStep)) {
 							case 1:
@@ -150,11 +150,18 @@ void Wizard::doServerStep() {
 						}
 						doAdvancedServerStep();
 						term.out<Info>(text.info.InstallingDefServConf + serverFile + "...");
-						if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
+						ServerConfigFile tempConfig;
+						tempConfig.serverFile = serverFile;
+						tempConfig.skipFileCheck = true;
+						tempConfig.flags = flags;
+						tempConfig.fileLocation = file;
+						installer.installNewServerConfigFile(tempConfig);
+						//if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);
-						}
+						//}
 						term.out<Info>(text.info.InstallingNewServConf + serverFile + "...");
 						break;
+					}
 					case 2:
 						term.out<Error>(text.error.OptionNotAvailable);
 						break;
@@ -229,7 +236,12 @@ void Wizard::initialHajimeSetupUnattended(string tempConfFile, string tempServer
 		std::cout << "found server jar " << it << std::endl;
 	}
 	installer.installDefaultHajConfFile(deduce.hajimeFile(), true, text.filterLanguage(text.getUserLanguage()));
-	installer.installNewServerConfigFile(deduce.serverConfig(), true, aikarFlags,  deduce.serverFiles(fs::current_path()).at(0));
+	ServerConfigFile myConfig;
+	myConfig.fileLocation = deduce.serverConfig();
+	myConfig.skipFileCheck = true;
+	myConfig.flags = aikarFlags;
+	myConfig.serverFile = deduce.serverFiles(fs::current_path()).at(0);
+	installer.installNewServerConfigFile(myConfig);
 	/*for (auto dir = fs::recursive_directory_iterator{fs::current_path()}; dir != fs::recursive_directory_iterator(); ++dir) {
 		if (dir->is_directory()) {
 			for (const auto& it : deduce.serverFiles(dir->path())) {
