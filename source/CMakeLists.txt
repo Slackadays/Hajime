@@ -53,8 +53,6 @@ add_executable(hajime
 main.cpp
 server.cpp
 server_features.cpp
-performance_counters/other_metrics.cpp
-performance_counters/linux.cpp
 getvarsfromfile.cpp output.cpp
 installer.cpp
 deduce.cpp
@@ -62,7 +60,18 @@ languages.cpp
 wizard.cpp
 constants.cpp
 httplib/httplib.cpp
+performance_counters/other_metrics.cpp
 )
+
+if(UNIX AND NOT APPLE)
+  target_sources(hajime PRIVATE performance_counters/linux.cpp)
+elseif(APPLE)
+  target_sources(hajime PRIVATE performance_counters/macos.cpp)
+elseif(WIN32)
+  target_sources(hajime PRIVATE performance_counters/windows.cpp)
+else()
+  target_sources(hajime PRIVATE performance_counters/other.cpp)
+endif()
 
 if(lto_supported)
   set_property(TARGET hajime PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)

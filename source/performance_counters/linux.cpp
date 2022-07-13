@@ -14,11 +14,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-#if defined(_WIN64) || defined(_WIN32)
-
-#elif defined(__APPLE__)
-
-#elif defined(__linux__)
 #include <unistd.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -28,9 +23,6 @@
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
-#else
-
-#endif
 
 #include <memory>
 #include <iterator>
@@ -57,8 +49,6 @@
 
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
-
-#if defined(__linux__)
 
 struct read_format {
 	unsigned long long nr = 0; //how many events there are
@@ -644,7 +634,6 @@ void Server::readCounters(auto& counters) {
 		}
 	}
 }
-#endif
 
 void Server::processPerfStats() {
 	std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -653,19 +642,15 @@ void Server::processPerfStats() {
 	std::vector<long> diffPids = {};
 	std::vector<long> currentPids;
 	if (counterLevel > 0) {
-		#if defined(__linux__)
 		term.out<Debug>("Making performance counters");
 		currentPids = getProcessChildPids(pid);
 		createCounters(MyCounters, currentPids);
 		term.out<Debug>("Done making performance counters");
-		#endif
 	}
 	//auto then = std::chrono::high_resolution_clock::now();
 	while (true) {
 		if (counterLevel > 0 && performanceCounterCompat != -1) {
-			#if defined(__linux__)
 			resetAndEnableCounters(MyCounters);
-			#endif
 		}
 		updateCPUusage(cpuusagereadings);
 		updateRAMusage();
@@ -673,7 +658,6 @@ void Server::processPerfStats() {
 		std::this_thread::sleep_for(std::chrono::seconds(5));
 		//then = std::chrono::high_resolution_clock::now();
 		if (counterLevel > 0 && performanceCounterCompat != -1) {
-			#if defined(__linux__)
 			auto bumpAndCull = [](auto& list) {
 				list.emplace_back(0);
 				while (list.size() > (12 * 60 * 24 * 7)) {
@@ -775,7 +759,6 @@ void Server::processPerfStats() {
 			std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in OldPids that isn't in NewPids
 			cullCounters(MyCounters, diffPids);
 			currentPids = newPids;
-			#endif
 		}
 	}
 }

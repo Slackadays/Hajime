@@ -11,7 +11,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "cmake --build . -j 13",
+            "command": "cmake --build . -j 16",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

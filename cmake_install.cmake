@@ -1,4 +1,4 @@
-# Install script for directory: /home/jackson/Hajime/source
+# Install script for directory: /home/jackson/Hajime-1/source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/jackson/Hajime/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/jackson/Hajime-1/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

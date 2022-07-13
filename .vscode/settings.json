@@ -58,5 +58,6 @@
         "map": "cpp",
         "set": "cpp",
         "numeric": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": true
 }
