@@ -9,19 +9,19 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "Security Checks"
+#name: "Security Checks"
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ master ]
-  schedule:
-    - cron: '20 8 * * 6'
+#    branches: [ master ]
+#  schedule:
+#    - cron: '20 8 * * 6'
 
-jobs:
-  analyze:
+#jobs:
+#  analyze:
     #name: CodeQL
     #runs-on: ubuntu-latest
     #permissions:
