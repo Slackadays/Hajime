@@ -64,7 +64,11 @@ performance_counters/other_metrics.cpp
 )
 
 if(UNIX AND NOT APPLE)
-  target_sources(hajime PRIVATE performance_counters/linux.cpp)
+  if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+    target_sources(hajime PRIVATE performance_counters/freebsd.cpp)
+  else()
+    target_sources(hajime PRIVATE performance_counters/linux.cpp)
+  endif()
 elseif(APPLE)
   target_sources(hajime PRIVATE performance_counters/macos.cpp)
 elseif(WIN32)
