@@ -833,12 +833,8 @@ void Server::processAutoUpdate(bool force) {
 			#else
 			httplib::Client cli("http://api.purpurmc.org");
 			#endif
-			#if defined(CPPHTTPLIB_ZLIB_SUPPORT)
 			httplib::Headers headers = { {"Accept-Encoding", "gzip, deflate"} };
 			auto res = cli.Get(target.c_str(), headers, [&](const char * data, size_t length) {
-			#else
-			auto res = cli.Get(target.c_str(), [&](const char * data, size_t length) {
-			#endif
 				content.append(data, length);
 				return true;
 			});
@@ -855,6 +851,19 @@ void Server::processAutoUpdate(bool force) {
 			std::cout << "Paper server detected!" << std::endl;
 		} else if (autoUpdateName == "fabric") {
 			std::cout << "Fabric server detected!" << std::endl;
+			/*std::string content;
+			std::string target = "/v2/versions/loader";
+			#if defined(CPPHTTPLIB_OPENSSL_SUPPORT)
+			httplib::SSLClient cli("meta.fabricmc.net");
+			cli.enable_server_certificate_verification(false);
+			#else
+			httplib::Client cli("http://meta.fabricmc.net");
+			#endif
+			httplib::Headers headers = { {"Accept-Encoding", "gzip, deflate"} };
+			auto res = cli.Get(target.c_str(), headers, [&](const char * data, size_t length) {
+				content.append(data, length);
+				return true;
+			});*/
 		}
 		//std::cout << "The updated server version: " << autoUpdateVersion << std::endl;
 	}

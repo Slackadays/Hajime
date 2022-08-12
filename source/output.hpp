@@ -92,6 +92,8 @@ class Output {
 							break;
 						case Threadless:
 							break;
+						default:
+							break;
 					}
 				}
 				return None;
