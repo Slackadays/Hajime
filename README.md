@@ -12,10 +12,10 @@
 
 [**Hajime en español**](README_es.md)
 
-# Discord 💬
-Join our Discord server at https://discord.gg/J6asnc3pEG, where most Hajime discussion happens.
+## Discord 💬
+Join our Discord server at https://discord.gg/J6asnc3pEG
 
-# Get Hajime ⬇️
+## Get Hajime ⬇️
 ### Linux, macOS, & FreeBSD 🐧🍎👿
 Copy and paste this into the terminal to install.
 ```
@@ -31,17 +31,13 @@ Check out the official Hajime tutorial video series!
 [**Rumble** | ](https://rumble.com/user/TheHajimeProject)
 [**BitChute** ](https://www.bitchute.com/channel/DyRXhLP4Ghxd/)
 
-# An Introduction 👋
+## An Introduction 👋
 
-### Imagine your Minecraft server working fine, until it isn't. 
-
-### Or, your server is running too slow for your liking. 
-
-### Or, you want to gain insights into performance. 
-
-### Or, you just want to get playing on Minecraft.
-
-### Introducing Hajime.
+Imagine your Minecraft server working fine, until it isn't. 
+Or, your server is running too slow for your liking. 
+Or, you want to gain insights into performance. 
+Or, you just want to get playing on Minecraft.
+Introducing Hajime.
 
 ## Why Hajime?
 
@@ -60,23 +56,23 @@ As a comparison, remember the original iPhone presentation in 2007 when Steve Jo
 - Works with almost all server platforms available!
 - Super customizable!
 
-## Why C++? 🤷
+### Why C++? 🤷
 Other languages like Python may seem technically better, but using Python creates unnecessary dependencies and is a pain to deal with. Plus, with Modern C++, we get access to certain features that other languages simply don't (or can't) offer.
 
-## What is "Hajime?" 🙋
+### What is "Hajime?" 🙋
 "Hajime" is simply "begin" in Japanese when talking about games. I know this because I hear it every time I train with my judo instructor.
 
-# Instructions ✅
+## Instructions ✅
 
-## Pre-compiled binaries (from the [Releases](https://github.com/Slackadays/Hajime/releases) page) 📦
+### Pre-compiled binaries (from the [Releases](https://github.com/Slackadays/Hajime/releases) page) 📦
 Your platform is probably supported here. If it isn't, CMake is here to help.
 
-## Setup 🪛
+### Setup 🪛
 Hajime will start the installation wizard if it can't find the configuation file, which will happen if this is your first time. Add `-i` as a flag option to do it manually.
 
 For more info, check out the [Hajime Wiki!](https://github.com/Slackadays/Hajime/wiki)
 
-## Compiling with CMake ⚙️
+### Compiling with CMake ⚙️
 Hajime can use CMake to compile. If you've just cloned the repo, these two commands will do the trick:
 ```
 cmake source
@@ -84,9 +80,9 @@ cmake --build . -j 11
 ```
 If you're on Windows, add `--config Release` to the end of the second command to get a Release build.
    
-# Troubleshooting 🆘
+## Troubleshooting 🆘
 Open an issue in GitHub Issues or get quick support in our Discord server.
 
-# Supported by MacStadium 🍎
+## Supported by MacStadium 🍎
 To develop Hajime for MacOS, MacStadium provides a Mac Mini to help support open source projects like this one.
 <img src="MacStadium-developerlogo.png" alt="Hajime logo" width="300px"/>
