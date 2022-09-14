@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <regex>
 #include <chrono>
+
 #ifdef _MSC_VER
 #if (_MSC_VER < 1928 || _MSVC_LANG <= 201703L) // msvc usually doesn't define __cplusplus to the correct value
 #define jthread thread

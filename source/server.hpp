@@ -43,6 +43,7 @@
 #include <filesystem>
 #include <errno.h>
 #include <chrono>
+#include <omp.h>
 
 #include "getvarsfromfile.hpp"
 #include "output.hpp"
@@ -96,15 +97,14 @@ class Server {
 	template<typename T>
 	T averageVal(std::deque<T> myList, unsigned int minutes) {
 		minutes *= 12; //convert to 5-second intervals
-		int readings = 0;
+		unsigned int readings = 0;
 		T temp = 0;
 		reverse(myList.begin(), myList.end());
-		for (const auto& value : myList) {
-			if (value != 0) {
-				temp += value;
-				if (readings++; readings >= minutes) {
-					break;
-				}
+		#pragma omp parallel for reduction(+:temp, readings)
+		for (unsigned int i = 0; i < minutes; i++) {
+			if (myList[i] != 0) {
+				temp += myList[i];
+				readings++;
 			}
 		}
 		if (readings > 0) {

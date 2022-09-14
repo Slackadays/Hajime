@@ -275,20 +275,23 @@ jobs:
 #        with:
 #          name: hajime-linux-s390x
 #          path: hajime
-#  build-windows-amd64:
-#    runs-on: windows-latest
+  build-windows-amd64:
+    runs-on: windows-latest
 
-#    steps:
-#      - uses: actions/checkout@v2
-#      - name: Run a multi-line script
-#        run: |
-#          cmake source
-#          cmake --build . -j 8 --config Release
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: hajime-windows-amd64
-#          path: Release\hajime.exe
+      - name: Run a multi-line script
+        run: |
+          cmake source
+          cmake --build . -j 4 --config Release
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-windows-amd64
+          path: Release\hajime.exe
 #  build-windows-x86:
 #    runs-on: windows-latest
 

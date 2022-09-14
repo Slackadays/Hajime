@@ -34,6 +34,8 @@ if(OpenSSL_FOUND)
   add_compile_definitions(CPPHTTPLIB_OPENSSL_SUPPORT)
 endif()
 
+find_package(OpenMP)
+
 add_compile_definitions(CPPHTTPLIB_ZLIB_SUPPORT)
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
@@ -91,9 +93,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") # strip the binary for reduced size
   endif()
+else()
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/W4>")
+  add_compile_options("$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>")
 endif()
 
 target_link_libraries(hajime Threads::Threads)
+
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(hajime OpenMP::OpenMP_CXX)
+endif()
 
 if(OpenSSL_FOUND)
   target_link_libraries(hajime OpenSSL::SSL)

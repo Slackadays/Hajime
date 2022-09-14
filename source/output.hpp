@@ -107,9 +107,6 @@ class Output {
 			if (noColors) {
 				outputString = makeMonochrome(outputString);
 			}
-			if (type != None || borders) {
-				outputString = "┃" + string(getTerminalWidth() - 2, ' ') + "┃\r┃" + outputString;
-			}
 			//std::cout << "first char of last output = " << makeMonochrome(lastOutput.substr(0, 3)) << std::endl;
 			//std::cout << "new output = " << makeMonochrome(outputString.substr(0, 18)) << std::endl;
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
