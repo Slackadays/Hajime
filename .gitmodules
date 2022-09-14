@@ -1,0 +1,6 @@
+[submodule "source/zlib"]
+	path = source/zlib
+	url = https://github.com/madler/zlib
+[submodule "source/httplib"]
+	path = source/httplib
+	url = https://github.com/yhirose/cpp-httplib
