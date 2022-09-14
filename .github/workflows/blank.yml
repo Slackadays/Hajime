@@ -286,6 +286,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           cmake source
+          cp source/zlib/zconf.h.in source/zlib/zconf.h
           cmake --build . -j 4 --config Release
 
       - uses: actions/upload-artifact@v2
