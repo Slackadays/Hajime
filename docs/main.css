@@ -1,0 +1,119 @@
+body {
+	background-image: linear-gradient(to right, rgb(40, 40, 40), rgb(40, 40, 40) 17%, rgb(20, 20, 20) 20%, rgb(20, 20, 20) 80%, rgb(40, 40, 40) 83%, rgb(40, 40, 40));
+
+}
+div.site {
+	color: rgb(245, 245, 255);
+	width: 60%;
+	margin-left: auto;
+	margin-right: auto;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 1.4em;
+}
+div.maintitle {
+	font-family: 'Jockey One', sans-serif;
+	font-size: 5em;
+	text-align: center;
+}
+div.subtitle {
+	font-size: 1.7em;
+	text-align: center;
+	margin-bottom: 60px;
+}
+div.featurebox {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+div.feature {
+	border-style: solid;
+	text-align: center;
+	padding: 8px;
+	flex-basis: 25%;
+	border-width: 4px;
+	border-color: rgb(255, 255, 230);
+	border-radius: 3px;
+	margin: 10px;
+}
+div.featuretitle {
+	font-size: 1.4em;
+	color: rgb(255, 255, 150);
+}
+div.infomodal {
+	margin-top: 60px;
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 90%;
+	border-style: solid;
+	border-width: 4px;
+	border-color: rgb(255, 255, 230);
+        border-radius: 3px;
+	padding: 10px;
+}
+div.infomodal > div.maintitle {
+	font-size: 4em;
+	margin-bottom: 20px;
+	display: block;
+}
+div.infomodal > div.subtitle {
+	font-size: 1.5em;
+}
+div.flexdownload {
+	display: flex;
+	flex-grow: 1;
+	justify-content: center;
+}
+div.downloadbox {
+	padding: 8px;
+	border-style: solid;
+        border-width: 4px;
+        border-color: rgb(255, 255, 230);
+        border-radius: 3px;
+	margin: 4px;
+	width: 100%;
+	text-align: center;
+}
+div.downloadbox > div.code {
+	text-align: center;
+	font-family: 'Source Code Pro', monospace;
+	border-style: solid;
+	border-radius: 10px;
+	border-width: 1px;
+	border-color: rgb(245, 245, 255);
+	padding-bottom: 2px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+a {
+	color: rgb(0, 168, 149);
+	text-decoration: none;
+}
+@media only screen and (max-width: 1100px) {
+	body {
+		background-image: none;
+		background-color: rgb(20, 20, 20);
+	}
+	div.site {
+		max-width: 100%;
+		width: 100%;
+		font-size: 1em;
+	}
+	div.maintitle {
+		font-size: 3.8em;
+	}
+	div.feature {
+		flex-basis: 100%;
+	}
+	div.featurebox {
+		flex-wrap: wrap;
+	}
+	div.flexdownload {
+		flex-wrap: wrap;
+	}
+	div.downloadbox {
+		width: auto;
+	}
+	img {
+		max-width: 90%;
+	}
+}

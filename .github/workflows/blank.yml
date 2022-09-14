@@ -1,0 +1,539 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Hajime Builds
+
+## Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# Allows you to run this workflow manually from the Actions tab
+#workflow_dispatch:
+
+## A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+#  # This workflow contains a single job called "build"
+  build-linux-amd64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run: |
+          cmake source -D CMAKE_CXX_COMPILER=g++-10
+          cmake --build . -j 4
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-linux-amd64
+          path: hajime
+  build-linux-amd64-avx2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install -y g++-11
+          cmake source -DADD_FLAGS="-march=x86-64-v3" -DCMAKE_CXX_COMPILER=g++-11
+          cmake --build . -j 4
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-linux-amd64-avx2
+          path: hajime
+  build-linux-amd64-avx512:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install -y g++-11
+          cmake source -DADD_FLAGS="-march=x86-64-v4" -DCMAKE_CXX_COMPILER=g++-11
+          cmake --build . -j 2
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-linux-amd64-avx512
+          path: hajime
+#  build-linux-x86:
+#    runs-on: ubuntu-latest
+##
+##    steps:
+##      - uses: actions/checkout@v2
+
+##      - name: Run a multi-line script
+##        run: |
+##          sudo apt update
+##          sudo apt install -y g++-10-i686-linux-gnu
+##          cmake -DCMAKE_CXX_COMPILER=i686-linux-gnu-g++-10 source
+##          cmake --build . -j 4
+##
+##      - uses: actions/upload-artifact@v2
+##        with:
+##          name: hajime-linux-x86
+##          path: hajime
+  build-macos-amd64:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run: |
+          cmake source
+          cmake --build . -j 8
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-macos-amd64
+          path: hajime
+#  build-macos-arm64:
+#    runs-on: macos-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          cmake -DADD_FLAGS="-target arm64-apple-macos" -DCMAKE_CXX_COMPILER=clang++ source
+#          cmake --build . -j 3
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-macos-arm64
+#          path: hajime
+#  build-linux-arm64:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y g++-10-aarch64-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=aarch64-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-aarch64
+##          path: hajime
+##  build-linux-riscv64:
+##    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-riscv64-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=riscv64-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-riscv64
+#          path: hajime
+#  build-linux-ppc64le:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-powerpc64le-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=powerpc64le-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-ppc64le
+#          path: hajime
+#  build-linux-sparc64:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-sparc64-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=sparc64-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-sparc64
+#          path: hajime
+#  build-linux-arm32hf:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y g++-10-arm-linux-gnueabihf
+#          cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-arm32hf
+#          path: hajime
+#  build-linux-alpha:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-alpha-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=alpha-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-alpha
+#          path: hajime
+#  build-linux-hppa:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-hppa-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=hppa-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-hppa
+#          path: hajime
+#  build-linux-ppc64:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-powerpc64-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=powerpc64-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-ppc64
+#          path: hajime
+#  build-linux-s390x:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-s390x-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=s390x-linux-gnu-g++-10
+#          cmake --build . -j 8
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-s390x
+#          path: hajime
+#  build-windows-amd64:
+#    runs-on: windows-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Run a multi-line script
+#        run: |
+#          cmake source
+#          cmake --build . -j 8 --config Release
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-windows-amd64
+#          path: Release\hajime.exe
+#  build-windows-x86:
+#    runs-on: windows-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Run a multi-line script
+#        run: |
+#          cmake source -A Win32
+#          cmake --build . -j 8 --config Release
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-windows-x86
+#          path: Release\hajime.exe
+#  build-windows-arm32:
+#    runs-on: windows-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Run a multi-line script
+#        run: |
+#          cmake source -A ARM
+#          cmake --build . -j 8 --config Release
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-windows-arm32
+#          path: Release\hajime.exe
+#  build-windows-arm64:
+#    runs-on: windows-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Run a multi-line script
+#        run: |
+#          cmake source -A ARM64
+#          cmake --build . -j 8 --config Release
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-windows-arm64
+#          path: Release\hajime.exe
+  build-freebsd-amd64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run: |
+          mkdir temp
+          curl -L -o fbsd_temp.iso https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-dvd1.iso
+          sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
+          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/" -DCMAKE_CXX_COMPILER=clang++ source
+          cmake --build . -j 4
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-freebsd-amd64
+          path: hajime
+  build-freebsd-amd64-avx2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run: |
+          mkdir temp
+          curl -L -o fbsd_temp.iso https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-dvd1.iso
+          sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install -y clang-12
+          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -march=x86-64-v3" -DCMAKE_CXX_COMPILER=clang++-12 source
+          cmake --build . -j 4
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-freebsd-amd64-avx2
+          path: hajime
+  build-freebsd-amd64-avx512:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a multi-line script
+        run: |
+          mkdir temp
+          curl -L -o fbsd_temp.iso https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-dvd1.iso
+          sudo mount -o loop,ro -t iso9660 fbsd_temp.iso temp
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install -y clang-12
+          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -march=x86-64-v4" -DCMAKE_CXX_COMPILER=clang++-12 source
+          cmake --build . -j 4
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-freebsd-amd64-avx512
+          path: hajime
+#  build-freebsd-arm64:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install -y qemu-user g++-10-aarch64-linux-gnu
+#          wget https://zlib.net/zlib-1.2.11.tar.gz
+#          tar -xvf zlib-1.2.11.tar.gz
+#          cd zlib-1.2.11/
+#          CC="aarch64-linux-gnu-gcc-10" LDSHARED="aarch64-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/aarch64-linux-gnu
+#          make -j 2
+#          sudo make install
+#          cd ../
+#          wget https://invisible-mirror.net/archives/ncurses/ncurses-6.3.tar.gz
+#          tar -xvf ncurses-6.3.tar.gz
+#          cd ncurses-6.3/
+#          CC="aarch64-linux-gnu-gcc-10" LDSHARED="aarch64-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/aarch64-linux-gnu --build x86_64-linux-gnu --host aarch64-linux-gnu --with-shared
+#          make -j 2
+#          sudo make --ignore-errors install
+#          sudo ln -s /usr/aarch64-linux-gnu/lib/libncurses.so.6 /usr/aarch64-linux-gnu/lib/libtinfo.so.5
+#          cd ../
+#          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang+llvm-12.0.1-aarch64-linux-gnu.tar.xz
+#          tar -xvf clang+llvm-12.0.1-aarch64-linux-gnu.tar.xz
+#          echo "qemu-aarch64 -L /usr/aarch64-linux-gnu $(realpath clang+llvm-12.0.1-aarch64-linux-gnu/bin/ld).lld -v -L$(realpath fbsd/) -nostdlib -lc++ \"\$@\" -nostdlib -lc++ -lpthread -lm" > dummylld.sh
+#          chmod +x dummylld.sh
+#          echo "qemu-aarch64 -L /usr/aarch64-linux-gnu $(realpath clang+llvm-12.0.1-aarch64-linux-gnu/bin/clang-12) -v \"\$@\" -I$(realpath fbsd)/" > dummyclang.sh
+#          chmod +x dummyclang.sh
+#          echo "#include <string>
+#          #include <iostream>
+#          int main(int argc, char *argv[]) { std::string flags;	if (argc > 1) { for (int i = 1; i < argc; i++) {		flags += std::string(argv[i]) + ' ';}}	flags = \"bash dummylld.sh \" + flags; system(flags.c_str());}" > dummylld.cpp
+#          g++ -o dummylld dummylld.cpp
+#          mkdir fbsd
+#          curl -L -o fbsd_temp.iso https://download.freebsd.org/releases/arm64/aarch64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-arm64-aarch64-dvd1.iso
+#          sudo mount -o loop,ro -t iso9660 fbsd_temp.iso fbsd
+#          VERBOSE=1 cmake -DCMAKE_CXX_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_C_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=$(realpath dummylld)" -DADD_FLAGS="-target aarch64-pc-freebsd13.0 --sysroot=$(realpath fbsd)/" source
+#          VERBOSE=1 cmake --build . -j 2
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-freebsd-arm64
+#          path: hajime
+#  build-freebsd-ppc64le:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update #Update our cache for packages.
+#          sudo apt install -y qemu-user g++-10-powerpc64le-linux-gnu #Install the emulator, and a cross-compiler to get libraries for the emulator and compile the libraries.
+#          wget https://zlib.net/zlib-1.2.11.tar.gz #Clang needs this to start, although we won't need it to compile
+#          tar -xvf zlib-1.2.11.tar.gz
+#          cd zlib-1.2.11/
+#          CC="powerpc64le-linux-gnu-gcc-10" LDSHARED="powerpc64le-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/powerpc64le-linux-gnu #Specify the cross-compiler we want 
+#          make -j 2
+#          sudo make install
+#          cd ../
+#          wget https://invisible-mirror.net/archives/ncurses/ncurses-6.3.tar.gz #Clang also needs this to start, although we won't need it for compiling either
+#          tar -xvf ncurses-6.3.tar.gz
+#          cd ncurses-6.3/
+#          CC="powerpc64le-linux-gnu-gcc-10" LDSHARED="powerpc64le-linux-gnu-gcc-10 -shared" ./configure --prefix=/usr/powerpc64le-linux-gnu --build x86_64-linux-gnu --host powerpc64le-linux-gnu --with-shared #Ncurses needs more configuration to cross-compile; build is what we're building on, target is what it will run on
+#          make -j 2
+#          sudo make --ignore-errors install #In GHA, Ncurses gives an error about the tic program, but we don't need it, so ignore the error
+#          sudo ln -s /usr/powerpc64le-linux-gnu/lib/libncurses.so.6 /usr/powerpc64le-linux-gnu/lib/libtinfo.so.5 #Clang needs libtinfo.so.5 to start, but this is not compiled by default, but it is included in libncurses.
+#          cd ../
+#          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang+llvm-12.0.1-powerpc64le-linux-ubuntu-18.04.tar.xz #Download the compiler we need
+#          tar -xvf clang+llvm-12.0.1-powerpc64le-linux-ubuntu-18.04.tar.xz
+#          echo "qemu-ppc64le -L /usr/powerpc64le-linux-gnu $(realpath clang+llvm-12.0.1-powerpc64le-linux-ubuntu-18.04/bin/ld).lld -v -L$(realpath fbsd/) -nostdlib -lc++ \"\$@\" -nostdlib -lc++ -lpthread -lm" > dummylld.sh #This is a dummy program that wraps QEMU and the linker because CMake requires there to be no spaces
+#          chmod +x dummylld.sh #CMake needs this to run the script
+#          echo "qemu-ppc64le -L /usr/powerpc64le-linux-gnu $(realpath clang+llvm-12.0.1-powerpc64le-linux-ubuntu-18.04/bin/clang-12) -v \"\$@\" -I$(realpath fbsd)/" > dummyclang.sh
+#          chmod +x dummyclang.sh
+#          echo "#include <string>
+#          #include <iostream>
+#          int main(int argc, char *argv[]) { std::string flags;	if (argc > 1) { for (int i = 1; i < argc; i++) {		flags += std::string(argv[i]) + ' ';}}	flags = \"bash dummylld.sh \" + flags; system(flags.c_str());}" > dummylld.cpp #This is a wrapper for the dummylld.sh wrapper because CMake cannot execute shell scripts natively
+#          g++ -o dummylld dummylld.cpp
+#          mkdir fbsd
+#          curl -L -o fbsd_temp.iso https://download.freebsd.org/releases/powerpc/powerpc64le/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-powerpc-powerpc64le-dvd1.iso
+#          sudo mount -o loop,ro -t iso9660 fbsd_temp.iso fbsd #Don't extract, but mount
+#          VERBOSE=1 cmake -DCMAKE_CXX_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_C_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=$(realpath dummylld)" -DADD_FLAGS="-target powerpc64le-pc-freebsd13.0 --sysroot=$(realpath fbsd)/" source
+#          VERBOSE=1 cmake --build . -j 18
+
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-freebsd-ppc64le
+#          path: hajime
+#  build-linux-arm32l:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y g++-10-arm-linux-gnueabi
+#          cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabi-g++-10
+#          cmake --build . -j 10
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-arm32l
+#          path: hajime
+#  build-linux-sh4:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-sh4-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=sh4-linux-gnu-g++-10
+#          cmake --build . -j 8
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-sh4
+#          path: hajime
+#  build-linux-m68k:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-m68k-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=m68k-linux-gnu-g++-10
+#          cmake --build . -j 8
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-m68k
+#          path: hajime
+#  build-linux-ppc:
+#    runs-on: ubuntu-latest
+
+#    steps:
+#      - uses: actions/checkout@v2
+
+#      - name: Run a multi-line script
+#        run: |
+#          sudo apt update
+#          sudo apt install g++-10-powerpc-linux-gnu
+#          cmake source -D CMAKE_CXX_COMPILER=powerpc-linux-gnu-g++-10
+#          cmake --build . -j 8
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: hajime-linux-ppc
+#          path: hajime

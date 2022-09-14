@@ -1,0 +1,20 @@
+echo "\033[1mRemoving any existing Hajime binary"
+rm hajime
+if [ -d "source" ]
+then
+  echo "\033[1mGoing to the source directory\033[0m"
+  WENT_TO_HAJI_SOURCE=true
+  cd source
+fi
+echo "\033[1mCompiling Hajime\033[0m"
+echo hajime.cpp getvarsfromfile.cpp server.cpp output.cpp languages.cpp installer.cpp wizard.cpp deduce.cpp | xargs -n 1 -P 8 g++ -c -Ofast -std=c++20 && g++ -o hajime hajime.o server.o getvarsfromfile.o installer.o output.o languages.o wizard.o deduce.o -pthread
+if [ -e hajime ]
+then
+  echo "✓ \033[1mHajime compile succeeded\033[0m"
+  if [ "$WENT_TO_HAJI_SOURCE" = true ]
+  then
+    echo "\033[1mMoving the Hajime binary to the previous directory\033[0m"
+    mv hajime ..
+  fi
+fi
+exit 0
