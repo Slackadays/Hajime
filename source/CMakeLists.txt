@@ -98,6 +98,8 @@ else()
   add_compile_options("$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>")
 endif()
 
+file(RENAME zlib/zconf.h.included zlib/zconf.h)
+
 target_link_libraries(hajime Threads::Threads)
 
 if(OpenMP_CXX_FOUND)
