@@ -658,6 +658,7 @@ void Server::processPerfStats() {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 		//then = std::chrono::high_resolution_clock::now();
 		if (counterLevel > 0 && performanceCounterCompat != -1) {
+			std::lock_guard<std::mutex> lock(perfMutex);
 			auto bumpAndCull = [](auto& list) {
 				list.emplace_back(0);
 				while (list.size() > (20 * 60 * 24 * 14)) {

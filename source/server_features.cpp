@@ -594,118 +594,147 @@ string Server::formatReadingsHIB(const std::deque<long long>& readings) {
 }
 
 string Server::getCPUusage() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return std::to_string(averageVal(cpuusagereadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(cpuusagereadings, 5)) + "% last 5, " + std::to_string(averageVal(cpuusagereadings, 15)) + "% last 15 (Lower is better)";
 }
 
 string Server::getCPUmigs() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return std::to_string(averageVal(cpumigrationreadings, 1)) + " last 1 minute, " + std::to_string(averageVal(cpumigrationreadings, 5)) + " last 5, " + std::to_string(averageVal(cpumigrationreadings, 15)) + " last 15";
 }
 
 string Server::getRAMusage() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return std::to_string(averageVal(rampercentreadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(rampercentreadings, 5)) + "% last 5, " + std::to_string(averageVal(rampercentreadings, 15)) + "% last 15 (" + std::to_string((averageVal(rambytereadings, 1) / 1024) / 1024) + "MB/" + std::to_string((averageVal(rambytereadings, 5) / 1024) / 1024) + "MB/" + std::to_string((averageVal(rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
 }
 
 string Server::getIPC() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return std::to_string((double)averageVal(cpuinstructionreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + " last 1 minute, " + std::to_string((double)averageVal(cpuinstructionreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + " last 5, " + std::to_string((double)averageVal(cpuinstructionreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + " last 15 (Higher is better)";
 }
 
 string Server::getIPS() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return std::to_string((averageVal(cpuinstructionreadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getCPS() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return std::to_string((averageVal(cpucyclereadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
 string Server::getContextSwitches() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(contextswitchreadings, cpuinstructionreadings);
 }
 
 string Server::getStalledCyclesFrontend() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(stalledcyclesfrontendreadings);
 }
 
 string Server::getStalledCyclesBackend() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(stalledcyclesbackendreadings);
 }
 
 string Server::getBusCycles() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsHIB(buscyclereadings);
 }
 
 string Server::getBranchMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(branchmissreadings, branchinstructionreadings);
 }
 
 string Server::getCacheMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(cachemissreadings, cachereferencereadings);
 }
 
 string Server::getAlignmentFaults() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(alignmentfaultreadings);
 }
 
 string Server::getEmulationFaults() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(emulationfaultreadings);
 }
 
 string Server::getMinorPagefaults() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(minorpagefaultreadings, pagefaultreadings);
 }
 
 string Server::getMajorPagefaults() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(majorpagefaultreadings, pagefaultreadings);
 }
 
 string Server::getL1dReadMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(l1dreadmissreadings, l1dreadaccessreadings);
 }
 
 string Server::getL1dPrefetchMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(l1dprefetchmissreadings, l1dprefetchaccessreadings);
 }
 
 string Server::getL1dWriteMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(l1dwritemissreadings, l1dwriteaccessreadings);
 }
 
 string Server::getL1iReadMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(l1ireadmissreadings, l1ireadaccessreadings);
 }
 
 string Server::getL1iPrefetchMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(l1iprefetchmissreadings, l1iprefetchaccessreadings);
 }
 
 string Server::getLLReadMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(llreadmissreadings, llreadaccessreadings);
 }
 
 string Server::getLLWriteMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(llwritemissreadings, llwriteaccessreadings);
 }
 
 string Server::getLLPrefetchMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(llprefetchmissreadings);
 }
 
 string Server::getdTLBReadMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(dtlbreadmissreadings, dtlbreadaccessreadings);
 }
 
 string Server::getdTLBWriteMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(dtlbwritemissreadings, dtlbwriteaccessreadings);
 }
 
 string Server::getdTLBPrefetchMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(dtlbprefetchmissreadings, dtlbprefetchaccessreadings);
 }
 
 string Server::getiTLBReadMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(itlbreadmissreadings, itlbreadaccessreadings);
 }
 
 string Server::getBPUReadMisses() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	return formatReadingsLIB(bpureadmissreadings, bpureadaccessreadings);
 }
 

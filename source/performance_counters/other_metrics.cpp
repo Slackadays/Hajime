@@ -59,6 +59,7 @@ namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
 void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	#if defined(_WIN32) || defined(_WIN64)
 	//do stuff here
 	//update the values in server.hpp
@@ -122,6 +123,7 @@ void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
 }
 
 void Server::updateRAMusage() {
+	std::lock_guard<std::mutex> lock(perfMutex);
 	auto addReading = [](auto& list, const auto& entry) {
 		list.push_back(entry);
 		while (list.size() > 240) {

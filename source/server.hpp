@@ -43,6 +43,7 @@
 #include <filesystem>
 #include <errno.h>
 #include <chrono>
+#include <mutex>
 #include <omp.h>
 
 #include "getvarsfromfile.hpp"
@@ -194,6 +195,8 @@ class Server {
 	bool silentCommands = false;
 
 	inline static std::vector<long long> knownBadEvents = {};
+
+	std::mutex perfMutex;
 
 	std::deque<long long> cpuusagereadings{0};
 	std::deque<double> rampercentreadings{0.0};
