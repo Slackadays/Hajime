@@ -96,7 +96,7 @@ class Server {
 
 	template<typename T>
 	T averageVal(std::deque<T> myList, unsigned int minutes) {
-		minutes *= 12; //convert to 5-second intervals
+		minutes *= 20; //convert to 3-second intervals
 		unsigned int readings = 0;
 		T temp = 0;
 		reverse(myList.begin(), myList.end());

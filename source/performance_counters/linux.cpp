@@ -655,12 +655,12 @@ void Server::processPerfStats() {
 		updateCPUusage(cpuusagereadings);
 		updateRAMusage();
 		//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(5));
+		std::this_thread::sleep_for(std::chrono::seconds(3));
 		//then = std::chrono::high_resolution_clock::now();
 		if (counterLevel > 0 && performanceCounterCompat != -1) {
 			auto bumpAndCull = [](auto& list) {
 				list.emplace_back(0);
-				while (list.size() > (12 * 60 * 24 * 7)) {
+				while (list.size() > (20 * 60 * 24 * 14)) {
 					list.pop_front();
 				}
 			};

@@ -70,7 +70,9 @@
         "ranges": "cpp",
         "span": "cpp",
         "cfenv": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "any": "cpp",
+        "variant": "cpp"
     },
     "cmake.configureOnOpen": true
 }

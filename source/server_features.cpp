@@ -822,10 +822,21 @@ void Server::updateUptime() {
 
 void Server::processAutoUpdate(bool force) {
 	if ((restartMins > 0 && uptime >= restartMins) || force) {
-		//std::cout << "The updated server name: " << autoUpdateName << std::endl;
+		std::string content;
+		auto makeFile = [&content](std::string filename) {
+			std::fstream file(filename, std::fstream::out);
+			file << content;
+			if (fs::file_size(filename) > 0) {
+				term.out<Info>("Downloaded server file " + filename + " with file size " + std::to_string(fs::file_size(filename)));
+			} else if (fs::file_size(filename) == 0) {
+				term.out<Error>("There was an error downloading or saving the server file");
+			} else if (fs::file_size(filename) == -1) {
+				term.out<Error>("There was an error reading the server file");
+			}
+			file.close();
+		};
+		term.out<Info>("Updating server software with name " + autoUpdateName + " and version " + autoUpdateVersion);
 		if (autoUpdateName == "purpur") {
-			std::cout << "Purpur server detected!" << std::endl;
-			std::string content;
 			std::string target = "/v2/purpur/" + autoUpdateVersion + "/latest/download";
 			#if defined(CPPHTTPLIB_OPENSSL_SUPPORT)
 			httplib::SSLClient cli("api.purpurmc.org");
@@ -838,21 +849,11 @@ void Server::processAutoUpdate(bool force) {
 				content.append(data, length);
 				return true;
 			});
-			std::fstream file("purpur.jar", std::fstream::out);
-			file << content;
-			if (fs::file_size("purpur.jar") > 0) {
-				std::cout << "Successfully downloaded Purpur" << std::endl;
-			} else if (fs::file_size("purpur.jar") == 0) {
-				std::cout << "There was an error downloading Purpur" << std::endl;
-			} else if (fs::file_size("purpur.jar") == -1) {
-				std::cout << "There was an error reading the Purpur file" << std::endl;
-			}
+			makeFile("purpur.jar");
 		} else if (autoUpdateName == "paper") {
-			std::cout << "Paper server detected!" << std::endl;
+			term.out<Error>("Paper is not yet supported");
 		} else if (autoUpdateName == "fabric") {
-			std::cout << "Fabric server detected!" << std::endl;
-			/*std::string content;
-			std::string target = "/v2/versions/loader";
+			std::string target = "/v2/versions/loader/" + autoUpdateVersion;
 			#if defined(CPPHTTPLIB_OPENSSL_SUPPORT)
 			httplib::SSLClient cli("meta.fabricmc.net");
 			cli.enable_server_certificate_verification(false);
@@ -863,9 +864,16 @@ void Server::processAutoUpdate(bool force) {
 			auto res = cli.Get(target.c_str(), headers, [&](const char * data, size_t length) {
 				content.append(data, length);
 				return true;
-			});*/
+			});
+			std::smatch matches;
+			if(std::regex_search(content, matches, std::regex("\"loader\"(.+\n){4}.+(\"version\": \")([0-9.]+)"))) {
+				std::string fabricLoaderVersion = matches[3];
+				target += "/" + fabricLoaderVersion + "/server";
+			}
+			makeFile("fabric.jar");
+		} else {
+			term.out<Error>("Invalid auto update server name");
 		}
-		//std::cout << "The updated server version: " << autoUpdateVersion << std::endl;
 	}
 }
 
