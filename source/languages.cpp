@@ -35,17 +35,17 @@ namespace fs = std::filesystem;
 
 void Text::applyLang(const string& lang) {
 	//the fallack is English
-	#include "en.hpp"
+	#include "languages/en.hpp"
 	language = lang;
 	if (lang == "en") {
 		help.clear();
-		#include "en.hpp"
+		#include "languages/en.hpp"
 	} else if (lang == "es") { //spanish
 		help.clear(); //reset the help vector
-		#include "es.hpp"
+		#include "languages/es.hpp"
 	} else if (lang == "pt") {
 		help.clear();
-		#include "pt.hpp"
+		#include "languages/pt.hpp"
 	}
 }
 

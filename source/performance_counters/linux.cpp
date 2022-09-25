@@ -46,6 +46,7 @@
 #include <array>
 
 #include "../server.hpp"
+#include "../constants.hpp"
 
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
@@ -655,13 +656,13 @@ void Server::processPerfStats() {
 		updateCPUusage(cpuusagereadings);
 		updateRAMusage();
 		//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(3));
+		std::this_thread::sleep_for(std::chrono::seconds(counterInterval));
 		//then = std::chrono::high_resolution_clock::now();
 		if (counterLevel > 0 && performanceCounterCompat != -1) {
 			std::lock_guard<std::mutex> lock(perfMutex);
 			auto bumpAndCull = [](auto& list) {
 				list.emplace_back(0);
-				while (list.size() > (20 * 60 * 24 * 14)) {
+				while (list.size() > counterDatapoints) {
 					list.pop_front();
 				}
 			};
