@@ -217,6 +217,21 @@ class Text {
 				string VecOutFor;
 			};
 			Flag flag;
+			struct Counters {
+				string perfstructTooSmall;
+				string groupfdNotValid;
+				string exclusiveAccess;
+				string invalidMemoryAddress;
+				string invalidEvent;
+				string eventNotSupported;
+				string invalidEventType;
+				string tooManyHardwareBreakpoints;
+				string hardwareSupport;
+				string unsupportedEventExclusion;
+				string invalidPID;
+				string otherError;
+			};
+			Counters counters;
 		};
 		Debug debug;
 		struct Server {

@@ -159,3 +159,53 @@ void Server::updateRAMusage() {
 	#else
 	#endif
 }
+
+void Server::trimCounterData() {
+	auto bumpAndCull = [this](auto& list) {
+		list.emplace_back(0);
+		while (list.size() > counterDatapoints) {
+			list.pop_front();
+		}
+	};
+	bumpAndCull(cpucyclereadings);
+	bumpAndCull(cpuinstructionreadings);
+	bumpAndCull(cachemissreadings);
+	bumpAndCull(branchinstructionreadings);
+	bumpAndCull(branchmissreadings);
+	bumpAndCull(cachereferencereadings);
+	bumpAndCull(stalledcyclesfrontendreadings);
+	bumpAndCull(stalledcyclesbackendreadings);
+	bumpAndCull(buscyclereadings);
+	bumpAndCull(pagefaultreadings);
+	bumpAndCull(contextswitchreadings);
+	bumpAndCull(cpumigrationreadings);
+	bumpAndCull(alignmentfaultreadings);
+	bumpAndCull(emulationfaultreadings);
+	bumpAndCull(minorpagefaultreadings);
+	bumpAndCull(majorpagefaultreadings);
+	bumpAndCull(l1dreadaccessreadings);
+	bumpAndCull(l1dreadmissreadings);
+	bumpAndCull(l1dprefetchaccessreadings);
+	bumpAndCull(l1dprefetchmissreadings);
+	bumpAndCull(llreadaccessreadings);
+	bumpAndCull(llreadmissreadings);
+	bumpAndCull(llwriteaccessreadings);
+	bumpAndCull(llwritemissreadings);
+	bumpAndCull(llprefetchmissreadings);
+	bumpAndCull(dtlbreadaccessreadings);
+	bumpAndCull(dtlbreadmissreadings);
+	bumpAndCull(dtlbwriteaccessreadings);
+	bumpAndCull(dtlbwritemissreadings);
+	bumpAndCull(dtlbprefetchaccessreadings);
+	bumpAndCull(dtlbprefetchmissreadings);
+	bumpAndCull(itlbreadaccessreadings);
+	bumpAndCull(itlbreadmissreadings);
+	bumpAndCull(bpureadaccessreadings);
+	bumpAndCull(bpureadmissreadings);
+	bumpAndCull(l1dwriteaccessreadings);
+	bumpAndCull(l1dwritemissreadings);
+	bumpAndCull(l1ireadaccessreadings);
+	bumpAndCull(l1ireadmissreadings);
+	bumpAndCull(l1iprefetchaccessreadings);
+	bumpAndCull(l1iprefetchmissreadings);
+}

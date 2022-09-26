@@ -78,6 +78,7 @@ class Server {
 	void processPerfStats();
 	void updateCPUusage(std::deque<long long>& CPUreadings);
 	void updateRAMusage();
+	void trimCounterData();
 	void commandHajime();
 	void commandTime();
 	void commandHelp();
@@ -197,6 +198,10 @@ class Server {
 	inline static std::vector<long long> knownBadEvents = {};
 
 	std::mutex perfMutex;
+
+	long long counterInterval = 3;
+
+	long long counterDatapoints = 20 * 60 * 24 * 14;
 
 	std::deque<long long> cpuusagereadings{0};
 	std::deque<double> rampercentreadings{0.0};
