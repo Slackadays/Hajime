@@ -199,9 +199,9 @@ class Server {
 
 	std::mutex perfMutex;
 
-	long long counterInterval = 3;
+	long long counterInterval = defaultCounterInterval;
 
-	long long counterDatapoints = 20 * 60 * 24 * 14;
+	long long counterMax = defaultCounterMax;
 
 	std::deque<long long> cpuusagereadings{0};
 	std::deque<double> rampercentreadings{0.0};

@@ -51,7 +51,14 @@ void Installer::installNewServerConfigFile(const ServerConfigFile& conf) {
 		outConf << "method=new" << std::endl;
 		outConf << "device=" << std::endl;
 		outConf << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << std::endl;
-		outConf << "commands=1" << std::endl << "silentcommands=0" << std::endl << "custommsg=" << std::endl << "chatkickregex=" << std::endl << "counters=high" << std::endl << "autoupdate=" << std::endl;
+		outConf << "commands=1" << std::endl;
+		outConf << "silentcommands=0" << std::endl;
+		outConf << "custommsg=" << std::endl;
+		outConf << "chatkickregex=" << std::endl;
+		outConf << "counters=high" << std::endl;
+		outConf << "autoupdate=" << std::endl;
+		outConf << "counterinterval=" << defaultCounterInterval << std::endl;
+		outConf << "countermax=" << defaultCounterMax << std::endl;
 		outConf << text.fileServerConfComment << std::endl;
 		term.out<Info>(text.info.CreatedServerConfig1 + conf.fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();

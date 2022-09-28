@@ -23,3 +23,7 @@ extern const std::string hajime_version;
 extern std::string defaultServerConfFile;
 
 extern std::string hajDefaultConfFile;
+
+extern long long defaultCounterInterval;
+
+extern long long defaultCounterMax;

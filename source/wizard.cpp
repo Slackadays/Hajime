@@ -27,6 +27,7 @@
 #include "installer.hpp"
 #include "wizard.hpp"
 #include "deduce.hpp"
+#include "constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -152,9 +153,9 @@ void Wizard::doServerStep() {
 						term.out<Info>(text.info.InstallingDefServConf + serverFile + "...");
 						ServerConfigFile tempConfig;
 						tempConfig.serverFile = serverFile;
-						tempConfig.skipFileCheck = true;
+						tempConfig.skipFileCheck = false;
 						tempConfig.flags = flags;
-						tempConfig.fileLocation = file;
+						tempConfig.fileLocation = defaultServerConfFile;
 						installer.installNewServerConfigFile(tempConfig);
 						//if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);

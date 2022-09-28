@@ -402,7 +402,7 @@ void Server::readSettings(const string confFile) {
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
-	std::vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex", "counters", "autoupdate"};
+	std::vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterinterval", "counterdata"};
 	std::vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		term.out<Debug>(it);
@@ -438,6 +438,8 @@ void Server::readSettings(const string confFile) {
 		setVar(settings[12], chatKickRegex);
 		setVar(settings[13], tempCounters);
 		setVar(settings[14], tempAutoUpdate);
+		setVari(settings[15], counterInterval);
+		setVari(settings[16], counterMax);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
 	std::istringstream ss(tempAutoUpdate);

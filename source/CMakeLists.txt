@@ -61,6 +61,7 @@ add_executable(hajime
 main.cpp
 server.cpp
 server_features.cpp
+commands.cpp
 getvarsfromfile.cpp output.cpp
 installer.cpp
 deduce.cpp

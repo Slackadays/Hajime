@@ -22,4 +22,8 @@ const std::string hajime_version = "0.2.0";
 
 std::string defaultServerConfFile = "MyServer.server";
 
-std::string hajDefaultConfFile = "hajime.conf";
+std::string hajDefaultConfFile = "hajime.properties";
+
+long long defaultCounterInterval = 3;
+
+long long defaultCounterMax = 20 * 60 * 24 * 14;

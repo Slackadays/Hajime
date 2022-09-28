@@ -1,3 +1,4 @@
+/.fabric/*
 /CMakeFiles/
 /zlib/
 /zlib-prefix/
@@ -16,6 +17,9 @@
 /*.yml
 /*.jar
 /*.txt
+/*.server
+/*.log
+/*.conf
 /hajime
 /download
 /Makefile
