@@ -1,7 +1,9 @@
 #include "server.hpp"
 
 #include <random>
+#if defined(__linux__)
 #include <sys/sysinfo.h>
+#endif
 
 void Server::commandHajime() {
 	writeToServerTerminal(formatWrapper(text.server.command.hajime.output));
