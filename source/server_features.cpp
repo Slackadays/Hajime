@@ -74,6 +74,14 @@ namespace fs = std::filesystem;
 #include "getvarsfromfile.hpp"
 #include "server.hpp"
 
+std::string generateSecret() {
+	std::string options = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::shuffle(options.begin(), options.end(), mt);
+	return options.substr(0, 16);
+}
+
 void Server::processTerminalBuffer(string input) {
 	while (lines.size() >= 100000) {
 		//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;

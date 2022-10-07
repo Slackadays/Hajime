@@ -36,24 +36,27 @@ void Server::commandHelp() {
 
 void Server::commandDie() {
 	std::random_device rand;
+	std::mt19937 mt(rand());
 	std::uniform_int_distribution<int> die(1, 6);
-	string hajInfo = text.server.command.die.output + std::to_string(die(rand));
+	string hajInfo = text.server.command.die.output + std::to_string(die(mt));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 	//switch this to C++20 format when it becomes supported
 }
 
 void Server::commandD20() {
 	std::random_device rand;
+	std::mt19937 mt(rand());
 	std::uniform_int_distribution<int> die(1, 20);
-	string hajInfo = text.server.command.d20.output + std::to_string(die(rand));
+	string hajInfo = text.server.command.d20.output + std::to_string(die(mt));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 	//switch this to C++20 format when it becomes supported
 }
 
 void Server::commandCoinflip() {
 	std::random_device rand;
+	std::mt19937 mt(rand());
 	std::uniform_int_distribution<int> flip(1, 2);
-	if (flip(rand) == 1) {
+	if (flip(mt) == 1) {
 		writeToServerTerminal(formatWrapper(text.server.command.coinflip.output.heads));
 	} else {
 		writeToServerTerminal(formatWrapper(text.server.command.coinflip.output.tails));

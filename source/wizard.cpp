@@ -39,8 +39,9 @@ const string basicZGCFlags = "-XX:+UnlockExperimentalVMOptions -XX:+DisableExpli
 void Wizard::pause(float mean, float stdev) {
 	if (doArtificialPauses) {
 		std::random_device rand;
+		std::mt19937 mt(rand());
 		std::normal_distribution<float> normal(mean, stdev);
-		int target = (int)abs(normal(rand));
+		int target = (int)abs(normal(mt));
 		for (int ms = 0; ms < target; ms += 100) {
 			std::cout << "\b|" << std::flush;
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));

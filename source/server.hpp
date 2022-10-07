@@ -69,12 +69,15 @@ class Server {
 	void readCounters(auto& counters);
 	#endif
 
-	string formatWrapper(string input);
-	string readFromServer();
-	void writeToServerTerminal(string input);
-	void processTerminalBuffer(string input);
-	void processServerCommand(string input);
-	void processChatKicks(string input);
+	std::string commandSecret;
+
+	std::string generateSecret();
+	std::string formatWrapper(std::string input);
+	std::string readFromServer();
+	void writeToServerTerminal(std::string input);
+	void processTerminalBuffer(std::string input);
+	void processServerCommand(std::string input);
+	void processChatKicks(std::string input);
 	void processPerfStats();
 	void updateCPUusage(std::deque<long long>& CPUreadings);
 	void updateRAMusage();
