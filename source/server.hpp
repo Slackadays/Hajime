@@ -69,11 +69,13 @@ class Server {
 	void readCounters(auto& counters);
 	#endif
 
-	std::string commandSecret;
+	std::string secret;
+	bool usesHajimeHelper = false;
 
 	std::string generateSecret();
 	std::string formatWrapper(std::string input);
 	std::string readFromServer();
+	void checkHajimeHelper(std::string input);
 	void writeToServerTerminal(std::string input);
 	void processTerminalBuffer(std::string input);
 	void processServerCommand(std::string input);

@@ -100,6 +100,8 @@ void Server::startServer(string confFile) {
 			#endif
 			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(/|\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
 				term.out<Info>(text.info.StartingServer);
+				usesHajimeHelper = false;
+				secret = generateSecret();
 				startProgram(method);
 				term.out<Info>(text.info.ServerStartCompleted);
 			}

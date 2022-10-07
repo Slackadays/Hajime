@@ -35,7 +35,6 @@
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
-#include <sys/sysinfo.h>
 #include <termios.h>
 #else
 #include <unistd.h>
@@ -74,8 +73,8 @@ namespace fs = std::filesystem;
 #include "getvarsfromfile.hpp"
 #include "server.hpp"
 
-std::string generateSecret() {
-	std::string options = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+std::string Server::generateSecret() {
+	std::string options = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*_"; //64 options for 6 bits of entropy
 	std::random_device rd;
 	std::mt19937 mt(rd());
 	std::shuffle(options.begin(), options.end(), mt);
@@ -149,422 +148,6 @@ void Server::processServerCommand(string input) {
 	}
 }
 
-string Server::getOS() {
-	#if defined(__linux__) && !defined(__FreeBSD__)
-	std::fstream proc;
-	proc.open("/proc/version", std::fstream::in);
-	std::ostringstream temp;
-	temp << proc.rdbuf();
-	string out = temp.str();
-	out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
-	return out;
-	#elif defined(_WIN32) || defined (_WIN64)
-	std::string name;
-	if (IsWindows10OrGreater()) {
-		name = "Windows 10+";
-	}
-	else if (IsWindows8Point1OrGreater()) {
-		name = "Windows 8.1+";
-	}
-	else if (IsWindows8OrGreater()) {
-		name = "Windows 8+";
-	}
-	else if (IsWindows7OrGreater()) {
-		name = "Windows 7+";
-	}
-	else if (IsWindowsVistaOrGreater()) {
-		name = "Windows Vista+";
-	}
-	else if (IsWindowsXPOrGreater()) {
-		name = "Windows XP+";
-	} else {
-		name = "Unknown Windows Version";
-	}
-	if (IsWindowsServer()) {
-		name += " (Server)";
-	}
-	SYSTEM_INFO sys_info;
-	GetSystemInfo(&sys_info);
-	switch (sys_info.wProcessorArchitecture) {
-	case PROCESSOR_ARCHITECTURE_INTEL:
-		name += " x86";
-		break;
-	case PROCESSOR_ARCHITECTURE_AMD64:
-		name += " x64";
-		break;
-	case PROCESSOR_ARCHITECTURE_ARM:
-		name += " arm";
-		break;
-	case PROCESSOR_ARCHITECTURE_ARM64:
-		name += " arm64";
-		break;
-	}
-	return name;
-	#elif defined(__APPLE__)
-	size_t len;
-	sysctlbyname("kern.version", NULL, &len, NULL, 0);
-	string result(len, '\0');
-	sysctlbyname("kern.version", result.data(), &len, NULL, 0);
-	sysctlbyname("kern.osproductversion", NULL, &len, NULL, 0);
-       	string macosresult(len, '\0');
-        sysctlbyname("kern.osproductversion", macosresult.data(), &len, NULL, 0);
-	return result + " (macOS " + macosresult + ")";
-	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-	return "Blah";
-	#endif
-	return "Not available on your platform";
-}
-
-string Server::getCPU() {
-	#if defined(__linux__) && !defined(__FreeBSD__)
-	std::smatch m;
-	std::fstream proc;
-	proc.open("/proc/cpuinfo", std::fstream::in);
-	std::ostringstream temp;
-	temp << proc.rdbuf();
-	string temp2 = temp.str();
-	std::regex_search(temp2, m, std::regex("(?:model name\\s*:\\s*)(.*)", std::regex_constants::optimize));
-	return m[1];
-	#elif defined (_WIN32)
-	std::string brandname;
-	#if defined(_M_IX86) || defined(_M_X64)
-	std::array<int, 4> cpui = {};
-	std::array<char, 16> cpui_c = {};
-	std::vector<char> brand;
-	__cpuid(cpui.data(), 0x80000000);
-	unsigned int maxid = cpui[0];
-	if (maxid < 0x80000004U) {
-		brandname = "Unknown CPU";
-	}	else {
-		for (unsigned int i = 0x80000002U; i <= 0x80000004U; i++) {
-			// here it actually gives chars, but cpuidex only accepts int*
-			__cpuidex(reinterpret_cast<int*>(cpui_c.data()), i, 0);
-			brand.insert(brand.end(), cpui_c.begin(), cpui_c.end());
-		}
-		brandname = std::string(brand.begin(), brand.end() - 1);
-		// erase trailing whitespaces
-		while (brandname.back() == ' ') {
-			brandname.pop_back();
-		}
-	}
-	#else
-	brandname = "Unknown or ARM CPU";
-	#endif
-	// number of threads
-	SYSTEM_INFO sys_info;
-	GetSystemInfo(&sys_info);
-	DWORD number_of_processors = sys_info.dwNumberOfProcessors;
-	brandname.insert(0, std::to_string(number_of_processors) + "x ");
-	return brandname;
-	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-	return "Blah";
-	#elif defined(__APPLE__)
-	size_t len;
-  sysctlbyname("machdep.cpu.brand_string", NULL, &len, NULL, 0);
-  string cpuname(len, '\0');
-  sysctlbyname("machdep.cpu.brand_string", cpuname.data(), &len, NULL, 0);
-	sysctlbyname("hw.ncpu", NULL, &len, NULL, 0);
-  int cpucount;
-  sysctlbyname("hw.ncpu", &cpucount, &len, NULL, 0);
-  return std::to_string(cpucount) + "x " + cpuname;
-	#endif
-	return "Only available on Linux or Windows";
-}
-
-string Server::getRAM() {
-	#if defined(__linux__)
-	std::fstream proc;
-	proc.open("/proc/meminfo", std::fstream::in);
-	std::ostringstream temp;
-	temp << proc.rdbuf();
-	string temp2 = temp.str();
-	std::regex re("\\d+", std::regex_constants::optimize);
-	std::vector<std::string> meminfo;
-	for (auto it = std::sregex_iterator(temp2.begin(), temp2.end(), re); it != std::sregex_iterator(); ++it) {
-		std::smatch m = *it;
-		meminfo.push_back(m.str());
-	}
-	if (meminfo.size() < 3) {
-		return string("Could not get memory info");
-	}
-	string result = meminfo[0] + "kB total, " + meminfo[1] + "kB free, " + meminfo[2] + "kB available";
-	return result;
-	#elif defined(_WIN32)
-	MEMORYSTATUSEX mem;
-	mem.dwLength = sizeof(mem);
-	GlobalMemoryStatusEx(&mem);
-	constexpr double div = 1024 * 1024 * 1024;
-	const auto roundto2 = [](double d) -> std::string {
-		std::stringstream ss;
-		ss << std::fixed << std::setprecision(2) << d;
-		return ss.str();
-	};
-	DWORDLONG total_totalmem = mem.ullTotalPhys + mem.ullTotalPageFile;
-	DWORDLONG total_availmem = mem.ullAvailPhys + mem.ullAvailPageFile;
-	DWORDLONG total_usedmem = total_totalmem - total_availmem;
-	std::string result = roundto2(total_usedmem / div) + '/' + roundto2(total_totalmem / div) + " GB Total, " + std::to_string(std::lround((total_usedmem * 100.0) / total_totalmem)) + "% Used (" +
-		roundto2((mem.ullTotalPhys - mem.ullAvailPhys) / div) + '/' + roundto2(mem.ullTotalPhys / div) + " GB Physical, " + std::to_string(mem.dwMemoryLoad) + "% Used)";
-	return result;
-	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-	return "Blah";
-	#elif defined(__APPLE__)
-	size_t len;
-  sysctlbyname("hw.memsize", NULL, &len, NULL, 0);
-  long int memtotal;
-  sysctlbyname("hw.memsize", &memtotal, &len, NULL, 0);
-  return std::to_string(memtotal) + "B total";
-	#else
-	return "Not available yet";
-	#endif
-}
-
-string Server::getUptime() {
-	#if defined(__linux__)
-	std::smatch m;
-	std::fstream proc;
-	proc.open("/proc/uptime", std::fstream::in);
-	std::ostringstream temp;
-	temp << proc.rdbuf();
-	string temp2 = temp.str();
-	std::regex_search(temp2, m, std::regex("[0-9]+(\\.[0-9]+)?", std::regex_constants::optimize));
-	try {
-		return string(m[0]) + " seconds (" + std::to_string(stoi(m[0]) / 60) + string(" minutes, ") + std::to_string(stoi(m[0]) / 3600) + " hours)";
-	} catch (...) {
-		return "Error parsing memory";
-	}
-	#else
-	return string("Not available yet");
-	#endif
-}
-
-string Server::getLoadavg() {
-	#if defined(__linux__)
-	std::fstream proc;
-	proc.open("/proc/loadavg", std::fstream::in);
-	std::ostringstream temp;
-	temp << proc.rdbuf();
-	string temp2 = temp.str();
-	std::regex re("[0-9.]+", std::regex_constants::optimize);
-	std::vector<std::string> loadinfo;
-	for (auto it = std::sregex_iterator(temp2.begin(), temp2.end(), re); it != std::sregex_iterator(); ++it) {
-		std::smatch m = *it;
-		loadinfo.push_back(m.str());
-	}
-	if (loadinfo.size() < 3) {
-		return string("Could not get load average info");
-	}
-	string result = "last 1 minute: " + loadinfo[0] + ", last 5 minutes: " + loadinfo[1] + ", last 10 minutes: " + loadinfo[2];
-	return result;
-	#else
-	return "Not available yet";
-	#endif
-}
-
-string Server::getSwap() {
-	#if defined(__linux__)
-	struct sysinfo info;
-	sysinfo(&info);
-	string result = std::to_string(info.totalswap / 1024) + "kB total, " + std::to_string(info.freeswap / 1024) + "kB available";
-	return result;
-	#else
-	return "Not available yet";
-	#endif
-}
-
-string Server::getProcesses() {
-	#if defined(__linux__)
-	struct sysinfo info;
-	sysinfo(&info);
-	string result = std::to_string(info.procs) + " total";
-	return result;
-	#else
-	return "Not available yet";
-	#endif
-}
-
-bool Server::areCountersAvailable() {
-	#if defined(_WIN32) || defined(_WIN64)
-	return false;
-	#elif defined(__linux__)
-	if (performanceCounterCompat == -1) {
-		return false;
-	} else {
-		return true;
-	}
-	#else
-	return false;
-	#endif
-}
-
-string Server::formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big) {
-	if (areCountersAvailable()) {
-		return std::to_string(little.back()) + " (" + std::to_string(100.0 * (double)little.back() / (double)big.back()) + "% of total) last 5 seconds, " + std::to_string(averageVal(little, 1)) + " (" + std::to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "%) last 1 minute, " + std::to_string(averageVal(little, 5)) + " (" + std::to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + std::to_string(averageVal(little, 15)) + " (" + std::to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15, " + std::to_string(averageVal(little, 60)) + " (" + std::to_string(100.0 * (double)averageVal(little, 60) / (double)averageVal(big, 60)) + "%) last 1 hour (Lower is better)";
-	} else {
-		return "Currently not available on this server";
-	}
-}
-
-string Server::formatReadingsLIB(const std::deque<long long>& readings) {
-	if (areCountersAvailable()) {
-		return std::to_string(readings.back()) + " last 5 seconds, " + std::to_string(averageVal(readings, 1)) + " last 1 minute, " + std::to_string(averageVal(readings, 5)) + " last 5, " + std::to_string(averageVal(readings, 15)) + " last 15, " + std::to_string(averageVal(readings, 60)) + " last 1 hour (Lower is better)";
-	} else {
-		return "Currently not available on this server";
-	}
-}
-
-string Server::formatReadingsHIB(const std::deque<long long>& readings) {
-	if (areCountersAvailable()) {
-		return std::to_string(readings.back()) + " last 5 seconds, " + std::to_string(averageVal(readings, 1)) + " last 1 minute, " + std::to_string(averageVal(readings, 5)) + " last 5, " + std::to_string(averageVal(readings, 15)) + " last 15, " + std::to_string(averageVal(readings, 60)) + " last 1 hour (Higher is better)";
-	} else {
-		return "Currently not available on this server";
-	}
-}
-
-string Server::getCPUusage() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return std::to_string(averageVal(cpuusagereadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(cpuusagereadings, 5)) + "% last 5, " + std::to_string(averageVal(cpuusagereadings, 15)) + "% last 15 (Lower is better)";
-}
-
-string Server::getCPUmigs() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return std::to_string(averageVal(cpumigrationreadings, 1)) + " last 1 minute, " + std::to_string(averageVal(cpumigrationreadings, 5)) + " last 5, " + std::to_string(averageVal(cpumigrationreadings, 15)) + " last 15";
-}
-
-string Server::getRAMusage() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return std::to_string(averageVal(rampercentreadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(rampercentreadings, 5)) + "% last 5, " + std::to_string(averageVal(rampercentreadings, 15)) + "% last 15 (" + std::to_string((averageVal(rambytereadings, 1) / 1024) / 1024) + "MB/" + std::to_string((averageVal(rambytereadings, 5) / 1024) / 1024) + "MB/" + std::to_string((averageVal(rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
-}
-
-string Server::getIPC() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return std::to_string((double)averageVal(cpuinstructionreadings, 1) / (double)averageVal(cpucyclereadings, 1)) + " last 1 minute, " + std::to_string((double)averageVal(cpuinstructionreadings, 5) / (double)averageVal(cpucyclereadings, 5)) + " last 5, " + std::to_string((double)averageVal(cpuinstructionreadings, 15) / (double)averageVal(cpucyclereadings, 15)) + " last 15 (Higher is better)";
-}
-
-string Server::getIPS() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return std::to_string((averageVal(cpuinstructionreadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
-}
-
-string Server::getCPS() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return std::to_string((averageVal(cpucyclereadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
-}
-
-string Server::getContextSwitches() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(contextswitchreadings, cpuinstructionreadings);
-}
-
-string Server::getStalledCyclesFrontend() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(stalledcyclesfrontendreadings);
-}
-
-string Server::getStalledCyclesBackend() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(stalledcyclesbackendreadings);
-}
-
-string Server::getBusCycles() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsHIB(buscyclereadings);
-}
-
-string Server::getBranchMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(branchmissreadings, branchinstructionreadings);
-}
-
-string Server::getCacheMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(cachemissreadings, cachereferencereadings);
-}
-
-string Server::getAlignmentFaults() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(alignmentfaultreadings);
-}
-
-string Server::getEmulationFaults() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(emulationfaultreadings);
-}
-
-string Server::getMinorPagefaults() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(minorpagefaultreadings, pagefaultreadings);
-}
-
-string Server::getMajorPagefaults() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(majorpagefaultreadings, pagefaultreadings);
-}
-
-string Server::getL1dReadMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(l1dreadmissreadings, l1dreadaccessreadings);
-}
-
-string Server::getL1dPrefetchMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(l1dprefetchmissreadings, l1dprefetchaccessreadings);
-}
-
-string Server::getL1dWriteMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(l1dwritemissreadings, l1dwriteaccessreadings);
-}
-
-string Server::getL1iReadMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(l1ireadmissreadings, l1ireadaccessreadings);
-}
-
-string Server::getL1iPrefetchMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(l1iprefetchmissreadings, l1iprefetchaccessreadings);
-}
-
-string Server::getLLReadMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(llreadmissreadings, llreadaccessreadings);
-}
-
-string Server::getLLWriteMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(llwritemissreadings, llwriteaccessreadings);
-}
-
-string Server::getLLPrefetchMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(llprefetchmissreadings);
-}
-
-string Server::getdTLBReadMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(dtlbreadmissreadings, dtlbreadaccessreadings);
-}
-
-string Server::getdTLBWriteMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(dtlbwritemissreadings, dtlbwriteaccessreadings);
-}
-
-string Server::getdTLBPrefetchMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(dtlbprefetchmissreadings, dtlbprefetchaccessreadings);
-}
-
-string Server::getiTLBReadMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(itlbreadmissreadings, itlbreadaccessreadings);
-}
-
-string Server::getBPUReadMisses() {
-	std::lock_guard<std::mutex> lock(perfMutex);
-	return formatReadingsLIB(bpureadmissreadings, bpureadaccessreadings);
-}
-
 void Server::processRestartAlert(string input) {
 	std::smatch m;
 	if (restartMins > 0 && uptime >= (restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
@@ -618,6 +201,9 @@ void Server::processServerTerminal() {
 	while (true) {
 		terminalOutput = readFromServer();
 		if (doCommands) {
+			if (!usesHajimeHelper) {
+				checkHajimeHelper(terminalOutput);
+			}
 			processServerCommand(terminalOutput);
 		}
 		if (chatKickRegex != "") {
@@ -628,8 +214,15 @@ void Server::processServerTerminal() {
 	}
 }
 
+void Server::checkHajimeHelper(std::string input) {
+	if (std::regex_search(input, std::regex("\\[.+\\]: \\[HajimeHelper\\].*HajimeHelper", std::regex_constants::optimize))) {
+		writeToServerTerminal("setsecret " + secret);
+		usesHajimeHelper = true;
+	}
+}
+
 string Server::readFromServer() {
-	char input[1000];
+	char input[2500];
 	#if defined(_WIN32) || defined (_WIN64)
 	DWORD length = 0;
 	if (!ReadFile(outputread, input, 1000, &length, NULL)) {
