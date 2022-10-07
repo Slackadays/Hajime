@@ -1,8 +1,34 @@
 #include "server.hpp"
 
 #include <random>
-#if defined(__linux__)
-#include <sys/sysinfo.h>
+
+if defined(_WIN64) || defined(_WIN32)
+#include <Windows.h>
+#include <shellapi.h>
+#include <VersionHelpers.h>
+#include <intrin.h>
+#include <powerbase.h>
+#pragma comment (lib, "Shell32")
+#elif defined(__APPLE__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#elif defined(__linux__)
+#include <unistd.h>
+#include <sys/mount.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <linux/perf_event.h>
+#include <linux/hw_breakpoint.h>
+#include <sys/resource.h>
+#include <sys/syscall.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#else
+#include <unistd.h>
+#include <termios.h>
+#include <sys/mount.h>
+#include <sys/types.h>
+#include <signal.h>
 #endif
 
 void Server::commandHajime() {
