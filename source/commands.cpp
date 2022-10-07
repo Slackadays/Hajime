@@ -1,8 +1,6 @@
 #include "server.hpp"
 
-#include <random>
-
-if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
 #include <VersionHelpers.h>
@@ -30,6 +28,8 @@ if defined(_WIN64) || defined(_WIN32)
 #include <sys/types.h>
 #include <signal.h>
 #endif
+
+#include <random>
 
 void Server::commandHajime() {
 	writeToServerTerminal(formatWrapper(text.server.command.hajime.output));
