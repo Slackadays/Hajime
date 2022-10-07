@@ -1,14 +1,119 @@
 name: HajimeHelper
-version: '${version}'
+version: '0.2.0'
 main: hajimehelper.hajimehelper.HajimeHelper
-api-version: 1.19
+api-version: 1.13
 prefix: HajimeHelper
 load: STARTUP
 authors: [ Slackadays ]
 description: A shim plugin that enables seamless use of Hajime commands from within a server
 website: https://hajime.sh
 commands:
+  setsecret:
+    description: Set the secret used for authentication with Hajime. This can only be done in the server console.
+    usage: /<command> <secret>
   hajime:
-    description: Testing
-    usage: /hajime
+    description: Show information about Hajime.
+    usage: /<command>
     permission: hajimehelper.hajime
+  time:
+    description: Show the current time in the server.
+    usage: /<command>
+    permission: hajimehelper.time
+  hajihelp:
+    description: Show a list of Hajime commands.
+    usage: /<command>
+    permission: hajimehelper.help
+  die:
+    description: Roll a 6-sided die.
+    usage: /<command>
+    permission: hajimehelper.die
+  d20:
+    description: Roll a 20-sided die.
+    usage: /<command>
+    permission: hajimehelper.d20
+  coinflip:
+    description: Flip a coin.
+    usage: /<command>
+    permission: hajimehelper.coinflip
+  hajidiscord:
+    description: Show the Hajime Discord invite link.
+    usage: /<command>
+    permission: hajimehelper.discord
+  name:
+    description: Show the name of the server in Hajime.
+    usage: /<command>
+    permission: hajimehelper.name
+  info:
+    description: Show this server's custom Hajime message.
+    usage: /<command>
+    permission: hajimehelper.info
+  uptime:
+    description: Show the uptime of the server.
+    usage: /<command>
+    permission: hajimehelper.uptime
+  hajirestart:
+    description: Show the amount of time before the server restarts.
+    usage: /<command>
+    permission: hajimehelper.restart
+  perf:
+    description: Show the server's performance statistics.
+    usage: /<command>
+    permission: hajimehelper.perf
+  hwperf:
+    description: Show the server's hardware performance counter statistics.
+    usage: /<command>
+    permission: hajimehelper.hwperf
+  swperf:
+    description: Show the server's software performance counter statistics.
+    usage: /<command>
+    permission: hajimehelper.swperf
+  caperf:
+    description: Show the server's CPU cache performance counter statistics.
+    usage: /<command>
+    permission: hajimehelper.caperf
+permissions:
+  hajimehelper.hajime:
+    description: Allows the user to use the /hajime command.
+    default: true
+  hajimehelper.time:
+    description: Allows the user to use the /time command.
+    default: true
+  hajimehelper.hajihelp:
+    description: Allows the user to use the /hajihelp command.
+    default: true
+  hajimehelper.die:
+    description: Allows the user to use the /die command.
+    default: true
+  hajimehelper.d20:
+    description: Allows the user to use the /d20 command.
+    default: true
+  hajimehelper.coinflip:
+    description: Allows the user to use the /coinflip command.
+    default: true
+  hajimehelper.hajidiscord:
+    description: Allows the user to use the /hajidiscord command.
+    default: true
+  hajimehelper.name:
+    description: Allows the user to use the /name command.
+    default: true
+  hajimehelper.info:
+    description: Allows the user to use the /info command.
+    default: true
+  hajimehelper.uptime:
+    description: Allows the user to use the /uptime command.
+    default: true
+  hajimehelper.hajirestart:
+    description: Allows the user to use the /hajirestart command.
+    default: true
+  hajimehelper.perf:
+    description: Allows the user to use the /perf command.
+    default: true
+  hajimehelper.hwperf:
+    description: Allows the user to use the /hwperf command.
+    default: true
+  hajimehelper.swperf:
+    description: Allows the user to use the /swperf command.
+    default: true
+  hajimehelper.caperf:
+    description: Allows the user to use the /caperf command.
+    default: true
