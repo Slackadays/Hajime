@@ -106,6 +106,9 @@ class Server {
 		minutes *= 20; //convert to 3-second intervals
 		unsigned int readings = 0;
 		T temp = 0;
+		if (myList.size() < minutes) {
+			minutes = myList.size();
+		}
 		reverse(myList.begin(), myList.end());
 		#pragma omp parallel for reduction(+:temp, readings)
 		for (int i = 0; i < minutes; i++) {

@@ -11,6 +11,7 @@ commands:
   setsecret:
     description: Set the secret used for authentication with Hajime. This can only be done in the server console.
     usage: /<command> <secret>
+    permission: hajimehelper.setsecret
   hajime:
     description: Show information about Hajime.
     usage: /<command>
@@ -72,6 +73,9 @@ commands:
     usage: /<command>
     permission: hajimehelper.caperf
 permissions:
+  hajimehelper.setsecret:
+    description: Allows the user to use the /setsecret command. Do not actually allow this, as this will break all commands.
+    default: op
   hajimehelper.hajime:
     description: Allows the user to use the /hajime command.
     default: true

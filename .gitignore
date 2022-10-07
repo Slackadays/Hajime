@@ -1,5 +1,6 @@
 /.fabric/*
 /.console_history
+/crash-reports/
 /CMakeFiles/
 /zlib/
 /zlib-prefix/

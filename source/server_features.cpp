@@ -97,7 +97,7 @@ void Server::processTerminalBuffer(string input) {
 
 void Server::processChatKicks(string input) {
 	try {
-		std::regex kickreg("\\[.+\\]: <.+> " + chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
+		std::regex kickreg("" + chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
 		if (std::regex_search(input, kickreg)) {
 			writeToServerTerminal("kick " + lastCommandUser + " §4§LForbidden word in chat; please do not say that!");
 			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + lastCommandUser + " for a chat infraction"));
@@ -109,41 +109,62 @@ void Server::processChatKicks(string input) {
 
 void Server::processServerCommand(string input) {
 	std::smatch m;
-	std::regex_search(input, m, std::regex("\\[.+\\]: <(.+)> .+", std::regex_constants::optimize));
-	lastCommandUser = m[1];
-	if (std::regex_search(input, std::regex("\\" + text.server.command.hajime.regex + "?(?![\\w])", std::regex_constants::optimize))) {
+	std::string command;
+	if (usesHajimeHelper) {
+		if (std::regex_search(input, m, std::regex("\\[.+\\]:\\s(\\.[\\w\\d]+)\\s([a-zA-Z0-9_\\*]{16}|\\s)\\s(\\S+)", std::regex_constants::optimize))) {
+				lastCommandUser = m[3];
+			if (m[2] == secret) {
+				command = m[1];
+			} else {
+				writeToServerTerminal(formatWrapper("[Hajime] Invalid secret"));
+				return;
+			}
+		} else {
+			return;
+		}
+	} else {
+		if (std::regex_search(input, m, std::regex("\\[.+\\]:\\s<(.+)>\\s(\\.[\\w\\d]+)?(?!\\w)", std::regex_constants::optimize))) {
+			lastCommandUser = m[1];
+			command = m[2];
+		} else {
+			return;
+		}
+	}
+	//std::cout << "command = " << command << std::endl;
+	//std::cout << "lastCommandUser = " << lastCommandUser << std::endl;
+	if (std::regex_search(command, std::regex("\\" + text.server.command.hajime.regex, std::regex_constants::optimize))) {
 		commandHajime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.time.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.time.regex, std::regex_constants::optimize))) {
 		commandTime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.help.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.help.regex, std::regex_constants::optimize))) {
 		commandHelp();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.die.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.die.regex, std::regex_constants::optimize))) {
 		commandDie();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.d20.regex + "(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.d20.regex, std::regex_constants::optimize))) {
 		commandD20();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.coinflip.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.coinflip.regex, std::regex_constants::optimize))) {
 		commandCoinflip();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.discord.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.discord.regex, std::regex_constants::optimize))) {
 		commandDiscord();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.name.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.name.regex, std::regex_constants::optimize))) {
 		commandName();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.info.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.info.regex, std::regex_constants::optimize))) {
 		commandInfo();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.uptime.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.uptime.regex, std::regex_constants::optimize))) {
 		commandUptime();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.restart.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.restart.regex, std::regex_constants::optimize))) {
 		commandRestart();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.system.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.system.regex, std::regex_constants::optimize))) {
 		commandSystem();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.perf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.perf.regex, std::regex_constants::optimize))) {
 		commandPerf();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.hwperf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.hwperf.regex, std::regex_constants::optimize))) {
 		commandHWPerf();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.swperf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.swperf.regex, std::regex_constants::optimize))) {
 		commandSWPerf();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\" + text.server.command.caperf.regex + "?(?!\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\" + text.server.command.caperf.regex, std::regex_constants::optimize))) {
 		commandCAPerf();
-	} else if (std::regex_search(input, std::regex("\\[.+\\]: <.+> \\.ee(?!.\\w)", std::regex_constants::optimize))) {
+	} else if (std::regex_search(command, std::regex("\\.ee(?!.\\w)", std::regex_constants::optimize))) {
 		writeToServerTerminal(formatWrapper("[Hajime] https://www.youtube.com/watch?v=kjPD_H81hDc"));
 	}
 }
