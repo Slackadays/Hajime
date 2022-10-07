@@ -25,6 +25,9 @@ public final class HajimeHelper extends JavaPlugin {
         getCommand("hwperf").setExecutor(new CommandGeneric());
         getCommand("swperf").setExecutor(new CommandGeneric());
         getCommand("caperf").setExecutor(new CommandGeneric());
+
+        int pluginId = 16604;
+        Metrics metrics = new Metrics(this, pluginId);
     }
     @Override
     public void onDisable() {
