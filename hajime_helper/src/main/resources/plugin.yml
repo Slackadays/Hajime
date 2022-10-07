@@ -1,0 +1,9 @@
+name: HajimeHelper
+version: '${version}'
+main: hajimehelper.hajimehelper.HajimeHelper
+api-version: 1.19
+prefix: HajimeHelper
+load: STARTUP
+authors: [ Slackadays ]
+description: A shim plugin that enables seamless use of Hajime commands from within a server
+website: https://hajime.sh
