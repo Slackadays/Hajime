@@ -1,5 +1,4 @@
-#include "server.hpp"
-
+#include "httplib/httplib.h"
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
@@ -19,6 +18,7 @@
 #include <linux/hw_breakpoint.h>
 #include <sys/resource.h>
 #include <sys/syscall.h>
+#include <sys/sysinfo.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #else
@@ -30,6 +30,33 @@
 #endif
 
 #include <random>
+#include <memory>
+#include <iterator>
+#include <algorithm>
+#include <sstream>
+#include <iostream>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <fstream>
+#include <thread>
+#include <list>
+#include <deque>
+#include <atomic>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <filesystem>
+#include <errno.h>
+#include <regex>
+#include <ctime>
+//#include <format>
+#include <array>
+
+#include "server.hpp"
+
+namespace fs = std::filesystem;
+
 
 void Server::commandHajime() {
 	writeToServerTerminal(formatWrapper(text.server.command.hajime.output));
