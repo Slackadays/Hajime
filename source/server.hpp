@@ -111,7 +111,7 @@ class Server {
 		}
 		reverse(myList.begin(), myList.end());
 		#pragma omp parallel for reduction(+:temp, readings)
-		for (int i = 0; i < minutes; i++) {
+		for (long long i = 0; i < minutes; i++) {
 			if (myList[i] != 0) {
 				temp += myList[i];
 				readings++;
