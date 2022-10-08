@@ -111,7 +111,7 @@ void Server::processServerCommand(string input) {
 	std::smatch m;
 	std::string command;
 	if (usesHajimeHelper) {
-		if (std::regex_search(input, m, std::regex("\\[.+\\]:\\s(\\.[\\w\\d]+)\\s([a-zA-Z0-9_\\*]{16}|\\s)\\s(\\S+)", std::regex_constants::optimize))) {
+		if (std::regex_search(input, m, std::regex("\\[.+\\]:\\s(\\.[\\w\\d]+)\\s([a-zA-Z0-9_\\*]{16}|\\s)\\s([\\w\\d]+)", std::regex_constants::optimize))) {
 				lastCommandUser = m[3];
 			if (m[2] == secret) {
 				command = m[1];
