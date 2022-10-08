@@ -20,6 +20,7 @@ public final class HajimeHelper extends JavaPlugin {
         getCommand("name").setExecutor(new CommandGeneric());
         getCommand("info").setExecutor(new CommandGeneric());
         getCommand("uptime").setExecutor(new CommandGeneric());
+        getCommand("system").setExecutor(new CommandGeneric());
         getCommand("hajirestart").setExecutor(new CommandGeneric());
         getCommand("perf").setExecutor(new CommandGeneric());
         getCommand("hwperf").setExecutor(new CommandGeneric());
