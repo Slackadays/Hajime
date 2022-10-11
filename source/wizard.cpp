@@ -153,10 +153,11 @@ void Wizard::doServerStep() {
 						doAdvancedServerStep();
 						term.out<Info>(text.info.InstallingDefServConf + serverFile + "...");
 						ServerConfigFile tempConfig;
-						tempConfig.serverFile = serverFile;
+						tempConfig.serverFile = file;
 						tempConfig.skipFileCheck = false;
 						tempConfig.flags = flags;
 						tempConfig.fileLocation = defaultServerConfFile;
+						tempConfig.serverName = "MyServer";
 						installer.installNewServerConfigFile(tempConfig);
 						//if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);

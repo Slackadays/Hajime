@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 	}
-	if (fs::is_regular_file(hajimePath + hajDefaultConfFile)) {
+	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
 		empty(hajimePath + logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(hajimePath + logFile);
 	} else {
@@ -307,11 +307,11 @@ void doRegularFlags(std::vector<std::string> flags) {
 
 bool readSettings() {
 	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors"};
-	if (!fs::is_regular_file(hajimePath + hajDefaultConfFile)) {
+	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		term.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
 		return 0;
 	}
-	std::vector<std::string> results = getVarsFromFile(hajimePath + hajDefaultConfFile, settings);
+	std::vector<std::string> results = getVarsFromFile(hajDefaultConfFile, settings);
 	for (std::vector<std::string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](std::string name, std::string& tempVar){
 			if (*firstSetIterator == name) {
@@ -354,7 +354,7 @@ void hajimeUserExit(int sig) {
 
 std::vector<std::string> getServerFiles() {
 	std::vector<std::string> results;
-	for (const auto& file : fs::directory_iterator{fs::current_path() /= "Hajime"}) {
+	for (const auto& file : fs::directory_iterator{fs::current_path() /= hajimePath}) {
 		if (std::regex_match(file.path().filename().string(), std::regex(".+\\.server(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
 			results.emplace_back(file.path().filename().string());
 		}
@@ -376,12 +376,12 @@ std::vector<std::string> splitToVec(std::string input) {
 void setupServers() {
 	std::vector<std::string> serverFiles = getServerFiles();
 	if (serverFiles.size() == 0) {
-		term.out<Error>("No server files found (Hint: all server files end with .server)");
+		term.out<Error>("No server files found (all server files end with .server)");
 		exit(0);
 	}
 	for (const auto& serverIt : serverFiles) { //loop through all the server files found
 		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
-		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), hajimePath + serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 }
 

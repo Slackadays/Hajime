@@ -37,13 +37,12 @@
 namespace fs = std::filesystem;
 
 void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
-	conf.fileLocation = hajimePath + conf.fileLocation;
 	if (fs::is_regular_file(conf.fileLocation) && !conf.skipFileCheck) {
 		throw 0;
 	} else {
-		std::ofstream outConf(hajimePath + conf.fileLocation);
+		std::ofstream outConf(conf.fileLocation);
 		outConf << "version=" << hajime_version << std::endl;
-		outConf << "name=" << std::regex_replace(conf.fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << std::endl;
+		outConf << "name=" << conf.serverName << std::endl;
 		outConf << "path=" << fs::current_path().string() << std::endl;
 		outConf << "exec=java" << std::endl;
 		outConf << "flags=-jar -Xmx4G -Xms4G " + conf.flags + " # Java flags" << std::endl;
@@ -60,20 +59,19 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 		outConf << text.fileServerConfComment << std::endl;
 		term.out<Info>(text.info.CreatedServerConfig1 + conf.fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();
-		if (!fs::is_regular_file(hajimePath + conf.fileLocation)) {
+		if (!fs::is_regular_file(conf.fileLocation)) {
 			throw "Could not create server config file";
 		}
 	}
 }
 
 void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", bool skipFileCheck, const std::string& lang) {
-	fileLocation = hajimePath + fileLocation;
 	term.out<Info>(text.info.InstallingDefHajConf + fileLocation + "...");
 	term.out<Info>(text.info.CheckingExistingFile);
-	if (fs::is_regular_file(hajimePath + fileLocation) && !skipFileCheck) {
+	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
-		std::ofstream outConf(hajimePath + fileLocation);
+		std::ofstream outConf(fileLocation);
 		outConf << "version=" << hajime_version << std::endl;
 		outConf << "logfile=hajime.log" << std::endl;
 		outConf << "lang=" << lang << std::endl;
@@ -81,7 +79,7 @@ void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", b
 		outConf << "threadcolors=1" << std::endl;
 		outConf.close();
 		term.out<Info>(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2);
-		if (!fs::is_regular_file(hajimePath + fileLocation)) {
+		if (!fs::is_regular_file(fileLocation)) {
 			throw "Could not create Hajime config file";
 		}
 	}

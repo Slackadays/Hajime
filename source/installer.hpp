@@ -32,9 +32,11 @@
 
 struct ServerConfigFile {
     std::string fileLocation;
-    bool skipFileCheck;
+    std::string serverName;
     std::string flags;
     std::string serverFile;
+
+    bool skipFileCheck;
 };
 
 class Installer {

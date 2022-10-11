@@ -291,6 +291,9 @@ void Server::updateUptime() {
 }
 
 void Server::processAutoUpdate(bool force) {
+	if (autoUpdateName == "") {
+		return;
+	}
 	if ((restartMins > 0 && uptime >= restartMins) || force) {
 		std::string content;
 		auto makeFile = [&content](std::string filename) {

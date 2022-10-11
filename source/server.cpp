@@ -64,7 +64,6 @@ namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
 void Server::startServer(string confFile) {
-	confFile = hajimePath + confFile;
 	term.hajimeTerminal = false;
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
@@ -428,6 +427,7 @@ void Server::readSettings(const string confFile) {
 		setVari(settings[13], counterMax);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
+	//std::cout << "tempAutoUpdate = " << tempAutoUpdate << std::endl;
 	std::istringstream ss(tempAutoUpdate);
 	std::getline(ss, autoUpdateName, ' ');
 	std::getline(ss, autoUpdateVersion, ' ');
