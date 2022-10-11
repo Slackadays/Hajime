@@ -139,6 +139,8 @@ class Server {
 	string getCPUusage();
 	string getCPUmigs();
 	string getRAMusage();
+	string getStorage();
+	string getTemps();
 	string getIPC();
 	string getIPS();
 	string getCPS();
@@ -172,7 +174,7 @@ class Server {
 	void updateUptime();
 	void processAutoUpdate(bool force = false);
 	void processAutoRestart();
-	void startProgram(string method);
+	void startProgram();
 	void readSettings(string confFile);
 	void removeSlashesFromEnd(string& var);
 	void processServerTerminal();
@@ -272,7 +274,7 @@ class Server {
 	std::deque<string> lines;
 
 	public:
-		string name, exec, file, path, command, flags, confFile, device, method, cmdline, customMessage, autoUpdateName, autoUpdateVersion;
+		string name, exec, file, path, flags, confFile, device, cmdline, customMessage, autoUpdateName, autoUpdateVersion;
 		bool isRunning = false;
 		void startServer(string confFile);
 		void terminalAccessWrapper();

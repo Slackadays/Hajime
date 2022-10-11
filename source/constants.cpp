@@ -20,9 +20,11 @@
 
 const std::string hajime_version = "0.2.0";
 
-std::string defaultServerConfFile = "MyServer.server";
+std::string defaultServerConfFile = "default.server";
 
-std::string hajDefaultConfFile = "hajime.properties";
+std::string hajDefaultConfFile = "hajime.conf";
+
+std::string hajimePath = "hajime.d/";
 
 long long defaultCounterInterval = 3;
 

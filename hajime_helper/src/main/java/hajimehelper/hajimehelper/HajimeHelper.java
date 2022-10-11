@@ -11,7 +11,7 @@ public final class HajimeHelper extends JavaPlugin {
         // Plugin startup logic
         getCommand("setsecret").setExecutor(new CommandSetsecret());
         getCommand("hajime").setExecutor(new CommandGeneric());
-        getCommand("time").setExecutor(new CommandGeneric());
+        getCommand("hajitime").setExecutor(new CommandGeneric());
         getCommand("hajihelp").setExecutor(new CommandGeneric());
         getCommand("die").setExecutor(new CommandGeneric());
         getCommand("d20").setExecutor(new CommandGeneric());

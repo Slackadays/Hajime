@@ -44,7 +44,7 @@ class Installer {
 	void installSystemd(const string& location);
 	public:
 		void installStartupService(const string& sysService);
-		static void installNewServerConfigFile(const ServerConfigFile& conf);
+		static void installNewServerConfigFile(ServerConfigFile& conf);
 		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false, const string& lang = "en");
 		//explicit Installer(std::shared_ptr<Output> log);
 };

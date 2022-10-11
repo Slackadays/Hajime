@@ -183,17 +183,17 @@ string Server::addNumberColors(string input) {
 
 string Server::formatWrapper(string input) {
 	string output;
-	if (!silentCommands) {
-		if (input.front() == '[' && input.back() == ']') {
-			output = "tellraw @a " + input;
-		} else {
-			output = "tellraw @a \"" + input + "\"";
-		}
-	} else {
+	if (usesHajimeHelper) {
 		if (input.front() == '[' && input.back() == ']') {
 			output = "tellraw " + lastCommandUser + " " + input;
 		} else {
 			output = "tellraw " + lastCommandUser + " \"" + input + "\"";
+		}
+	} else {
+		if (input.front() == '[' && input.back() == ']') {
+			output = "tellraw @a " + input;
+		} else {
+			output = "tellraw @a \"" + input + "\"";
 		}
 	}
 	output = std::regex_replace(output, std::regex("\\[Hajime\\]", std::regex_constants::optimize), "§6$&§f");

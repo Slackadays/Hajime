@@ -22,7 +22,8 @@
 /*.server
 /*.log
 /*.conf
-/hajime
+/hajime*
+/hajime.d/
 /download
 /Makefile
 /cmake_install.cmake

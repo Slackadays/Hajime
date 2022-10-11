@@ -64,6 +64,7 @@ namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
 void Server::startServer(string confFile) {
+	confFile = hajimePath + confFile;
 	term.hajimeTerminal = false;
 	try {
 		if (fs::is_regular_file(confFile, ec)) {
@@ -76,12 +77,9 @@ void Server::startServer(string confFile) {
 		term.dividerLine("Starting server " + name);
 		term.out<Info, NoEndline>(text.info.ServerFile + file + " | ");
 		term.out<None>(text.info.ServerPath + path);
-		term.out<Info, NoEndline>(text.info.ServerCommand + command + " | ");
-		term.out<None>(text.info.ServerMethod + method);
 		term.out<Info, NoEndline>(text.info.ServerDebug + std::to_string(term.debug) + " | "); // ->out wants a string so we convert the debug int (converted from a string) back to a string
 		term.out<None>(text.info.ServerDevice + device);
 		term.out<Info, NoEndline>("Restart interval: " + std::to_string(restartMins) + " | ");
-		term.out<None>("Silent commands: " + std::to_string(silentCommands));
 		term.out<Info>("Auto update: " + autoUpdateName + ' ' + autoUpdateVersion);
 		term.out<Info>("Counter setting: " + std::to_string(counterLevel));
 		term.hajimeTerminal = true;
@@ -102,7 +100,7 @@ void Server::startServer(string confFile) {
 				term.out<Info>(text.info.StartingServer);
 				usesHajimeHelper = false;
 				secret = generateSecret();
-				startProgram(method);
+				startProgram();
 				term.out<Info>(text.info.ServerStartCompleted);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -188,7 +186,7 @@ auto Server::toPointerArray(std::vector<std::string> &strings) {
 	return pointers;
 }
 
-void Server::startProgram(std::string method = "new") {
+void Server::startProgram() {
 	uptime = 0;
 	said15MinRestart = false;
 	said5MinRestart = false;
@@ -198,36 +196,78 @@ void Server::startProgram(std::string method = "new") {
 		fs::current_path(path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
 		lines.clear(); // clear output from previous session
-
-		if (method == "old") {
-			term.out<Debug>(text.debug.UsingOldMethod);
-			int returnVal = system(command.c_str()); //convert the command to a c-style string, execute the command
-			if (returnVal == 0 || returnVal == -1) {
-				term.out<Error>("system() error");
-			}
-		} else if (method == "new") {
-			term.out<Debug>(text.debug.UsingNewMethod);
-			#if defined(_WIN64) || defined (_WIN32)
-			SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
-			saAttr.bInheritHandle = TRUE;
-			saAttr.lpSecurityDescriptor = NULL;
-			if (!CreatePipe(&outputread, &outputwrite, &saAttr, 0) || !CreatePipe(&inputread, &inputwrite, &saAttr, 0))
-			{
-				term.out<Error>(text.error.CreatingPipe);
-				return;
-			}
-			ZeroMemory(&si, sizeof(si)); //ZeroMemory fills si with zeroes
-			si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-			si.hStdInput = inputread;
-			si.hStdOutput = outputwrite;
-			si.hStdError = outputwrite;
-			si.cb = sizeof(si); //si.cb = size of si
-			ZeroMemory(&pi, sizeof(pi));
-			// createprocessa might cause an error if commandline is const
-			char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
-			strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
-			CreateProcessA(NULL, tempflags, NULL, NULL, TRUE, CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
-			delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
+		term.out<Debug>(text.debug.UsingNewMethod);
+		#if defined(_WIN64) || defined (_WIN32)
+		SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
+		saAttr.bInheritHandle = TRUE;
+		saAttr.lpSecurityDescriptor = NULL;
+		if (!CreatePipe(&outputread, &outputwrite, &saAttr, 0) || !CreatePipe(&inputread, &inputwrite, &saAttr, 0))
+		{
+			term.out<Error>(text.error.CreatingPipe);
+			return;
+		}
+		ZeroMemory(&si, sizeof(si)); //ZeroMemory fills si with zeroes
+		si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+		si.hStdInput = inputread;
+		si.hStdOutput = outputwrite;
+		si.hStdError = outputwrite;
+		si.cb = sizeof(si); //si.cb = size of si
+		ZeroMemory(&pi, sizeof(pi));
+		// createprocessa might cause an error if commandline is const
+		char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
+		strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
+		CreateProcessA(NULL, tempflags, NULL, NULL, TRUE, CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
+		delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
+		if (!startedRfdThread) {
+			std::jthread rfd(&Server::processServerTerminal, this);
+			rfd.detach();
+			startedRfdThread = true;
+		}
+		if (!startedPerfThread) {
+			std::jthread perfThread(&Server::processPerfStats, this);
+			perfThread.detach();
+			startedPerfThread = true;
+		}
+		#else
+		term.out<Debug>(text.debug.Flags + flags);
+		auto flagTemp = toArray(flags);
+		auto flagArray = toPointerArray(flagTemp);
+		term.out<Debug>(text.debug.flag.Array0 + (string)flagArray[0]);
+		term.out<Debug>(text.debug.flag.Array1 + (string)flagArray[1]);
+		wantsLiveOutput = false;
+		fd = posix_openpt(O_RDWR);
+		if (fd == -1) {
+			term.out<Error>("Could not open pseudoterminal device; bailing out");
+			return;
+		}
+		grantpt(fd);
+		unlockpt(fd);
+		slave_fd = open(ptsname(fd), O_RDWR);
+		pid = fork();
+		if (pid == 0) { //this is the child
+			term.out<Debug>("fork() = 0");
+			close(fd);
+			struct termios old_sets; //something to save the old settings to
+			struct termios new_sets;
+			tcgetattr(slave_fd, &old_sets); //save current temrinal settings to old_sets
+			new_sets = old_sets;
+			cfmakeraw (&new_sets); //set terminal to raw mode (disable character preprocessing)
+			tcsetattr (slave_fd, TCSANOW, &new_sets); //assign the new settings to the terminal
+			close(0); //get rid of the old cin
+			close(1); //get rid of the old cout
+			close(2); //get rid of the old cerr
+			dup2(slave_fd, 0); //assign the slave fd to cin
+			dup2(slave_fd, 1); //ditto, cout
+			dup2(slave_fd, 2); //ditto, cerr
+			close(slave_fd); //close out the fd we used just for assigning to new fds
+			setsid(); //create a new session without a terminal
+			ioctl(slave_fd, TIOCSCTTY, 0); //assign the terminal of to the current program
+			//ioctl(0, TIOCSCTTY, 0); etc
+			execvp(exec.c_str(), flagArray.data());
+			//execlp("bc", "/bc", NULL); //use this for testing
+			exit(0);
+		} else { //this is the parent
+			term.out<Debug>("fork() != 0");
 			if (!startedRfdThread) {
 				std::jthread rfd(&Server::processServerTerminal, this);
 				rfd.detach();
@@ -238,70 +278,17 @@ void Server::startProgram(std::string method = "new") {
 				perfThread.detach();
 				startedPerfThread = true;
 			}
-			#else
-			term.out<Debug>(text.debug.Flags + flags);
-			auto flagTemp = toArray(flags);
-			auto flagArray = toPointerArray(flagTemp);
-			term.out<Debug>(text.debug.flag.Array0 + (string)flagArray[0]);
-			term.out<Debug>(text.debug.flag.Array1 + (string)flagArray[1]);
-			wantsLiveOutput = false;
-			fd = posix_openpt(O_RDWR);
-			if (fd == -1) {
-				term.out<Error>("Could not open pseudoterminal device; bailing out");
-				return;
-			}
-			grantpt(fd);
-			unlockpt(fd);
-			slave_fd = open(ptsname(fd), O_RDWR);
-			pid = fork();
-			if (pid == 0) { //this is the child
-				term.out<Debug>("fork() = 0");
-				close(fd);
-				struct termios old_sets; //something to save the old settings to
-				struct termios new_sets;
-				tcgetattr(slave_fd, &old_sets); //save current temrinal settings to old_sets
-				new_sets = old_sets;
-				cfmakeraw (&new_sets); //set terminal to raw mode (disable character preprocessing)
-				tcsetattr (slave_fd, TCSANOW, &new_sets); //assign the new settings to the terminal
-				close(0); //get rid of the old cin
-				close(1); //get rid of the old cout
-				close(2); //get rid of the old cerr
-				dup2(slave_fd, 0); //assign the slave fd to cin
-				dup2(slave_fd, 1); //ditto, cout
-				dup2(slave_fd, 2); //ditto, cerr
-				close(slave_fd); //close out the fd we used just for assigning to new fds
-				setsid(); //create a new session without a terminal
-				ioctl(slave_fd, TIOCSCTTY, 0); //assign the terminal of to the current program
-				//ioctl(0, TIOCSCTTY, 0); etc
-				execvp(exec.c_str(), flagArray.data());
-				//execlp("bc", "/bc", NULL); //use this for testing
-				exit(0);
-			} else { //this is the parent
-				term.out<Debug>("fork() != 0");
-				if (!startedRfdThread) {
-					std::jthread rfd(&Server::processServerTerminal, this);
-					rfd.detach();
-					startedRfdThread = true;
-				}
-				if (!startedPerfThread) {
-					std::jthread perfThread(&Server::processPerfStats, this);
-					perfThread.detach();
-					startedPerfThread = true;
-				}
-				close(slave_fd);
-				std::this_thread::sleep_for(std::chrono::seconds(4));
-				std::fstream cmdl;
-				cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
-				//std::cout << "opening cmdline file for pid " << pid << " at /proc/" << std::to_string(pid) << "/cmdline" << std::endl;
-				getline(cmdl, cmdline);
-				//std::cout << "cmdline = " << cmdline << std::endl;
-				cmdl.close();
-			}
-			#endif
-		} else {
-			term.out<Error>(text.error.MethodNotValid);
+			close(slave_fd);
+			std::this_thread::sleep_for(std::chrono::seconds(4));
+			std::fstream cmdl;
+			cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
+			//std::cout << "opening cmdline file for pid " << pid << " at /proc/" << std::to_string(pid) << "/cmdline" << std::endl;
+			getline(cmdl, cmdline);
+			//std::cout << "cmdline = " << cmdline << std::endl;
+			cmdl.close();
 		}
-			hasMounted = true;
+		#endif
+		hasMounted = true;
 	}
 }
 
@@ -404,7 +391,7 @@ void Server::readSettings(const string confFile) {
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
-	std::vector<string> settings {"name", "exec", "file", "path", "command", "flags", "method", "device", "restartmins", "silentcommands", "commands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterinterval", "counterdata"};
+	std::vector<string> settings {"name", "exec", "file", "path", "flags", "device", "restartmins", "commands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterinterval", "counterdata"};
 	std::vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		term.out<Debug>(it);
@@ -429,19 +416,16 @@ void Server::readSettings(const string confFile) {
 		setVar(settings[1], exec);
 		setVar(settings[2], file);
 		setVar(settings[3], path);
-		setVar(settings[4], command);
-		setVar(settings[5], flags);
-		setVar(settings[6], method);
-		setVar(settings[7], device);
-		setVari(settings[8], restartMins);
-		setVari(settings[9], silentCommands);
-		setVari(settings[10], doCommands);
-		setVar(settings[11], customMessage);
-		setVar(settings[12], chatKickRegex);
-		setVar(settings[13], tempCounters);
-		setVar(settings[14], tempAutoUpdate);
-		setVari(settings[15], counterInterval);
-		setVari(settings[16], counterMax);
+		setVar(settings[4], flags);
+		setVar(settings[5], device);
+		setVari(settings[6], restartMins);
+		setVari(settings[7], doCommands);
+		setVar(settings[8], customMessage);
+		setVar(settings[9], chatKickRegex);
+		setVar(settings[10], tempCounters);
+		setVar(settings[11], tempAutoUpdate);
+		setVari(settings[12], counterInterval);
+		setVari(settings[13], counterMax);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
 	std::istringstream ss(tempAutoUpdate);
@@ -466,7 +450,7 @@ void Server::readSettings(const string confFile) {
 		(removeSlashesFromEnd(var), ...);
 	};
 	remSlash(file, path, device, exec);
-	eliminateSpaces(file, path, device, exec, method, flags, name);
+	eliminateSpaces(file, path, device, exec, flags, name);
 	#if defined(_WIN64) || defined(_WIN32)
 	flags = exec + ' ' + flags + " -Dfile.encoding=UTF-8 " + file + " nogui";
 	#endif
@@ -477,41 +461,17 @@ int Server::getPID() {
 	term.out<Warning>(text.warning.TestingWindowsSupport);
 	return pi.dwProcessId; // honestly I don't think this is necessary but whatever
 	#else
-	if (method == "new") {
-		if (!kill(pid, 0)) {
-			std::fstream cmdl;
-			cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
-			string temp = "";
-			getline(cmdl, temp);
-			//std::cout << "temp is " << temp << std::endl;
-			cmdl.close();
-			if (temp == cmdline) {
-				return 1;
-			} else {
-				return 0;
-			}
-		} else {
-			//int errnum = errno;
-			return 0;
-		}
+	if (!kill(pid, 0)) {
+		std::fstream cmdl;
+		cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
+		string temp = "";
+		getline(cmdl, temp);
+		//std::cout << "temp is " << temp << std::endl;
+		cmdl.close();
+		return temp == cmdline;
 	} else {
-		fs::directory_iterator Directory("/proc/"); //search /proc/
-		fs::directory_iterator End; //a dummy object to compare to
-		for (string dir = ""; Directory != End; Directory++) {
-			dir = Directory->path(); //assigns a formatted directory string to dir
-			std::fstream file; //create a file object
-			file.open(dir + "/cmdline", std::ios::in); //open the file of /proc/PID/cmdline for reading
-			string str = ""; //reset string
-			getline(file, str); //read cmdline (it is only 1 line)
-			if (str.length() > 0) { //if a cmdline is not used, there will be nothing
-				if (str.find("SCREEN") != string::npos) { //look for a keyword in cmdline, string::npos is a special value (-1) that needs to be used
-					file.close(); //erase from memory
-					return stoi(dir.erase(0, 6)); 	//return the PID of the known good process
-				}
-			}
-			file.close(); //erase the file from memory
-		}
-		return 0; //doesn't exist
+		//int errnum = errno;
+		return 0;
 	}
 	#endif
 }

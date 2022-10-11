@@ -36,24 +36,22 @@
 
 namespace fs = std::filesystem;
 
-void Installer::installNewServerConfigFile(const ServerConfigFile& conf) {
+void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
+	conf.fileLocation = hajimePath + conf.fileLocation;
 	if (fs::is_regular_file(conf.fileLocation) && !conf.skipFileCheck) {
 		throw 0;
 	} else {
-		std::ofstream outConf(conf.fileLocation);
+		std::ofstream outConf(hajimePath + conf.fileLocation);
 		outConf << "version=" << hajime_version << std::endl;
 		outConf << "name=" << std::regex_replace(conf.fileLocation, std::regex("\\..*", std::regex_constants::optimize), "") << std::endl;
 		outConf << "path=" << fs::current_path().string() << std::endl;
-		outConf << "exec=java # The file that gets called in the \"new\" method." << std::endl;
-		outConf << "flags=-jar -Xmx4G -Xms4G " + conf.flags + " # This is where your Java flags go." << std::endl;
-		outConf << "file=" + conf.serverFile  + " # The server file you want to start."<< std::endl;
-		outConf << "command= # Only use this if you using the \"old\" method."<< std::endl;
-		outConf << "method=new" << std::endl;
+		outConf << "exec=java" << std::endl;
+		outConf << "flags=-jar -Xmx4G -Xms4G " + conf.flags + " # Java flags" << std::endl;
+		outConf << "file=" + conf.serverFile  + " # Server file"<< std::endl;
 		outConf << "device=" << std::endl;
-		outConf << "restartmins= # The interval (in minutes) that you want your server to auto-restart with." << std::endl;
+		outConf << "restartmins= # Auto-restart interval in minutes" << std::endl;
 		outConf << "commands=1" << std::endl;
-		outConf << "silentcommands=0" << std::endl;
-		outConf << "custommsg=" << std::endl;
+		outConf << "custommsg= # Custom server message" << std::endl;
 		outConf << "chatkickregex=" << std::endl;
 		outConf << "counters=high" << std::endl;
 		outConf << "autoupdate=" << std::endl;
@@ -62,19 +60,20 @@ void Installer::installNewServerConfigFile(const ServerConfigFile& conf) {
 		outConf << text.fileServerConfComment << std::endl;
 		term.out<Info>(text.info.CreatedServerConfig1 + conf.fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();
-		if (!fs::is_regular_file(conf.fileLocation)) {
-			throw 1;
+		if (!fs::is_regular_file(hajimePath + conf.fileLocation)) {
+			throw "Could not create server config file";
 		}
 	}
 }
 
 void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", bool skipFileCheck, const std::string& lang) {
+	fileLocation = hajimePath + fileLocation;
 	term.out<Info>(text.info.InstallingDefHajConf + fileLocation + "...");
 	term.out<Info>(text.info.CheckingExistingFile);
-	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
+	if (fs::is_regular_file(hajimePath + fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
-		std::ofstream outConf(fileLocation);
+		std::ofstream outConf(hajimePath + fileLocation);
 		outConf << "version=" << hajime_version << std::endl;
 		outConf << "logfile=hajime.log" << std::endl;
 		outConf << "lang=" << lang << std::endl;
@@ -82,8 +81,8 @@ void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", b
 		outConf << "threadcolors=1" << std::endl;
 		outConf.close();
 		term.out<Info>(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2);
-		if (!fs::is_regular_file(fileLocation)) {
-			throw 1;
+		if (!fs::is_regular_file(hajimePath + fileLocation)) {
+			throw "Could not create Hajime config file";
 		}
 	}
 }

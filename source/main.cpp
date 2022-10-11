@@ -71,9 +71,9 @@ void doPreemptiveFlags(std::vector<std::string> flags);
 void doRegularFlags(std::vector<std::string> flags);
 void setupSignals();
 bool readSettings();
-void hajimeExit(int sig);
+void hajimeUserExit(int sig);
 std::vector<std::string> getServerFiles();
-std::vector<std::string> toVec(std::string input);
+std::vector<std::string> splitToVec(std::string input);
 void setupServers();
 void setupFirstTime();
 void processHajimeCommand(std::vector<std::string> input);
@@ -93,15 +93,26 @@ int main(int argc, char *argv[]) {
 	}
 	doPreemptiveFlags(flags);
 	doRegularFlags(flags);
-	term.out<Info>("Starting Hajime...");
-	if (fs::is_regular_file(hajDefaultConfFile)) {
+	term.out<Info>("Starting Hajime");
+	// check for a subdirectory called "Hajime" and if it does not exist, create it
+	if (!fs::is_directory(hajimePath)) {
+		term.out<Info>("Creating Hajime directory");
+		try {
+			fs::create_directory(hajimePath);
+		} catch (fs::filesystem_error& e) {
+			term.out<Error>("Could not create Hajime directory");
+			term.out<Error>(e.what());
+			exit(1);
+		}
+	}
+	if (fs::is_regular_file(hajimePath + hajDefaultConfFile)) {
 		readSettings();
-		empty(logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(logFile);
+		empty(hajimePath + logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(hajimePath + logFile);
 	} else {
 		setupFirstTime();
 	}
 	if (!bypassPriviligeCheck && isUserPrivileged()) {
-		term.out<Error>("Hajime must not be run by a privileged user");
+		term.out<Error>("You cannot run Hajime as a priviliged user");
 		return 1;
 	}
 	#if !defined(_WIN64) && !defined(_WIN32)
@@ -123,25 +134,25 @@ void setupSignals() {
 		quick_exit(0);
 		#endif
 	});
-	signal(SIGINT, hajimeExit);
+	signal(SIGINT, hajimeUserExit);
 	signal(SIGSEGV, [](int sig){
-		std::cout << "Segmentation fault detected; exiting Hajime now" << std::endl;
+		std::cout << "Segmentation fault; exiting Hajime" << std::endl;
 		exit(0);
 	});
 	signal(SIGABRT, [](int sig){
-		std::cout << "Hajime ending execution abnormally; exiting Hajime now" << std::endl;
+		std::cout << "Hajime ending execution abnormally; exiting Hajime" << std::endl;
 		exit(0);
 	});
 	signal(SIGILL, [](int sig){
-		std::cout << "Illegal instruction detected; try recompiling Hajime" << std::endl;
+		std::cout << "Illegal instruction; try recompiling Hajime" << std::endl;
 		exit(0);
 	});
 	signal(SIGFPE, [](int sig){
-		std::cout << "Illegal math operation; exiting Hajime now" << std::endl;
+		std::cout << "Illegal math operation; exiting Hajime" << std::endl;
 		exit(0);
 	});
 	signal(SIGTERM, [](int sig){
-		std::cout << "Termination requested; exiting Hajime now" << std::endl;
+		std::cout << "Termination requested; exiting Hajime" << std::endl;
 		exit(0);
 	});
 }
@@ -211,9 +222,6 @@ void doPreemptiveFlags(std::vector<std::string> flags) {
 }
 
 void doRegularFlags(std::vector<std::string> flags) {
-	if (getenv("NO_COLOR") != NULL) {
-		term.noColors = true;
-	}
 	for (int i = 1; i < flags.size(); i++) {//start at i = 1 to improve performance because we will never find a flag at 0
 		auto flag = [&flags, &i](auto ...fs){
 			return ((fs == flags.at(i)) || ...);
@@ -298,11 +306,11 @@ void doRegularFlags(std::vector<std::string> flags) {
 
 bool readSettings() {
 	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors"};
-	if (!fs::is_regular_file(hajDefaultConfFile)) {
+	if (!fs::is_regular_file(hajimePath + hajDefaultConfFile)) {
 		term.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
 		return 0;
 	}
-	std::vector<std::string> results = getVarsFromFile(hajDefaultConfFile, settings);
+	std::vector<std::string> results = getVarsFromFile(hajimePath + hajDefaultConfFile, settings);
 	for (std::vector<std::string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
 		auto setVar = [&](std::string name, std::string& tempVar){
 			if (*firstSetIterator == name) {
@@ -330,7 +338,7 @@ bool readSettings() {
 	return 1;
 }
 
-void hajimeExit(int sig) {
+void hajimeUserExit(int sig) {
 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 	static std::chrono::time_point<std::chrono::system_clock> then;
 	if (std::chrono::duration_cast<std::chrono::seconds>(now - then).count() <= 3) {
@@ -345,7 +353,7 @@ void hajimeExit(int sig) {
 
 std::vector<std::string> getServerFiles() {
 	std::vector<std::string> results;
-	for (const auto& file : fs::directory_iterator{fs::current_path()}) {
+	for (const auto& file : fs::directory_iterator{fs::current_path() /= "Hajime"}) {
 		if (std::regex_match(file.path().filename().string(), std::regex(".+\\.server(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
 			results.emplace_back(file.path().filename().string());
 		}
@@ -353,21 +361,13 @@ std::vector<std::string> getServerFiles() {
 	return results;
 }
 
-std::vector<std::string> toVec(std::string input) {
+std::vector<std::string> splitToVec(std::string input) {
 	std::vector<std::string> output;
-	std::string temp = "";
-	for (int i = 0; i < input.length(); temp = "") {
-		while (input[i] == ' ' && i < input.length()) { //skip any leading whitespace
-			i++;
-		}
-		while (input[i] != ' ' && i < input.length()) { //add characters to a temp variable that will go into the std::vector
-			temp += input[i];
-			i++;
-		}
-		while (input[i] == ' ' && i < input.length()) { //skip any trailing whitespace
-			i++;
-		}
-		output.push_back(temp); //add the finished flag to the std::vector of flags
+	std::istringstream iss(input);
+	std::string temp;
+	//split the string into a vector
+	while (std::getline(iss, temp, ' ')) {
+		output.emplace_back(temp);
 	}
 	return output;
 }
@@ -458,7 +458,7 @@ void doHajimeTerminal() {
 		std::getline(std::cin, command);
 		std::cout << "\033[0m" << std::flush;
 		if (command != "") {
-			processHajimeCommand(toVec(command));
+			processHajimeCommand(splitToVec(command));
 		} else {
 			term.out<Error>("Command must not be empty");
 		}

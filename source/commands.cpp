@@ -160,7 +160,9 @@ void Server::commandSystem() {
 	"{\"text\":\"" + text.server.command.system.key.swap + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getSwap() + "\"}},"
 	"{\"text\":\"" + text.server.command.system.key.uptime + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getUptime() + "\"}},"
 	"{\"text\":\"" + text.server.command.system.key.processes + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getProcesses() + "\"}},"
-	"{\"text\":\"" + text.server.command.system.key.loadavg + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLoadavg() + "\"}}]";
+	"{\"text\":\"" + text.server.command.system.key.loadavg + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getLoadavg() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.temps + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getTemps() + "\"}},"
+	"{\"text\":\"" + text.server.command.system.key.storage + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getStorage() + "\"}}]";
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
@@ -598,6 +600,12 @@ string Server::getLoadavg() {
 	#endif
 }
 
+string Server::getStorage() {
+	fs::space_info si = fs::space(fs::current_path());
+	string result = std::to_string(si.capacity / 1024 / 1024) + "MB total, " + std::to_string(si.free / 1024 / 1024) + "MB free, " + std::to_string(si.available / 1024 / 1024) + "MB available";
+	return result;
+}
+
 string Server::getSwap() {
 	#if defined(__linux__)
 	struct sysinfo info;
@@ -618,6 +626,11 @@ string Server::getProcesses() {
 	#else
 	return "Not available yet";
 	#endif
+}
+
+string Server::getTemps() {
+	string result = "Currently not available";
+	return result;
 }
 
 bool Server::areCountersAvailable() {

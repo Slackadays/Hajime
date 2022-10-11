@@ -16,10 +16,10 @@ commands:
     description: Show information about Hajime.
     usage: /<command>
     permission: hajimehelper.hajime
-  time:
+  hajitime:
     description: Show the current time in the server.
     usage: /<command>
-    permission: hajimehelper.time
+    permission: hajimehelper.hajitime
   hajihelp:
     description: Show a list of Hajime commands.
     usage: /<command>
@@ -83,8 +83,8 @@ permissions:
   hajimehelper.hajime:
     description: Allows the user to use the /hajime command.
     default: true
-  hajimehelper.time:
-    description: Allows the user to use the /time command.
+  hajimehelper.hajitime:
+    description: Allows the user to use the /hajitime command.
     default: true
   hajimehelper.hajihelp:
     description: Allows the user to use the /hajihelp command.

@@ -336,6 +336,8 @@ class Text {
 						string uptime;
 						string processes;
 						string loadavg;
+						string temps;
+						string storage;
 					};
 					Key key;
 					struct Value {
@@ -346,6 +348,8 @@ class Text {
 						string uptime;
 						string processes;
 						string loadavg;
+						string temps;
+						string storage;
 					};
 					Value value;
 				};
