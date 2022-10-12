@@ -51,7 +51,35 @@
 #include "languages.hpp"
 
 class Server {
-	bool hasOutputUSB = false, hasMounted = false;
+	template<typename T>
+	T averageVal(std::deque<T> myList, unsigned int minutes) {
+		minutes *= 20; //convert to 3-second intervals
+		unsigned int readings = 0;
+		T temp = 0;
+		if (myList.size() < minutes) {
+			minutes = myList.size();
+		}
+		reverse(myList.begin(), myList.end());
+		#pragma omp parallel for reduction(+:temp, readings)
+		for (long long i = 0; i < minutes; i++) {
+			if (myList[i] != 0) {
+				temp += myList[i];
+				readings++;
+			}
+		}
+		if (readings > 0) {
+			temp /= readings;
+		} else {
+			return 0;
+		}
+		return temp;
+	}
+
+	bool hasOutputUSB = false;
+	
+	bool hasMounted = false;
+
+	bool usesHajimeHelper = false;
 
 	int systemi = 0;
 
@@ -67,10 +95,12 @@ class Server {
 	void resetAndEnableCounters(const auto& counters);
 	void disableCounters(const auto& counters);
 	void readCounters(auto& counters);
+	#elif defined(__APPLE__)
+	#elif defined(_WIN64) || defined (_WIN32)
+	#elif defined(__FreeBSD__)
 	#endif
 
 	std::string secret;
-	bool usesHajimeHelper = false;
 
 	std::string generateSecret();
 	std::string formatWrapper(std::string input);
@@ -100,30 +130,6 @@ class Server {
 	void commandHWPerf();
 	void commandSWPerf();
 	void commandCAPerf();
-
-	template<typename T>
-	T averageVal(std::deque<T> myList, unsigned int minutes) {
-		minutes *= 20; //convert to 3-second intervals
-		unsigned int readings = 0;
-		T temp = 0;
-		if (myList.size() < minutes) {
-			minutes = myList.size();
-		}
-		reverse(myList.begin(), myList.end());
-		#pragma omp parallel for reduction(+:temp, readings)
-		for (long long i = 0; i < minutes; i++) {
-			if (myList[i] != 0) {
-				temp += myList[i];
-				readings++;
-			}
-		}
-		if (readings > 0) {
-			temp /= readings;
-		} else {
-			return 0;
-		}
-		return temp;
-	}
 
 	std::string getOS();
 	std::string getCPU();
