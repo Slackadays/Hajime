@@ -452,7 +452,7 @@ void Server::readSettings(const string confFile) {
 	remSlash(serverSettings.file, serverSettings.path, serverSettings.device, serverSettings.exec);
 	eliminateSpaces(serverSettings.file, serverSettings.path, serverSettings.device, serverSettings.exec, serverSettings.flags, serverSettings.name);
 	#if defined(_WIN64) || defined(_WIN32)
-	flags = exec + ' ' + flags + " -Dfile.encoding=UTF-8 " + file + " nogui";
+	serverSettings.flags = serverSettings.exec + ' ' + serverSettings.flags + " -Dfile.encoding=UTF-8 " + serverSettings.file + " nogui";
 	#endif
 }
 
