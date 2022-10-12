@@ -124,13 +124,13 @@ void Server::commandDiscord() {
 }
 
 void Server::commandName() {
-	string hajInfo = text.server.command.name.output + name;
+	string hajInfo = text.server.command.name.output + serverSettings.name;
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
 void Server::commandInfo() {
-	if (customMessage != "") {
-		string hajInfo = "[Hajime] " + customMessage;
+	if (serverSettings.customMessage != "") {
+		string hajInfo = "[Hajime] " + serverSettings.customMessage;
 		writeToServerTerminal(formatWrapper(hajInfo));
 	} else {
 		writeToServerTerminal(formatWrapper("[Hajime] This server does not have a custom message set."));
@@ -144,8 +144,8 @@ void Server::commandUptime() {
 
 void Server::commandRestart() {
 	string hajInfo;
-	if (restartMins > 0) {
-		hajInfo = text.server.command.restart.output1 + std::to_string(restartMins - uptime) + text.server.command.restart.output2 + std::to_string((restartMins - uptime) / 60.0) + text.server.command.restart.output3;
+	if (serverSettings.restartMins > 0) {
+		hajInfo = text.server.command.restart.output1 + std::to_string(serverSettings.restartMins - uptime) + text.server.command.restart.output2 + std::to_string((serverSettings.restartMins - uptime) / 60.0) + text.server.command.restart.output3;
 	} else {
 		hajInfo = text.server.command.restart.outputDisabled;
 	}

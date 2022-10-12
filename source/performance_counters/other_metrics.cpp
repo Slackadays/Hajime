@@ -163,7 +163,7 @@ void Server::updateRAMusage() {
 void Server::trimCounterData() {
 	auto bumpAndCull = [this](auto& list) {
 		list.emplace_back(0);
-		while (list.size() > counterMax) {
+		while (list.size() > serverSettings.counterMax) {
 			list.pop_front();
 		}
 	};

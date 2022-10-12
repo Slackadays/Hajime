@@ -419,7 +419,7 @@ void processHajimeCommand(std::vector<std::string> input) {
 			} catch (...) {
 				bool attachSuccess = false;
 				for (auto& it : serverVec) {
-					if (it->name == input[1]) {
+					if (it->serverSettings.name == input[1]) {
 						term.hajimeTerminal = false;
 						it->terminalAccessWrapper();
 						term.hajimeTerminal = true;

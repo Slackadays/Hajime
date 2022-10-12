@@ -97,7 +97,7 @@ void Server::processTerminalBuffer(string input) {
 
 void Server::processChatKicks(string input) {
 	try {
-		std::regex kickreg("" + chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
+		std::regex kickreg("" + serverSettings.chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
 		if (std::regex_search(input, kickreg)) {
 			writeToServerTerminal("kick " + lastCommandUser + " §4§LForbidden word in chat; please do not say that!");
 			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + lastCommandUser + " for a chat infraction"));
@@ -171,8 +171,8 @@ void Server::processServerCommand(string input) {
 
 void Server::processRestartAlert(string input) {
 	std::smatch m;
-	if (restartMins > 0 && uptime >= (restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
-		string hajInfo = "tellraw " + string(m[1]) + text.server.restart.alert1 + std::to_string(restartMins - uptime) + text.server.restart.alert2;
+	if (serverSettings.restartMins > 0 && uptime >= (serverSettings.restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
+		string hajInfo = "tellraw " + string(m[1]) + text.server.restart.alert1 + std::to_string(serverSettings.restartMins - uptime) + text.server.restart.alert2;
 		writeToServerTerminal(addNumberColors(hajInfo));
 	}
 }
@@ -221,13 +221,13 @@ void Server::processServerTerminal() {
 	string terminalOutput;
 	while (true) {
 		terminalOutput = readFromServer();
-		if (doCommands) {
+		if (serverSettings.doCommands) {
 			if (!usesHajimeHelper) {
 				checkHajimeHelper(terminalOutput);
 			}
 			processServerCommand(terminalOutput);
 		}
-		if (chatKickRegex != "") {
+		if (serverSettings.chatKickRegex != "") {
 			processChatKicks(terminalOutput);
 		}
 		processRestartAlert(terminalOutput);
@@ -291,10 +291,10 @@ void Server::updateUptime() {
 }
 
 void Server::processAutoUpdate(bool force) {
-	if (autoUpdateName == "") {
+	if (serverSettings.autoUpdateName == "") {
 		return;
 	}
-	if ((restartMins > 0 && uptime >= restartMins) || force) {
+	if ((serverSettings.restartMins > 0 && uptime >= serverSettings.restartMins) || force) {
 		std::string content;
 		auto makeFile = [&content](std::string filename) {
 			std::fstream file(filename, std::fstream::out);
@@ -308,9 +308,9 @@ void Server::processAutoUpdate(bool force) {
 			}
 			file.close();
 		};
-		term.out<Info>("Updating server software with name " + autoUpdateName + " and version " + autoUpdateVersion);
-		if (autoUpdateName == "purpur") {
-			std::string target = "/v2/purpur/" + autoUpdateVersion + "/latest/download";
+		term.out<Info>("Updating server software with name " + serverSettings.autoUpdateName + " and version " + serverSettings.autoUpdateVersion);
+		if (serverSettings.autoUpdateName == "purpur") {
+			std::string target = "/v2/purpur/" + serverSettings.autoUpdateVersion + "/latest/download";
 			#if defined(CPPHTTPLIB_OPENSSL_SUPPORT)
 			httplib::SSLClient cli("api.purpurmc.org");
 			cli.enable_server_certificate_verification(false);
@@ -323,10 +323,10 @@ void Server::processAutoUpdate(bool force) {
 				return true;
 			});
 			makeFile("purpur.jar");
-		} else if (autoUpdateName == "paper") {
+		} else if (serverSettings.autoUpdateName == "paper") {
 			term.out<Error>("Paper is not yet supported");
-		} else if (autoUpdateName == "fabric") {
-			std::string target = "/v2/versions/loader/" + autoUpdateVersion;
+		} else if (serverSettings.autoUpdateName == "fabric") {
+			std::string target = "/v2/versions/loader/" + serverSettings.autoUpdateVersion;
 			httplib::Headers headers = { {"Accept-Encoding", "gzip, deflate"} };
 
 			#if defined(CPPHTTPLIB_OPENSSL_SUPPORT)
@@ -382,19 +382,19 @@ void Server::processAutoUpdate(bool force) {
 }
 
 void Server::processAutoRestart() {
-	if (restartMins > 0 && uptime >= restartMins) {
+	if (serverSettings.restartMins > 0 && uptime >= serverSettings.restartMins) {
 		writeToServerTerminal("stop");
-	}	else if (restartMins > 0 && uptime >= (restartMins - 5) && !said5MinRestart) {
+	}	else if (serverSettings.restartMins > 0 && uptime >= (serverSettings.restartMins - 5) && !said5MinRestart) {
 		writeToServerTerminal(formatWrapper(addNumberColors(text.server.restart.minutes5)));
 		said5MinRestart = true;
-	} else if (restartMins > 0 && uptime >= (restartMins - 15) && !said15MinRestart) {
+	} else if (serverSettings.restartMins > 0 && uptime >= (serverSettings.restartMins - 15) && !said15MinRestart) {
 		writeToServerTerminal(formatWrapper(addNumberColors(text.server.restart.minutes15)));
 		said15MinRestart = true;
 	}
 }
 
 void Server::terminalAccessWrapper() {
-	term.dividerLine(name);
+	term.dividerLine(serverSettings.name);
 	term.normalDisabled = true;
 	wantsLiveOutput = true;
 	for (const auto& it : lines) {

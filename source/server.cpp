@@ -73,29 +73,29 @@ void Server::startServer(string confFile) {
 			term.out<Error>(text.error.ServerFileNotPresent1 + confFile + text.error.ServerFileNotPresent2);
 			return;
 		}
-		term.dividerLine("Starting server " + name);
-		term.out<Info, NoEndline>(text.info.ServerFile + file + " | ");
-		term.out<None>(text.info.ServerPath + path);
-		term.out<Info, NoEndline>(text.info.ServerDebug + std::to_string(term.debug) + " | "); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-		term.out<None>(text.info.ServerDevice + device);
-		term.out<Info, NoEndline>("Restart interval: " + std::to_string(restartMins) + " | ");
-		term.out<Info>("Auto update: " + autoUpdateName + ' ' + autoUpdateVersion);
-		term.out<Info>("Counter setting: " + std::to_string(counterLevel));
+		term.dividerLine("Starting server with name " + serverSettings.name);
+		term.out<Info, NoEndline>(text.info.ServerFile + serverSettings.file + " | ");
+		term.out<None>(text.info.ServerPath + serverSettings.path);
+		term.out<Info>(text.info.ServerDebug + std::to_string(term.debug) + " | "); // ->out wants a string so we convert the debug int (converted from a string) back to a string
+		term.out<None>(text.info.ServerDevice + serverSettings.device);
+		term.out<Info, NoEndline>("Restart interval: " + std::to_string(serverSettings.restartMins) + " | ");
+		term.out<Info>("Auto update: " + serverSettings.autoUpdateName + ' ' + serverSettings.autoUpdateVersion);
+		term.out<Info>("Counter setting: " + std::to_string(serverSettings.counterLevel));
 		term.hajimeTerminal = true;
-		if (!fs::is_regular_file(file)) {
-			term.out<Warning>(file + text.warning.FileDoesntExist);
+		if (!fs::is_regular_file(serverSettings.file)) {
+			term.out<Warning>(serverSettings.file + text.warning.FileDoesntExist);
 		}
 		processAutoUpdate(true);
 		while (true) {
 			try {
-				fs::current_path(path);
+				fs::current_path(serverSettings.path);
 			} catch(...) {
 				term.out<Error>(text.error.CouldntSetPath);
 			}
 			#if !defined(_WIN64) && !defined(_WIN32)
 			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 			#endif
-			if (((fs::current_path() == path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(/|\\\\)" + path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
+			if (((fs::current_path() == serverSettings.path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(/|\\\\)" + serverSettings.path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
 				term.out<Info>(text.info.StartingServer);
 				usesHajimeHelper = false;
 				secret = generateSecret();
@@ -103,10 +103,10 @@ void Server::startServer(string confFile) {
 				term.out<Info>(text.info.ServerStartCompleted);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
-			if (!fs::is_directory(path, ec) && !fs::is_directory(fs::current_path().string() + '/' + path, ec) && !fs::is_directory(fs::current_path().string() + '\\' + path, ec)) { //if the desired path doesn't exist, make it
+			if (!fs::is_directory(serverSettings.path, ec) && !fs::is_directory(fs::current_path().string() + '/' + serverSettings.path, ec) && !fs::is_directory(fs::current_path().string() + '\\' + serverSettings.path, ec)) { //if the desired path doesn't exist, make it
 				makeDir();
 			}
-			fs::current_path(path, ec);
+			fs::current_path(serverSettings.path, ec);
 			if (!hasMounted) {
 				mountDrive();
 			}
@@ -154,7 +154,7 @@ std::vector<std::string> Server::toArray(std::string input) {
 	std::vector<string> addToEndVector;
 	string temp = "";
 	string execFile;
-	execFile = path + '/' + exec;
+	execFile = serverSettings.path + '/' + serverSettings.exec;
 	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
 	for (int i = 0; i < input.length(); temp = "") {
 		while (i < input.length() && input[i] == ' ') { //skip any leading whitespace
@@ -170,13 +170,13 @@ std::vector<std::string> Server::toArray(std::string input) {
 		flagVector.push_back(temp); //add the finished flag to the vector of flags
 		term.out<Debug>(text.debug.flag.VecInFor + flagVector[0]);
 	}
-	flagVector.push_back(file.c_str()); //add the file that we want to execute by exec to the end
+	flagVector.push_back(serverSettings.file.c_str()); //add the file that we want to execute by exec to the end
 	flagVector.push_back("nogui");
 	term.out<Debug>(text.debug.flag.VecOutFor + flagVector[0]);
 	return flagVector;
 }
 
-auto Server::toPointerArray(std::vector<std::string> &strings) {
+auto Server::toPointerArray(std::vector<std::string>& strings) {
 	std::vector<char*> pointers; //the pointer array that we will pass to the exec command
 	for (auto &string : strings) { //loop over the whole flag string vector
 		pointers.push_back(string.data()); //give the pointer array an address to a c-style string from the flag array
@@ -192,7 +192,7 @@ void Server::startProgram() {
 	timeStart = std::chrono::steady_clock::now();
 	if (!isRunning) {
 		term.out<Info>(text.info.TryingToStartProgram);
-		fs::current_path(path);
+		fs::current_path(serverSettings.path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
 		lines.clear(); // clear output from previous session
 		term.out<Debug>(text.debug.UsingNewMethod);
@@ -213,8 +213,8 @@ void Server::startProgram() {
 		si.cb = sizeof(si); //si.cb = size of si
 		ZeroMemory(&pi, sizeof(pi));
 		// createprocessa might cause an error if commandline is const
-		char* tempflags = new char[flags.size() + 1]; // +1 for null character at the end
-		strncpy_s(tempflags, flags.size() + 1, flags.c_str(), flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
+		char* tempflags = new char[serverSettings.flags.size() + 1]; // +1 for null character at the end
+		strncpy_s(tempflags, serverSettings.flags.size() + 1, serverSettings.flags.c_str(), serverSettings.flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
 		CreateProcessA(NULL, tempflags, NULL, NULL, TRUE, CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
 		delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
 		if (!startedRfdThread) {
@@ -228,8 +228,8 @@ void Server::startProgram() {
 			startedPerfThread = true;
 		}
 		#else
-		term.out<Debug>(text.debug.Flags + flags);
-		auto flagTemp = toArray(flags);
+		term.out<Debug>(text.debug.Flags + serverSettings.flags);
+		auto flagTemp = toArray(serverSettings.flags);
 		auto flagArray = toPointerArray(flagTemp);
 		term.out<Debug>(text.debug.flag.Array0 + (string)flagArray[0]);
 		term.out<Debug>(text.debug.flag.Array1 + (string)flagArray[1]);
@@ -262,7 +262,7 @@ void Server::startProgram() {
 			setsid(); //create a new session without a terminal
 			ioctl(slave_fd, TIOCSCTTY, 0); //assign the terminal of to the current program
 			//ioctl(0, TIOCSCTTY, 0); etc
-			execvp(exec.c_str(), flagArray.data());
+			execvp(serverSettings.exec.c_str(), flagArray.data());
 			//execlp("bc", "/bc", NULL); //use this for testing
 			exit(0);
 		} else { //this is the parent
@@ -282,7 +282,7 @@ void Server::startProgram() {
 			std::fstream cmdl;
 			cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
 			//std::cout << "opening cmdline file for pid " << pid << " at /proc/" << std::to_string(pid) << "/cmdline" << std::endl;
-			getline(cmdl, cmdline);
+			getline(cmdl, serverSettings.cmdline);
 			//std::cout << "cmdline = " << cmdline << std::endl;
 			cmdl.close();
 		}
@@ -293,7 +293,7 @@ void Server::startProgram() {
 
 void Server::makeDir() {
 	term.out<Info>(text.info.CreatingDirectory);
-	if (!fs::create_directory(path, ec)) {
+	if (!fs::create_directory(serverSettings.path, ec)) {
 		term.out<Error>(text.error.CreatingDirectory);
 	}
 }
@@ -304,16 +304,16 @@ void Server::mountDrive() {
 	hasMounted = true;
 	#else
 	term.out<Info>(text.info.TryingMount);
-	if (!fs::is_empty(path, ec)) { //if there are files, then we don't want to mount there
+	if (!fs::is_empty(serverSettings.path, ec)) { //if there are files, then we don't want to mount there
 		term.out<Error>(text.error.FilesInPath);
 		return;
 	} else {
 		string error;
 		#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
 		//BSDs have different mount() parameters
-		if (!mount(systems[systemi].c_str(), path.c_str(), 0, const_cast<char*>(device.c_str()))) { //cast a c-style device string to a constant char*
+		if (!mount(systems[systemi].c_str(), serverSettings.path.c_str(), 0, const_cast<char*>(serverSettings.device.c_str()))) { //cast a c-style device string to a constant char*
 		#else
-		if (!mount(device.c_str(), path.c_str(), systems[systemi].c_str(), 0, "")) {
+		if (!mount(serverSettings.device.c_str(), serverSettings.path.c_str(), systems[systemi].c_str(), 0, "")) {
 		//brute-forces every possible filesystem because mount() depends on it being the right one
 		#endif
 			term.out<Info>(text.info.DeviceMounted);
@@ -411,37 +411,37 @@ void Server::readSettings(const string confFile) {
 				}
 			}
 		};
-		setVar(settings[0], name);
-		setVar(settings[1], exec);
-		setVar(settings[2], file);
-		setVar(settings[3], path);
-		setVar(settings[4], flags);
-		setVar(settings[5], device);
-		setVari(settings[6], restartMins);
-		setVari(settings[7], doCommands);
-		setVar(settings[8], customMessage);
-		setVar(settings[9], chatKickRegex);
+		setVar(settings[0], serverSettings.name);
+		setVar(settings[1], serverSettings.exec);
+		setVar(settings[2], serverSettings.file);
+		setVar(settings[3], serverSettings.path);
+		setVar(settings[4], serverSettings.flags);
+		setVar(settings[5], serverSettings.device);
+		setVari(settings[6], serverSettings.restartMins);
+		setVari(settings[7], serverSettings.doCommands);
+		setVar(settings[8], serverSettings.customMessage);
+		setVar(settings[9], serverSettings.chatKickRegex);
 		setVar(settings[10], tempCounters);
 		setVar(settings[11], tempAutoUpdate);
-		setVari(settings[12], counterInterval);
-		setVari(settings[13], counterMax);
+		setVari(settings[12], serverSettings.counterInterval);
+		setVari(settings[13], serverSettings.counterMax);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
 	//std::cout << "tempAutoUpdate = " << tempAutoUpdate << std::endl;
 	std::istringstream ss(tempAutoUpdate);
-	std::getline(ss, autoUpdateName, ' ');
-	std::getline(ss, autoUpdateVersion, ' ');
-	term.registerServerName(name); //send the name of the server name to term so that it can associate a name with a thread id
+	std::getline(ss, serverSettings.autoUpdateName, ' ');
+	std::getline(ss, serverSettings.autoUpdateVersion, ' ');
+	term.registerServerName(serverSettings.name); //send the name of the server name to term so that it can associate a name with a thread id
 	if (tempCounters == "high") {
-		counterLevel = 3;
+		serverSettings.counterLevel = 3;
 	} else if (tempCounters == "medium") {
-		counterLevel = 2;
+		serverSettings.counterLevel = 2;
 	} else if (tempCounters == "low") {
-		counterLevel = 1;
+		serverSettings.counterLevel = 1;
 	} else if (tempCounters == "off") {
-		counterLevel = 0;
+		serverSettings.counterLevel = 0;
 	}
-	if (device == "") {
+	if (serverSettings.device == "") {
 		term.out<Info>(text.info.NoMount);
 		hasMounted = true;
 	}
@@ -449,8 +449,8 @@ void Server::readSettings(const string confFile) {
 	auto remSlash = [&](auto& ...var) {
 		(removeSlashesFromEnd(var), ...);
 	};
-	remSlash(file, path, device, exec);
-	eliminateSpaces(file, path, device, exec, flags, name);
+	remSlash(serverSettings.file, serverSettings.path, serverSettings.device, serverSettings.exec);
+	eliminateSpaces(serverSettings.file, serverSettings.path, serverSettings.device, serverSettings.exec, serverSettings.flags, serverSettings.name);
 	#if defined(_WIN64) || defined(_WIN32)
 	flags = exec + ' ' + flags + " -Dfile.encoding=UTF-8 " + file + " nogui";
 	#endif
@@ -468,7 +468,7 @@ int Server::getPID() {
 		getline(cmdl, temp);
 		//std::cout << "temp is " << temp << std::endl;
 		cmdl.close();
-		return temp == cmdline;
+		return temp == serverSettings.cmdline;
 	} else {
 		//int errnum = errno;
 		return 0;

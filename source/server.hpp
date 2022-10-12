@@ -57,7 +57,7 @@ class Server {
 
 	std::error_code ec;
 
-	const string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
+	const std::string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
 	#if defined(__linux__)
 	std::vector<long> getProcessChildPids(long pid);
@@ -125,66 +125,69 @@ class Server {
 		return temp;
 	}
 
-	string getOS();
-	string getCPU();
-	string getRAM();
-	string getSwap();
-	string getProcesses();
+	std::string getOS();
+	std::string getCPU();
+	std::string getRAM();
+	std::string getSwap();
+	std::string getProcesses();
+	std::string formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big);
+	std::string formatReadingsLIB(const std::deque<long long>& readings);
+	std::string formatReadingsHIB(const std::deque<long long>& readings);
+	std::string getUptime();
+	std::string getLoadavg();
+	std::string getCPUusage();
+	std::string getCPUmigs();
+	std::string getRAMusage();
+	std::string getStorage();
+	std::string getTemps();
+
 	bool areCountersAvailable();
-	string formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big);
-	string formatReadingsLIB(const std::deque<long long>& readings);
-	string formatReadingsHIB(const std::deque<long long>& readings);
-	string getUptime();
-	string getLoadavg();
-	string getCPUusage();
-	string getCPUmigs();
-	string getRAMusage();
-	string getStorage();
-	string getTemps();
-	string getIPC();
-	string getIPS();
-	string getCPS();
-	string getContextSwitches();
-	string getStalledCyclesBackend();
-	string getStalledCyclesFrontend();
-	string getBusCycles();
-	string getBranchMisses();
-	string getCacheMisses();
-	string getAlignmentFaults();
-	string getEmulationFaults();
-	string getMinorPagefaults();
-	string getMajorPagefaults();
-	string getL1dReadMisses();
-	string getL1dPrefetchMisses();
-	string getL1dWriteMisses();
-	string getL1iReadMisses();
-	string getL1iPrefetchMisses();
-	string getLLReadMisses();
-	string getLLWriteMisses();
-	string getLLPrefetchMisses();
-	string getdTLBReadMisses();
-	string getdTLBWriteMisses();
-	string getdTLBPrefetchMisses();
-	string getiTLBReadMisses();
-	string getBPUReadMisses();
-	string addNumberColors(string input);
-	void processRestartAlert(string input);
+
+	std::string getIPC();
+	std::string getIPS();
+	std::string getCPS();
+	std::string getContextSwitches();
+	std::string getStalledCyclesBackend();
+	std::string getStalledCyclesFrontend();
+	std::string getBusCycles();
+	std::string getBranchMisses();
+	std::string getCacheMisses();
+	std::string getAlignmentFaults();
+	std::string getEmulationFaults();
+	std::string getMinorPagefaults();
+	std::string getMajorPagefaults();
+	std::string getL1dReadMisses();
+	std::string getL1dPrefetchMisses();
+	std::string getL1dWriteMisses();
+	std::string getL1iReadMisses();
+	std::string getL1iPrefetchMisses();
+	std::string getLLReadMisses();
+	std::string getLLWriteMisses();
+	std::string getLLPrefetchMisses();
+	std::string getdTLBReadMisses();
+	std::string getdTLBWriteMisses();
+	std::string getdTLBPrefetchMisses();
+	std::string getiTLBReadMisses();
+	std::string getBPUReadMisses();
+	std::string addNumberColors(std::string input);
+
+	void processRestartAlert(std::string input);
 	void mountDrive();
 	void makeDir();
 	void updateUptime();
 	void processAutoUpdate(bool force = false);
 	void processAutoRestart();
 	void startProgram();
-	void readSettings(string confFile);
-	void removeSlashesFromEnd(string& var);
+	void readSettings(std::string confFile);
+	void removeSlashesFromEnd(std::string& var);
 	void processServerTerminal();
+
 	int getPID();
-	std::vector<string> toArray(std::string input);
+
+	std::vector<std::string> toArray(std::string input);
 	auto toPointerArray(std::vector<std::string> &strings);
 
 	inline static std::atomic<int> performanceCounterCompat = 0;
-
-	int counterLevel = 0;
 
 	#if defined(_WIN64) || defined(_WIN32)
 	STARTUPINFO si; // a variable that can specify parameters for windows created with it
@@ -195,23 +198,16 @@ class Server {
 	struct winsize w;
 	#endif
 
-	long int restartMins;
 	long int uptime;
 	std::chrono::time_point<std::chrono::steady_clock> timeStart;
 	std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
 
 	bool said15MinRestart = false;
 	bool said5MinRestart = false;
-	bool doCommands = true;
-	bool silentCommands = false;
 
 	inline static std::vector<long long> knownBadEvents = {};
 
 	std::mutex perfMutex;
-
-	long long counterInterval = defaultCounterInterval;
-
-	long long counterMax = defaultCounterMax;
 
 	std::deque<long long> cpuusagereadings{0};
 	std::deque<double> rampercentreadings{0.0};
@@ -263,19 +259,38 @@ class Server {
 
 	long long CPUjiffies, PIDjiffies;
 
-	string lastCommandUser;
-	string chatKickRegex;
+	std::string lastCommandUser;
 
 	bool startedRfdThread = false;
 	bool startedPerfThread = false;
 
 	bool wantsLiveOutput;
 
-	std::deque<string> lines;
+	std::deque<std::string> lines;
 
 	public:
-		string name, exec, file, path, flags, confFile, device, cmdline, customMessage, autoUpdateName, autoUpdateVersion;
+		struct ServerSettings {
+			std::string name;
+			std::string exec;
+			std::string path;
+			std::string file;
+			std::string flags;
+			std::string confFile;
+			std::string cmdline;
+			std::string device;
+			std::string customMessage;
+			std::string autoUpdateName;
+			std::string autoUpdateVersion;
+			std::string chatKickRegex;
+			bool doCommands = true;
+			int counterLevel = 0;
+			long restartMins;
+			long long counterInterval = defaultCounterInterval;
+			long long counterMax = defaultCounterMax;
+		};
+		ServerSettings serverSettings;
+		
 		bool isRunning = false;
-		void startServer(string confFile);
+		void startServer(std::string confFile);
 		void terminalAccessWrapper();
 };

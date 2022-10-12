@@ -189,7 +189,7 @@ void Server::setupCounter(auto& s) {
 	setupEvent(s->group_fd[0][1], s->group_id[0][1], s->perfstruct[0][1], s->group_fd[0][0]);
 	//std::cout << "errno 2 = " << errno << std::endl;
 	//std::cout << "cache misses" << std::endl;
-	if (counterLevel >= 3) {
+	if (serverSettings.counterLevel >= 3) {
 		configureStruct(s->perfstruct[0][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND); //this event creates another group within the [0] group because we needed to separate these from the first group
 		setupEvent(s->group_fd[0][2], s->group_id[0][2], s->perfstruct[0][2], -1);
 
@@ -201,7 +201,7 @@ void Server::setupCounter(auto& s) {
 
 	configureStruct(s->perfstruct[1][1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES);
 	setupEvent(s->group_fd[1][1], s->group_id[1][1], s->perfstruct[1][1], s->group_fd[1][0]);
-	if (counterLevel >= 2) {
+	if (serverSettings.counterLevel >= 2) {
 		configureStruct(s->perfstruct[2][0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS);
 		setupEvent(s->group_fd[2][0], s->group_id[2][0], s->perfstruct[2][0], -1);
 		//std::cout << "branch misses" << std::endl;
@@ -209,13 +209,13 @@ void Server::setupCounter(auto& s) {
 		setupEvent(s->group_fd[2][1], s->group_id[2][1], s->perfstruct[2][1], s->group_fd[2][0]);
 	}
 	//std::cout << "stalled cycles" << std::endl;
-	if (counterLevel >= 3) {
+	if (serverSettings.counterLevel >= 3) {
 		//std::cout << "bus cycles" << std::endl;
 		configureStruct(s->perfstruct[2][2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_BUS_CYCLES);
 		setupEvent(s->group_fd[2][2], s->group_id[2][2], s->perfstruct[2][2], s->group_fd[2][0]);
 	}
 
-	if (counterLevel >= 2) {
+	if (serverSettings.counterLevel >= 2) {
 		configureStruct(s->perfstruct[3][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS);
 		setupEvent(s->group_fd[3][0], s->group_id[3][0], s->perfstruct[3][0], -1);
 
@@ -226,7 +226,7 @@ void Server::setupCounter(auto& s) {
 		setupEvent(s->group_fd[3][2], s->group_id[3][2], s->perfstruct[3][2], s->group_fd[3][0]);
 	}
 	//group 2: software
-	if (counterLevel >= 3) {
+	if (serverSettings.counterLevel >= 3) {
 		configureStruct(s->perfstruct[4][0], PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CONTEXT_SWITCHES);
 		setupEvent(s->group_fd[4][0], s->group_id[4][0], s->perfstruct[4][0], -1);
 
@@ -241,7 +241,7 @@ void Server::setupCounter(auto& s) {
 	}
 	//group 3: cache
 	//std::cout << "l1d cache" << std::endl;
-	if (counterLevel >= 2) {
+	if (serverSettings.counterLevel >= 2) {
 		configureStruct(s->perfstruct[5][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 		setupEvent(s->group_fd[5][0], s->group_id[5][0], s->perfstruct[5][0], -1);
 	 	//we need to bitshift the second and third enums by 8 and 16 bits respectively, and we do that with <<
@@ -255,7 +255,7 @@ void Server::setupCounter(auto& s) {
 		setupEvent(s->group_fd[6][1], s->group_id[6][1], s->perfstruct[6][1], s->group_fd[6][0]);
 	}
 
-	if (counterLevel >= 3) {
+	if (serverSettings.counterLevel >= 3) {
 		configureStruct(s->perfstruct[7][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_READ << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 		setupEvent(s->group_fd[7][0], s->group_id[7][0], s->perfstruct[7][0], -1);
 
@@ -281,7 +281,7 @@ void Server::setupCounter(auto& s) {
 		setupEvent(s->group_fd[10][1], s->group_id[10][1], s->perfstruct[10][1], s->group_fd[10][0]);
 	}
 
-	if (counterLevel >= 2) {
+	if (serverSettings.counterLevel >= 2) {
 		configureStruct(s->perfstruct[11][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_LL | (PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 		setupEvent(s->group_fd[11][0], s->group_id[11][0], s->perfstruct[11][0], -1);
 
@@ -292,7 +292,7 @@ void Server::setupCounter(auto& s) {
 		setupEvent(s->group_fd[11][2], s->group_id[11][2], s->perfstruct[11][2], s->group_fd[11][0]);
 	}
 
-	if (counterLevel >= 3) {
+	if (serverSettings.counterLevel >= 3) {
 		configureStruct(s->perfstruct[12][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_DTLB | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 		setupEvent(s->group_fd[12][0], s->group_id[12][0], s->perfstruct[12][0], -1);
 
@@ -300,7 +300,7 @@ void Server::setupCounter(auto& s) {
 		setupEvent(s->group_fd[12][1], s->group_id[12][1], s->perfstruct[12][1], s->group_fd[12][0]);
 	}
 
-	if (counterLevel >= 2) {
+	if (serverSettings.counterLevel >= 2) {
 		configureStruct(s->perfstruct[13][0], PERF_TYPE_HW_CACHE, PERF_COUNT_HW_CACHE_L1D | (PERF_COUNT_HW_CACHE_OP_PREFETCH << 8) | (PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16));
 		setupEvent(s->group_fd[13][0], s->group_id[13][0], s->perfstruct[13][0], -1);
 
@@ -641,7 +641,7 @@ void Server::processPerfStats() {
 	std::vector<long> newPids = {};
 	std::vector<long> diffPids = {};
 	std::vector<long> currentPids;
-	if (counterLevel > 0) {
+	if (serverSettings.counterLevel > 0) {
 		term.out<Debug>("Making performance counters");
 		currentPids = getProcessChildPids(pid);
 		createCounters(MyCounters, currentPids);
@@ -649,15 +649,15 @@ void Server::processPerfStats() {
 	}
 	//auto then = std::chrono::high_resolution_clock::now();
 	while (true) {
-		if (counterLevel > 0 && performanceCounterCompat != -1) {
+		if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
 			resetAndEnableCounters(MyCounters);
 		}
 		updateCPUusage(cpuusagereadings);
 		updateRAMusage();
 		//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(counterInterval));
+		std::this_thread::sleep_for(std::chrono::seconds(serverSettings.counterInterval));
 		//then = std::chrono::high_resolution_clock::now();
-		if (counterLevel > 0 && performanceCounterCompat != -1) {
+		if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
 			std::lock_guard<std::mutex> lock(perfMutex);
 			trimCounterData();
 			disableCounters(MyCounters);
