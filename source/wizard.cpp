@@ -153,12 +153,16 @@ void Wizard::doServerStep() {
 						doAdvancedServerStep();
 						term.out<Info>(text.info.InstallingDefServConf + serverFile + "...");
 						ServerConfigFile tempConfig;
-						tempConfig.serverFile = file;
+						tempConfig.serverFile = serverFile;
 						tempConfig.skipFileCheck = false;
 						tempConfig.flags = flags;
 						tempConfig.fileLocation = defaultServerConfFile;
-						tempConfig.serverName = "MyServer";
-						installer.installNewServerConfigFile(tempConfig);
+						try {
+							installer.installNewServerConfigFile(tempConfig);
+						} catch (std::exception& e) {
+							term.out<Error>(text.error.InstallDefServConf + serverFile + text.error.InstallDefServConf2 + e.what());
+							break;
+						}
 						//if (wizardStep(serverFile, installer.installNewServerConfigFile, text.warning.FoundServerConfPlusFile + serverFile, text.error.ServerConfNotCreated, flags, file)) {
 							servers.push_back(serverFile);
 						//}

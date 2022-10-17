@@ -44,7 +44,10 @@
 #include <errno.h>
 #include <chrono>
 #include <mutex>
+
+#if defined(_OPENMP)
 #include <omp.h>
+#endif
 
 #include "getvarsfromfile.hpp"
 #include "output.hpp"
