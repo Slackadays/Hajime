@@ -25,6 +25,7 @@
 #endif
 
 #include <vector>
+#include <sstream>
 
 #include "hajime_startup.hpp"
 #include "output.hpp"
