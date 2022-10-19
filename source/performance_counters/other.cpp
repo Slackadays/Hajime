@@ -17,7 +17,7 @@
 #include <thread>
 #include <chrono>
 
-#include "../server.hpp"
+#include "../server/server.hpp"
 
 void Server::processPerfStats() {
     while (true) {

@@ -59,6 +59,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADD_FLAGS}")
 
 add_executable(hajime
 main.cpp
+hajime_startup.cpp
 flags.cpp
 getvarsfromfile.cpp 
 output.cpp
