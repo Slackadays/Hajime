@@ -378,12 +378,13 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(const string confFile) {
-	string tempAutoUpdate;
-	string tempCounters;
+	std::string tempAutoUpdate;
+	std::string tempCounters;
+	std::string tempCounterIntervalMax;
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
-	std::vector<string> settings {"name", "exec", "file", "path", "flags", "device", "restartmins", "commands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterinterval", "counterdata"};
+	std::vector<string> settings {"name", "exec", "file", "path", "flags", "device", "restartmins", "commands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterintervalmax"};
 	std::vector<string> results = getVarsFromFile(confFile, settings);
 	for (const auto& it : results) {
 		term.out<Debug>(it);
@@ -416,8 +417,7 @@ void Server::readSettings(const string confFile) {
 		setVar(settings[9], serverSettings.chatKickRegex);
 		setVar(settings[10], tempCounters);
 		setVar(settings[11], tempAutoUpdate);
-		setVari(settings[12], serverSettings.counterInterval);
-		setVari(settings[13], serverSettings.counterMax);
+		setVar(settings[12], tempCounterIntervalMax);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
 	//std::cout << "tempAutoUpdate = " << tempAutoUpdate << std::endl;
@@ -438,6 +438,18 @@ void Server::readSettings(const string confFile) {
 		term.out<Info>(text.info.NoMount);
 		hasMounted = true;
 	}
+	std::string tempCounterInterval;
+	std::string tempCounterMax;
+	std::istringstream ss2(tempCounterIntervalMax);
+	std::getline(ss2, tempCounterInterval, ' ');
+	std::getline(ss2, tempCounterMax, ' ');
+	try {
+		serverSettings.counterInterval = stol(tempCounterInterval);
+		serverSettings.counterMax = stol(tempCounterMax);
+	} catch(...) {
+		serverSettings.counterInterval = defaultCounterInterval;
+		serverSettings.counterMax = defaultCounterMax;
+	} 
 	term.out<Debug>(text.debug.ValidatingSettings);
 	auto remSlash = [&](auto& ...var) {
 		(removeSlashesFromEnd(var), ...);

@@ -54,8 +54,7 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 		outConf << "chatkickregex=" << std::endl;
 		outConf << "counters=high" << std::endl;
 		outConf << "autoupdate=" << std::endl;
-		outConf << "counterinterval=" << defaultCounterInterval << std::endl;
-		outConf << "countermax=" << defaultCounterMax << std::endl;
+		outConf << "counterintervalmax=" << defaultCounterInterval << ' ' << defaultCounterMax << std::endl;
 		outConf << text.fileServerConfComment << std::endl;
 		term.out<Info>(text.info.CreatedServerConfig1 + conf.fileLocation + text.info.CreatedServerConfig2);
 		outConf.close();
