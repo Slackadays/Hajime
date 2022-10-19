@@ -33,7 +33,7 @@ extern bool isUserPrivileged();
 extern void doHajimeTerminal();
 
 inline static std::vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
-inline static std::vector<std::jthread> threadVec = {}; //create an array of thread objects
+inline static std::vector<std::thread> threadVec = {}; //create an array of thread objects
 inline static std::string logFile = "";
 inline static std::string hajConfFile = "";
 inline static std::string version;

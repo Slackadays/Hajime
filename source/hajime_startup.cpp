@@ -167,7 +167,7 @@ void setupServers() {
 	}
 	for (const auto& serverIt : serverFiles) { //loop through all the server files found
 		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
-		threadVec.emplace_back(std::jthread(&Server::startServer, serverVec.back(), hajimePath + serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		threadVec.emplace_back(std::thread(&Server::startServer, serverVec.back(), hajimePath + serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 }
 
