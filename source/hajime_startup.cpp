@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <sstream>
+#include <signal.h>
 
 #include "hajime_startup.hpp"
 #include "output.hpp"

@@ -364,11 +364,11 @@ void Server::mountDrive() {
 				systemi++; //increment the filesystem
 			}
 		}
-	#endif
 	} catch (fs::filesystem_error& e) {
 		term.out<Error>((string)e.what());
 		return;
 	}
+	#endif
 }
 
 void Server::removeSlashesFromEnd(string& var) {
