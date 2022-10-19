@@ -59,15 +59,17 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADD_FLAGS}")
 
 add_executable(hajime
 main.cpp
-server.cpp
-server_features.cpp
-commands.cpp
-getvarsfromfile.cpp output.cpp
+flags.cpp
+getvarsfromfile.cpp 
+output.cpp
 installer.cpp
 deduce.cpp
 languages.cpp
 wizard.cpp
 constants.cpp
+server/server.cpp
+server/commands.cpp
+server/server_features.cpp
 performance_counters/other_metrics.cpp
 )
 

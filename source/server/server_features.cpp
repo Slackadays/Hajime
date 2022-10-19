@@ -14,7 +14,8 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-#include "httplib/httplib.h"
+#include "../httplib/httplib.h"
+
 #if defined(_WIN64) || defined(_WIN32)
 #include <Windows.h>
 #include <shellapi.h>
@@ -70,7 +71,7 @@
 
 namespace fs = std::filesystem;
 
-#include "getvarsfromfile.hpp"
+#include "../getvarsfromfile.hpp"
 #include "server.hpp"
 
 std::string Server::generateSecret() {

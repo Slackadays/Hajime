@@ -45,7 +45,7 @@
 //#include <format>
 #include <array>
 
-#include "../server.hpp"
+#include "../server/server.hpp"
 
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
@@ -652,7 +652,7 @@ void Server::processPerfStats() {
 		if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
 			resetAndEnableCounters(MyCounters);
 		}
-		updateCPUusage(cpuusagereadings);
+		updateCPUusage(counterData.cpuusagereadings);
 		updateRAMusage();
 		//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(serverSettings.counterInterval));
@@ -663,47 +663,47 @@ void Server::processPerfStats() {
 			disableCounters(MyCounters);
 			readCounters(MyCounters);
 			for (const auto& s : MyCounters) {
-				cpucyclereadings.back() += s->group_value[0][0];
-				cpuinstructionreadings.back() += s->group_value[0][1];
-				cachemissreadings.back() += s->group_value[1][0];
-				branchinstructionreadings.back() += s->group_value[2][0];
-				branchmissreadings.back() += s->group_value[2][1];
-				cachereferencereadings.back() += s->group_value[1][1];
-				stalledcyclesfrontendreadings.back() += s->group_value[0][2];
-				stalledcyclesbackendreadings.back() += s->group_value[0][3];
-				buscyclereadings.back() += s->group_value[2][2];
-				pagefaultreadings.back() += s->group_value[3][0];
-				contextswitchreadings.back() += s->group_value[4][0];
-				cpumigrationreadings.back() += s->group_value[4][1];
-				alignmentfaultreadings.back() += s->group_value[4][2];
-				emulationfaultreadings.back() += s->group_value[4][3];
-				minorpagefaultreadings.back() += s->group_value[3][1];
-				majorpagefaultreadings.back() += s->group_value[3][2];
-				l1dreadaccessreadings.back() += s->group_value[5][0];
-				l1dreadmissreadings.back() += s->group_value[5][1];
-				llreadaccessreadings.back() += s->group_value[6][0];
-				llreadmissreadings.back() += s->group_value[6][1];
-				dtlbreadaccessreadings.back() += s->group_value[7][0];
-				dtlbreadmissreadings.back() += s->group_value[7][1];
-				dtlbwriteaccessreadings.back() += s->group_value[8][0];
-				dtlbwritemissreadings.back() += s->group_value[8][1];
-				itlbreadaccessreadings.back() += s->group_value[9][0];
-				itlbreadmissreadings.back() += s->group_value[9][1];
-				bpureadaccessreadings.back() += s->group_value[10][0];
-				bpureadmissreadings.back() += s->group_value[10][1];
-				llwriteaccessreadings.back() += s->group_value[11][0];
-				llwritemissreadings.back() += s->group_value[11][1];
-				llprefetchmissreadings.back() += s->group_value[11][2];
-				dtlbprefetchaccessreadings.back() += s->group_value[12][0];
-				dtlbprefetchmissreadings.back() += s->group_value[12][1];
-				l1dprefetchaccessreadings.back() += s->group_value[13][0];
-				l1dprefetchmissreadings.back() += s->group_value[13][1];
-				l1dwriteaccessreadings.back() += s->group_value[14][0];
-				l1dwritemissreadings.back() += s->group_value[14][1];
-				l1ireadaccessreadings.back() += s->group_value[15][0];
-				l1ireadmissreadings.back() += s->group_value[15][1];
-				l1iprefetchaccessreadings.back() += s->group_value[16][0];
-				l1iprefetchmissreadings.back() += s->group_value[16][1];
+				counterData.cpucyclereadings.back() += s->group_value[0][0];
+				counterData.cpuinstructionreadings.back() += s->group_value[0][1];
+				counterData.cachemissreadings.back() += s->group_value[1][0];
+				counterData.branchinstructionreadings.back() += s->group_value[2][0];
+				counterData.branchmissreadings.back() += s->group_value[2][1];
+				counterData.cachereferencereadings.back() += s->group_value[1][1];
+				counterData.stalledcyclesfrontendreadings.back() += s->group_value[0][2];
+				counterData.stalledcyclesbackendreadings.back() += s->group_value[0][3];
+				counterData.buscyclereadings.back() += s->group_value[2][2];
+				counterData.pagefaultreadings.back() += s->group_value[3][0];
+				counterData.contextswitchreadings.back() += s->group_value[4][0];
+				counterData.cpumigrationreadings.back() += s->group_value[4][1];
+				counterData.alignmentfaultreadings.back() += s->group_value[4][2];
+				counterData.emulationfaultreadings.back() += s->group_value[4][3];
+				counterData.minorpagefaultreadings.back() += s->group_value[3][1];
+				counterData.majorpagefaultreadings.back() += s->group_value[3][2];
+				counterData.l1dreadaccessreadings.back() += s->group_value[5][0];
+				counterData.l1dreadmissreadings.back() += s->group_value[5][1];
+				counterData.llreadaccessreadings.back() += s->group_value[6][0];
+				counterData.llreadmissreadings.back() += s->group_value[6][1];
+				counterData.dtlbreadaccessreadings.back() += s->group_value[7][0];
+				counterData.dtlbreadmissreadings.back() += s->group_value[7][1];
+				counterData.dtlbwriteaccessreadings.back() += s->group_value[8][0];
+				counterData.dtlbwritemissreadings.back() += s->group_value[8][1];
+				counterData.itlbreadaccessreadings.back() += s->group_value[9][0];
+				counterData.itlbreadmissreadings.back() += s->group_value[9][1];
+				counterData.bpureadaccessreadings.back() += s->group_value[10][0];
+				counterData.bpureadmissreadings.back() += s->group_value[10][1];
+				counterData.llwriteaccessreadings.back() += s->group_value[11][0];
+				counterData.llwritemissreadings.back() += s->group_value[11][1];
+				counterData.llprefetchmissreadings.back() += s->group_value[11][2];
+				counterData.dtlbprefetchaccessreadings.back() += s->group_value[12][0];
+				counterData.dtlbprefetchmissreadings.back() += s->group_value[12][1];
+				counterData.l1dprefetchaccessreadings.back() += s->group_value[13][0];
+				counterData.l1dprefetchmissreadings.back() += s->group_value[13][1];
+				counterData.l1dwriteaccessreadings.back() += s->group_value[14][0];
+				counterData.l1dwritemissreadings.back() += s->group_value[14][1];
+				counterData.l1ireadaccessreadings.back() += s->group_value[15][0];
+				counterData.l1ireadmissreadings.back() += s->group_value[15][1];
+				counterData.l1iprefetchaccessreadings.back() += s->group_value[16][0];
+				counterData.l1iprefetchmissreadings.back() += s->group_value[16][1];
 			}
 			//std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
 			newPids = getProcessChildPids(pid);

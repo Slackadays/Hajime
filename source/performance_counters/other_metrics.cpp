@@ -53,7 +53,7 @@
 //#include <format>
 #include <array>
 
-#include "../server.hpp"
+#include "../server/server.hpp"
 
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
@@ -144,14 +144,14 @@ void Server::updateRAMusage() {
 		pidmeminfo.push_back(m.str());
 	}
 	try {
-		addReading(rambytereadings, stol(pidmeminfo.at(1)) * sysconf(_SC_PAGESIZE)); //calculate the bytes of RAM usage
+		addReading(counterData.rambytereadings, stol(pidmeminfo.at(1)) * sysconf(_SC_PAGESIZE)); //calculate the bytes of RAM usage
 	} catch(...) {
 		term.out<Error, Threadless>("Error adding RAM bytes");
 	}
 	struct sysinfo info;
 	sysinfo(&info);
 	try {
-		addReading(rampercentreadings, (100.0 * (double)stol(pidmeminfo.at(1)) * (double)sysconf(_SC_PAGESIZE)) / info.totalram);
+		addReading(counterData.rampercentreadings, (100.0 * (double)stol(pidmeminfo.at(1)) * (double)sysconf(_SC_PAGESIZE)) / info.totalram);
 	} catch(...) {
 		term.out<Error, Threadless>("Error adding RAM percent");
 	}
@@ -167,45 +167,45 @@ void Server::trimCounterData() {
 			list.pop_front();
 		}
 	};
-	bumpAndCull(cpucyclereadings);
-	bumpAndCull(cpuinstructionreadings);
-	bumpAndCull(cachemissreadings);
-	bumpAndCull(branchinstructionreadings);
-	bumpAndCull(branchmissreadings);
-	bumpAndCull(cachereferencereadings);
-	bumpAndCull(stalledcyclesfrontendreadings);
-	bumpAndCull(stalledcyclesbackendreadings);
-	bumpAndCull(buscyclereadings);
-	bumpAndCull(pagefaultreadings);
-	bumpAndCull(contextswitchreadings);
-	bumpAndCull(cpumigrationreadings);
-	bumpAndCull(alignmentfaultreadings);
-	bumpAndCull(emulationfaultreadings);
-	bumpAndCull(minorpagefaultreadings);
-	bumpAndCull(majorpagefaultreadings);
-	bumpAndCull(l1dreadaccessreadings);
-	bumpAndCull(l1dreadmissreadings);
-	bumpAndCull(l1dprefetchaccessreadings);
-	bumpAndCull(l1dprefetchmissreadings);
-	bumpAndCull(llreadaccessreadings);
-	bumpAndCull(llreadmissreadings);
-	bumpAndCull(llwriteaccessreadings);
-	bumpAndCull(llwritemissreadings);
-	bumpAndCull(llprefetchmissreadings);
-	bumpAndCull(dtlbreadaccessreadings);
-	bumpAndCull(dtlbreadmissreadings);
-	bumpAndCull(dtlbwriteaccessreadings);
-	bumpAndCull(dtlbwritemissreadings);
-	bumpAndCull(dtlbprefetchaccessreadings);
-	bumpAndCull(dtlbprefetchmissreadings);
-	bumpAndCull(itlbreadaccessreadings);
-	bumpAndCull(itlbreadmissreadings);
-	bumpAndCull(bpureadaccessreadings);
-	bumpAndCull(bpureadmissreadings);
-	bumpAndCull(l1dwriteaccessreadings);
-	bumpAndCull(l1dwritemissreadings);
-	bumpAndCull(l1ireadaccessreadings);
-	bumpAndCull(l1ireadmissreadings);
-	bumpAndCull(l1iprefetchaccessreadings);
-	bumpAndCull(l1iprefetchmissreadings);
+	bumpAndCull(counterData.cpucyclereadings);
+	bumpAndCull(counterData.cpuinstructionreadings);
+	bumpAndCull(counterData.cachemissreadings);
+	bumpAndCull(counterData.branchinstructionreadings);
+	bumpAndCull(counterData.branchmissreadings);
+	bumpAndCull(counterData.cachereferencereadings);
+	bumpAndCull(counterData.stalledcyclesfrontendreadings);
+	bumpAndCull(counterData.stalledcyclesbackendreadings);
+	bumpAndCull(counterData.buscyclereadings);
+	bumpAndCull(counterData.pagefaultreadings);
+	bumpAndCull(counterData.contextswitchreadings);
+	bumpAndCull(counterData.cpumigrationreadings);
+	bumpAndCull(counterData.alignmentfaultreadings);
+	bumpAndCull(counterData.emulationfaultreadings);
+	bumpAndCull(counterData.minorpagefaultreadings);
+	bumpAndCull(counterData.majorpagefaultreadings);
+	bumpAndCull(counterData.l1dreadaccessreadings);
+	bumpAndCull(counterData.l1dreadmissreadings);
+	bumpAndCull(counterData.l1dprefetchaccessreadings);
+	bumpAndCull(counterData.l1dprefetchmissreadings);
+	bumpAndCull(counterData.llreadaccessreadings);
+	bumpAndCull(counterData.llreadmissreadings);
+	bumpAndCull(counterData.llwriteaccessreadings);
+	bumpAndCull(counterData.llwritemissreadings);
+	bumpAndCull(counterData.llprefetchmissreadings);
+	bumpAndCull(counterData.dtlbreadaccessreadings);
+	bumpAndCull(counterData.dtlbreadmissreadings);
+	bumpAndCull(counterData.dtlbwriteaccessreadings);
+	bumpAndCull(counterData.dtlbwritemissreadings);
+	bumpAndCull(counterData.dtlbprefetchaccessreadings);
+	bumpAndCull(counterData.dtlbprefetchmissreadings);
+	bumpAndCull(counterData.itlbreadaccessreadings);
+	bumpAndCull(counterData.itlbreadmissreadings);
+	bumpAndCull(counterData.bpureadaccessreadings);
+	bumpAndCull(counterData.bpureadmissreadings);
+	bumpAndCull(counterData.l1dwriteaccessreadings);
+	bumpAndCull(counterData.l1dwritemissreadings);
+	bumpAndCull(counterData.l1ireadaccessreadings);
+	bumpAndCull(counterData.l1ireadmissreadings);
+	bumpAndCull(counterData.l1iprefetchaccessreadings);
+	bumpAndCull(counterData.l1iprefetchmissreadings);
 }

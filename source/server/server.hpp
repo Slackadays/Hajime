@@ -49,9 +49,9 @@
 #include <omp.h>
 #endif
 
-#include "getvarsfromfile.hpp"
-#include "output.hpp"
-#include "languages.hpp"
+#include "../getvarsfromfile.hpp"
+#include "../output.hpp"
+#include "../languages.hpp"
 
 class Server {
 	template<typename T>
@@ -85,8 +85,6 @@ class Server {
 	bool usesHajimeHelper = false;
 
 	int systemi = 0;
-
-	std::error_code ec;
 
 	const std::string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
@@ -218,53 +216,56 @@ class Server {
 
 	std::mutex perfMutex;
 
-	std::deque<long long> cpuusagereadings{0};
-	std::deque<double> rampercentreadings{0.0};
-	std::deque<long long> rambytereadings{0};
+	struct CounterData {
+		std::deque<long long> cpuusagereadings{0};
+		std::deque<double> rampercentreadings{0.0};
+		std::deque<long long> rambytereadings{0};
 
-	std::deque<long long> cpucyclereadings{0};
-	std::deque<long long> cpuinstructionreadings{0};
-	std::deque<long long> cachemissreadings{0};
-	std::deque<long long> branchinstructionreadings{0};
-	std::deque<long long> branchmissreadings{0};
-	std::deque<long long> cachereferencereadings{0};
-	std::deque<long long> stalledcyclesfrontendreadings{0};
-	std::deque<long long> stalledcyclesbackendreadings{0};
-	std::deque<long long> buscyclereadings{0};
+		std::deque<long long> cpucyclereadings{0};
+		std::deque<long long> cpuinstructionreadings{0};
+		std::deque<long long> cachemissreadings{0};
+		std::deque<long long> branchinstructionreadings{0};
+		std::deque<long long> branchmissreadings{0};
+		std::deque<long long> cachereferencereadings{0};
+		std::deque<long long> stalledcyclesfrontendreadings{0};
+		std::deque<long long> stalledcyclesbackendreadings{0};
+		std::deque<long long> buscyclereadings{0};
 
-	std::deque<long long> pagefaultreadings{0};
-	std::deque<long long> contextswitchreadings{0};
-	std::deque<long long> cpumigrationreadings{0};
-	std::deque<long long> alignmentfaultreadings{0};
-	std::deque<long long> emulationfaultreadings{0};
-	std::deque<long long> minorpagefaultreadings{0};
-	std::deque<long long> majorpagefaultreadings{0};
+		std::deque<long long> pagefaultreadings{0};
+		std::deque<long long> contextswitchreadings{0};
+		std::deque<long long> cpumigrationreadings{0};
+		std::deque<long long> alignmentfaultreadings{0};
+		std::deque<long long> emulationfaultreadings{0};
+		std::deque<long long> minorpagefaultreadings{0};
+		std::deque<long long> majorpagefaultreadings{0};
 
-	std::deque<long long> l1dreadaccessreadings{0};
-	std::deque<long long> l1dreadmissreadings{0};
-	std::deque<long long> l1dprefetchaccessreadings{0};
-	std::deque<long long> l1dprefetchmissreadings{0};
-	std::deque<long long> llreadaccessreadings{0};
-	std::deque<long long> llreadmissreadings{0};
-	std::deque<long long> dtlbreadaccessreadings{0};
-	std::deque<long long> dtlbreadmissreadings{0};
-	std::deque<long long> dtlbwriteaccessreadings{0};
-	std::deque<long long> dtlbwritemissreadings{0};
-	std::deque<long long> dtlbprefetchaccessreadings{0};
-	std::deque<long long> dtlbprefetchmissreadings{0};
-	std::deque<long long> itlbreadaccessreadings{0};
-	std::deque<long long> itlbreadmissreadings{0};
-	std::deque<long long> bpureadaccessreadings{0};
-	std::deque<long long> bpureadmissreadings{0};
-	std::deque<long long> llwriteaccessreadings{0};
-	std::deque<long long> llwritemissreadings{0};
-	std::deque<long long> llprefetchmissreadings{0};
-	std::deque<long long> l1dwriteaccessreadings{0};
-	std::deque<long long> l1dwritemissreadings{0};
-	std::deque<long long> l1ireadaccessreadings{0};
-	std::deque<long long> l1ireadmissreadings{0};
-	std::deque<long long> l1iprefetchaccessreadings{0};
-	std::deque<long long> l1iprefetchmissreadings{0};
+		std::deque<long long> l1dreadaccessreadings{0};
+		std::deque<long long> l1dreadmissreadings{0};
+		std::deque<long long> l1dprefetchaccessreadings{0};
+		std::deque<long long> l1dprefetchmissreadings{0};
+		std::deque<long long> llreadaccessreadings{0};
+		std::deque<long long> llreadmissreadings{0};
+		std::deque<long long> dtlbreadaccessreadings{0};
+		std::deque<long long> dtlbreadmissreadings{0};
+		std::deque<long long> dtlbwriteaccessreadings{0};
+		std::deque<long long> dtlbwritemissreadings{0};
+		std::deque<long long> dtlbprefetchaccessreadings{0};
+		std::deque<long long> dtlbprefetchmissreadings{0};
+		std::deque<long long> itlbreadaccessreadings{0};
+		std::deque<long long> itlbreadmissreadings{0};
+		std::deque<long long> bpureadaccessreadings{0};
+		std::deque<long long> bpureadmissreadings{0};
+		std::deque<long long> llwriteaccessreadings{0};
+		std::deque<long long> llwritemissreadings{0};
+		std::deque<long long> llprefetchmissreadings{0};
+		std::deque<long long> l1dwriteaccessreadings{0};
+		std::deque<long long> l1dwritemissreadings{0};
+		std::deque<long long> l1ireadaccessreadings{0};
+		std::deque<long long> l1ireadmissreadings{0};
+		std::deque<long long> l1iprefetchaccessreadings{0};
+		std::deque<long long> l1iprefetchmissreadings{0};
+	};
+	CounterData counterData;
 
 	long long CPUjiffies, PIDjiffies;
 

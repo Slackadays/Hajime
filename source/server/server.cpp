@@ -54,9 +54,9 @@
 	#define jthread thread
 #endif
 
-#include "getvarsfromfile.hpp"
+#include "../getvarsfromfile.hpp"
 #include "server.hpp"
-#include "output.hpp"
+#include "../output.hpp"
 
 using namespace std::chrono;
 
@@ -66,7 +66,7 @@ namespace ch = std::chrono;
 void Server::startServer(string confFile) {
 	term.hajimeTerminal = false;
 	try {
-		if (fs::is_regular_file(confFile, ec)) {
+		if (fs::is_regular_file(confFile)) {
 			term.out<Info>(text.info.ReadingServerSettings);
 			readSettings(confFile);
 		} else {
@@ -103,10 +103,10 @@ void Server::startServer(string confFile) {
 				term.out<Info>(text.info.ServerStartCompleted);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(2));
-			if (!fs::is_directory(serverSettings.path, ec) && !fs::is_directory(fs::current_path().string() + '/' + serverSettings.path, ec) && !fs::is_directory(fs::current_path().string() + '\\' + serverSettings.path, ec)) { //if the desired path doesn't exist, make it
+			if (!fs::is_directory(serverSettings.path) && !fs::is_directory(fs::current_path().string() + '/' + serverSettings.path) && !fs::is_directory(fs::current_path().string() + '\\' + serverSettings.path)) { //if the desired path doesn't exist, make it
 				makeDir();
 			}
-			fs::current_path(serverSettings.path, ec);
+			fs::current_path(serverSettings.path);
 			if (!hasMounted) {
 				mountDrive();
 			}
@@ -151,28 +151,16 @@ void Server::startServer(string confFile) {
 
 std::vector<std::string> Server::toArray(std::string input) {
 	std::vector<string> flagVector;
-	std::vector<string> addToEndVector;
-	string temp = "";
-	string execFile;
-	execFile = serverSettings.path + '/' + serverSettings.exec;
+	string execFile = serverSettings.path + '/' + serverSettings.exec;
 	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
-	for (int i = 0; i < input.length(); temp = "") {
-		while (i < input.length() && input[i] == ' ') { //skip any leading whitespace
-			i++;
-		}
-		while (i < input.length() && input[i] != ' ') { //add characters to a temp variable that will go into the vector
-			temp += input[i];
-			i++;
-		}
-		while (i < input.length() && input[i] == ' ') { //skip any trailing whitespace
-			i++;
-		}
-		flagVector.push_back(temp); //add the finished flag to the vector of flags
-		term.out<Debug>(text.debug.flag.VecInFor + flagVector[0]);
+	std::istringstream iss(input);
+	std::string temp;
+	while (std::getline(iss, temp, ' ')) {
+		flagVector.emplace_back(temp);
+		term.out<Debug>(text.debug.flag.VecInFor + flagVector.back());
 	}
 	flagVector.push_back(serverSettings.file.c_str()); //add the file that we want to execute by exec to the end
 	flagVector.push_back("nogui");
-	term.out<Debug>(text.debug.flag.VecOutFor + flagVector[0]);
 	return flagVector;
 }
 
@@ -293,7 +281,7 @@ void Server::startProgram() {
 
 void Server::makeDir() {
 	term.out<Info>(text.info.CreatingDirectory);
-	if (!fs::create_directory(serverSettings.path, ec)) {
+	if (!fs::create_directory(serverSettings.path)) {
 		term.out<Error>(text.error.CreatingDirectory);
 	}
 }
@@ -304,78 +292,83 @@ void Server::mountDrive() {
 	hasMounted = true;
 	#else
 	term.out<Info>(text.info.TryingMount);
-	if (!fs::is_empty(serverSettings.path, ec)) { //if there are files, then we don't want to mount there
-		term.out<Error>(text.error.FilesInPath);
-		return;
-	} else {
-		string error;
-		#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
-		//BSDs have different mount() parameters
-		if (!mount(systems[systemi].c_str(), serverSettings.path.c_str(), 0, const_cast<char*>(serverSettings.device.c_str()))) { //cast a c-style device string to a constant char*
-		#else
-		if (!mount(serverSettings.device.c_str(), serverSettings.path.c_str(), systems[systemi].c_str(), 0, "")) {
-		//brute-forces every possible filesystem because mount() depends on it being the right one
-		#endif
-			term.out<Info>(text.info.DeviceMounted);
-			hasMounted = true;
-			systemi = 0; //reset in case it needs to mount again
+	try {
+		if (!fs::is_empty(serverSettings.path)) { //if there are files, then we don't want to mount there
+			term.out<Error>(text.error.FilesInPath);
+			return;
 		} else {
-			int errsv = errno; //errno is the POSIX error code, save errno to a dummy variable to stop it from getting tainted
-			if (systemi == 6) {
-				switch (errsv) {
-					case 1:
-						error = text.eno.NotPermitted;
-						break;
-					case 2:
-						error = text.eno.NoFileOrDir;
-						break;
-					case 13:
-						error = text.eno.PermissionDenied;
-						break;
-					case 5:
-						error = text.eno.InOut;
-						break;
-					case 12:
-						error = text.eno.Memory;
-						break;
-					case 11:
-						error = text.eno.Unavailable;
-						break;
-					case 14:
-						error = text.eno.Address;
-						break;
-					case 15:
-						error = text.eno.BlockDev;
-						break;
-					case 16:
-						error = text.eno.Busy;
-						break;
-					case 21:
-						error = text.eno.Directory;
-						break;
-					case 22:
-						error = text.eno.BadArgs;
-						break;
-					case 19:
-						error = text.eno.UnknownDev;
-						break;
-					default:
-						error = text.eno.UnknownGeneric;
+			string error;
+			#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
+			//BSDs have different mount() parameters
+			if (!mount(systems[systemi].c_str(), serverSettings.path.c_str(), 0, const_cast<char*>(serverSettings.device.c_str()))) { //cast a c-style device string to a constant char*
+			#else
+			if (!mount(serverSettings.device.c_str(), serverSettings.path.c_str(), systems[systemi].c_str(), 0, "")) {
+			//brute-forces every possible filesystem because mount() depends on it being the right one
+			#endif
+				term.out<Info>(text.info.DeviceMounted);
+				hasMounted = true;
+			systemi = 0; //reset in case it needs to mount again
+			} else {
+				int errsv = errno; //errno is the POSIX error code, save errno to a dummy variable to stop it from getting tainted
+				if (systemi == 6) {
+					switch (errsv) {
+						case 1:
+							error = text.eno.NotPermitted;
+							break;
+						case 2:
+							error = text.eno.NoFileOrDir;
+							break;
+						case 13:
+							error = text.eno.PermissionDenied;
+							break;
+						case 5:
+							error = text.eno.InOut;
+							break;
+						case 12:
+							error = text.eno.Memory;
+							break;
+						case 11:
+							error = text.eno.Unavailable;
+							break;
+						case 14:
+							error = text.eno.Address;
+							break;
+						case 15:
+							error = text.eno.BlockDev;
+							break;
+						case 16:
+							error = text.eno.Busy;
+							break;
+						case 21:
+							error = text.eno.Directory;
+							break;
+						case 22:
+							error = text.eno.BadArgs;
+							break;
+						case 19:
+							error = text.eno.UnknownDev;
+							break;
+						default:
+							error = text.eno.UnknownGeneric;
+					}
+					if (!hasOutputUSB) {
+						term.out<Error>(text.error.Mount + error);
+						hasOutputUSB = true;
+						systemi = 0;
+					}
+					term.out<Error>(text.error.Code + std::to_string(errsv));
 				}
-				if (!hasOutputUSB) {
-					term.out<Error>(text.error.Mount + error);
-					hasOutputUSB = true;
-					systemi = 0;
-				}
-				term.out<Error>(text.error.Code + std::to_string(errsv));
+			}
+			if (systemi < 6) {
+				term.out<Info>(text.info.TryingFilesystem1 + systems[systemi] + text.info.TryingFilesystem2);
+				systemi++; //increment the filesystem
 			}
 		}
-		if (systemi < 6) {
-			term.out<Info>(text.info.TryingFilesystem1 + systems[systemi] + text.info.TryingFilesystem2);
-			systemi++; //increment the filesystem
-		}
-	}
 	#endif
+	} catch (fs::filesystem_error& e) {
+		term.out<Error>((string)e.what());
+		return;
+	}
 }
 
 void Server::removeSlashesFromEnd(string& var) {
