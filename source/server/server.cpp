@@ -234,37 +234,26 @@ void Server::startProgram() {
 		if (pid == 0) { //this is the child
 			term.out<Debug>("fork() = 0");
 			close(fd);
-			struct termios old_sets; //something to save the old settings to
-			struct termios new_sets;
-			tcgetattr(slave_fd, &old_sets); //save current temrinal settings to old_sets
-			new_sets = old_sets;
-			cfmakeraw (&new_sets); //set terminal to raw mode (disable character preprocessing)
-			tcsetattr (slave_fd, TCSANOW, &new_sets); //assign the new settings to the terminal
-			close(0); //get rid of the old cin
-			close(1); //get rid of the old cout
-			close(2); //get rid of the old cerr
+			//close(0); //get rid of the old cin
+			//close(1); //get rid of the old cout
+			//close(2); //get rid of the old cerr
 			dup2(slave_fd, 0); //assign the slave fd to cin
 			dup2(slave_fd, 1); //ditto, cout
 			dup2(slave_fd, 2); //ditto, cerr
 			close(slave_fd); //close out the fd we used just for assigning to new fds
 			setsid(); //create a new session without a terminal
 			ioctl(slave_fd, TIOCSCTTY, 0); //assign the terminal of to the current program
-			//ioctl(0, TIOCSCTTY, 0); etc
+			struct termios old_sets; //something to save the old settings to
+			struct termios new_sets;
+			tcgetattr(slave_fd, &old_sets); //save current temrinal settings to old_sets
+			new_sets = old_sets;
+			cfmakeraw(&new_sets);
+			tcsetattr(slave_fd, TCSANOW, &new_sets); //assign the new settings to the terminal
 			execvp(serverSettings.exec.c_str(), flagArray.data());
-			//execlp("bc", "/bc", NULL); //use this for testing
 			exit(0);
 		} else { //this is the parent
 			term.out<Debug>("fork() != 0");
-			if (!startedRfdThread) {
-				std::jthread rfd(&Server::processServerTerminal, this);
-				rfd.detach();
-				startedRfdThread = true;
-			}
-			if (!startedPerfThread) {
-				std::jthread perfThread(&Server::processPerfStats, this);
-				perfThread.detach();
-				startedPerfThread = true;
-			}
+			startBackgroundThreads();
 			close(slave_fd);
 			std::this_thread::sleep_for(std::chrono::seconds(4));
 			std::fstream cmdl;
@@ -276,6 +265,19 @@ void Server::startProgram() {
 		}
 		#endif
 		hasMounted = true;
+	}
+}
+
+void Server::startBackgroundThreads() {
+	if (!startedRfdThread) {
+		std::jthread rfd(&Server::processServerTerminal, this);
+		rfd.detach();
+		startedRfdThread = true;
+	}
+	if (!startedPerfThread) {
+		std::jthread perfThread(&Server::processPerfStats, this);
+		perfThread.detach();
+		startedPerfThread = true;
 	}
 }
 

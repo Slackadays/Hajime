@@ -188,6 +188,7 @@ class Server {
 	void readSettings(std::string confFile);
 	void removeSlashesFromEnd(std::string& var);
 	void processServerTerminal();
+	void startBackgroundThreads();
 
 	int getPID();
 
