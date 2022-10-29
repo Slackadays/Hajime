@@ -147,8 +147,6 @@ else()
   endif()
   if(CURSES_FOUND)
     target_link_libraries(hajime ${CURSES_LIBRARIES})
-  else()
-    target_link_libraries(hajime ncurses)
   endif()
 endif()
 
