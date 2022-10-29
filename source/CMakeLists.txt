@@ -18,8 +18,10 @@ if(NOT ZLIB_FOUND)
    endif()
 endif()
 
-set(CURSES_NEED_WIDE TRUE)
-find_package(Curses)
+if(NOT WIN32)
+  set(CURSES_NEED_WIDE TRUE)
+  find_package(Curses)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
