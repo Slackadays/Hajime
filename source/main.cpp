@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <regex>
 #include <chrono>
+//include ncurses
+#include <ncurses.h>
 
 #include "hajime_startup.hpp"
 #include "constants.hpp"
@@ -48,6 +50,7 @@
 namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
+	initscr();
 	//auto then = std::chrono::high_resolution_clock::now();
 	setupSignals();
 	#if defined(_WIN64) || defined (_WIN32)

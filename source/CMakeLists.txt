@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(Hajime LANGUAGES CXX)
 
-project(Hajime VERSION 0.2.0)
+project(Hajime VERSION 0.2.1)
 
 find_package(ZLIB)
 
@@ -14,8 +14,12 @@ if(NOT ZLIB_FOUND)
   if(NOT WIN32)
     set_target_properties(example64 PROPERTIES EXCLUDE_FROM_ALL 1)
     set_target_properties(minigzip64 PROPERTIES EXCLUDE_FROM_ALL 1)
+    
    endif()
 endif()
+
+set(CURSES_NEED_WIDE TRUE)
+find_package(Curses)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -127,7 +131,10 @@ if(UNIX AND NOT APPLE)
   if(ZLIB_FOUND)
     target_link_libraries(hajime ZLIB::ZLIB)
   else()
-    set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${CMAKE_BINARY_DIR}/zlib/libz.a ${ADD_FLAGS}") #statically link zlib; this is the simplest way to do it
+    set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${CMAKE_BINARY_DIR}/zlib/libz.a") #statically link zlib; this is the simplest way to do it
+  endif()
+  if(CURSES_FOUND)
+    target_link_libraries(hajime ${CURSES_LIBRARIES})
   endif()
 else()
   if(ZLIB_FOUND)
@@ -135,7 +142,11 @@ else()
   else()
     target_link_libraries(hajime zlib)
   endif()
-  set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
+  if(CURSES_FOUND)
+    target_link_libraries(hajime ${CURSES_LIBRARIES})
+  else()
+    target_link_libraries(hajime ncurses)
+  endif()
 endif()
 
-
+set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
