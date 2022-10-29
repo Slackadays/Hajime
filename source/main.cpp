@@ -35,7 +35,9 @@
 #include <regex>
 #include <chrono>
 //include ncurses
+#if !defined(_WIN64) && !defined(_WIN32)
 #include <ncurses.h>
+#endif
 
 #include "hajime_startup.hpp"
 #include "constants.hpp"

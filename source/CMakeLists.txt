@@ -20,6 +20,7 @@ endif()
 
 if(NOT WIN32)
   set(CURSES_NEED_WIDE TRUE)
+  set(CURSES_NEED_THREAD TRUE)
   find_package(Curses)
 endif()
 
