@@ -50,7 +50,9 @@
 namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
+	#if !defined(_WIN64) && !defined(_WIN32) //Windows compatibility
 	initscr();
+	#endif
 	//auto then = std::chrono::high_resolution_clock::now();
 	setupSignals();
 	#if defined(_WIN64) || defined (_WIN32)
