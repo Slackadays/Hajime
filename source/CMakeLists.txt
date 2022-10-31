@@ -148,9 +148,7 @@ elseif(NOT APPLE)
 endif()
 
 if(CURSES_FOUND AND APPLE)
-    target_link_libraries(hajime ${CURSES_LIBRARIES})
-  else()
-    target_link_libraries(hajime ncurses)
-  endif()
+  target_link_libraries(hajime ncurses)
+endif()
 
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
