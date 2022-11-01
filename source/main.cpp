@@ -53,7 +53,7 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
 	#if !defined(_WIN64) && !defined(_WIN32) //Windows compatibility
-	initscr();
+	//initscr();
 	#endif
 	//auto then = std::chrono::high_resolution_clock::now();
 	setupSignals();
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 	term.out<Info>("Starting Hajime");
 	// check for a subdirectory called "Hajime" and if it does not exist, create it
 	if (!fs::is_directory(hajimePath)) {
-		term.out<Info>("Creating Hajime directory");
+		term.out<Info>(text.info.MakingHajimeDirectory + hajimePath);
 		try {
 			fs::create_directory(hajimePath);
 		} catch (fs::filesystem_error& e) {
@@ -86,11 +86,12 @@ int main(int argc, char *argv[]) {
 		setupFirstTime();
 	}
 	if (!bypassPriviligeCheck && isUserPrivileged()) {
-		term.out<Error>("You cannot run Hajime as a priviliged user");
+		term.out<Error>(text.error.PrivilegedUser);
 		return 1;
 	}
+
 	#if !defined(_WIN64) && !defined(_WIN32)
-	setupRLimits();
+	setupRLimits(); //increase available file descriptors
 	#endif
 
 	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;

@@ -171,7 +171,6 @@ info.AbortedLaunchServ = "Instalação do serviço de inicialização abortado";
 info.MakingSystemdServ = "Criando o serviço systemd em ";
 info.EnterNewNameForServer1 = "Digite um novo nome para o próximo arquivo de servidor (o anterior foi ";
 info.EnterNewNameForServer2 = "): ";
-info.EnterCommand = "Digite um comando...";
 debug.HajDefConfNoExist1 = "Tentei ler as configurações de ";
 debug.HajDefConfNoExist2 = " mas elas não existem";
 debug.ReadingReadsettings = "Configurações de leitura em readSettings()";

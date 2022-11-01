@@ -4,6 +4,12 @@ project(Hajime LANGUAGES CXX)
 
 project(Hajime VERSION 0.2.1)
 
+find_package(Boost)
+
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 find_package(ZLIB)
 
 if(NOT ZLIB_FOUND)
@@ -148,6 +154,10 @@ else()
   if(APPLE)
     target_link_libraries(hajime ncurses)
   endif()
+endif()
+
+if(Boost_FOUND)
+  target_link_libraries(hajime ${Boost_LIBRARIES})
 endif()
 
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")

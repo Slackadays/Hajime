@@ -73,7 +73,8 @@
         "cinttypes": "cpp",
         "any": "cpp",
         "variant": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "typeindex": "cpp"
     },
     "cmake.configureOnOpen": true
 }

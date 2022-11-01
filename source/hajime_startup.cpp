@@ -28,6 +28,12 @@
 #include <sstream>
 #include <signal.h>
 
+#include <boost/algorithm/string.hpp>
+
+#if !defined(_WIN64) && !defined(_WIN32)
+#include <ncurses.h>
+#endif
+
 #include "hajime_startup.hpp"
 #include "output.hpp"
 #include "deduce.hpp"
@@ -39,6 +45,9 @@
 void setupSignals() {
 	atexit([]{
 		term.dividerLine("Exiting", true);
+		#if !defined(_WIN64) && !defined(_WIN32)
+		endwin();
+		#endif
 		#if defined(__APPLE__)
 		exit(0);
 		#else
@@ -48,22 +57,37 @@ void setupSignals() {
 	signal(SIGINT, hajimeUserExit);
 	signal(SIGSEGV, [](int sig){
 		std::cout << "Segmentation fault; exiting Hajime" << std::endl;
-		exit(0);
+		#if !defined(_WIN64) && !defined(_WIN32)
+		endwin();
+		#endif
+		exit(1);
 	});
 	signal(SIGABRT, [](int sig){
 		std::cout << "Hajime ending execution abnormally; exiting Hajime" << std::endl;
-		exit(0);
+		#if !defined(_WIN64) && !defined(_WIN32)
+		endwin();
+		#endif
+		exit(1);
 	});
 	signal(SIGILL, [](int sig){
 		std::cout << "Illegal instruction; try recompiling Hajime" << std::endl;
-		exit(0);
+		#if !defined(_WIN64) && !defined(_WIN32)
+		endwin();
+		#endif
+		exit(1);
 	});
 	signal(SIGFPE, [](int sig){
 		std::cout << "Illegal math operation; exiting Hajime" << std::endl;
-		exit(0);
+		#if !defined(_WIN64) && !defined(_WIN32)
+		endwin();
+		#endif
+		exit(1);
 	});
 	signal(SIGTERM, [](int sig){
 		std::cout << "Termination requested; exiting Hajime" << std::endl;
+		#if !defined(_WIN64) && !defined(_WIN32)
+		endwin();
+		#endif
 		exit(0);
 	});
 }
@@ -193,15 +217,13 @@ void setupFirstTime() {
 }
 
 void processHajimeCommand(std::vector<std::string> input) {
-	if (input[0] == "term" || input[0] == "t") {
+	if (input.at(0) == "term" || input.at(0) == "t") {
 		if (input.size() >= 2) {
 			try {
 				if (stoi(input[1]) > serverVec.size() || stoi(input[1]) < 1) {
 					term.out<Error>(text.error.InvalidServerNumber);
 				} else {
-					term.hajimeTerminal = false;
 					serverVec.at(stoi(input[1]) - 1)->terminalAccessWrapper();
-					term.hajimeTerminal = true;
 				}
 			} catch (...) {
 				bool attachSuccess = false;
@@ -241,14 +263,15 @@ bool isUserPrivileged() {
 
 void doHajimeTerminal() {
 	term.hajimeTerminal = true;
+	std::string command;
 	while(true) {
-		std::string command = "";
 		std::getline(std::cin, command);
+		boost::trim(command); //remove leading and trailing whitespace
 		std::cout << "\033[0m" << std::flush;
 		if (command != "") {
 			processHajimeCommand(splitToVec(command));
 		} else {
-			term.out<Error>("Command must not be empty");
+			std::cout << std::endl;
 		}
 	}
 }

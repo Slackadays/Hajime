@@ -164,7 +164,6 @@ info.InstalledLaunchServ = "Instaló un servicio para launchd";
 info.AbortedLaunchServ = "Terminó la instalación del servicio para launchd";
 info.MakingSystemdServ = "Está haciendo un servicio de systemd en ";
 info.EnterNewNameForServer1 = "Elige un nuevo nombre para el próximo arhcivo del servidor (el anterior fue ";
-info.EnterCommand = "Pon un comando...";
 debug.HajDefConfNoExist1 = "Intentó leer las configuraciones de ";
 debug.HajDefConfNoExist2 = " pero el archivo no existe";
 debug.ReadingReadsettings = "Está leyendo las configuraciones en readSettings()";

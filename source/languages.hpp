@@ -87,6 +87,7 @@ class Text {
 			string InvalidHajCommand1;
 			string InvalidServerCommand1;
 			string CreatingPipe;
+			string PrivilegedUser;
 		};
 		Error error;
 		struct Warning {
@@ -189,7 +190,7 @@ class Text {
 			string MakingSystemdServ;
 			string EnterNewNameForServer1;
 			string EnterNewNameForServer2;
-			string EnterCommand;
+			string MakingHajimeDirectory;
 			struct Wizard {
 				string HajimeFile;
 				string ServerFile;

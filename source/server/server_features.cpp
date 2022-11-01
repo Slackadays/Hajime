@@ -395,7 +395,8 @@ void Server::processAutoRestart() {
 }
 
 void Server::terminalAccessWrapper() {
-	term.dividerLine(serverSettings.name);
+	term.dividerLine(serverSettings.name + " terminal");
+	term.hajimeTerminal = false;
 	term.normalDisabled = true;
 	serverAttributes.wantsLiveOutput = true;
 	for (const auto& it : lines) {
@@ -416,5 +417,6 @@ void Server::terminalAccessWrapper() {
 		}
 	}
 	term.normalDisabled = false;
-	term.dividerLine("Hajime");
+	term.hajimeTerminal = true;
+	term.dividerLine("Back to Hajime");
 }

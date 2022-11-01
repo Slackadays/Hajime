@@ -234,9 +234,6 @@ void Server::startProgram() {
 		if (pid == 0) { //this is the child
 			term.out<Debug>("fork() = 0");
 			close(fd);
-			//close(0); //get rid of the old cin
-			//close(1); //get rid of the old cout
-			//close(2); //get rid of the old cerr
 			dup2(slave_fd, 0); //assign the slave fd to cin
 			dup2(slave_fd, 1); //ditto, cout
 			dup2(slave_fd, 2); //ditto, cerr
