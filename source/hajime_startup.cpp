@@ -271,7 +271,7 @@ void doHajimeTerminal() {
 		if (command != "") {
 			processHajimeCommand(splitToVec(command));
 		} else {
-			std::cout << std::endl;
+			
 		}
 	}
 }
