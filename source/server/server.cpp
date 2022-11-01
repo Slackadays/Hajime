@@ -95,10 +95,10 @@ void Server::startServer(string confFile) {
 			#if !defined(_WIN64) && !defined(_WIN32)
 			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 			#endif
-			if (((fs::current_path() == serverSettings.path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(/|\\\\)" + serverSettings.path + "$)", std::regex_constants::optimize), ""))) && !isRunning) { //checks if we're in the right place and if the server file is there
+			if (((fs::current_path() == serverSettings.path) || (fs::current_path().string() == std::regex_replace(fs::current_path().string(), std::regex("^(.*)(?=(/|\\\\)" + serverSettings.path + "$)", std::regex_constants::optimize), ""))) && !serverAttributes.isRunning) { //checks if we're in the right place and if the server file is there
 				term.out<Info>(text.info.StartingServer);
-				usesHajimeHelper = false;
-				secret = generateSecret();
+				serverAttributes.usesHajimeHelper = false;
+				serverAttributes.secret = generateSecret();
 				startProgram();
 				term.out<Info>(text.info.ServerStartCompleted);
 			}
@@ -107,7 +107,7 @@ void Server::startServer(string confFile) {
 				makeDir();
 			}
 			fs::current_path(serverSettings.path);
-			if (!hasMounted) {
+			if (!serverAttributes.hasMounted) {
 				mountDrive();
 			}
 			#if defined(_WIN64) || defined(_WIN32)
@@ -118,13 +118,13 @@ void Server::startServer(string confFile) {
 			if (getPID() != 0) { //getPID looks for a particular keyword in /proc/PID/cmdline that signals the presence of a server
 			#endif
 				std::this_thread::sleep_for(std::chrono::seconds(3));
-				if (!isRunning) {
+				if (!serverAttributes.isRunning) {
 					term.out<Info>(text.info.ServerIsRunning);
-					isRunning = true;
-					hasMounted = true;
+					serverAttributes.isRunning = true;
+					serverAttributes.hasMounted = true;
 				}
 			} else {
-				isRunning = false;
+				serverAttributes.isRunning = false;
 				term.out<Warning>(text.warning.IsRunningFalse);
 				#if defined(_WIN64) || defined(_WIN32)
 				// close handles
@@ -174,11 +174,11 @@ auto Server::toPointerArray(std::vector<std::string>& strings) {
 }
 
 void Server::startProgram() {
-	uptime = 0;
-	said15MinRestart = false;
-	said5MinRestart = false;
-	timeStart = std::chrono::steady_clock::now();
-	if (!isRunning) {
+	serverAttributes.uptime = 0;
+	serverAttributes.said15MinRestart = false;
+	serverAttributes.said5MinRestart = false;
+	serverAttributes.timeStart = std::chrono::steady_clock::now();
+	if (!serverAttributes.isRunning) {
 		term.out<Info>(text.info.TryingToStartProgram);
 		fs::current_path(serverSettings.path);
 		fs::remove("world/session.lock"); //session.lock will be there if the server didn't shut down properly
@@ -205,15 +205,15 @@ void Server::startProgram() {
 		strncpy_s(tempflags, serverSettings.flags.size() + 1, serverSettings.flags.c_str(), serverSettings.flags.size() + 1); //save flags.c_str() to tempflags so that CreateProcessA can modify the variable
 		CreateProcessA(NULL, tempflags, NULL, NULL, TRUE, CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi); // create process with new console
 		delete[] tempflags; //we don't need tempflags any more, so free memory and prevent a memory leak (maybe :)
-		if (!startedRfdThread) {
+		if (!serverAttributes.startedRfdThread) {
 			std::jthread rfd(&Server::processServerTerminal, this);
 			rfd.detach();
-			startedRfdThread = true;
+			serverAttributes.startedRfdThread = true;
 		}
-		if (!startedPerfThread) {
+		if (!serverAttributes.startedPerfThread) {
 			std::jthread perfThread(&Server::processPerfStats, this);
 			perfThread.detach();
-			startedPerfThread = true;
+			serverAttributes.startedPerfThread = true;
 		}
 		#else
 		term.out<Debug>(text.debug.Flags + serverSettings.flags);
@@ -221,7 +221,7 @@ void Server::startProgram() {
 		auto flagArray = toPointerArray(flagTemp);
 		term.out<Debug>(text.debug.flag.Array0 + (string)flagArray[0]);
 		term.out<Debug>(text.debug.flag.Array1 + (string)flagArray[1]);
-		wantsLiveOutput = false;
+		serverAttributes.wantsLiveOutput = false;
 		fd = posix_openpt(O_RDWR);
 		if (fd == -1) {
 			term.out<Error>("Could not open pseudoterminal device; bailing out");
@@ -264,20 +264,20 @@ void Server::startProgram() {
 			cmdl.close();
 		}
 		#endif
-		hasMounted = true;
+		serverAttributes.hasMounted = true;
 	}
 }
 
 void Server::startBackgroundThreads() {
-	if (!startedRfdThread) {
+	if (!serverAttributes.startedRfdThread) {
 		std::jthread rfd(&Server::processServerTerminal, this);
 		rfd.detach();
-		startedRfdThread = true;
+		serverAttributes.startedRfdThread = true;
 	}
-	if (!startedPerfThread) {
+	if (!serverAttributes.startedPerfThread) {
 		std::jthread perfThread(&Server::processPerfStats, this);
 		perfThread.detach();
-		startedPerfThread = true;
+		serverAttributes.startedPerfThread = true;
 	}
 }
 
@@ -291,7 +291,7 @@ void Server::makeDir() {
 void Server::mountDrive() {
 	#if defined(_WIN64) || defined(_WIN32) //Windows doesn't need drives to be mounted manually
 	term.out<Info>(text.info.POSIXdriveMount);
-	hasMounted = true;
+	serverAttributes.hasMounted = true;
 	#else
 	term.out<Info>(text.info.TryingMount);
 	try {
@@ -302,17 +302,17 @@ void Server::mountDrive() {
 			string error;
 			#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
 			//BSDs have different mount() parameters
-			if (!mount(systems[systemi].c_str(), serverSettings.path.c_str(), 0, const_cast<char*>(serverSettings.device.c_str()))) { //cast a c-style device string to a constant char*
+			if (!mount(systems[serverAttributes.systemi].c_str(), serverSettings.path.c_str(), 0, const_cast<char*>(serverSettings.device.c_str()))) { //cast a c-style device string to a constant char*
 			#else
-			if (!mount(serverSettings.device.c_str(), serverSettings.path.c_str(), systems[systemi].c_str(), 0, "")) {
+			if (!mount(serverSettings.device.c_str(), serverSettings.path.c_str(), systems[serverAttributes.systemi].c_str(), 0, "")) {
 			//brute-forces every possible filesystem because mount() depends on it being the right one
 			#endif
 				term.out<Info>(text.info.DeviceMounted);
-				hasMounted = true;
-			systemi = 0; //reset in case it needs to mount again
+				serverAttributes.hasMounted = true;
+			serverAttributes.systemi = 0; //reset in case it needs to mount again
 			} else {
 				int errsv = errno; //errno is the POSIX error code, save errno to a dummy variable to stop it from getting tainted
-				if (systemi == 6) {
+				if (serverAttributes.systemi == 6) {
 					switch (errsv) {
 						case 1:
 							error = text.eno.NotPermitted;
@@ -353,17 +353,17 @@ void Server::mountDrive() {
 						default:
 							error = text.eno.UnknownGeneric;
 					}
-					if (!hasOutputUSB) {
+					if (!serverAttributes.hasOutputUSB) {
 						term.out<Error>(text.error.Mount + error);
-						hasOutputUSB = true;
-						systemi = 0;
+						serverAttributes.hasOutputUSB = true;
+						serverAttributes.systemi = 0;
 					}
 					term.out<Error>(text.error.Code + std::to_string(errsv));
 				}
 			}
-			if (systemi < 6) {
-				term.out<Info>(text.info.TryingFilesystem1 + systems[systemi] + text.info.TryingFilesystem2);
-				systemi++; //increment the filesystem
+			if (serverAttributes.systemi < 6) {
+				term.out<Info>(text.info.TryingFilesystem1 + systems[serverAttributes.systemi] + text.info.TryingFilesystem2);
+				serverAttributes.systemi++; //increment the filesystem
 			}
 		}
 	} catch (fs::filesystem_error& e) {
@@ -438,7 +438,7 @@ void Server::readSettings(const string confFile) {
 	}
 	if (serverSettings.device == "") {
 		term.out<Info>(text.info.NoMount);
-		hasMounted = true;
+		serverAttributes.hasMounted = true;
 	}
 	std::string tempCounterInterval;
 	std::string tempCounterMax;

@@ -91,7 +91,7 @@ void Server::processTerminalBuffer(string input) {
 	input = std::regex_replace(input, std::regex(">\\.\\.\\.\\.", std::regex_constants::optimize), ">"); //replace ">...." with ">" because this shows up in the temrinal output
 	//std::cout << "Pushing back" << std::endl;
 	lines.push_back(input);
-	if (wantsLiveOutput) {
+	if (serverAttributes.wantsLiveOutput) {
 		std::cout << input << std::flush;
 	}
 }
@@ -100,8 +100,8 @@ void Server::processChatKicks(string input) {
 	try {
 		std::regex kickreg("" + serverSettings.chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
 		if (std::regex_search(input, kickreg)) {
-			writeToServerTerminal("kick " + lastCommandUser + " §4§LForbidden word in chat; please do not say that!");
-			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + lastCommandUser + " for a chat infraction"));
+			writeToServerTerminal("kick " + serverAttributes.lastCommandUser + " §4§LForbidden word in chat; please do not say that!");
+			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + serverAttributes.lastCommandUser + " for a chat infraction"));
 		}
 	} catch(...) {
 		term.out<Error>("Invalid chat kick regex");
@@ -111,10 +111,10 @@ void Server::processChatKicks(string input) {
 void Server::processServerCommand(string input) {
 	std::smatch m;
 	std::string command;
-	if (usesHajimeHelper) {
+	if (serverAttributes.usesHajimeHelper) {
 		if (std::regex_search(input, m, std::regex("\\[.+\\]:\\s(\\.[\\w\\d]+)\\s([a-zA-Z0-9_\\*]{16}|\\s)\\s([\\w\\d]+)", std::regex_constants::optimize))) {
-				lastCommandUser = m[3];
-			if (m[2] == secret) {
+				serverAttributes.lastCommandUser = m[3];
+			if (m[2] == serverAttributes.secret) {
 				command = m[1];
 			} else {
 				writeToServerTerminal(formatWrapper("[Hajime] Invalid secret"));
@@ -125,14 +125,14 @@ void Server::processServerCommand(string input) {
 		}
 	} else {
 		if (std::regex_search(input, m, std::regex("\\[.+\\]:\\s<(.+)>\\s(\\.[\\w\\d]+)?(?!\\w)", std::regex_constants::optimize))) {
-			lastCommandUser = m[1];
+			serverAttributes.lastCommandUser = m[1];
 			command = m[2];
 		} else {
 			return;
 		}
 	}
 	//std::cout << "command = " << command << std::endl;
-	//std::cout << "lastCommandUser = " << lastCommandUser << std::endl;
+	//std::cout << "lastCommandUser = " << serverAttributes.lastCommandUser << std::endl;
 	if (std::regex_search(command, std::regex("\\" + text.server.command.hajime.regex, std::regex_constants::optimize))) {
 		commandHajime();
 	} else if (std::regex_search(command, std::regex("\\" + text.server.command.time.regex, std::regex_constants::optimize))) {
@@ -172,8 +172,8 @@ void Server::processServerCommand(string input) {
 
 void Server::processRestartAlert(string input) {
 	std::smatch m;
-	if (serverSettings.restartMins > 0 && uptime >= (serverSettings.restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
-		string hajInfo = "tellraw " + string(m[1]) + text.server.restart.alert1 + std::to_string(serverSettings.restartMins - uptime) + text.server.restart.alert2;
+	if (serverSettings.restartMins > 0 && serverAttributes.uptime >= (serverSettings.restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
+		string hajInfo = "tellraw " + string(m[1]) + text.server.restart.alert1 + std::to_string(serverSettings.restartMins - serverAttributes.uptime) + text.server.restart.alert2;
 		writeToServerTerminal(addNumberColors(hajInfo));
 	}
 }
@@ -184,11 +184,11 @@ string Server::addNumberColors(string input) {
 
 string Server::formatWrapper(string input) {
 	string output;
-	if (usesHajimeHelper) {
+	if (serverAttributes.usesHajimeHelper) {
 		if (input.front() == '[' && input.back() == ']') {
-			output = "tellraw " + lastCommandUser + " " + input;
+			output = "tellraw " + serverAttributes.lastCommandUser + " " + input;
 		} else {
-			output = "tellraw " + lastCommandUser + " \"" + input + "\"";
+			output = "tellraw " + serverAttributes.lastCommandUser + " \"" + input + "\"";
 		}
 	} else {
 		if (input.front() == '[' && input.back() == ']') {
@@ -223,7 +223,7 @@ void Server::processServerTerminal() {
 	while (true) {
 		terminalOutput = readFromServer();
 		if (serverSettings.doCommands) {
-			if (!usesHajimeHelper) {
+			if (!serverAttributes.usesHajimeHelper) {
 				checkHajimeHelper(terminalOutput);
 			}
 			processServerCommand(terminalOutput);
@@ -238,8 +238,8 @@ void Server::processServerTerminal() {
 
 void Server::checkHajimeHelper(std::string input) {
 	if (std::regex_search(input, std::regex("\\[.+\\]: \\[HajimeHelper\\].*HajimeHelper", std::regex_constants::optimize))) {
-		writeToServerTerminal("setsecret " + secret);
-		usesHajimeHelper = true;
+		writeToServerTerminal("setsecret " + serverAttributes.secret);
+		serverAttributes.usesHajimeHelper = true;
 	}
 }
 
@@ -285,17 +285,17 @@ string Server::readFromServer() {
 }
 
 void Server::updateUptime() {
-	timeCurrent = std::chrono::steady_clock::now();
-	auto tempUptime = std::chrono::duration_cast<std::chrono::minutes>(timeCurrent - timeStart);
-	uptime = tempUptime.count();
-	//std::cout << "uptime = " + std::to_string(uptime) << std::endl;
+	serverAttributes.timeCurrent = std::chrono::steady_clock::now();
+	auto tempUptime = std::chrono::duration_cast<std::chrono::minutes>(serverAttributes.timeCurrent - serverAttributes.timeStart);
+	serverAttributes.uptime = tempUptime.count();
+	//std::cout << "uptime = " + std::to_string(serverAttributes.uptime) << std::endl;
 }
 
 void Server::processAutoUpdate(bool force) {
 	if (serverSettings.autoUpdateName == "") {
 		return;
 	}
-	if ((serverSettings.restartMins > 0 && uptime >= serverSettings.restartMins) || force) {
+	if ((serverSettings.restartMins > 0 && serverAttributes.uptime >= serverSettings.restartMins) || force) {
 		std::string content;
 		auto makeFile = [&content](std::string filename) {
 			std::fstream file(filename, std::fstream::out);
@@ -383,21 +383,21 @@ void Server::processAutoUpdate(bool force) {
 }
 
 void Server::processAutoRestart() {
-	if (serverSettings.restartMins > 0 && uptime >= serverSettings.restartMins) {
+	if (serverSettings.restartMins > 0 && serverAttributes.uptime >= serverSettings.restartMins) {
 		writeToServerTerminal("stop");
-	}	else if (serverSettings.restartMins > 0 && uptime >= (serverSettings.restartMins - 5) && !said5MinRestart) {
+	}	else if (serverSettings.restartMins > 0 && serverAttributes.uptime >= (serverSettings.restartMins - 5) && !serverAttributes.said5MinRestart) {
 		writeToServerTerminal(formatWrapper(addNumberColors(text.server.restart.minutes5)));
-		said5MinRestart = true;
-	} else if (serverSettings.restartMins > 0 && uptime >= (serverSettings.restartMins - 15) && !said15MinRestart) {
+		serverAttributes.said5MinRestart = true;
+	} else if (serverSettings.restartMins > 0 && serverAttributes.uptime >= (serverSettings.restartMins - 15) && !serverAttributes.said15MinRestart) {
 		writeToServerTerminal(formatWrapper(addNumberColors(text.server.restart.minutes15)));
-		said15MinRestart = true;
+		serverAttributes.said15MinRestart = true;
 	}
 }
 
 void Server::terminalAccessWrapper() {
 	term.dividerLine(serverSettings.name);
 	term.normalDisabled = true;
-	wantsLiveOutput = true;
+	serverAttributes.wantsLiveOutput = true;
 	for (const auto& it : lines) {
 		std::cout << it << std::flush;
 	}
@@ -405,7 +405,7 @@ void Server::terminalAccessWrapper() {
 	while (true) {
 		std::getline(std::cin, user_input); //getline allows for spaces
 		if (user_input == ".d") {
-			wantsLiveOutput = false;
+			serverAttributes.wantsLiveOutput = false;
 			break;
 		} else if (user_input[0] == '.') {
 			std::cout << text.error.InvalidCommand << std::endl;

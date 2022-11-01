@@ -78,14 +78,6 @@ class Server {
 		return temp;
 	}
 
-	bool hasOutputUSB = false;
-	
-	bool hasMounted = false;
-
-	bool usesHajimeHelper = false;
-
-	int systemi = 0;
-
 	const std::string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
 	#if defined(__linux__)
@@ -100,8 +92,6 @@ class Server {
 	#elif defined(_WIN64) || defined (_WIN32)
 	#elif defined(__FreeBSD__)
 	#endif
-
-	std::string secret;
 
 	std::string generateSecret();
 	std::string formatWrapper(std::string input);
@@ -195,8 +185,6 @@ class Server {
 	std::vector<std::string> toArray(std::string input);
 	auto toPointerArray(std::vector<std::string> &strings);
 
-	inline static std::atomic<int> performanceCounterCompat = 0;
-
 	#if defined(_WIN64) || defined(_WIN32)
 	STARTUPINFO si; // a variable that can specify parameters for windows created with it
 	PROCESS_INFORMATION pi; // can get process handle and pid from this
@@ -206,18 +194,12 @@ class Server {
 	struct winsize w;
 	#endif
 
-	long int uptime;
-	std::chrono::time_point<std::chrono::steady_clock> timeStart;
-	std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
-
-	bool said15MinRestart = false;
-	bool said5MinRestart = false;
-
 	inline static std::vector<long long> knownBadEvents = {};
-
-	std::mutex perfMutex;
+	inline static std::atomic<int> performanceCounterCompat = 0; // 0 = unknown, 1 = yes, -1 = no
 
 	struct CounterData {
+		std::mutex mutex;
+
 		std::deque<long long> cpuusagereadings{0};
 		std::deque<double> rampercentreadings{0.0};
 		std::deque<long long> rambytereadings{0};
@@ -268,19 +250,12 @@ class Server {
 	};
 	CounterData counterData;
 
-	long long CPUjiffies, PIDjiffies;
-
-	std::string lastCommandUser;
-
-	bool startedRfdThread = false;
-	bool startedPerfThread = false;
-
-	bool wantsLiveOutput;
-
 	std::deque<std::string> lines;
 
 	public:
 		struct ServerSettings {
+			std::mutex mutex; // mutex for settings
+
 			std::string name;
 			std::string exec;
 			std::string path;
@@ -293,6 +268,7 @@ class Server {
 			std::string autoUpdateName;
 			std::string autoUpdateVersion;
 			std::string chatKickRegex;
+
 			bool doCommands = true;
 			int counterLevel = 0;
 			long restartMins;
@@ -300,8 +276,33 @@ class Server {
 			long long counterMax = defaultCounterMax;
 		};
 		ServerSettings serverSettings;
-		
-		bool isRunning = false;
+
+		struct ServerAttributes {
+			std::chrono::time_point<std::chrono::steady_clock> timeStart;
+			std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
+
+			std::string secret;
+
+			bool hasOutputUSB = false;
+			bool hasMounted = false;
+			bool usesHajimeHelper = false;
+			bool isRunning = false;
+			bool startedRfdThread = false;
+			bool startedPerfThread = false;
+			bool wantsLiveOutput = false;
+			bool said15MinRestart = false;
+			bool said5MinRestart = false;
+
+			int systemi = 0;
+
+			long long uptime = 0;
+			long long CPUjiffies = 0;
+			long long PIDjiffies = 0;
+
+			std::string lastCommandUser;
+		};
+		ServerAttributes serverAttributes;
+	
 		void startServer(std::string confFile);
 		void terminalAccessWrapper();
 };

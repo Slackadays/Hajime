@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <regex>
 #include <chrono>
-//include ncurses
+
 #if !defined(_WIN64) && !defined(_WIN32)
 #include <ncurses.h>
 #endif
@@ -92,10 +92,15 @@ int main(int argc, char *argv[]) {
 	#if !defined(_WIN64) && !defined(_WIN32)
 	setupRLimits();
 	#endif
+
 	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
-	//exit(0);
 	setupServers();
 	doHajimeTerminal();
-	return 0;
+
+	//get out of curses mode
+	#if !defined(_WIN64) && !defined(_WIN32)
+	endwin();
+	#endif
+	exit(0);
 }
 

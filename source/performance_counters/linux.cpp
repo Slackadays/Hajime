@@ -658,7 +658,7 @@ void Server::processPerfStats() {
 		std::this_thread::sleep_for(std::chrono::seconds(serverSettings.counterInterval));
 		//then = std::chrono::high_resolution_clock::now();
 		if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
-			std::lock_guard<std::mutex> lock(perfMutex);
+			std::lock_guard<std::mutex> lock(counterData.mutex);
 			trimCounterData();
 			disableCounters(MyCounters);
 			readCounters(MyCounters);

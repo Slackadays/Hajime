@@ -59,7 +59,7 @@ namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
 void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
-	std::lock_guard<std::mutex> lock(perfMutex);
+	std::lock_guard<std::mutex> lock(counterData.mutex);
 	#if defined(_WIN32) || defined(_WIN64)
 	//do stuff here
 	//update the values in server.hpp
@@ -70,8 +70,8 @@ void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
 	double new_pidjiffies;
 	double new_cpujiffies;
 	long cpuNum = sysconf(_SC_NPROCESSORS_ONLN);
-	old_pidjiffies = PIDjiffies;
-	old_cpujiffies = CPUjiffies;
+	old_pidjiffies = serverAttributes.PIDjiffies;
+	old_cpujiffies = serverAttributes.CPUjiffies;
 	std::fstream pidprocstat("/proc/" + std::to_string(pid) + "/stat", std::fstream::in);
 	std::getline(pidprocstat, line);
 	std::regex repid("\\S+", std::regex_constants::optimize);
@@ -111,8 +111,8 @@ void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
 		while (CPUreadings.size() > 60) {
 			CPUreadings.pop_front();
 		}
-		PIDjiffies = new_pidjiffies;
-		CPUjiffies = new_cpujiffies;
+		serverAttributes.PIDjiffies = new_pidjiffies;
+		serverAttributes.CPUjiffies = new_cpujiffies;
 	} catch(...) {
 		term.out<Error, Threadless>("Error updating CPU usage");
 	}
@@ -123,7 +123,7 @@ void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
 }
 
 void Server::updateRAMusage() {
-	std::lock_guard<std::mutex> lock(perfMutex);
+	std::lock_guard<std::mutex> lock(counterData.mutex);
 	auto addReading = [](auto& list, const auto& entry) {
 		list.push_back(entry);
 		while (list.size() > 240) {
