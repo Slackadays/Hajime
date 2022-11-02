@@ -45,7 +45,6 @@ class Output {
 	string getColorByID();
 	string makeMonochrome(string input);
 	bool isExcluded(outFlag type);
-	void terminalDispatch(string input, outFlag type, bool endLineAtEnd);
 	void fileDispatch(string input, outFlag type, bool endLineAtEnd);
 	inline static int threadCounter;
 	inline static std::unordered_map<std::thread::id, int> threadToNumMap;
@@ -56,6 +55,7 @@ class Output {
 	public:
 		int getTerminalWidth();
 		void dividerLine(string tx = "", bool exit = false);
+		void terminalDispatch(string input, outFlag type, bool endLineAtEnd);
 
 		#if defined(__FreeBSD__)
 		template<auto... flags>

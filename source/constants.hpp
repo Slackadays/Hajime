@@ -26,6 +26,8 @@ extern std::string hajDefaultConfFile;
 
 extern std::string hajimePath;
 
+extern std::string logFile;
+
 extern long long defaultCounterInterval;
 
 extern long long defaultCounterMax;

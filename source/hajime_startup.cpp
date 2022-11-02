@@ -217,28 +217,51 @@ void setupFirstTime() {
 }
 
 void processHajimeCommand(std::vector<std::string> input) {
-	if (input.at(0) == "term" || input.at(0) == "t") {
+	auto getServerObject = [&](const std::string& serverName) {
+		try {
+			return std::shared_ptr<Server>(serverVec.at(stoi(serverName) - 1));
+		} catch (...) {
+			for (auto& it : serverVec) {
+				if (it->serverSettings.name == serverName) {
+					return std::shared_ptr<Server>(it);
+				}
+			}
+			term.out<Error>(text.error.ServerSelectionInvalid);
+		}
+		throw std::runtime_error("getServerObject failed");
+	};
+	if (input.size() == 0) {
+		return;
+	}
+	if (input[0] == "term" || input.at(0) == "t") {
 		if (input.size() >= 2) {
-			try {
-				if (stoi(input[1]) > serverVec.size() || stoi(input[1]) < 1) {
-					term.out<Error>(text.error.InvalidServerNumber);
-				} else {
-					serverVec.at(stoi(input[1]) - 1)->terminalAccessWrapper();
-				}
-			} catch (...) {
-				bool attachSuccess = false;
-				for (auto& it : serverVec) {
-					if (it->serverSettings.name == input[1]) {
-						term.hajimeTerminal = false;
-						it->terminalAccessWrapper();
-						term.hajimeTerminal = true;
-						attachSuccess = true;
-						break;
-					}
-				}
-				if (!attachSuccess) {
-					term.out<Error>(text.error.ServerSelectionInvalid);
-				}
+			std::shared_ptr<Server> server = getServerObject(input[1]);
+			if (server) {
+				server->terminalAccessWrapper();
+			}
+		} else {
+			term.out<Error>(text.error.NotEnoughArgs);
+		}
+	} else if (input[0] == "info" || input[0] == "i") {
+		if (input.size() >= 2) {
+			std::shared_ptr<Server> server = getServerObject(input[1]);
+			if (server) {
+				term.out<Info>("Version: " + server->serverSettings.version);
+				term.out<Info>("Name: " + server->serverSettings.name);
+				term.out<Info>("Path: " + server->serverSettings.path);
+				term.out<Info>("Exec: " + server->serverSettings.exec);
+				term.out<Info>("Flags: " + server->serverSettings.flags);
+				term.out<Info>("File: " + server->serverSettings.file);
+				term.out<Info>("Device: " + server->serverSettings.device);
+				term.out<Info>("Restart minute interval: " + std::to_string(server->serverSettings.restartMins));
+				term.out<Info>("Commands: " + server->serverSettings.doCommands);
+				term.out<Info>("Custom message: " + server->serverSettings.customMessage);
+				term.out<Info>("Chat kick regex: " + server->serverSettings.chatKickRegex);
+				term.out<Info>("Counters: " + std::to_string(server->serverSettings.counterLevel));
+				term.out<Info>("Auto update name: " + server->serverSettings.autoUpdateName);
+				term.out<Info>("Auto update version: " + server->serverSettings.autoUpdateVersion);
+				term.out<Info>("Counter interval: " + std::to_string(server->serverSettings.counterInterval));
+				term.out<Info>("Counter max: " + std::to_string(server->serverSettings.counterMax));
 			}
 		} else {
 			term.out<Error>(text.error.NotEnoughArgs);
@@ -270,8 +293,7 @@ void doHajimeTerminal() {
 		std::cout << "\033[0m" << std::flush;
 		if (command != "") {
 			processHajimeCommand(splitToVec(command));
-		} else {
-			
 		}
+		term.terminalDispatch("\r┃\033[92m\033[1m# \033[0m", None, 0);
 	}
 }

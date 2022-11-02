@@ -97,8 +97,7 @@ void Output::dividerLine(std::string tx, bool exit) {
 
 void Output::init(const std::string& file) {
 	logToFile = true;
-	logFilename = file;
-	fileObj.open(logFilename, std::ios::app); //appends to a current file and creates it if needed
+	fileObj.open(file, std::ios::app); //appends to a current file and creates it if needed
 }
 
 void Output::end() {

@@ -26,6 +26,8 @@ std::string defaultServerConfFile = hajimePath + "default.server";
 
 std::string hajDefaultConfFile = hajimePath + "hajime.conf";
 
+std::string logFile = hajimePath + "hajime.log";
+
 long long defaultCounterInterval = 3;
 
 long long defaultCounterMax = 20 * 60 * 24 * 14;

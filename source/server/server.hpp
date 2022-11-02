@@ -256,6 +256,7 @@ class Server {
 		struct ServerSettings {
 			std::mutex mutex; // mutex for settings
 
+			std::string version;
 			std::string name;
 			std::string exec;
 			std::string path;
@@ -294,6 +295,8 @@ class Server {
 			bool said5MinRestart = false;
 
 			int systemi = 0;
+
+			int runstate = 1;
 
 			long long uptime = 0;
 			long long CPUjiffies = 0;
