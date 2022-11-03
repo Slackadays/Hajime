@@ -14,6 +14,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
+#pragma once
 #include "server/server.hpp"
 
 #if defined(_WIN64) || defined (_WIN32)
@@ -32,7 +33,8 @@ extern void processHajimeCommand(std::vector<std::string> input);
 extern bool isUserPrivileged();
 extern void doHajimeTerminal();
 
-inline static std::vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
-inline static std::vector<std::thread> threadVec = {}; //create an array of thread objects
-inline static std::string hajConfFile = "";
-inline static std::string version;
+extern std::vector<std::shared_ptr<Server>> serverVec; //create an array of individual server objects
+extern std::vector<std::thread> threadVec; //create an array of thread objects
+extern std::string hajConfFile;
+extern std::string version;
+extern int stopOnExit;

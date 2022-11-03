@@ -76,6 +76,7 @@ void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", b
 		outConf << "lang=" << lang << std::endl;
 		outConf << "debug=0" << std::endl;
 		outConf << "threadcolors=1" << std::endl;
+		outConf << "stoponexit=1" << std::endl;
 		outConf.close();
 		term.out<Info>(text.info.HajConfigMade1 + fileLocation + text.info.HajConfigMade2);
 		if (!fs::is_regular_file(fileLocation)) {

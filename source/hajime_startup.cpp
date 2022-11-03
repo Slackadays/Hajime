@@ -42,12 +42,23 @@
 #include "wizard.hpp"
 #include "flags.hpp"
 
+std::vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
+std::vector<std::thread> threadVec = {}; //create an array of thread objects
+std::string hajConfFile = "";
+std::string version;
+int stopOnExit;
+
 void setupSignals() {
 	atexit([]{
 		term.dividerLine("Exiting", true);
 		#if !defined(_WIN64) && !defined(_WIN32)
 		endwin();
 		#endif
+		if (stopOnExit) {
+			for (auto& server : serverVec) {
+				server->writeToServerTerminal("stop");
+			}
+		}
 		#if defined(__APPLE__)
 		exit(0);
 		#else
@@ -57,37 +68,22 @@ void setupSignals() {
 	signal(SIGINT, hajimeUserExit);
 	signal(SIGSEGV, [](int sig){
 		std::cout << "Segmentation fault; exiting Hajime" << std::endl;
-		#if !defined(_WIN64) && !defined(_WIN32)
-		endwin();
-		#endif
 		exit(1);
 	});
 	signal(SIGABRT, [](int sig){
 		std::cout << "Hajime ending execution abnormally; exiting Hajime" << std::endl;
-		#if !defined(_WIN64) && !defined(_WIN32)
-		endwin();
-		#endif
 		exit(1);
 	});
 	signal(SIGILL, [](int sig){
 		std::cout << "Illegal instruction; try recompiling Hajime" << std::endl;
-		#if !defined(_WIN64) && !defined(_WIN32)
-		endwin();
-		#endif
 		exit(1);
 	});
 	signal(SIGFPE, [](int sig){
 		std::cout << "Illegal math operation; exiting Hajime" << std::endl;
-		#if !defined(_WIN64) && !defined(_WIN32)
-		endwin();
-		#endif
 		exit(1);
 	});
 	signal(SIGTERM, [](int sig){
 		std::cout << "Termination requested; exiting Hajime" << std::endl;
-		#if !defined(_WIN64) && !defined(_WIN32)
-		endwin();
-		#endif
 		exit(0);
 	});
 }
@@ -117,7 +113,7 @@ void setupRLimits() {
 #endif
 
 bool readSettings() {
-	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors"};
+	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors", "stoponexit"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		term.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
 		return 0;
@@ -145,6 +141,7 @@ bool readSettings() {
 			setVari(settings[2], term.debug);
 		}
 		setVari(settings[3], term.showThreadsAsColors);
+		setVari(settings[4], stopOnExit);
 	}
 	term.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);
 	return 1;
@@ -226,26 +223,27 @@ void processHajimeCommand(std::vector<std::string> input) {
 					return std::shared_ptr<Server>(it);
 				}
 			}
-			term.out<Error>(text.error.ServerSelectionInvalid);
 		}
-		throw std::runtime_error("getServerObject failed");
+		throw std::invalid_argument("Server not found");
 	};
 	if (input.size() == 0) {
 		return;
 	}
 	if (input[0] == "term" || input.at(0) == "t") {
 		if (input.size() >= 2) {
-			std::shared_ptr<Server> server = getServerObject(input[1]);
-			if (server) {
+			try {
+				std::shared_ptr<Server> server = getServerObject(input[1]);
 				server->terminalAccessWrapper();
+			} catch(...) {
+				term.out<Error>(text.error.ServerSelectionInvalid);
 			}
 		} else {
 			term.out<Error>(text.error.NotEnoughArgs);
 		}
 	} else if (input[0] == "info" || input[0] == "i") {
 		if (input.size() >= 2) {
-			std::shared_ptr<Server> server = getServerObject(input[1]);
-			if (server) {
+			try {
+				std::shared_ptr<Server> server = getServerObject(input[1]);
 				term.out<Info>("Version: " + server->serverSettings.version);
 				term.out<Info>("Name: " + server->serverSettings.name);
 				term.out<Info>("Path: " + server->serverSettings.path);
@@ -262,6 +260,8 @@ void processHajimeCommand(std::vector<std::string> input) {
 				term.out<Info>("Auto update version: " + server->serverSettings.autoUpdateVersion);
 				term.out<Info>("Counter interval: " + std::to_string(server->serverSettings.counterInterval));
 				term.out<Info>("Counter max: " + std::to_string(server->serverSettings.counterMax));
+			} catch(...) {
+				term.out<Error>(text.error.ServerSelectionInvalid);
 			}
 		} else {
 			term.out<Error>(text.error.NotEnoughArgs);
