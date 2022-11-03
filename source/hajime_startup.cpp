@@ -48,6 +48,20 @@ std::string hajConfFile = "";
 std::string version;
 int stopOnExit = 1;
 
+void shutdownServers() {
+	stopOnExit = 1;
+	if (stopOnExit) {
+		for (auto& server : serverVec) {
+			#if !defined(_WIN32) && !defined(_WIN64)
+			kill(server->pid, SIGINT);
+			#else
+			server->writeToServerTerminal("stop");
+			#endif
+		}
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+}
+
 void setupSignals() {
 	atexit([]{
 		term.dividerLine("Exiting", true);
@@ -60,25 +74,32 @@ void setupSignals() {
 		quick_exit(0);
 		#endif
 	});
-	signal(SIGINT, hajimeUserExit);
+	signal(SIGINT, [](int sig){
+		hajimeUserExit(sig);
+	});
 	signal(SIGSEGV, [](int sig){
 		std::cout << "Segmentation fault; exiting Hajime" << std::endl;
+		shutdownServers();
 		exit(1);
 	});
 	signal(SIGABRT, [](int sig){
 		std::cout << "Hajime ending execution abnormally; exiting Hajime" << std::endl;
+		shutdownServers();
 		exit(1);
 	});
 	signal(SIGILL, [](int sig){
 		std::cout << "Illegal instruction; try recompiling Hajime" << std::endl;
+		shutdownServers();
 		exit(1);
 	});
 	signal(SIGFPE, [](int sig){
 		std::cout << "Illegal math operation; exiting Hajime" << std::endl;
+		shutdownServers();
 		exit(1);
 	});
 	signal(SIGTERM, [](int sig){
 		std::cout << "Termination requested; exiting Hajime" << std::endl;
+		shutdownServers();
 		exit(0);
 	});
 }
@@ -147,17 +168,7 @@ void hajimeUserExit(int sig) {
 	static std::chrono::time_point<std::chrono::system_clock> then;
 	if (std::chrono::duration_cast<std::chrono::seconds>(now - then).count() <= 3) {
 		std::cout << "\b\b  " << std::endl;
-		stopOnExit = 1;
-		if (stopOnExit) {
-			for (auto& server : serverVec) {
-				#if !defined(_WIN32) && !defined(_WIN64)
-				kill(server->pid, SIGINT);
-				#else
-				server->writeToServerTerminal("stop");
-				#endif
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		shutdownServers();
 		exit(0);
 	} else {
 		std::cout << "\b\b  " << std::endl;
@@ -180,9 +191,10 @@ std::vector<std::string> splitToVec(std::string input) {
 	std::vector<std::string> output;
 	std::istringstream iss(input);
 	std::string temp;
-	//split the string into a vector
 	while (std::getline(iss, temp, ' ')) {
-		output.emplace_back(temp);
+		if (temp != "") {
+			output.emplace_back(temp);
+		}
 	}
 	return output;
 }

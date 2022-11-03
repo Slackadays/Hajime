@@ -38,7 +38,7 @@ enum lines {Def = 2, True = 1, False = 0};
 class Output {
 	inline static std::mutex outMutex;
 	std::thread::id main_thread = std::this_thread::get_id();
-	std::ofstream fileObj;
+	inline static std::ofstream fileObj;
 
 	string removeEndlines(string input, bool keepEndlines = false);
 	string addPrefixByType(string data = "", outFlag type = None);

@@ -22,6 +22,7 @@ extern void setupTerminal();
 #else
 extern void setupRLimits();
 #endif
+extern void shutdownServers();
 extern void setupSignals();
 extern bool readSettings();
 extern void hajimeUserExit(int sig);
