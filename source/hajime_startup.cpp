@@ -46,7 +46,7 @@ std::vector<std::shared_ptr<Server>> serverVec = {}; //create an array of indivi
 std::vector<std::thread> threadVec = {}; //create an array of thread objects
 std::string hajConfFile = "";
 std::string version;
-int stopOnExit;
+int stopOnExit = 1;
 
 void setupSignals() {
 	atexit([]{
@@ -54,11 +54,6 @@ void setupSignals() {
 		#if !defined(_WIN64) && !defined(_WIN32)
 		endwin();
 		#endif
-		if (stopOnExit) {
-			for (auto& server : serverVec) {
-				server->writeToServerTerminal("stop");
-			}
-		}
 		#if defined(__APPLE__)
 		exit(0);
 		#else
@@ -152,6 +147,17 @@ void hajimeUserExit(int sig) {
 	static std::chrono::time_point<std::chrono::system_clock> then;
 	if (std::chrono::duration_cast<std::chrono::seconds>(now - then).count() <= 3) {
 		std::cout << "\b\b  " << std::endl;
+		stopOnExit = 1;
+		if (stopOnExit) {
+			for (auto& server : serverVec) {
+				#if !defined(_WIN32) && !defined(_WIN64)
+				kill(server->pid, SIGINT);
+				#else
+				server->writeToServerTerminal("stop");
+				#endif
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		exit(0);
 	} else {
 		std::cout << "\b\b  " << std::endl;
@@ -294,6 +300,6 @@ void doHajimeTerminal() {
 		if (command != "") {
 			processHajimeCommand(splitToVec(command));
 		}
-		term.terminalDispatch("\r┃\033[92m\033[1m# \033[0m", None, 0);
+		term.terminalDispatch("\r \033[92m\033[1m# \033[0m", None, 0);
 	}
 }

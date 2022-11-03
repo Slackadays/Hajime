@@ -118,7 +118,7 @@ class Output {
 			}
 			threadless = oldThreadless;
 			if (hajimeTerminal && (type != None) && endLineAtEnd) {
-				terminalDispatch("\r┃\033[92m\033[1m# \033[0m", None, 0);
+				terminalDispatch("\r \033[92m\033[1m# \033[0m", None, 0);
 			}
 			if (!noSave) {
 				lastOutput = outputString;

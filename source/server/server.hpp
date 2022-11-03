@@ -184,15 +184,6 @@ class Server {
 	std::vector<std::string> toArray(std::string input);
 	auto toPointerArray(std::vector<std::string> &strings);
 
-	#if defined(_WIN64) || defined(_WIN32)
-	STARTUPINFO si; // a variable that can specify parameters for windows created with it
-	PROCESS_INFORMATION pi; // can get process handle and pid from this
-	HANDLE inputread, inputwrite, outputread, outputwrite; // pipes for reading/writing
-	#else
-	int slave_fd, fd, pid;
-	struct winsize w;
-	#endif
-
 	inline static std::vector<long long> knownBadEvents = {};
 	inline static std::atomic<int> performanceCounterCompat = 0; // 0 = unknown, 1 = yes, -1 = no
 
@@ -304,6 +295,15 @@ class Server {
 			std::string lastCommandUser;
 		};
 		ServerAttributes serverAttributes;
+
+		#if defined(_WIN64) || defined(_WIN32)
+		STARTUPINFO si; // a variable that can specify parameters for windows created with it
+		PROCESS_INFORMATION pi; // can get process handle and pid from this
+		HANDLE inputread, inputwrite, outputread, outputwrite; // pipes for reading/writing
+		#else
+		int slave_fd, fd, pid;
+		struct winsize w;
+		#endif
 	
 		void startServer(std::string confFile);
 		void terminalAccessWrapper();
