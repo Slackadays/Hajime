@@ -4,6 +4,8 @@ project(Hajime LANGUAGES CXX)
 
 project(Hajime VERSION 0.2.1)
 
+find_package(fmt)
+
 find_package(Boost)
 
 if(Boost_FOUND)
@@ -159,5 +161,7 @@ endif()
 if(Boost_FOUND)
   target_link_libraries(hajime ${Boost_LIBRARIES})
 endif()
+
+target_link_libraries(hajime fmt::fmt-header-only)
 
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")

@@ -29,6 +29,7 @@
 #include <signal.h>
 
 #include <boost/algorithm/string.hpp>
+#include <fmt/format.h>
 
 #if !defined(_WIN64) && !defined(_WIN32)
 #include <ncurses.h>
@@ -49,11 +50,19 @@ std::string version;
 int stopOnExit = 1;
 
 void shutdownServers() {
-	stopOnExit = 1;
-	if (stopOnExit) {
+	stopOnExit = 2;
+	if (stopOnExit == 1) {
 		for (auto& server : serverVec) {
 			#if !defined(_WIN32) && !defined(_WIN64)
 			kill(server->pid, SIGINT);
+			#else
+			server->writeToServerTerminal("stop");
+			#endif
+		}
+	} else if (stopOnExit == 2) {
+		for (auto& server : serverVec) {
+			#if !defined(_WIN32) && !defined(_WIN64)
+			kill(server->pid, SIGKILL);
 			#else
 			server->writeToServerTerminal("stop");
 			#endif
@@ -118,7 +127,7 @@ void setupTerminal() {
 void setupRLimits() {
 	struct rlimit rlimits;
 	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		term.out<Error, Threadless>("Error getting resource limits; errno = " + std::to_string(errno));
+		term.out<Error, Threadless>(fmt::vformat("Error getting resource limits; errno = {}", fmt::make_format_args(std::to_string(errno))));
 	}
 	rlimits.rlim_cur = rlimits.rlim_max; //resize soft limit to max limit; the max limit is a ceiling for the soft limit
 	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
@@ -131,7 +140,7 @@ void setupRLimits() {
 bool readSettings() {
 	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors", "stoponexit"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		term.out<Debug>(text.debug.HajDefConfNoExist1 + hajDefaultConfFile + text.debug.HajDefConfNoExist2);
+		term.out<Debug>(fmt::vformat(fmt::to_string_view(text.debug.HajDefConfNoExist), fmt::make_format_args(hajDefaultConfFile)));
 		return 0;
 	}
 	std::vector<std::string> results = getVarsFromFile(hajDefaultConfFile, settings);

@@ -46,6 +46,8 @@
 #include <signal.h>
 #endif
 
+#include <fmt/format.h>
+
 #include <random>
 #include <memory>
 #include <iterator>
@@ -155,14 +157,14 @@ void Server::commandInfo() {
 }
 
 void Server::commandUptime() {
-	string hajInfo = text.server.command.uptime.output1 + std::to_string(serverAttributes.uptime) + text.server.command.uptime.output2 + std::to_string(serverAttributes.uptime / 60.0) + text.server.command.uptime.output3;
+	string hajInfo = fmt::vformat(fmt::to_string_view(text.server.command.uptime.output), fmt::make_format_args(std::to_string(serverAttributes.uptime), std::to_string(serverAttributes.uptime / 60.0)));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 }
 
 void Server::commandRestart() {
 	string hajInfo;
 	if (serverSettings.restartMins > 0) {
-		hajInfo = text.server.command.restart.output1 + std::to_string(serverSettings.restartMins - serverAttributes.uptime) + text.server.command.restart.output2 + std::to_string((serverSettings.restartMins - serverAttributes.uptime) / 60.0) + text.server.command.restart.output3;
+		hajInfo = fmt::vformat(text.server.command.restart.output, fmt::make_format_args(std::to_string(serverSettings.restartMins - serverAttributes.uptime), std::to_string((serverSettings.restartMins - serverAttributes.uptime) / 60.0)));
 	} else {
 		hajInfo = text.server.command.restart.outputDisabled;
 	}

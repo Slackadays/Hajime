@@ -23,6 +23,8 @@
 #include <unistd.h>
 #endif
 
+#include <fmt/format.h>
+
 #include "output.hpp"
 #include "installer.hpp"
 #include "wizard.hpp"
@@ -67,7 +69,7 @@ void Wizard::pause(float mean, float stdev) {
 
 void Wizard::doLanguageStep() {
 	term.out<Question>(text.question.HajimeLanguage);
-	switch (term.getYN(string(text.option.CurrentLanguage1 + text.language + text.option.CurrentLanguage2), "English", "Español", "Português", text.option.NoLanguage)) {
+	switch (term.getYN(fmt::vformat(fmt::to_string_view(text.option.CurrentLanguage), fmt::make_format_args(text.language)), "English", "Español", "Português", text.option.NoLanguage)) {
 		case 1:
 			defaultLang = text.language;
 			break;
@@ -135,7 +137,7 @@ void Wizard::doServerStep() {
 								flags = "";
 								break;
 						}
-						term.out<Question>(text.question.UseDefaultServerFile1 + file + text.question.UseDefaultServerFile2);
+						term.out<Question>(fmt::vformat(fmt::to_string_view(text.question.UseDefaultServerFile), fmt::make_format_args(file)));
 						switch (term.getYN(text.option.UseDefault, text.option.LetHajimeDeduce, text.option.EnterManually, text.option.SkipStep)) {
 							case 1:
 								break;
@@ -173,7 +175,7 @@ void Wizard::doServerStep() {
 				}
 				term.out<Question>(text.question.CreateAnotherServerFile);
 				if (term.getYN()) {
-					term.out<Info, NoEndline>(text.info.EnterNewNameForServer1 + std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "") + text.info.EnterNewNameForServer2);
+					term.out<Info, NoEndline>(fmt::vformat(fmt::to_string_view(text.info.EnterNewNameForServer), fmt::make_format_args(std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), ""))));
 					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);
@@ -219,15 +221,15 @@ void Wizard::doStartupStep() {
 void Wizard::doNextStepStep() {
 	if (installedS) {
 		if (servers.size() == 1) {
-			term.out<Info>(text.info.wizard.NextStepServerFile1 + servers[0] + text.info.wizard.NextStepServerFile2);
+			term.out<Info>(fmt::vformat(fmt::to_string_view(text.info.wizard.NextStepServerFile), fmt::make_format_args(servers[0])));
 		} else if (servers.size() == 2) {
-			term.out<Info>(text.info.wizard.NextStepServerFile1 + servers[0] + " & " + servers[1] + text.info.wizard.NextStepServerFile2);
+			term.out<Info>(fmt::vformat(fmt::to_string_view(text.info.wizard.NextStepServerFile), fmt::make_format_args((servers[0] + " & " + servers[1]))));
 		} else if (servers.size() > 2) {
-			term.out<Info, NoEndline>(text.info.wizard.NextStepServerFile1);
+			term.out<Info, NoEndline>(text.info.wizard.NextStepServerFile);
 			for (int i = 0; i < (servers.size() - 1); i++) {
 				term.out<None, NoEndline>(servers[i] + ", ");
 			}
-			term.out<None>("& " + servers.back() + text.info.wizard.NextStepServerFile2);
+			term.out<None>("& " + servers.back() + ".");
 		}
 	}
 }

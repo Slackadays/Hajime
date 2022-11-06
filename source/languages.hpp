@@ -62,14 +62,12 @@ class Text {
 		Prefix prefix;
 		struct Error {
 			string NotEnoughArgs;
-			string ConfDoesNotExist1;
-			string ConfDoesNotExist2;
+			string ConfDoesNotExist;
 			string NoHajimeConfig;
 			string StartupServiceWindowsAdmin;
 			string SystemdRoot;
 			string NoSystemd;
-			string ServerFileNotPresent1;
-			string ServerFileNotPresent2;
+			string ServerFileNotPresent;
 			string CouldntSetPath;
 			string Generic;
 			string MethodNotValid;
@@ -120,8 +118,7 @@ class Text {
 			string InstallNewOneAgain;
 			string CreateAnotherServerFile;
 			string ApplyConfigToServerFile;
-			string UseDefaultServerFile1;
-			string UseDefaultServerFile2;
+			string UseDefaultServerFile;
 			string EnterNewServerFile;
 			string EnterCustomFlags;
 			string HajimeLanguage;
@@ -144,8 +141,7 @@ class Text {
 			string FroggeMCFlags;
 			string BasicZGCFlags;
 			string CustomFlags;
-			string CurrentLanguage1;
-			string CurrentLanguage2;
+			string CurrentLanguage;
 			string NoLanguage;
 		};
 		Option option;
@@ -163,14 +159,12 @@ class Text {
 			string ServerDevice;
 			string ServerDebug;
 			string ServerIsRunning;
-			string CreatedServerConfig1;
-			string CreatedServerConfig2;
+			string CreatedServerConfig;
 			string TryingToStartProgram;
 			string StartingServer;
 			string ServerStartCompleted;
 			string POSIXdriveMount;
-			string TryingFilesystem1;
-			string TryingFilesystem2;
+			string TryingFilesystem;
 			string TryingMount;
 			string CreatingDirectory;
 			string DeviceMounted;
@@ -179,8 +173,7 @@ class Text {
 			string InstallingNewServConf;
 			string InstallingDefHajConf;
 			string CheckingExistingFile;
-			string HajConfigMade1;
-			string HajConfigMade2;
+			string HajConfigMade;
 			string InstallingWStartServ;
 			string TipAdministrator;
 			string InstallingLaunchdServ;
@@ -188,23 +181,20 @@ class Text {
 			string InstalledLaunchServ;
 			string AbortedLaunchServ;
 			string MakingSystemdServ;
-			string EnterNewNameForServer1;
-			string EnterNewNameForServer2;
+			string EnterNewNameForServer;
 			string MakingHajimeDirectory;
 			struct Wizard {
 				string HajimeFile;
 				string ServerFile;
 				string StartupService;
 				string Complete;
-				string NextStepServerFile1;
-				string NextStepServerFile2;
+				string NextStepServerFile;
 			};
 			Wizard wizard;
 		};
 		Info info;
 		struct Debug {
-			string HajDefConfNoExist1;
-			string HajDefConfNoExist2;
+			string HajDefConfNoExist;
 			string ReadingReadsettings;
 			string ReadReadsettings;
 			string UsingOldMethod;
@@ -239,8 +229,7 @@ class Text {
 			struct Restart {
 				string minutes5;
 				string minutes15;
-				string alert1;
-				string alert2;
+				string alert;
 			};
 			Restart restart;
 			struct Command {
@@ -313,16 +302,12 @@ class Text {
 				Info info;
 				struct Uptime {
 					string regex;
-					string output1;
-					string output2;
-					string output3;
+					string output;
 				};
 				Uptime uptime;
 				struct Restart {
 					string regex;
-					string output1;
-					string output2;
-					string output3;
+					string output;
 					string outputDisabled;
 				};
 				Restart restart;

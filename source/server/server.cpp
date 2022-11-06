@@ -27,6 +27,8 @@
 #include <termios.h>
 #endif
 
+#include <fmt/format.h>
+
 #include <sstream>
 #include <iostream>
 #include <stdlib.h>
@@ -70,7 +72,7 @@ void Server::startServer(string confFile) {
 			term.out<Info>(text.info.ReadingServerSettings);
 			readSettings(confFile);
 		} else {
-			term.out<Error>(text.error.ServerFileNotPresent1 + confFile + text.error.ServerFileNotPresent2);
+			term.out<Error>(fmt::vformat(fmt::to_string_view(text.error.ServerFileNotPresent), fmt::make_format_args(confFile)));
 			return;
 		}
 		term.dividerLine("Starting server with name " + serverSettings.name);
@@ -359,7 +361,7 @@ void Server::mountDrive() {
 				}
 			}
 			if (serverAttributes.systemi < 6) {
-				term.out<Info>(text.info.TryingFilesystem1 + systems[serverAttributes.systemi] + text.info.TryingFilesystem2);
+				term.out<Info>(fmt::vformat(fmt::to_string_view(text.info.TryingFilesystem), fmt::make_format_args(systems[serverAttributes.systemi])));
 				serverAttributes.systemi++; //increment the filesystem
 			}
 		}

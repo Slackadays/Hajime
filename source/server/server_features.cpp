@@ -45,6 +45,8 @@
 #include <signal.h>
 #endif
 
+#include <fmt/format.h>
+
 #include <memory>
 #include <iterator>
 #include <algorithm>
@@ -173,7 +175,7 @@ void Server::processServerCommand(string input) {
 void Server::processRestartAlert(string input) {
 	std::smatch m;
 	if (serverSettings.restartMins > 0 && serverAttributes.uptime >= (serverSettings.restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
-		string hajInfo = "tellraw " + string(m[1]) + text.server.restart.alert1 + std::to_string(serverSettings.restartMins - serverAttributes.uptime) + text.server.restart.alert2;
+		string hajInfo = "tellraw " + string(m[1]) + fmt::vformat(fmt::to_string_view(text.server.restart.alert), fmt::make_format_args(std::to_string(serverSettings.restartMins - serverAttributes.uptime)));
 		writeToServerTerminal(addNumberColors(hajInfo));
 	}
 }
