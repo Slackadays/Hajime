@@ -42,6 +42,7 @@
 #include "installer.hpp"
 #include "wizard.hpp"
 #include "flags.hpp"
+#include "flexi_format.hpp"
 
 std::vector<std::shared_ptr<Server>> serverVec = {}; //create an array of individual server objects
 std::vector<std::thread> threadVec = {}; //create an array of thread objects
@@ -127,7 +128,7 @@ void setupTerminal() {
 void setupRLimits() {
 	struct rlimit rlimits;
 	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
-		term.out<Error, Threadless>(fmt::vformat("Error getting resource limits; errno = {}", fmt::make_format_args(std::to_string(errno))));
+		term.out<Error, Threadless>(flexi_format("Error getting resource limits; errno = {}", std::to_string(errno)));
 	}
 	rlimits.rlim_cur = rlimits.rlim_max; //resize soft limit to max limit; the max limit is a ceiling for the soft limit
 	if (setrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
@@ -140,7 +141,7 @@ void setupRLimits() {
 bool readSettings() {
 	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors", "stoponexit"};
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
-		term.out<Debug>(fmt::vformat(fmt::to_string_view(text.debug.HajDefConfNoExist), fmt::make_format_args(hajDefaultConfFile)));
+		term.out<Debug>(flexi_format(text.debug.HajDefConfNoExist, hajDefaultConfFile));
 		return 0;
 	}
 	std::vector<std::string> results = getVarsFromFile(hajDefaultConfFile, settings);
@@ -279,7 +280,7 @@ void processHajimeCommand(std::vector<std::string> input) {
 				term.out<Info>("File: " + server->serverSettings.file);
 				term.out<Info>("Device: " + server->serverSettings.device);
 				term.out<Info>("Restart minute interval: " + std::to_string(server->serverSettings.restartMins));
-				term.out<Info>("Commands: " + server->serverSettings.doCommands);
+				term.out<Info>("Commands: " + std::to_string(server->serverSettings.doCommands));
 				term.out<Info>("Custom message: " + server->serverSettings.customMessage);
 				term.out<Info>("Chat kick regex: " + server->serverSettings.chatKickRegex);
 				term.out<Info>("Counters: " + std::to_string(server->serverSettings.counterLevel));

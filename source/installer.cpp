@@ -35,6 +35,7 @@
 #include "output.hpp"
 #include "languages.hpp"
 #include "installer.hpp"
+#include "flexi_format.hpp"
 
 namespace fs = std::filesystem;
 
@@ -58,7 +59,7 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 		outConf << "autoupdate=" << std::endl;
 		outConf << "counterintervalmax=" << defaultCounterInterval << ' ' << defaultCounterMax << std::endl;
 		outConf << text.fileServerConfComment << std::endl;
-		term.out<Info>(fmt::vformat(text.info.CreatedServerConfig, fmt::make_format_args(conf.fileLocation)));
+		term.out<Info>(flexi_format(text.info.CreatedServerConfig, conf.fileLocation));
 		outConf.close();
 		if (!fs::is_regular_file(conf.fileLocation)) {
 			throw "Could not create server config file";
@@ -80,7 +81,7 @@ void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", b
 		outConf << "threadcolors=1" << std::endl;
 		outConf << "stoponexit=1" << std::endl;
 		outConf.close();
-		term.out<Info>(fmt::vformat(fmt::to_string_view(text.info.HajConfigMade), fmt::make_format_args(fileLocation)));
+		term.out<Info>(flexi_format(text.info.HajConfigMade, fileLocation));
 		if (!fs::is_regular_file(fileLocation)) {
 			throw "Could not create Hajime config file";
 		}

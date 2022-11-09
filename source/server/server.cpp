@@ -59,6 +59,7 @@
 #include "../getvarsfromfile.hpp"
 #include "server.hpp"
 #include "../output.hpp"
+#include "../flexi_format.hpp"
 
 using namespace std::chrono;
 
@@ -72,7 +73,7 @@ void Server::startServer(string confFile) {
 			term.out<Info>(text.info.ReadingServerSettings);
 			readSettings(confFile);
 		} else {
-			term.out<Error>(fmt::vformat(fmt::to_string_view(text.error.ServerFileNotPresent), fmt::make_format_args(confFile)));
+			term.out<Error>(flexi_format(text.error.ServerFileNotPresent, confFile));
 			return;
 		}
 		term.dividerLine("Starting server with name " + serverSettings.name);
@@ -361,7 +362,7 @@ void Server::mountDrive() {
 				}
 			}
 			if (serverAttributes.systemi < 6) {
-				term.out<Info>(fmt::vformat(fmt::to_string_view(text.info.TryingFilesystem), fmt::make_format_args(systems[serverAttributes.systemi])));
+				term.out<Info>(flexi_format(text.info.TryingFilesystem, systems[serverAttributes.systemi]));
 				serverAttributes.systemi++; //increment the filesystem
 			}
 		}

@@ -73,6 +73,7 @@
 #include <array>
 
 #include "server.hpp"
+#include "../flexi_format.hpp"
 
 namespace fs = std::filesystem;
 
@@ -157,14 +158,14 @@ void Server::commandInfo() {
 }
 
 void Server::commandUptime() {
-	string hajInfo = fmt::vformat(fmt::to_string_view(text.server.command.uptime.output), fmt::make_format_args(std::to_string(serverAttributes.uptime), std::to_string(serverAttributes.uptime / 60.0)));
+	string hajInfo = flexi_format(text.server.command.uptime.output, std::to_string(serverAttributes.uptime), std::to_string(serverAttributes.uptime / 60.0));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 }
 
 void Server::commandRestart() {
 	string hajInfo;
 	if (serverSettings.restartMins > 0) {
-		hajInfo = fmt::vformat(text.server.command.restart.output, fmt::make_format_args(std::to_string(serverSettings.restartMins - serverAttributes.uptime), std::to_string((serverSettings.restartMins - serverAttributes.uptime) / 60.0)));
+		hajInfo = flexi_format(text.server.command.restart.output, std::to_string(serverSettings.restartMins - serverAttributes.uptime), std::to_string((serverSettings.restartMins - serverAttributes.uptime) / 60.0));
 	} else {
 		hajInfo = text.server.command.restart.outputDisabled;
 	}

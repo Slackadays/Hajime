@@ -30,6 +30,7 @@
 #include "wizard.hpp"
 #include "deduce.hpp"
 #include "constants.hpp"
+#include "flexi_format.hpp"
 
 namespace fs = std::filesystem;
 
@@ -69,7 +70,7 @@ void Wizard::pause(float mean, float stdev) {
 
 void Wizard::doLanguageStep() {
 	term.out<Question>(text.question.HajimeLanguage);
-	switch (term.getYN(fmt::vformat(fmt::to_string_view(text.option.CurrentLanguage), fmt::make_format_args(text.language)), "English", "Español", "Português", text.option.NoLanguage)) {
+	switch (term.getYN(flexi_format(text.option.CurrentLanguage, text.language), "English", "Español", "Português", text.option.NoLanguage)) {
 		case 1:
 			defaultLang = text.language;
 			break;
@@ -137,7 +138,7 @@ void Wizard::doServerStep() {
 								flags = "";
 								break;
 						}
-						term.out<Question>(fmt::vformat(fmt::to_string_view(text.question.UseDefaultServerFile), fmt::make_format_args(file)));
+						term.out<Question>(flexi_format(text.question.UseDefaultServerFile, file));
 						switch (term.getYN(text.option.UseDefault, text.option.LetHajimeDeduce, text.option.EnterManually, text.option.SkipStep)) {
 							case 1:
 								break;
@@ -175,7 +176,7 @@ void Wizard::doServerStep() {
 				}
 				term.out<Question>(text.question.CreateAnotherServerFile);
 				if (term.getYN()) {
-					term.out<Info, NoEndline>(fmt::vformat(fmt::to_string_view(text.info.EnterNewNameForServer), fmt::make_format_args(std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), ""))));
+					term.out<Info, NoEndline>(flexi_format(text.info.EnterNewNameForServer, std::regex_replace(serverFile, std::regex("\\.server(?!\\w)", std::regex_constants::optimize), "")));
 					std::getline(std::cin, serverFile);
 					std::cout << "\033[0m";
 					pause(200, 200);
@@ -221,9 +222,9 @@ void Wizard::doStartupStep() {
 void Wizard::doNextStepStep() {
 	if (installedS) {
 		if (servers.size() == 1) {
-			term.out<Info>(fmt::vformat(fmt::to_string_view(text.info.wizard.NextStepServerFile), fmt::make_format_args(servers[0])));
+			term.out<Info>(flexi_format(text.info.wizard.NextStepServerFile, servers[0]));
 		} else if (servers.size() == 2) {
-			term.out<Info>(fmt::vformat(fmt::to_string_view(text.info.wizard.NextStepServerFile), fmt::make_format_args((servers[0] + " & " + servers[1]))));
+			term.out<Info>(flexi_format(text.info.wizard.NextStepServerFile, (servers[0] + " & " + servers[1])));
 		} else if (servers.size() > 2) {
 			term.out<Info, NoEndline>(text.info.wizard.NextStepServerFile);
 			for (int i = 0; i < (servers.size() - 1); i++) {
