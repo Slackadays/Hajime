@@ -45,6 +45,7 @@
 #include <signal.h>
 #endif
 
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #include <memory>
@@ -247,17 +248,17 @@ void Server::checkHajimeHelper(std::string input) {
 }
 
 string Server::readFromServer() {
-	char input[2500];
+	std::vector<char> input(2500);
 	#if defined(_WIN32) || defined (_WIN64)
 	DWORD length = 0;
-	if (!ReadFile(outputread, input, 1000, &length, NULL)) {
+	if (!ReadFile(outputread, input.data(), 1000, &length, NULL)) {
 		term.out<Error, Threadless>("ReadFile failed (unable to read from pipe)");
 		return std::string();
 	}
 	#else
 	ssize_t length = -1;
 	while (length == -1) {
-		length = read(fd, input, sizeof(input));
+		length = read(fd, input.data(), input.size());
 		if (length == -1) {
 			switch(errno) {
 				case EAGAIN:
@@ -411,7 +412,7 @@ void Server::terminalAccessWrapper() {
 		if (user_input == ".d") {
 			serverAttributes.wantsLiveOutput = false;
 			break;
-		} else if (user_input[0] == '.') {
+		} else if (user_input.at(0) == '.') {
 			std::cout << text.error.InvalidCommand << std::endl;
 			std::cout << text.error.InvalidServerCommand1 << std::endl;
 		} else {

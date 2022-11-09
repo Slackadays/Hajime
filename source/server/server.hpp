@@ -44,6 +44,7 @@
 #include <errno.h>
 #include <chrono>
 #include <mutex>
+#include <array>
 
 #if defined(_OPENMP)
 #include <omp.h>
@@ -78,7 +79,7 @@ class Server {
 		return temp;
 	}
 
-	const std::string systems[8] = {"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
+	const std::vector<std::string> systems{"ext2", "ext3", "ext4", "vfat", "msdos", "f2fs", "ntfs", "fuseblk"};
 
 	#if defined(__linux__)
 	std::vector<long> getProcessChildPids(long pid);

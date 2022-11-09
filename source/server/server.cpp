@@ -27,6 +27,7 @@
 #include <termios.h>
 #endif
 
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #include <sstream>
@@ -222,8 +223,8 @@ void Server::startProgram() {
 		term.out<Debug>(text.debug.Flags + serverSettings.flags);
 		auto flagTemp = toArray(serverSettings.flags);
 		auto flagArray = toPointerArray(flagTemp);
-		term.out<Debug>(text.debug.flag.Array0 + (string)flagArray[0]);
-		term.out<Debug>(text.debug.flag.Array1 + (string)flagArray[1]);
+		term.out<Debug>(text.debug.flag.Array0 + (string)flagArray.at(0));
+		term.out<Debug>(text.debug.flag.Array1 + (string)flagArray.at(1));
 		serverAttributes.wantsLiveOutput = false;
 		fd = posix_openpt(O_RDWR);
 		if (fd == -1) {
@@ -407,20 +408,20 @@ void Server::readSettings(const string confFile) {
 				}
 			}
 		};
-		setVar(settings[0], serverSettings.name);
-		setVar(settings[1], serverSettings.exec);
-		setVar(settings[2], serverSettings.file);
-		setVar(settings[3], serverSettings.path);
-		setVar(settings[4], serverSettings.flags);
-		setVar(settings[5], serverSettings.device);
-		setVari(settings[6], serverSettings.restartMins);
-		setVari(settings[7], serverSettings.doCommands);
-		setVar(settings[8], serverSettings.customMessage);
-		setVar(settings[9], serverSettings.chatKickRegex);
-		setVar(settings[10], tempCounters);
-		setVar(settings[11], tempAutoUpdate);
-		setVar(settings[12], tempCounterIntervalMax);
-		setVar(settings[13], serverSettings.version);
+		setVar(settings.at(0), serverSettings.name);
+		setVar(settings.at(1), serverSettings.exec);
+		setVar(settings.at(2), serverSettings.file);
+		setVar(settings.at(3), serverSettings.path);
+		setVar(settings.at(4), serverSettings.flags);
+		setVar(settings.at(5), serverSettings.device);
+		setVari(settings.at(6), serverSettings.restartMins);
+		setVari(settings.at(7), serverSettings.doCommands);
+		setVar(settings.at(8), serverSettings.customMessage);
+		setVar(settings.at(9), serverSettings.chatKickRegex);
+		setVar(settings.at(10), tempCounters);
+		setVar(settings.at(11), tempAutoUpdate);
+		setVar(settings.at(12), tempCounterIntervalMax);
+		setVar(settings.at(13), serverSettings.version);
 		term.out<Debug>(text.debug.ReadingReadsettings);
 	}
 	//std::cout << "tempAutoUpdate = " << tempAutoUpdate << std::endl;

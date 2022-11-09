@@ -29,6 +29,7 @@
 #include <signal.h>
 
 #include <boost/algorithm/string.hpp>
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #if !defined(_WIN64) && !defined(_WIN32)
@@ -161,13 +162,13 @@ bool readSettings() {
 			}
 		};
 		term.out<Debug>(text.debug.ReadingReadsettings);
-		setVar(settings[0], version);
-		setVar(settings[1], logFile);
+		setVar("version", version);
+		setVar("logfile", logFile);
 		if (!term.debug) {
-			setVari(settings[2], term.debug);
+			setVari("debug", term.debug);
 		}
-		setVari(settings[3], term.showThreadsAsColors);
-		setVari(settings[4], stopOnExit);
+		setVari("threadcolors", term.showThreadsAsColors);
+		setVari("stoponexit", stopOnExit);
 	}
 	term.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);
 	return 1;
@@ -257,10 +258,10 @@ void processHajimeCommand(std::vector<std::string> input) {
 	if (input.size() == 0) {
 		return;
 	}
-	if (input[0] == "term" || input.at(0) == "t") {
+	if (input.at(0) == "term" || input.at(0) == "t") {
 		if (input.size() >= 2) {
 			try {
-				std::shared_ptr<Server> server = getServerObject(input[1]);
+				std::shared_ptr<Server> server = getServerObject(input.at(1));
 				server->terminalAccessWrapper();
 			} catch(...) {
 				term.out<Error>(text.error.ServerSelectionInvalid);
@@ -268,10 +269,10 @@ void processHajimeCommand(std::vector<std::string> input) {
 		} else {
 			term.out<Error>(text.error.NotEnoughArgs);
 		}
-	} else if (input[0] == "info" || input[0] == "i") {
+	} else if (input.at(0) == "info" || input.at(0) == "i") {
 		if (input.size() >= 2) {
 			try {
-				std::shared_ptr<Server> server = getServerObject(input[1]);
+				std::shared_ptr<Server> server = getServerObject(input.at(1));
 				term.out<Info>("Version: " + server->serverSettings.version);
 				term.out<Info>("Name: " + server->serverSettings.name);
 				term.out<Info>("Path: " + server->serverSettings.path);
@@ -294,9 +295,9 @@ void processHajimeCommand(std::vector<std::string> input) {
 		} else {
 			term.out<Error>(text.error.NotEnoughArgs);
 		}
-	} else if (input[0] == "ee" && ee && text.language == "en") {
+	} else if (input.at(0) == "ee" && ee && text.language == "en") {
 		term.out("https://www.youtube.com/watch?v=ccY25Cb3im0");
-	} else if (input[0] == "ee" && ee && text.language == "es") {
+	} else if (input.at(0) == "ee" && ee && text.language == "es") {
 		term.out("https://www.youtube.com/watch?v=iFClTRUnmKc");
 	} else {
 		term.out<Error>(text.error.InvalidCommand);

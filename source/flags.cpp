@@ -91,7 +91,7 @@ void doRegularFlags(std::vector<std::string> flags) {
 		}
 		if (flag("-ih", "--install-hajime-config")) { //can accept either no added file or an added file
 			std::string tempHajConfFile;
-			if (std::string var = "-"; assignNextToVar(var) && var[0] != '-') { //compare the next flag if present and check if it is a filename
+			if (std::string var = "-"; assignNextToVar(var) && var.at(0) != '-') { //compare the next flag if present and check if it is a filename
 				tempHajConfFile = var;
 			} else {
 				tempHajConfFile = hajDefaultConfFile;

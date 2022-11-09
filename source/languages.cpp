@@ -101,8 +101,8 @@ Text::Text(string file) {
 	else {
 		std::vector<string> settings = {"lang"};
 		std::vector<string> results = getVarsFromFile(file, settings);
-		if (results[0] != "") {
-			applyLang(results[0]);
+		if (results.at(0) != "") {
+			applyLang(results.at(0));
 		} else {
 			autoSetLanguage();
 		}

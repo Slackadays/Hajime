@@ -162,6 +162,6 @@ if(Boost_FOUND)
   target_link_libraries(hajime ${Boost_LIBRARIES})
 endif()
 
-target_link_libraries(hajime fmt::fmt-header-only)
+target_link_libraries(hajime fmt::fmt)
 
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")

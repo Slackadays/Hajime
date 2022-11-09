@@ -23,6 +23,7 @@
 #include <unistd.h>
 #endif
 
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #include "output.hpp"
@@ -222,9 +223,9 @@ void Wizard::doStartupStep() {
 void Wizard::doNextStepStep() {
 	if (installedS) {
 		if (servers.size() == 1) {
-			term.out<Info>(flexi_format(text.info.wizard.NextStepServerFile, servers[0]));
+			term.out<Info>(flexi_format(text.info.wizard.NextStepServerFile, servers.at(0)));
 		} else if (servers.size() == 2) {
-			term.out<Info>(flexi_format(text.info.wizard.NextStepServerFile, (servers[0] + " & " + servers[1])));
+			term.out<Info>(flexi_format(text.info.wizard.NextStepServerFile, (servers.at(0) + " & " + servers.at(1))));
 		} else if (servers.size() > 2) {
 			term.out<Info, NoEndline>(text.info.wizard.NextStepServerFile);
 			for (int i = 0; i < (servers.size() - 1); i++) {

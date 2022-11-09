@@ -46,6 +46,7 @@
 #include <signal.h>
 #endif
 
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #include <random>
@@ -547,7 +548,7 @@ string Server::getRAM() {
 	if (meminfo.size() < 3) {
 		return string("Could not get memory info");
 	}
-	string result = meminfo[0] + "kB total, " + meminfo[1] + "kB free, " + meminfo[2] + "kB available";
+	string result = meminfo.at(0) + "kB total, " + meminfo.at(1) + "kB free, " + meminfo.at(2) + "kB available";
 	return result;
 	#elif defined(_WIN32)
 	MEMORYSTATUSEX mem;
@@ -613,7 +614,7 @@ string Server::getLoadavg() {
 	if (loadinfo.size() < 3) {
 		return string("Could not get load average info");
 	}
-	string result = "last 1 minute: " + loadinfo[0] + ", last 5 minutes: " + loadinfo[1] + ", last 10 minutes: " + loadinfo[2];
+	string result = "last 1 minute: " + loadinfo.at(0) + ", last 5 minutes: " + loadinfo.at(1) + ", last 10 minutes: " + loadinfo.at(2);
 	return result;
 	#else
 	return "Not available yet";

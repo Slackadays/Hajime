@@ -21,6 +21,7 @@
 #include <iostream>
 #include <vector>
 
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #if defined(_win64) || defined (_WIN32)
