@@ -18,10 +18,13 @@
 #include <Windows.h>
 #include <shlobj.h>
 #else
-#include <sensors/sensors.h>
 #include <sys/resource.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#endif
+
+#if defined(__linux__)
+#include <sensors/sensors.h>
 #endif
 
 #include <vector>
