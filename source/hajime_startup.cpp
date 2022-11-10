@@ -143,7 +143,7 @@ void setupRLimits() {
 }
 #endif
 
-#if !defined(_WIN64) && !defined(_WIN32)
+#if defined(__linux__)
 void setupSensors() {
 	if (sensors_init(nullptr) == 0) {
 		term.out<Debug>("libsensors initialized, library version " + string(libsensors_version));

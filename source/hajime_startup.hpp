@@ -21,8 +21,12 @@
 extern void setupTerminal();
 #else
 extern void setupRLimits();
+#endif
+
+#if defined(__linux__)
 extern void setupSensors();
 #endif
+
 extern void shutdownServers();
 extern void setupSignals();
 extern void setupHajimeDirectory();
