@@ -57,7 +57,9 @@ int main(int argc, char *argv[]) {
 	#endif
 	//auto then = std::chrono::high_resolution_clock::now();
 	setupSignals();
+	#if defined(__linux__)
 	setupSensors();
+	#endif
 	#if defined(_WIN64) || defined (_WIN32)
 	setupTerminal();
 	#endif
