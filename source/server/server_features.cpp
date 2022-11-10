@@ -245,6 +245,10 @@ void Server::checkHajimeHelper(std::string input) {
 		writeToServerTerminal("setsecret " + serverAttributes.secret);
 		serverAttributes.usesHajimeHelper = true;
 	}
+	if (serverAttributes.uptime >= 5 && !serverAttributes.usesHajimeHelper && !serverAttributes.saidHajimeHelperMessage) {
+		term.out<Info>("This server does not use HajimeHelper; consider installing it for better functionality");
+		serverAttributes.saidHajimeHelperMessage = true;
+	}
 }
 
 string Server::readFromServer() {

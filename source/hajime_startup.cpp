@@ -14,11 +14,11 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
     
-#include <filesystem>
 #if defined(_WIN64) || defined(_WIN32) //Windows compatibility
 #include <Windows.h>
 #include <shlobj.h>
 #else
+#include <sensors/sensors.h>
 #include <sys/resource.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <sstream>
+#include <filesystem>
 #include <signal.h>
 
 #include <boost/algorithm/string.hpp>
@@ -138,6 +139,29 @@ void setupRLimits() {
 	term.out<Debug>("New soft file descriptor soft limit = " + std::to_string(rlimits.rlim_cur));
 }
 #endif
+
+#if !defined(_WIN64) && !defined(_WIN32)
+void setupSensors() {
+	if (sensors_init(nullptr) == 0) {
+		term.out<Debug>("libsensors initialized, library version " + string(libsensors_version));
+	} else {
+		term.out<Error, Threadless>("Error initializing sensors");
+	}
+}
+#endif
+
+void setupHajimeDirectory() {
+	if (!fs::is_directory(hajimePath)) {
+		term.out<Info>(text.info.MakingHajimeDirectory + hajimePath);
+		try {
+			fs::create_directory(hajimePath);
+		} catch (fs::filesystem_error& e) {
+			term.out<Error>("Could not create Hajime directory");
+			term.out<Error>(e.what());
+			exit(1);
+		}
+	}
+}
 
 bool readSettings() {
 	std::vector<std::string> settings{"version", "logfile", "debug", "threadcolors", "stoponexit"};

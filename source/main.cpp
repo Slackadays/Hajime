@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
 	#endif
 	//auto then = std::chrono::high_resolution_clock::now();
 	setupSignals();
+	setupSensors();
 	#if defined(_WIN64) || defined (_WIN32)
 	setupTerminal();
 	#endif
@@ -69,16 +70,7 @@ int main(int argc, char *argv[]) {
 	doRegularFlags(flags);
 	term.out<Info>("Starting Hajime");
 	// check for a subdirectory called "Hajime" and if it does not exist, create it
-	if (!fs::is_directory(hajimePath)) {
-		term.out<Info>(text.info.MakingHajimeDirectory + hajimePath);
-		try {
-			fs::create_directory(hajimePath);
-		} catch (fs::filesystem_error& e) {
-			term.out<Error>("Could not create Hajime directory");
-			term.out<Error>(e.what());
-			exit(1);
-		}
-	}
+	setupHajimeDirectory();
 	if (fs::is_regular_file(hajDefaultConfFile)) {
 		readSettings();
 		empty(hajimePath + logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(hajimePath + logFile);

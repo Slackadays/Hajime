@@ -21,9 +21,11 @@
 extern void setupTerminal();
 #else
 extern void setupRLimits();
+extern void setupSensors();
 #endif
 extern void shutdownServers();
 extern void setupSignals();
+extern void setupHajimeDirectory();
 extern bool readSettings();
 extern void hajimeUserExit(int sig);
 extern std::vector<std::string> getServerFiles();

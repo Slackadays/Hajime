@@ -284,6 +284,7 @@ class Server {
 			bool wantsLiveOutput = false;
 			bool said15MinRestart = false;
 			bool said5MinRestart = false;
+			bool saidHajimeHelperMessage = false;
 
 			int systemi = 0;
 

@@ -229,7 +229,7 @@ void Wizard::doNextStepStep() {
 		} else if (servers.size() > 2) {
 			term.out<Info, NoEndline>(text.info.wizard.NextStepServerFile);
 			for (int i = 0; i < (servers.size() - 1); i++) {
-				term.out<None, NoEndline>(servers[i] + ", ");
+				term.out<None, NoEndline>(servers.at(i) + ", ");
 			}
 			term.out<None>("& " + servers.back() + ".");
 		}

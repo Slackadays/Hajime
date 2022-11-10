@@ -38,6 +38,7 @@
 #include <sys/sysinfo.h>
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <sensors/sensors.h>
 #else
 #include <unistd.h>
 #include <termios.h>
@@ -650,7 +651,40 @@ string Server::getProcesses() {
 }
 
 string Server::getTemps() {
-	string result = "Currently not available";
+	std::vector<std::string> temps;
+	#if defined(__linux__)
+	std::vector<sensors_chip_name const*> chips;
+	for (int i = 0; sensors_get_detected_chips(NULL, &i) != NULL; i++) {
+		chips.push_back(sensors_get_detected_chips(NULL, &i));
+	}
+	for (auto chip : chips) {
+		std::string temp;
+		sensors_feature const* feature = sensors_get_features(chip, 0);
+		sensors_subfeature const* sub = sensors_get_subfeature(chip, feature, SENSORS_SUBFEATURE_TEMP_INPUT);
+		if (sub != NULL) {
+			double value;
+			if(sensors_get_value(chip, sub->number, &value) < 0) {
+				temp = "Error getting temperature";
+			} else {
+				temp = std::to_string(value) + "°C";
+			}
+		}
+		sub = sensors_get_subfeature(chip, feature, SENSORS_SUBFEATURE_TEMP_MAX);
+		if (sub != NULL) {
+			double value;
+			if (sensors_get_value(chip, sub->number, &value) < 0) {
+				temp += ", Error getting max temperature";
+			} else {
+				temp += ", " + std::to_string(value) + "°C max)";
+			}
+		}
+		temps.push_back(temp);
+	}
+	#endif
+	std::string result;
+	for (const auto& temp : temps) {
+		result += temp + " ";
+	}
 	return result;
 }
 

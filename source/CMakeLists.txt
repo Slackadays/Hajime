@@ -164,4 +164,8 @@ endif()
 
 target_link_libraries(hajime fmt::fmt)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  target_link_libraries(hajime sensors)
+endif()
+
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")
