@@ -4,7 +4,7 @@ project(Hajime LANGUAGES CXX)
 
 project(Hajime VERSION 0.2.1)
 
-find_package(fmt)
+find_package(fmt CONFIG)
 
 find_package(Boost)
 
