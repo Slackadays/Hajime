@@ -290,6 +290,7 @@ jobs:
         run: |
           choco install boost-msvc-14.2
           vcpkg install fmt
+          vcpkg integrate install
           cmake source
           cp source/zlib/zconf.h.in source/zlib/zconf.h
           cmake --build . -j 4 --config Release
