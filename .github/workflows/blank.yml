@@ -28,6 +28,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y g++-12 libfmt-dev libboost-all-dev libsensors-dev
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install boost
           cmake source -D CMAKE_CXX_COMPILER=g++-10
           cmake --build . -j 4
 
@@ -48,6 +50,8 @@ jobs:
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt update
           sudo apt install -y libfmt-dev g++-12 libboost-all-dev libsensors-dev
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install boost
           cmake source -DADD_FLAGS="-march=x86-64-v3" -DCMAKE_CXX_COMPILER=g++-11
           cmake --build . -j 4
 
@@ -68,6 +72,8 @@ jobs:
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt update
           sudo apt install -y g++-12 libboost-all-dev libfmt-dev libsensors-dev
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install boost
           cmake source -DADD_FLAGS="-march=x86-64-v4" -DCMAKE_CXX_COMPILER=g++-11
           cmake --build . -j 2
 
@@ -288,7 +294,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          vcpkg install fmt:x64-windows boost-algorithm:x64-windows
+          vcpkg install fmt:x64-windows boost-algorithm:x64-windows boost-json:x64-windows
           vcpkg integrate install
           cmake source
           cp source/zlib/zconf.h.in source/zlib/zconf.h
