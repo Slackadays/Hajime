@@ -289,7 +289,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           choco install boost-msvc-14.2
-          vcpkg install fmt
+          vcpkg install fmt:x64-windows
           vcpkg integrate install
           cmake source
           cp source/zlib/zconf.h.in source/zlib/zconf.h
