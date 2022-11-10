@@ -6,7 +6,7 @@
 #include <string>
 
 std::string flexi_format(const auto& format, const auto&... args) {
-    #if defined(__APPLE__)
+    #if defined(__APPLE__) || defined(_WIN32) || defined(_WIN64)
     return fmt::vformat(fmt::detail::to_string_view(format), fmt::make_format_args(args...));
     #else
     return fmt::vformat(fmt::to_string_view(format), fmt::make_format_args(args...));
