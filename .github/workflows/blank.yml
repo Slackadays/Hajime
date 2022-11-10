@@ -288,7 +288,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          vcpkg install fmt:x64-windows boost:x64-windows
+          vcpkg install fmt:x64-windows boost-algorithm:x64-windows
           vcpkg integrate install
           cmake source
           cp source/zlib/zconf.h.in source/zlib/zconf.h
