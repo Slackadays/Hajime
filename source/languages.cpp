@@ -26,11 +26,13 @@
 #include <memory>
 #endif
 
+#include <boost/json.hpp>
+
 namespace fs = std::filesystem;
 
 #include "constants.hpp"
-#include "getvarsfromfile.hpp"
 #include "languages.hpp"
+#include "flexi_format.hpp"
 #include "output.hpp"
 
 void Text::applyLang(const string& lang) {
@@ -94,15 +96,28 @@ string Text::getUserLanguage() {
 	return result;
 }
 
-Text::Text(string file) {
-	if (!fs::is_regular_file(file)) {
+Text::Text(std::string inputFile) {
+	if (!fs::is_regular_file(inputFile)) {
 		autoSetLanguage();
 	}
 	else {
-		std::vector<string> settings = {"lang"};
-		std::vector<string> results = getVarsFromFile(file, settings);
-		if (results.at(0) != "") {
-			applyLang(results.at(0));
+		std::string lang;
+		//read contents of file into a variable
+		std::ifstream file(inputFile);
+		std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		file.close();
+		//use boost json to read the file and get the language
+		try {
+			boost::json::value v = boost::json::parse(contents);
+			boost::json::object o = v.as_object();
+			if (o.contains("lang")) {
+				lang = o["lang"].as_string();
+			}
+		} catch (std::exception& e) {
+			term.out<outFlag::Error, outFlag::Threadless>(flexi_format("Error parsing JSON: {}", e.what()));
+		}
+		if (lang != "") {
+			applyLang(lang);
 		} else {
 			autoSetLanguage();
 		}

@@ -18,7 +18,6 @@
 #include <string>
 
 #include "flags.hpp"
-#include "getvarsfromfile.hpp"
 #include "server/server.hpp"
 #include "wizard.hpp"
 #include "installer.hpp"

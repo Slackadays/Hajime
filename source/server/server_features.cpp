@@ -74,7 +74,6 @@
 
 namespace fs = std::filesystem;
 
-#include "../getvarsfromfile.hpp"
 #include "server.hpp"
 #include "../flexi_format.hpp"
 
@@ -246,7 +245,7 @@ void Server::checkHajimeHelper(std::string input) {
 		serverAttributes.usesHajimeHelper = true;
 	}
 	if (serverAttributes.uptime >= 5 && !serverAttributes.usesHajimeHelper && !serverAttributes.saidHajimeHelperMessage) {
-		term.out<Info>("This server does not use HajimeHelper; consider installing it for better functionality");
+		term.out<Info>(flexi_format("Server {} does not use HajimeHelper; consider installing it for better functionality", serverSettings.name));
 		serverAttributes.saidHajimeHelperMessage = true;
 	}
 }

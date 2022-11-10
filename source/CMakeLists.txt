@@ -76,7 +76,6 @@ add_executable(hajime
 main.cpp
 hajime_startup.cpp
 flags.cpp
-getvarsfromfile.cpp 
 output.cpp
 installer.cpp
 deduce.cpp
@@ -102,6 +101,8 @@ elseif(WIN32)
 else()
   target_sources(hajime PRIVATE performance_counters/other.cpp)
 endif()
+
+target_include_directories(hajime PUBLIC /home/linuxbrew/.linuxbrew/include)
 
 if(lto_supported)
   set_property(TARGET hajime PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE) 

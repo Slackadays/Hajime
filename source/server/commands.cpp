@@ -591,8 +591,8 @@ string Server::getUptime() {
 	std::regex_search(temp2, m, std::regex("[0-9]+(\\.[0-9]+)?", std::regex_constants::optimize));
 	try {
 		return string(m[0]) + " seconds (" + std::to_string(stoi(m[0]) / 60) + string(" minutes, ") + std::to_string(stoi(m[0]) / 3600) + " hours)";
-	} catch (...) {
-		return "Error parsing memory";
+	} catch (std::exception& e) {
+		return flexi_format("Error parsing memory: {}", e.what());
 	}
 	#else
 	return string("Not available yet");

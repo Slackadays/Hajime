@@ -27,6 +27,8 @@
 #include <termios.h>
 #endif
 
+#include <boost/json.hpp>
+
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
@@ -57,7 +59,6 @@
 	#define jthread thread
 #endif
 
-#include "../getvarsfromfile.hpp"
 #include "server.hpp"
 #include "../output.hpp"
 #include "../flexi_format.hpp"
@@ -78,13 +79,6 @@ void Server::startServer(string confFile) {
 			return;
 		}
 		term.dividerLine("Starting server with name " + serverSettings.name);
-		term.out<Info, NoEndline>(text.info.ServerFile + serverSettings.file + " | ");
-		term.out<None>(text.info.ServerPath + serverSettings.path);
-		term.out<Info>(text.info.ServerDebug + std::to_string(term.debug) + " | "); // ->out wants a string so we convert the debug int (converted from a string) back to a string
-		term.out<None>(text.info.ServerDevice + serverSettings.device);
-		term.out<Info, NoEndline>("Restart interval: " + std::to_string(serverSettings.restartMins) + " | ");
-		term.out<Info>("Auto update: " + serverSettings.autoUpdateName + ' ' + serverSettings.autoUpdateVersion);
-		term.out<Info>("Counter setting: " + std::to_string(serverSettings.counterLevel));
 		term.hajimeTerminal = true;
 		if (!fs::is_regular_file(serverSettings.file)) {
 			term.out<Warning>(serverSettings.file + text.warning.FileDoesntExist);
@@ -387,28 +381,52 @@ void Server::readSettings(const string confFile) {
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
-	std::vector<string> settings {"name", "exec", "file", "path", "flags", "device", "restartmins", "commands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterintervalmax", "version"};
-	std::vector<string> results = getVarsFromFile(confFile, settings);
-	for (const auto& it : results) {
-		term.out<Debug>(it);
-	}
-	for (std::vector<string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end(); ++firstSetIterator, ++secondSetIterator) {
-		auto setVar = [&](auto name, auto& tempVar) {
-			if (*firstSetIterator == name) {
-				tempVar = *secondSetIterator;
-			}
-		};
-		auto setVari = [&](auto name, auto& tempVar) {
-			if (*firstSetIterator == name) {
-				try {
-					eliminateSpaces(*secondSetIterator);
-					tempVar = stoi(*secondSetIterator);
-				} catch(...) {
-					tempVar = 0;
+	std::vector<string> settings {"name", "exec", "file", "path", "flags", "device", "restartmins", "docommands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterintervalmax", "version"};
+	//read the contents of confFile into a variable
+	std::ifstream file(confFile);
+	std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	file.close();
+	//use boost json to read the contents of contents into the settings variables
+	try {
+		boost::json::value v = boost::json::parse(contents);
+		boost::json::object o = v.as_object();
+		for (const auto& setting : settings) {
+			if (o.contains(setting)) {
+				if (setting == "name") {
+					serverSettings.name = o[setting].as_string();
+				} else if (setting == "exec") {
+					serverSettings.exec = o[setting].as_string();
+				} else if (setting == "file") {
+					serverSettings.file = o[setting].as_string();
+				} else if (setting == "path") {
+					serverSettings.path = o[setting].as_string();
+				} else if (setting == "flags") {
+					serverSettings.flags = o[setting].as_string();
+				} else if (setting == "device") {
+					serverSettings.device = o[setting].as_string();
+				} else if (setting == "restartmins") {
+					serverSettings.restartMins = o[setting].as_int64();
+				} else if (setting == "docommands") {
+					serverSettings.doCommands = o[setting].as_bool();
+				} else if (setting == "custommsg") {
+					serverSettings.customMessage = o[setting].as_string();
+				} else if (setting == "chatkickregex") {
+					serverSettings.chatKickRegex = o[setting].as_string();
+				} else if (setting == "counters") {
+					tempCounters = o[setting].as_string();
+				} else if (setting == "autoupdate") {
+					tempAutoUpdate = o[setting].as_string();
+				} else if (setting == "counterintervalmax") {
+					tempCounterIntervalMax = o[setting].as_string();
+				} else if (setting == "version") {
+					serverSettings.version = o[setting].as_string();
 				}
 			}
-		};
-		setVar(settings.at(0), serverSettings.name);
+		}
+	} catch (std::exception& e) {
+		term.out<Error, Threadless>(flexi_format("Error parsing JSON: {}", e.what()));
+	}
+	/*	setVar(settings.at(0), serverSettings.name);
 		setVar(settings.at(1), serverSettings.exec);
 		setVar(settings.at(2), serverSettings.file);
 		setVar(settings.at(3), serverSettings.path);
@@ -423,7 +441,7 @@ void Server::readSettings(const string confFile) {
 		setVar(settings.at(12), tempCounterIntervalMax);
 		setVar(settings.at(13), serverSettings.version);
 		term.out<Debug>(text.debug.ReadingReadsettings);
-	}
+	}*/
 	//std::cout << "tempAutoUpdate = " << tempAutoUpdate << std::endl;
 	std::istringstream ss(tempAutoUpdate);
 	std::getline(ss, serverSettings.autoUpdateName, ' ');

@@ -50,7 +50,6 @@
 #include <omp.h>
 #endif
 
-#include "../getvarsfromfile.hpp"
 #include "../output.hpp"
 #include "../languages.hpp"
 
@@ -270,6 +269,8 @@ class Server {
 		ServerSettings serverSettings;
 
 		struct ServerAttributes {
+			std::mutex mutex;
+
 			std::chrono::time_point<std::chrono::steady_clock> timeStart;
 			std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
 

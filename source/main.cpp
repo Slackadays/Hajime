@@ -39,12 +39,13 @@
 #include <ncurses.h>
 #endif
 
+#include <boost/json/src.hpp>
+
 #include "hajime_startup.hpp"
 #include "constants.hpp"
 #include "output.hpp"
 #include "languages.hpp"
 #include "installer.hpp"
-#include "getvarsfromfile.hpp"
 #include "wizard.hpp"
 #include "deduce.hpp"
 #include "flags.hpp"

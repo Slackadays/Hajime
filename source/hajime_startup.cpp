@@ -33,6 +33,8 @@
 #include <signal.h>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/json.hpp>
+
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
@@ -172,32 +174,34 @@ bool readSettings() {
 		term.out<Debug>(flexi_format(text.debug.HajDefConfNoExist, hajDefaultConfFile));
 		return 0;
 	}
-	std::vector<std::string> results = getVarsFromFile(hajDefaultConfFile, settings);
-	for (std::vector<std::string>::iterator firstSetIterator = settings.begin(), secondSetIterator = results.begin(); firstSetIterator != settings.end() && secondSetIterator != results.end(); ++firstSetIterator, ++secondSetIterator) {
-		auto setVar = [&](std::string name, std::string& tempVar){
-			if (*firstSetIterator == name) {
-				tempVar = *secondSetIterator;
-			}
-		};
-		auto setVari = [&](std::string name, int& tempVar){
-			if (*firstSetIterator == name) {
-				try {
-					tempVar = stoi(*secondSetIterator);
-				} catch(...) {
-					tempVar = 0;
+	//read the entire contents of hajDefaultConfFile into a variable
+	std::ifstream file(hajDefaultConfFile);
+	std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	file.close();
+	term.out<Debug>(text.debug.ReadingReadsettings);
+	//use boost json to read the contents of hajDefaultConfContents into the settings variables
+	try {
+		boost::json::value v = boost::json::parse(contents);
+		boost::json::object o = v.as_object();
+		for (const auto& setting : settings) {
+			if (o.contains(setting)) {
+				if (setting == "version") {
+					version = o[setting].as_string();
+				} else if (setting == "logfile") {
+					logFile = o[setting].as_string();
+				} else if (setting == "debug") {
+					term.debug = o[setting].as_bool();
+				} else if (setting == "threadcolors") {
+					term.showThreadsAsColors = o[setting].as_bool();
+				} else if (setting == "stoponexit") {
+					stopOnExit = o[setting].as_bool();
 				}
 			}
-		};
-		term.out<Debug>(text.debug.ReadingReadsettings);
-		setVar("version", version);
-		setVar("logfile", logFile);
-		if (!term.debug) {
-			setVari("debug", term.debug);
 		}
-		setVari("threadcolors", term.showThreadsAsColors);
-		setVari("stoponexit", stopOnExit);
+	} catch (std::exception& e) {
+		term.out<Error, Threadless>(flexi_format("Error parsing JSON: {}", e.what()));
+		return 0;
 	}
-	term.out<Debug>(text.debug.ReadReadsettings + hajDefaultConfFile);
 	return 1;
 }
 
@@ -300,6 +304,7 @@ void processHajimeCommand(std::vector<std::string> input) {
 		if (input.size() >= 2) {
 			try {
 				std::shared_ptr<Server> server = getServerObject(input.at(1));
+				std::lock_guard<std::mutex> lock(server->serverSettings.mutex);
 				term.out<Info>("Version: " + server->serverSettings.version);
 				term.out<Info>("Name: " + server->serverSettings.name);
 				term.out<Info>("Path: " + server->serverSettings.path);
@@ -321,6 +326,72 @@ void processHajimeCommand(std::vector<std::string> input) {
 			}
 		} else {
 			term.out<Error>(text.error.NotEnoughArgs);
+		}
+	} else if (input.at(0) == "set" || input.at(0) == "s") {
+		if (input.size() >= 4) {
+			try {
+				std::shared_ptr<Server> server = getServerObject(input.at(1));
+				std::lock_guard<std::mutex> lock(server->serverSettings.mutex);
+				try {
+					if (input.at(2) == "name") {
+						server->serverSettings.name = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s name set to {}", server->serverSettings.name, input.at(3)));
+					} else if (input.at(2) == "path") {
+						server->serverSettings.path = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s path set to {}", server->serverSettings.path, input.at(3)));
+					} else if (input.at(2) == "exec") {
+						server->serverSettings.exec = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s execution file set to {}", server->serverSettings.exec, input.at(3)));
+					} else if (input.at(2) == "flags") {
+						server->serverSettings.flags = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s flags set to {}", server->serverSettings.flags, input.at(3)));
+					} else if (input.at(2) == "file") {
+						server->serverSettings.file = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s server file set to {}", server->serverSettings.file, input.at(3)));
+					} else if (input.at(2) == "device") {
+						server->serverSettings.device = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s device set to {}", server->serverSettings.device, input.at(3)));
+					} else if (input.at(2) == "restartmins") {
+						server->serverSettings.restartMins = stol(input.at(3));
+						term.out<Info>(flexi_format("Server {}'s restart minute interval set to {}", server->serverSettings.restartMins, input.at(3)));
+					} else if (input.at(2) == "docommands") {
+						server->serverSettings.doCommands = stoi(input.at(3));
+						term.out<Info>(flexi_format("Server {}'s command preference set to {}", server->serverSettings.doCommands, input.at(3)));
+					} else if (input.at(2) == "custommsg") {
+						server->serverSettings.customMessage = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s custom message set to {}", server->serverSettings.customMessage, input.at(3)));
+					} else if (input.at(2) == "chat") {
+						server->serverSettings.chatKickRegex = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s chat kick regex set to {}", server->serverSettings.chatKickRegex, input.at(3)));
+					} else if (input.at(2) == "counterlevel") {
+						server->serverSettings.counterLevel = stoi(input.at(3));
+						term.out<Info>(flexi_format("Server {}'s counter level set to {}", server->serverSettings.counterLevel, input.at(3)));
+					} else if (input.at(2) == "autoupdatename") {
+						server->serverSettings.autoUpdateName = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s auto update name set to {}", server->serverSettings.autoUpdateName, input.at(3)));
+					} else if (input.at(2) == "autoupdateversion") {
+						server->serverSettings.autoUpdateVersion = input.at(3);
+						term.out<Info>(flexi_format("Server {}'s auto update version set to {}", server->serverSettings.autoUpdateVersion, input.at(3)));
+					} else if (input.at(2) == "counterinterval") {
+						server->serverSettings.counterInterval = stol(input.at(3));
+						term.out<Info>(flexi_format("Server {}'s performance counter interval set to {}", server->serverSettings.counterInterval, input.at(3)));
+					} else if (input.at(2) == "countermax") {
+						server->serverSettings.counterMax = stol(input.at(3));
+						term.out<Info>(flexi_format("Server {}'s performance counter max set to {}", server->serverSettings.counterMax, input.at(3)));
+					} else {
+						term.out<Error>(flexi_format("Invalid option {}", input.at(2)));
+					}
+				} catch (std::exception& e) {
+					term.out<Error>(flexi_format("Error setting server option: {}", e.what()));
+				}
+			} catch(...) {
+				term.out<Error>(text.error.ServerSelectionInvalid);
+			}
+		}
+	} else if (input.at(0) == "exit") {
+		term.out<Warning, NoEndline>("Are you sure you want to exit Hajime?");
+		if (term.getYN()) {
+			exit(0);
 		}
 	} else if (input.at(0) == "ee" && ee && text.language == "en") {
 		term.out("https://www.youtube.com/watch?v=ccY25Cb3im0");
