@@ -163,11 +163,7 @@ if(Boost_FOUND)
   target_link_libraries(hajime ${Boost_LIBRARIES})
 endif()
 
-if(MSVC)
-  target_link_libraries(hajime fmt)
-else()
-  target_link_libraries(hajime fmt::fmt)
-endif()
+target_link_libraries(hajime fmt)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_link_libraries(hajime sensors)
