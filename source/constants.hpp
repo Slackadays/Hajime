@@ -31,3 +31,5 @@ extern std::string logFile;
 extern long long defaultCounterInterval;
 
 extern long long defaultCounterMax;
+
+extern bool useTUI;

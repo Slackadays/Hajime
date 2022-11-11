@@ -54,7 +54,17 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
 	#if !defined(_WIN64) && !defined(_WIN32) //Windows compatibility
-	//initscr();
+	if (useTUI) {
+		initscr();
+		start_color();
+		init_pair(1, COLOR_BLACK, COLOR_CYAN);
+		attron(COLOR_PAIR(1));
+		wbkgd(stdscr, COLOR_PAIR(1));
+		attron(A_BOLD);
+		printw("Hajime, the ultimate startup script.");
+		getch();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	}
 	#endif
 	//auto then = std::chrono::high_resolution_clock::now();
 	setupSignals();

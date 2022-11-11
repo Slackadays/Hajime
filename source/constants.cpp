@@ -31,3 +31,5 @@ std::string logFile = hajimePath + "hajime.log";
 long long defaultCounterInterval = 3;
 
 long long defaultCounterMax = 20 * 60 * 24 * 14;
+
+bool useTUI = false;

@@ -114,6 +114,9 @@ void doRegularFlags(std::vector<std::string> flags) {
 			installer.installStartupService("/etc/systemd/system/hajime.service");
 			exit(0);
 		}
+		if (flag("-t", "--tui")) {
+			useTUI = true;
+		}
 		if (flag("-v", "--verbose")) {
 			term.verbose = true;
 		}
@@ -132,6 +135,9 @@ void doRegularFlags(std::vector<std::string> flags) {
 		}
 		if (flag("-np", "--no-pauses")) {
 			wizard.doArtificialPauses = false;
+		}
+		if (flag("-nt", "--no-tui")) {
+			useTUI = false;
 		}
 		if (flag("-tc", "--thread-colors")) {
 			term.showThreadsAsColors = true;

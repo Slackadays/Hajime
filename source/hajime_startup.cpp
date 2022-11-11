@@ -85,6 +85,7 @@ void setupSignals() {
 		#if !defined(_WIN64) && !defined(_WIN32)
 		endwin();
 		#endif
+		shutdownServers();
 		#if defined(__APPLE__)
 		exit(0);
 		#else
@@ -96,27 +97,22 @@ void setupSignals() {
 	});
 	signal(SIGSEGV, [](int sig){
 		std::cout << "Segmentation fault; exiting Hajime" << std::endl;
-		shutdownServers();
 		exit(1);
 	});
 	signal(SIGABRT, [](int sig){
 		std::cout << "Hajime ending execution abnormally; exiting Hajime" << std::endl;
-		shutdownServers();
 		exit(1);
 	});
 	signal(SIGILL, [](int sig){
 		std::cout << "Illegal instruction; try recompiling Hajime" << std::endl;
-		shutdownServers();
 		exit(1);
 	});
 	signal(SIGFPE, [](int sig){
 		std::cout << "Illegal math operation; exiting Hajime" << std::endl;
-		shutdownServers();
 		exit(1);
 	});
 	signal(SIGTERM, [](int sig){
 		std::cout << "Termination requested; exiting Hajime" << std::endl;
-		shutdownServers();
 		exit(0);
 	});
 }
@@ -335,49 +331,49 @@ void processHajimeCommand(std::vector<std::string> input) {
 				try {
 					if (input.at(2) == "name") {
 						server->serverSettings.name = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s name set to {}", server->serverSettings.name, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s name set to {}", input.at(1), server->serverSettings.name));
 					} else if (input.at(2) == "path") {
 						server->serverSettings.path = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s path set to {}", server->serverSettings.path, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s path set to {}", input.at(1), server->serverSettings.path));
 					} else if (input.at(2) == "exec") {
 						server->serverSettings.exec = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s execution file set to {}", server->serverSettings.exec, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s execution file set to {}", input.at(1), server->serverSettings.exec));
 					} else if (input.at(2) == "flags") {
 						server->serverSettings.flags = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s flags set to {}", server->serverSettings.flags, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s flags set to {}", input.at(1), server->serverSettings.flags));
 					} else if (input.at(2) == "file") {
 						server->serverSettings.file = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s server file set to {}", server->serverSettings.file, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s server file set to {}", input.at(1), server->serverSettings.file));
 					} else if (input.at(2) == "device") {
 						server->serverSettings.device = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s device set to {}", server->serverSettings.device, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s device set to {}", input.at(1), server->serverSettings.device));
 					} else if (input.at(2) == "restartmins") {
 						server->serverSettings.restartMins = stol(input.at(3));
-						term.out<Info>(flexi_format("Server {}'s restart minute interval set to {}", server->serverSettings.restartMins, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s restart minute interval set to {}", input.at(1), server->serverSettings.restartMins));
 					} else if (input.at(2) == "docommands") {
 						server->serverSettings.doCommands = stoi(input.at(3));
-						term.out<Info>(flexi_format("Server {}'s command preference set to {}", server->serverSettings.doCommands, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s command preference set to {}", input.at(1), server->serverSettings.doCommands));
 					} else if (input.at(2) == "custommsg") {
 						server->serverSettings.customMessage = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s custom message set to {}", server->serverSettings.customMessage, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s custom message set to {}", input.at(1), server->serverSettings.customMessage));
 					} else if (input.at(2) == "chat") {
 						server->serverSettings.chatKickRegex = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s chat kick regex set to {}", server->serverSettings.chatKickRegex, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s chat kick regex set to {}", input.at(1), server->serverSettings.chatKickRegex));
 					} else if (input.at(2) == "counterlevel") {
 						server->serverSettings.counterLevel = stoi(input.at(3));
-						term.out<Info>(flexi_format("Server {}'s counter level set to {}", server->serverSettings.counterLevel, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s counter level set to {}", input.at(1), server->serverSettings.counterLevel));
 					} else if (input.at(2) == "autoupdatename") {
 						server->serverSettings.autoUpdateName = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s auto update name set to {}", server->serverSettings.autoUpdateName, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s auto update name set to {}", input.at(1), server->serverSettings.autoUpdateName));
 					} else if (input.at(2) == "autoupdateversion") {
 						server->serverSettings.autoUpdateVersion = input.at(3);
-						term.out<Info>(flexi_format("Server {}'s auto update version set to {}", server->serverSettings.autoUpdateVersion, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s auto update version set to {}", input.at(1), server->serverSettings.autoUpdateVersion));
 					} else if (input.at(2) == "counterinterval") {
 						server->serverSettings.counterInterval = stol(input.at(3));
-						term.out<Info>(flexi_format("Server {}'s performance counter interval set to {}", server->serverSettings.counterInterval, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s performance counter interval set to {}", input.at(1), server->serverSettings.counterInterval));
 					} else if (input.at(2) == "countermax") {
 						server->serverSettings.counterMax = stol(input.at(3));
-						term.out<Info>(flexi_format("Server {}'s performance counter max set to {}", server->serverSettings.counterMax, input.at(3)));
+						term.out<Info>(flexi_format("Server {}'s performance counter max set to {}", input.at(1), server->serverSettings.counterMax));
 					} else {
 						term.out<Error>(flexi_format("Invalid option {}", input.at(2)));
 					}
@@ -387,7 +383,11 @@ void processHajimeCommand(std::vector<std::string> input) {
 			} catch(...) {
 				term.out<Error>(text.error.ServerSelectionInvalid);
 			}
+		} else {
+			term.out<Error>("Not enough arguments provided");
 		}
+	} else if (input.at(0) == "save") {
+		term.out<Error>("Not implemented yet");
 	} else if (input.at(0) == "exit") {
 		term.out<Warning, NoEndline>("Are you sure you want to exit Hajime?");
 		if (term.getYN()) {
@@ -399,7 +399,6 @@ void processHajimeCommand(std::vector<std::string> input) {
 		term.out("https://www.youtube.com/watch?v=iFClTRUnmKc");
 	} else {
 		term.out<Error>(text.error.InvalidCommand);
-		term.out<Error>(text.error.InvalidHajCommand1);
 	}
 }
 
