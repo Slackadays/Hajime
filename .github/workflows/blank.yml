@@ -366,7 +366,7 @@ jobs:
           tar -xf boost_1_80_0.tar.gz
           wget https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip
           unzip fmt-9.1.0.zip
-          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -isystemboost_1_80_0/ -isystemfmt-9.1.0/include/ -lncursesw" -DCMAKE_CXX_COMPILER=clang++-14 source
+          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -lncursesw" -DCMAKE_CXX_COMPILER=clang++-14 source
           cmake --build . -j 4
           
       - uses: actions/upload-artifact@v2
