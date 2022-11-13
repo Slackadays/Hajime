@@ -15,7 +15,7 @@ An advanced Minecraft server startup system
 
 
 ## ⬇️ Get Hajime 
-### 🐧🍎👿 Linux, macOS, & FreeBSD
+### 🐧🍎😈 Linux, macOS, & FreeBSD
 Copy and paste the below command into your terminal to install. Or, go to [GitHub Releases](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
 ```
 sh <(curl -L https://gethaji.me)
