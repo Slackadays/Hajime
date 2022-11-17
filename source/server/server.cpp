@@ -142,8 +142,8 @@ void Server::startServer(string confFile) {
 	} catch(string& s) {
 		term.out<>(s);
 	}
- catch(...) { //error handling
-		term.out<Error>(text.error.Generic);
+ catch(std::exception& e) { //error handling
+		term.out<Error>(flexi_format(text.error.Generic, e.what()));
 	}
 }
 

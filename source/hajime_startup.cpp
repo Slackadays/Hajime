@@ -152,15 +152,30 @@ void setupSensors() {
 #endif
 
 void setupHajimeDirectory() {
+	auto setupSubdirectory = []() {
+		if (!fs::is_directory(hajimePath + serverSubpath)) {
+			term.out<Info>(text.info.MakingHajimeDirectory + hajimePath + serverSubpath);
+			try {
+				fs::create_directory(hajimePath + serverSubpath);
+			} catch (fs::filesystem_error& e) {
+				term.out<Error>("Could not create server subdirectory");
+				term.out<Error>(e.what());
+				exit(1);
+			}
+		}
+	};
 	if (!fs::is_directory(hajimePath)) {
 		term.out<Info>(text.info.MakingHajimeDirectory + hajimePath);
 		try {
 			fs::create_directory(hajimePath);
+			setupSubdirectory();
 		} catch (fs::filesystem_error& e) {
 			term.out<Error>("Could not create Hajime directory");
 			term.out<Error>(e.what());
 			exit(1);
 		}
+	} else {
+		setupSubdirectory();
 	}
 }
 
@@ -217,7 +232,7 @@ void hajimeUserExit(int sig) {
 
 std::vector<std::string> getServerFiles() {
 	std::vector<std::string> results;
-	for (const auto& file : fs::directory_iterator{fs::current_path() /= hajimePath}) {
+	for (const auto& file : fs::directory_iterator{fs::current_path() /= (hajimePath + serverSubpath)}) {
 		if (std::regex_match(file.path().filename().string(), std::regex(".+\\.server(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
 			results.emplace_back(file.path().filename().string());
 		}
@@ -245,7 +260,7 @@ void setupServers() {
 	}
 	for (const auto& serverIt : serverFiles) { //loop through all the server files found
 		serverVec.emplace_back(std::make_shared<Server>()); //add a copy of server to use
-		threadVec.emplace_back(std::thread(&Server::startServer, serverVec.back(), hajimePath + serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
+		threadVec.emplace_back(std::thread(&Server::startServer, serverVec.back(), hajimePath + serverSubpath + serverIt)); //add a thread that links to startServer and is of the last server object added, use serverIt as parameter
 	}
 }
 

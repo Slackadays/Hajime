@@ -76,5 +76,6 @@
         "future": "cpp",
         "typeindex": "cpp"
     },
-    "cmake.configureOnOpen": true
+    "cmake.configureOnOpen": true,
+    "cmake.sourceDirectory": "${workspaceFolder}/source/httplib"
 }

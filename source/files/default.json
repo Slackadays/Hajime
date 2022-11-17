@@ -1,0 +1,16 @@
+{
+    "version": "",
+    "name": "",
+    "path": "",
+    "exec": "",
+    "flags": "",
+    "file": "",
+    "device": "",
+    "restartmins": 0,
+    "commands": 1,
+    "custommsg": "",
+    "chatkickregex": "",
+    "counters": "high",
+    "autoupdate": "",
+    "counterintervalmax": ""
+}

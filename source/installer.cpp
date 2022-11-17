@@ -32,11 +32,16 @@
 #include <unistd.h>
 #endif
 
+#include <boost/json.hpp>
+
 #include "constants.hpp"
 #include "output.hpp"
 #include "languages.hpp"
 #include "installer.hpp"
 #include "flexi_format.hpp"
+
+#include "files/hajime.h"
+#include "files/default.h"
 
 namespace fs = std::filesystem;
 
@@ -45,7 +50,24 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 		throw 0;
 	} else {
 		std::ofstream outConf(conf.fileLocation);
-		outConf << "version=" << hajime_version << std::endl;
+		//put contents of default_json into a string
+		std::string json;
+		for (int i = 0; i < default_json_len; i++) {
+			json += default_json[i];
+		}
+		try {
+			boost::json::value v = boost::json::parse(json);
+			boost::json::object o = v.as_object();
+			o["version"] = hajime_version;
+			o["name"] = conf.serverName;
+			o["path"] = fs::current_path().string();
+			o["flags"] = conf.flags;
+			o["file"] = conf.serverFile;
+			o["counterintervalmax"] = defaultCounterInterval;
+		} catch (std::exception& e) {
+			std::cout << e.what() << std::endl;
+		}
+		/*outConf << "version=" << hajime_version << std::endl;
 		outConf << "name=" << conf.serverName << std::endl;
 		outConf << "path=" << fs::current_path().string() << std::endl;
 		outConf << "exec=java" << std::endl;
@@ -59,7 +81,7 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 		outConf << "counters=high" << std::endl;
 		outConf << "autoupdate=" << std::endl;
 		outConf << "counterintervalmax=" << defaultCounterInterval << ' ' << defaultCounterMax << std::endl;
-		outConf << text.fileServerConfComment << std::endl;
+		outConf << text.fileServerConfComment << std::endl;*/
 		term.out<Info>(flexi_format(text.info.CreatedServerConfig, conf.fileLocation));
 		outConf.close();
 		if (!fs::is_regular_file(conf.fileLocation)) {
@@ -75,12 +97,13 @@ void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", b
 		throw 0;
 	} else {
 		std::ofstream outConf(fileLocation);
-		outConf << "version=" << hajime_version << std::endl;
+		
+		/*outConf << "version=" << hajime_version << std::endl;
 		outConf << "logfile=hajime.log" << std::endl;
 		outConf << "lang=" << lang << std::endl;
 		outConf << "debug=0" << std::endl;
 		outConf << "threadcolors=1" << std::endl;
-		outConf << "stoponexit=1" << std::endl;
+		outConf << "stoponexit=1" << std::endl;*/
 		outConf.close();
 		term.out<Info>(flexi_format(text.info.HajConfigMade, fileLocation));
 		if (!fs::is_regular_file(fileLocation)) {

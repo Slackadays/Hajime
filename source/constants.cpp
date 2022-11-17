@@ -22,7 +22,9 @@ const std::string hajime_version = "0.2.0";
 
 std::string hajimePath = "hajime.d/";
 
-std::string defaultServerConfFile = hajimePath + "default.server";
+std::string serverSubpath = "servers/";
+
+std::string defaultServerConfFile = hajimePath + serverSubpath + "default.server";
 
 std::string hajDefaultConfFile = hajimePath + "hajime.conf";
 
