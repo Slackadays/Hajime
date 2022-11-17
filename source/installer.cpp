@@ -42,6 +42,7 @@
 
 #include "files/hajime.h"
 #include "files/default.h"
+#include "files/sysvservice.h"
 
 namespace fs = std::filesystem;
 
@@ -67,21 +68,6 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 		} catch (std::exception& e) {
 			std::cout << e.what() << std::endl;
 		}
-		/*outConf << "version=" << hajime_version << std::endl;
-		outConf << "name=" << conf.serverName << std::endl;
-		outConf << "path=" << fs::current_path().string() << std::endl;
-		outConf << "exec=java" << std::endl;
-		outConf << "flags=-jar -Xmx4G -Xms4G " + conf.flags + " # Java flags" << std::endl;
-		outConf << "file=" + conf.serverFile  + " # Server file"<< std::endl;
-		outConf << "device=" << std::endl;
-		outConf << "restartmins= # Auto-restart interval in minutes" << std::endl;
-		outConf << "commands=1" << std::endl;
-		outConf << "custommsg= # Custom server message" << std::endl;
-		outConf << "chatkickregex=" << std::endl;
-		outConf << "counters=high" << std::endl;
-		outConf << "autoupdate=" << std::endl;
-		outConf << "counterintervalmax=" << defaultCounterInterval << ' ' << defaultCounterMax << std::endl;
-		outConf << text.fileServerConfComment << std::endl;*/
 		term.out<Info>(flexi_format(text.info.CreatedServerConfig, conf.fileLocation));
 		outConf.close();
 		if (!fs::is_regular_file(conf.fileLocation)) {
@@ -228,8 +214,14 @@ void Installer::installSysVInit() {
 	string group;
 	term.out<Question, NoEndline>(text.question.SysvinitGroup);
 	std::cin >> group;
-	service << "#!/bin/sh\n"
-	"### BEGIN INIT INFO\n"
+	std::string content;
+	for (int i = 0; i < sysvservice_sh_len; i++) {
+		content += sysvservice_sh[i];
+	}
+	content = flexi_format(content, fs::current_path().string(), fs::current_path().string(), user, group);
+	service << content;
+	/*service << "#!/bin/sh\n"
+	## BEGIN INIT INFO\n"
 	"# Provides: 		hajime\n"
 	"# Required-Start:\n"
 	"# Required-Stop:\n"
@@ -280,7 +272,7 @@ void Installer::installSysVInit() {
 	"		echo \"Usage: $NAME (start|stop|restart|status)\" >&2\n"
 	"		exit 1\n"
 	"esac\n"
-	"exit 0" << std::endl;
+	"exit 0" << std::endl;*/
 	service.close();
 }
 

@@ -29,6 +29,7 @@ extern void setupSensors();
 
 extern void shutdownServers();
 extern void setupSignals();
+extern void setupTUI();
 extern void setupHajimeDirectory();
 extern bool readSettings();
 extern void hajimeUserExit(int sig);

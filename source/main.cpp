@@ -54,34 +54,31 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
 	#if !defined(_WIN64) && !defined(_WIN32) //Windows compatibility
-	if (useTUI) {
-		initscr();
-		start_color();
-		init_pair(1, COLOR_BLACK, COLOR_CYAN);
-		attron(COLOR_PAIR(1));
-		wbkgd(stdscr, COLOR_PAIR(1));
-		attron(A_BOLD);
-		printw("Hajime, the ultimate startup script.");
-		getch();
-		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-	}
+	setupTUI();
+	setupRLimits(); //increase available file descriptors
+	#else
+	setupTerminal();
 	#endif
 	//auto then = std::chrono::high_resolution_clock::now();
+
 	setupSignals();
+
 	#if defined(__linux__)
 	setupSensors();
 	#endif
-	#if defined(_WIN64) || defined (_WIN32)
-	setupTerminal();
-	#endif
+
 	term.dividerLine();
+
 	std::vector<std::string> flags;
 	for (int i = 0; i < argc; i++) {
 		flags.push_back(argv[i]);
 	}
+
 	doPreemptiveFlags(flags);
 	doRegularFlags(flags);
+
 	term.out<Info>("Starting Hajime");
+
 	// check for a subdirectory called "Hajime" and if it does not exist, create it
 	setupHajimeDirectory();
 	if (fs::is_regular_file(hajDefaultConfFile)) {
@@ -94,10 +91,6 @@ int main(int argc, char *argv[]) {
 		term.out<Error>(text.error.PrivilegedUser);
 		return 1;
 	}
-
-	#if !defined(_WIN64) && !defined(_WIN32)
-	setupRLimits(); //increase available file descriptors
-	#endif
 
 	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
 	setupServers();

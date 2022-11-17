@@ -128,6 +128,20 @@ void setupTerminal() {
 	SetConsoleOutputCP(CP_UTF8); //fix broken accents on Windows
 }
 #else
+void setupTUI() {
+	if (useTUI) {
+		initscr();
+		start_color();
+		init_pair(1, COLOR_BLACK, COLOR_CYAN);
+		attron(COLOR_PAIR(1));
+		wbkgd(stdscr, COLOR_PAIR(1));
+		attron(A_BOLD);
+		printw("Hajime, the ultimate startup script.");
+		getch();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	}
+}
+
 void setupRLimits() {
 	struct rlimit rlimits;
 	if (getrlimit(RLIMIT_NOFILE, &rlimits) == -1) {
