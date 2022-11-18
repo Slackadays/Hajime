@@ -46,6 +46,8 @@
 #include <array>
 
 #include "../server/server.hpp"
+#include "../output.hpp"
+#include "../flexi_format.hpp"
 
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
@@ -66,8 +68,8 @@ struct pcounter {
 	std::array<std::array<unsigned long long, 4>, 17> group_value;
 	std::array<std::array<int, 4>, 17> group_fd;
 
-	char buf[96];
-	struct read_format* data = reinterpret_cast<struct read_format*>(buf);
+	std::array<char, 96> buf;
+	struct read_format* data = reinterpret_cast<struct read_format*>(buf.data());
 };
 
 std::vector<long> Server::getProcessChildPids(long pid) {
@@ -76,8 +78,8 @@ std::vector<long> Server::getProcessChildPids(long pid) {
 	for (const auto& dir : fs::directory_iterator{"/proc/" + std::to_string(pid) + "/task"}) {
 		try {
 			pids.emplace_back(stol(std::regex_replace(dir.path().string(), re, "")));
-		} catch(...) {
-			term.out<Error, Threadless>("Could not add PID to list");
+		} catch(std::exception& e) {
+			term.out<Error, Threadless>("Could not add PID to list: " + std::string(e.what()));
 		}
 	}
 	return pids;
@@ -377,7 +379,7 @@ void Server::readCounters(auto& counters) {
 	long size;
 	for (auto& s : counters) {
 		if (s->group_fd[0][0] > 2) {
-			size = read(s->group_fd[0][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[0][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
@@ -390,7 +392,7 @@ void Server::readCounters(auto& counters) {
 			}
 		}
 		if (s->group_fd[0][2] > 2) {
-			size = read(s->group_fd[0][2], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[0][2], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) { //read data from all the events in the struct pointed to by data
@@ -402,9 +404,9 @@ void Server::readCounters(auto& counters) {
 				}
 			}
 		}
-		//memset(&(s->buf), 0, sizeof(s->buf));
+		//memset(&(s->buf), 0, s->buf.size());
 		if (s->group_fd[1][0] > 2) {
-			size = read(s->group_fd[1][0], s->buf, sizeof(s->buf));
+			size = read(s->group_fd[1][0], s->buf.data(), s->buf.size());
 			//std::cout << "size = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -417,7 +419,7 @@ void Server::readCounters(auto& counters) {
 			}
 		}
 		if (s->group_fd[2][0] > 2) {
-			size = read(s->group_fd[2][0], s->buf, sizeof(s->buf));
+			size = read(s->group_fd[2][0], s->buf.data(), s->buf.size());
 			//std::cout << "size = " << size << std::endl;
 			if (size >= 56) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -432,7 +434,7 @@ void Server::readCounters(auto& counters) {
 			}
 		}
 		if (s->group_fd[3][0] > 2) {
-			size = read(s->group_fd[3][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[3][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size = " << size << std::endl;
 			if (size >= 56) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -447,7 +449,7 @@ void Server::readCounters(auto& counters) {
 			}
 		}
 		if (s->group_fd[4][0] > 2) {
-			size = read(s->group_fd[4][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[4][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size = " << size << std::endl;
 			if (size >= 72) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -465,7 +467,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[5][0] > 2) {
-			size = read(s->group_fd[5][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[5][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -478,7 +480,7 @@ void Server::readCounters(auto& counters) {
 			}
 		}
 		if (s->group_fd[6][0] > 2) {
-			size = read(s->group_fd[6][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[6][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -492,7 +494,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[7][0] > 2) {
-			size = read(s->group_fd[7][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[7][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -505,7 +507,7 @@ void Server::readCounters(auto& counters) {
 			}
 		}
 		if (s->group_fd[8][0] > 2) {
-			size = read(s->group_fd[8][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[8][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -519,7 +521,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[9][0] > 2) {
-			size = read(s->group_fd[9][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[9][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -533,7 +535,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[10][0] > 2) {
-			size = read(s->group_fd[10][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[10][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -547,7 +549,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[11][0] > 2) {
-			size = read(s->group_fd[11][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[11][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 56) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -564,7 +566,7 @@ void Server::readCounters(auto& counters) {
 
 
 		if (s->group_fd[12][0] > 2) {
-			size = read(s->group_fd[12][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[12][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -578,7 +580,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[13][0]) {
-			size = read(s->group_fd[13][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[13][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -592,7 +594,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[14][0] > 2) {
-			size = read(s->group_fd[14][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[14][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -606,7 +608,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[15][0] > 2) {
-			size = read(s->group_fd[15][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[15][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -620,7 +622,7 @@ void Server::readCounters(auto& counters) {
 		}
 
 		if (s->group_fd[16][0] > 2) {
-			size = read(s->group_fd[16][0], s->buf, sizeof(s->buf)); //get information from the counters
+			size = read(s->group_fd[16][0], s->buf.data(), s->buf.size()); //get information from the counters
 			//std::cout << "size for g1 = " << size << std::endl;
 			if (size >= 40) {
 				for (int i = 0; i < s->data->nr; i++) {
@@ -649,71 +651,75 @@ void Server::processPerfStats() {
 	}
 	//auto then = std::chrono::high_resolution_clock::now();
 	while (true) {
-		if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
-			resetAndEnableCounters(MyCounters);
-		}
-		updateCPUusage(counterData.cpuusagereadings);
-		updateRAMusage();
-		//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(serverSettings.counterInterval));
-		//then = std::chrono::high_resolution_clock::now();
-		if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
-			std::lock_guard<std::mutex> lock(counterData.mutex);
-			trimCounterData();
-			disableCounters(MyCounters);
-			readCounters(MyCounters);
-			for (const auto& s : MyCounters) {
-				counterData.cpucyclereadings.back() += s->group_value[0][0];
-				counterData.cpuinstructionreadings.back() += s->group_value[0][1];
-				counterData.cachemissreadings.back() += s->group_value[1][0];
-				counterData.branchinstructionreadings.back() += s->group_value[2][0];
-				counterData.branchmissreadings.back() += s->group_value[2][1];
-				counterData.cachereferencereadings.back() += s->group_value[1][1];
-				counterData.stalledcyclesfrontendreadings.back() += s->group_value[0][2];
-				counterData.stalledcyclesbackendreadings.back() += s->group_value[0][3];
-				counterData.buscyclereadings.back() += s->group_value[2][2];
-				counterData.pagefaultreadings.back() += s->group_value[3][0];
-				counterData.contextswitchreadings.back() += s->group_value[4][0];
-				counterData.cpumigrationreadings.back() += s->group_value[4][1];
-				counterData.alignmentfaultreadings.back() += s->group_value[4][2];
-				counterData.emulationfaultreadings.back() += s->group_value[4][3];
-				counterData.minorpagefaultreadings.back() += s->group_value[3][1];
-				counterData.majorpagefaultreadings.back() += s->group_value[3][2];
-				counterData.l1dreadaccessreadings.back() += s->group_value[5][0];
-				counterData.l1dreadmissreadings.back() += s->group_value[5][1];
-				counterData.llreadaccessreadings.back() += s->group_value[6][0];
-				counterData.llreadmissreadings.back() += s->group_value[6][1];
-				counterData.dtlbreadaccessreadings.back() += s->group_value[7][0];
-				counterData.dtlbreadmissreadings.back() += s->group_value[7][1];
-				counterData.dtlbwriteaccessreadings.back() += s->group_value[8][0];
-				counterData.dtlbwritemissreadings.back() += s->group_value[8][1];
-				counterData.itlbreadaccessreadings.back() += s->group_value[9][0];
-				counterData.itlbreadmissreadings.back() += s->group_value[9][1];
-				counterData.bpureadaccessreadings.back() += s->group_value[10][0];
-				counterData.bpureadmissreadings.back() += s->group_value[10][1];
-				counterData.llwriteaccessreadings.back() += s->group_value[11][0];
-				counterData.llwritemissreadings.back() += s->group_value[11][1];
-				counterData.llprefetchmissreadings.back() += s->group_value[11][2];
-				counterData.dtlbprefetchaccessreadings.back() += s->group_value[12][0];
-				counterData.dtlbprefetchmissreadings.back() += s->group_value[12][1];
-				counterData.l1dprefetchaccessreadings.back() += s->group_value[13][0];
-				counterData.l1dprefetchmissreadings.back() += s->group_value[13][1];
-				counterData.l1dwriteaccessreadings.back() += s->group_value[14][0];
-				counterData.l1dwritemissreadings.back() += s->group_value[14][1];
-				counterData.l1ireadaccessreadings.back() += s->group_value[15][0];
-				counterData.l1ireadmissreadings.back() += s->group_value[15][1];
-				counterData.l1iprefetchaccessreadings.back() += s->group_value[16][0];
-				counterData.l1iprefetchmissreadings.back() += s->group_value[16][1];
+		try {
+			if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
+				resetAndEnableCounters(MyCounters);
 			}
-			//std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
-			newPids = getProcessChildPids(pid);
-			diffPids.clear();
-			std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
-			createCounters(MyCounters, diffPids);
-			diffPids.clear();
-			std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in OldPids that isn't in NewPids
-			cullCounters(MyCounters, diffPids);
-			currentPids = newPids;
+			updateCPUusage(counterData.cpuusagereadings);
+			updateRAMusage();
+			//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(serverSettings.counterInterval));
+			//then = std::chrono::high_resolution_clock::now();
+			if (serverSettings.counterLevel > 0 && performanceCounterCompat != -1) {
+				std::lock_guard<std::mutex> lock(counterData.mutex);
+				trimCounterData();
+				disableCounters(MyCounters);
+				readCounters(MyCounters);
+				for (const auto& s : MyCounters) {
+					counterData.cpucyclereadings.back() += s->group_value[0][0];
+					counterData.cpuinstructionreadings.back() += s->group_value[0][1];
+					counterData.cachemissreadings.back() += s->group_value[1][0];
+					counterData.branchinstructionreadings.back() += s->group_value[2][0];
+					counterData.branchmissreadings.back() += s->group_value[2][1];
+					counterData.cachereferencereadings.back() += s->group_value[1][1];
+					counterData.stalledcyclesfrontendreadings.back() += s->group_value[0][2];
+					counterData.stalledcyclesbackendreadings.back() += s->group_value[0][3];
+					counterData.buscyclereadings.back() += s->group_value[2][2];
+					counterData.pagefaultreadings.back() += s->group_value[3][0];
+					counterData.contextswitchreadings.back() += s->group_value[4][0];
+					counterData.cpumigrationreadings.back() += s->group_value[4][1];
+					counterData.alignmentfaultreadings.back() += s->group_value[4][2];
+					counterData.emulationfaultreadings.back() += s->group_value[4][3];
+					counterData.minorpagefaultreadings.back() += s->group_value[3][1];
+					counterData.majorpagefaultreadings.back() += s->group_value[3][2];
+					counterData.l1dreadaccessreadings.back() += s->group_value[5][0];
+					counterData.l1dreadmissreadings.back() += s->group_value[5][1];
+					counterData.llreadaccessreadings.back() += s->group_value[6][0];
+					counterData.llreadmissreadings.back() += s->group_value[6][1];
+					counterData.dtlbreadaccessreadings.back() += s->group_value[7][0];
+					counterData.dtlbreadmissreadings.back() += s->group_value[7][1];
+					counterData.dtlbwriteaccessreadings.back() += s->group_value[8][0];
+					counterData.dtlbwritemissreadings.back() += s->group_value[8][1];
+					counterData.itlbreadaccessreadings.back() += s->group_value[9][0];
+					counterData.itlbreadmissreadings.back() += s->group_value[9][1];
+					counterData.bpureadaccessreadings.back() += s->group_value[10][0];
+					counterData.bpureadmissreadings.back() += s->group_value[10][1];
+					counterData.llwriteaccessreadings.back() += s->group_value[11][0];
+					counterData.llwritemissreadings.back() += s->group_value[11][1];
+					counterData.llprefetchmissreadings.back() += s->group_value[11][2];
+					counterData.dtlbprefetchaccessreadings.back() += s->group_value[12][0];
+					counterData.dtlbprefetchmissreadings.back() += s->group_value[12][1];
+					counterData.l1dprefetchaccessreadings.back() += s->group_value[13][0];
+					counterData.l1dprefetchmissreadings.back() += s->group_value[13][1];
+					counterData.l1dwriteaccessreadings.back() += s->group_value[14][0];
+					counterData.l1dwritemissreadings.back() += s->group_value[14][1];
+					counterData.l1ireadaccessreadings.back() += s->group_value[15][0];
+					counterData.l1ireadmissreadings.back() += s->group_value[15][1];
+					counterData.l1iprefetchaccessreadings.back() += s->group_value[16][0];
+					counterData.l1iprefetchmissreadings.back() += s->group_value[16][1];
+				}
+				//std::cout << "cache readings: " << L1dReadAccesses << " and " << DTLBReadMisses << std::endl;
+				newPids = getProcessChildPids(pid);
+				diffPids.clear();
+				std::set_difference(newPids.begin(), newPids.end(), currentPids.begin(), currentPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in newPids that isn't in oldPids
+				createCounters(MyCounters, diffPids);
+				diffPids.clear();
+				std::set_difference(currentPids.begin(), currentPids.end(), newPids.begin(), newPids.end(), std::inserter(diffPids, diffPids.begin())); //calculate what's in OldPids that isn't in 	NewPids
+				cullCounters(MyCounters, diffPids);
+				currentPids = newPids;
+			}
+		} catch(std::exception& e) {
+			term.out<Error>(flexi_format("Exception processing perfrormance counters: {}", e.what()));
 		}
 	}
 }

@@ -106,8 +106,8 @@ void Server::processChatKicks(string input) {
 			writeToServerTerminal("kick " + serverAttributes.lastCommandUser + " §4§LForbidden word in chat; please do not say that!");
 			writeToServerTerminal(formatWrapper("[Hajime] Kicked " + serverAttributes.lastCommandUser + " for a chat infraction"));
 		}
-	} catch(...) {
-		term.out<Error>("Invalid chat kick regex");
+	} catch(std::exception& e) {
+		term.out<Error>("Error processing chat kicks: " + std::string(e.what()));
 	}
 }
 
