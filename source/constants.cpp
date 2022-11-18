@@ -24,9 +24,9 @@ std::string hajimePath = "hajime.d/";
 
 std::string serverSubpath = "servers/";
 
-std::string defaultServerConfFile = hajimePath + serverSubpath + "default.server";
+std::string defaultServerConfFile = hajimePath + serverSubpath + "default.json";
 
-std::string hajDefaultConfFile = hajimePath + "hajime.conf";
+std::string hajDefaultConfFile = hajimePath + "hajime.json";
 
 std::string logFile = hajimePath + "hajime.log";
 

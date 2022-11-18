@@ -215,16 +215,16 @@ bool readSettings() {
 				} else if (setting == "logfile") {
 					logFile = o[setting].as_string();
 				} else if (setting == "debug") {
-					term.debug = o[setting].as_bool();
+					term.debug = o[setting].as_int64();
 				} else if (setting == "threadcolors") {
-					term.showThreadsAsColors = o[setting].as_bool();
+					term.showThreadsAsColors = o[setting].as_int64();
 				} else if (setting == "stoponexit") {
-					stopOnExit = o[setting].as_bool();
+					stopOnExit = o[setting].as_int64();
 				}
 			}
 		}
 	} catch (std::exception& e) {
-		term.out<Error, Threadless>(flexi_format("Error parsing JSON: {}", e.what()));
+		term.out<Error, Threadless>(flexi_format("Error parsing Hajime JSON: {}", e.what()));
 		return 0;
 	}
 	return 1;
@@ -247,7 +247,7 @@ void hajimeUserExit(int sig) {
 std::vector<std::string> getServerFiles() {
 	std::vector<std::string> results;
 	for (const auto& file : fs::directory_iterator{fs::current_path() /= (hajimePath + serverSubpath)}) {
-		if (std::regex_match(file.path().filename().string(), std::regex(".+\\.server(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
+		if (std::regex_match(file.path().filename().string(), std::regex(".+\\.json(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
 			results.emplace_back(file.path().filename().string());
 		}
 	}
@@ -269,7 +269,7 @@ std::vector<std::string> splitToVec(std::string input) {
 void setupServers() {
 	std::vector<std::string> serverFiles = getServerFiles();
 	if (serverFiles.size() == 0) {
-		term.out<Error>("No server files found (all server files end with .server)");
+		term.out<Error>("No server files found (all server files end with .json and are in the hajime.d/servers subdirectory)");
 		exit(0);
 	}
 	for (const auto& serverIt : serverFiles) { //loop through all the server files found

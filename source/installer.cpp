@@ -43,6 +43,7 @@
 #include "files/hajime.h"
 #include "files/default.h"
 #include "files/sysvservice.h"
+#include "files/hajimeplist.h"
 
 namespace fs = std::filesystem;
 
@@ -51,7 +52,6 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 		throw 0;
 	} else {
 		std::ofstream outConf(conf.fileLocation);
-		//put contents of default_json into a string
 		std::string json;
 		for (int i = 0; i < default_json_len; i++) {
 			json += default_json[i];
@@ -62,9 +62,11 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 			o["version"] = hajime_version;
 			o["name"] = conf.serverName;
 			o["path"] = fs::current_path().string();
-			o["flags"] = conf.flags;
+			o["flags"] = "-jar -Xmx4G -Xms4G " + conf.flags;
 			o["file"] = conf.serverFile;
-			o["counterintervalmax"] = defaultCounterInterval;
+			o["counterintervalmax"] = std::to_string(defaultCounterInterval);
+			//write json to file
+			outConf << o;
 		} catch (std::exception& e) {
 			std::cout << e.what() << std::endl;
 		}
@@ -83,13 +85,21 @@ void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", b
 		throw 0;
 	} else {
 		std::ofstream outConf(fileLocation);
-		
-		/*outConf << "version=" << hajime_version << std::endl;
-		outConf << "logfile=hajime.log" << std::endl;
-		outConf << "lang=" << lang << std::endl;
-		outConf << "debug=0" << std::endl;
-		outConf << "threadcolors=1" << std::endl;
-		outConf << "stoponexit=1" << std::endl;*/
+		std::string json;
+		for (int i = 0; i < hajime_json_len; i++) {
+			json += hajime_json[i];
+		}
+		try {
+			boost::json::value v = boost::json::parse(json);
+			boost::json::object o = v.as_object();
+			o["version"] = hajime_version;
+			o["logfile"] = logFile;
+			o["lang"] = lang;
+			//write json to file
+			outConf << o;
+		} catch (std::exception& e) {
+			std::cout << e.what() << std::endl;
+		}
 		outConf.close();
 		term.out<Info>(flexi_format(text.info.HajConfigMade, fileLocation));
 		if (!fs::is_regular_file(fileLocation)) {
@@ -218,82 +228,17 @@ void Installer::installSysVInit() {
 	for (int i = 0; i < sysvservice_sh_len; i++) {
 		content += sysvservice_sh[i];
 	}
-	content = flexi_format(content, fs::current_path().string(), fs::current_path().string(), user, group);
-	service << content;
-	/*service << "#!/bin/sh\n"
-	## BEGIN INIT INFO\n"
-	"# Provides: 		hajime\n"
-	"# Required-Start:\n"
-	"# Required-Stop:\n"
-	"# Default-Start:	3\n"
-	"# Default-Stop:\n"
-	"# Short-Description:	Starts Hajime\n"
-	"# Description:		sysVinit startup service to start the Hajime startup script.\n"
-	"### END INIT INFO\n"
-	"NAME=\"hajime\"\n"
-	"PATH=\"/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\"\n"
-	"APPDIR=" << fs::current_path() << "\n"
-	"APPBIN=\"" << fs::current_path().string() << "/hajime\"\n"
-	"APPARGS=\"\"\n"
-	"USER=\"" << user << "\"\n"
-	"GROUP=\"" << group << "\"\n"
-	"set -e\n"
-	". /lib/lsb/init-functions\n"
-	"start() {\n"
-	"	printf \"Starting Hajime... \"\n"
-	"	start-stop-daemon --start --chuid \"$USER:$GROUP\" --background --make-pidfile --pidfile /var/run/$NAME.pid --chdir \"$APPDIR\" --exec \"$APPBIN\" -- $APPARGS || true\n"
-	"	printf \"done!\n\"\n"
-	"}\n"
-	"stop() {\n"
-	"	printf \"Stopping Hajime!\n\"\n"
-	"	[ -z `cat /var/run/$NAME.pid 2>/dev/null` ] || \\\n"
-	"	kill -9 $(cat /var/run/$NAME.pid)\n"
-	"	[ -z `cat /var/run/$NAME.pid 2>/dev/null` ] || rm /var/run/$NAME.pid\n"
-	"	printf \"Stopped Hajime!\n\"\n"
-	"}\n"
-	"status() {\n"
-	"	status_of_proc -p /var/run/$NAME.pid \"\" $NAME && exit 0 || exit $?\n"
-	"}\n"
-	"case \"$1\" in\n"
-	"	start)\n"
-	"		start\n"
-	"		;;\n"
-	"	stop)\n"
-	"		stop\n"
-	"		;;\n"
-	"		stop\n"
-	"	restart)\n"
-	"		start\n"
-	"		;;\n"
-	"	status)\n"
-	"		status\n"
-	"		;;\n"
-	"	*)\n"
-	"		echo \"Usage: $NAME (start|stop|restart|status)\" >&2\n"
-	"		exit 1\n"
-	"esac\n"
-	"exit 0" << std::endl;*/
+	service << flexi_format(content, fs::current_path().string(), fs::current_path().string(), user, group);
 	service.close();
 }
 
 void Installer::installLaunchd() {
 	std::ofstream service("/Library/LaunchAgents/Hajime.plist");
-	service << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-	"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
-	"<plist version=\"1.0\">\n"
-	"	<dict>\n"
-	"		<key>Label</key>\n"
-	"		<string>Hajime</string>\n"
-	"		<key>Program</key>\n"
-	"		<string>" << fs::current_path().string() << "/hajime</string>\n"
-	"		<key>WorkingDirectory</key>\n"
-	"		<string>" << fs::current_path().string() << "</string>\n"
-	"		<key>RunAtLoad</key>\n"
-	"		<true/>\n"
-	"		<key>KeepAlive</key>\n"
-	"		<true/>\n"
-	"	</dict>\n"
-	"</plist>" << std::endl;
+	std::string content;
+	for (int i = 0; i < hajime_plist_len; i++) {
+		content += hajime_plist[i];
+	}
+	service << flexi_format(content, fs::current_path().string(), fs::current_path().string());
 	service.close();
 }
 

@@ -407,7 +407,7 @@ void Server::readSettings(const string confFile) {
 				} else if (setting == "restartmins") {
 					serverSettings.restartMins = o[setting].as_int64();
 				} else if (setting == "docommands") {
-					serverSettings.doCommands = o[setting].as_bool();
+					serverSettings.doCommands = o[setting].as_int64();
 				} else if (setting == "custommsg") {
 					serverSettings.customMessage = o[setting].as_string();
 				} else if (setting == "chatkickregex") {
@@ -424,7 +424,7 @@ void Server::readSettings(const string confFile) {
 			}
 		}
 	} catch (std::exception& e) {
-		term.out<Error, Threadless>(flexi_format("Error parsing JSON: {}", e.what()));
+		term.out<Error, Threadless>(flexi_format("Error parsing server JSON: {}", e.what()));
 	}
 	/*	setVar(settings.at(0), serverSettings.name);
 		setVar(settings.at(1), serverSettings.exec);
