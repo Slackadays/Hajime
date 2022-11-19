@@ -130,8 +130,6 @@ jobs:
   build-linux-arm64:
     runs-on: ubuntu-22.04
 
-    continue-on-error: true
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -139,6 +137,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
+          set +x
           sudo dpkg --add-architecture arm64
           sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
           sudo apt update
