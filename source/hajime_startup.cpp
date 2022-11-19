@@ -33,7 +33,7 @@
 #include <signal.h>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/json.hpp>
+#include "nlohmann/json.hpp"
 
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
@@ -204,24 +204,14 @@ bool readSettings() {
 	std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 	file.close();
 	term.out<Debug>(text.debug.ReadingReadsettings);
-	//use boost json to read the contents of hajDefaultConfContents into the settings variables
 	try {
-		boost::json::value v = boost::json::parse(contents);
-		boost::json::object o = v.as_object();
+		nlohmann::json content = nlohmann::json::parse(contents);
 		for (const auto& setting : settings) {
-			if (o.contains(setting)) {
-				if (setting == "version") {
-					version = o[setting].as_string();
-				} else if (setting == "logfile") {
-					logFile = o[setting].as_string();
-				} else if (setting == "debug") {
-					term.debug = o[setting].as_int64();
-				} else if (setting == "threadcolors") {
-					term.showThreadsAsColors = o[setting].as_int64();
-				} else if (setting == "stoponexit") {
-					stopOnExit = o[setting].as_int64();
-				}
-			}
+			version = content["version"];
+			logFile = content["logfile"];
+			term.debug = content["debug"];
+			term.showThreadsAsColors = content["threadcolors"];
+			stopOnExit = content["stoponexit"];
 		}
 	} catch (std::exception& e) {
 		term.out<Error, Threadless>(flexi_format("Error parsing Hajime JSON: {}", e.what()));

@@ -102,8 +102,6 @@ else()
   target_sources(hajime PRIVATE performance_counters/other.cpp)
 endif()
 
-target_include_directories(hajime PUBLIC /home/linuxbrew/.linuxbrew/include)
-
 if(lto_supported)
   set_property(TARGET hajime PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE) 
   if(CMAKE_COMPILER_IS_GNUCXX)

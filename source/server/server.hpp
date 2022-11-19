@@ -260,7 +260,7 @@ class Server {
 			std::string autoUpdateVersion;
 			std::string chatKickRegex;
 
-			bool doCommands = true;
+			int doCommands = 1;
 			int counterLevel = 0;
 			long restartMins;
 			long long counterInterval = defaultCounterInterval;

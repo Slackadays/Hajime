@@ -27,7 +27,7 @@
 #include <termios.h>
 #endif
 
-#include <boost/json.hpp>
+#include "../nlohmann/json.hpp"
 
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
@@ -381,67 +381,29 @@ void Server::readSettings(const string confFile) {
 	auto eliminateSpaces = [&](auto& ...var) {
 		((var = std::regex_replace(var, std::regex("\\s+(?![^#])", std::regex_constants::optimize), "")), ...);
 	};
-	std::vector<string> settings {"name", "exec", "file", "path", "flags", "device", "restartmins", "docommands", "custommsg", "chatkickregex", "counters", "autoupdate", "counterintervalmax", "version"};
 	//read the contents of confFile into a variable
 	std::ifstream file(confFile);
 	std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 	file.close();
-	//use boost json to read the contents of contents into the settings variables
 	try {
-		boost::json::value v = boost::json::parse(contents);
-		boost::json::object o = v.as_object();
-		for (const auto& setting : settings) {
-			if (o.contains(setting)) {
-				if (setting == "name") {
-					serverSettings.name = o[setting].as_string();
-				} else if (setting == "exec") {
-					serverSettings.exec = o[setting].as_string();
-				} else if (setting == "file") {
-					serverSettings.file = o[setting].as_string();
-				} else if (setting == "path") {
-					serverSettings.path = o[setting].as_string();
-				} else if (setting == "flags") {
-					serverSettings.flags = o[setting].as_string();
-				} else if (setting == "device") {
-					serverSettings.device = o[setting].as_string();
-				} else if (setting == "restartmins") {
-					serverSettings.restartMins = o[setting].as_int64();
-				} else if (setting == "docommands") {
-					serverSettings.doCommands = o[setting].as_int64();
-				} else if (setting == "custommsg") {
-					serverSettings.customMessage = o[setting].as_string();
-				} else if (setting == "chatkickregex") {
-					serverSettings.chatKickRegex = o[setting].as_string();
-				} else if (setting == "counters") {
-					tempCounters = o[setting].as_string();
-				} else if (setting == "autoupdate") {
-					tempAutoUpdate = o[setting].as_string();
-				} else if (setting == "counterintervalmax") {
-					tempCounterIntervalMax = o[setting].as_string();
-				} else if (setting == "version") {
-					serverSettings.version = o[setting].as_string();
-				}
-			}
-		}
+		nlohmann::json content = nlohmann::json::parse(contents);
+		serverSettings.name = content["name"];
+		serverSettings.exec = content["exec"];
+		serverSettings.file = content["file"];
+		serverSettings.path = content["path"];
+		serverSettings.flags = content["flags"];
+		serverSettings.device = content["device"];
+		serverSettings.restartMins = content["restartmins"];
+		serverSettings.doCommands = content["docommands"];
+		serverSettings.customMessage = content["custommsg"];
+		serverSettings.chatKickRegex = content["chatkickregex"];
+		tempCounters = content["counters"];
+		tempAutoUpdate = content["autoupdate"];
+		tempCounterIntervalMax = content["counterintervalmax"];
+		serverSettings.version = content["version"];
 	} catch (std::exception& e) {
 		term.out<Error, Threadless>(flexi_format("Error parsing server JSON: {}", e.what()));
 	}
-	/*	setVar(settings.at(0), serverSettings.name);
-		setVar(settings.at(1), serverSettings.exec);
-		setVar(settings.at(2), serverSettings.file);
-		setVar(settings.at(3), serverSettings.path);
-		setVar(settings.at(4), serverSettings.flags);
-		setVar(settings.at(5), serverSettings.device);
-		setVari(settings.at(6), serverSettings.restartMins);
-		setVari(settings.at(7), serverSettings.doCommands);
-		setVar(settings.at(8), serverSettings.customMessage);
-		setVar(settings.at(9), serverSettings.chatKickRegex);
-		setVar(settings.at(10), tempCounters);
-		setVar(settings.at(11), tempAutoUpdate);
-		setVar(settings.at(12), tempCounterIntervalMax);
-		setVar(settings.at(13), serverSettings.version);
-		term.out<Debug>(text.debug.ReadingReadsettings);
-	}*/
 	//std::cout << "tempAutoUpdate = " << tempAutoUpdate << std::endl;
 	std::istringstream ss(tempAutoUpdate);
 	std::getline(ss, serverSettings.autoUpdateName, ' ');

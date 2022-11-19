@@ -47,7 +47,6 @@ As a comparison, remember the original iPhone presentation in 2007 when Steve Jo
 - Keeps your server running in the background!
 - Super simple setup and installation!
 - Monitor your server with advanced performance counters!
-- Written in Modern C++20!
 - Optimize your server with Aikar's Flags and more!
 - Works with English, Spanish, and Portuguese!
 - Run multiple servers at once!
@@ -65,12 +64,28 @@ Hajime will start the installation wizard if it can't find the configuation file
 For more info, check out the [Hajime Wiki!](https://github.com/Slackadays/Hajime/wiki)
 
 ### ⚙️ Compiling with CMake 
-Hajime can use CMake to compile. If you've just cloned the repo, these two commands will do the trick:
+Step 0 (If Required): **Install** library dependencies
+
+**Ubuntu/Debain Linux:** `sudo apt install libncurses-dev libsensors-dev libboost-all-dev libz-dev`
+
+**Other Linux Versions:** Change `apt` to what your package manager uses.
+
+**MacOS Homebrew:** `brew install boost ncurses`
+
+**Windows:** Use Chocolatey to install Boost.
+
+Step 1: **Clone** Hajime
 ```
-cmake source
-cmake --build . -j 11
+git clone --recursive https://github.com/slackadays/Hajime
 ```
-If you're on Windows, add `--config Release` to the end of the second command to get a Release build.
+Step 2: **Compile** Hajime
+```
+cmake Hajime/source
+cmake --build Hajime -j 8
+```
+The resulting `hajime` file should now appear.
+
+If you're on Windows, add `--config Release` to the end of the last command to get a faster Release build.
    
 ## 🆘 Troubleshooting 
 Open an issue in GitHub Issues or get quick support in our Discord server.

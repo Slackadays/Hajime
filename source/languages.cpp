@@ -26,7 +26,7 @@
 #include <memory>
 #endif
 
-#include <boost/json.hpp>
+#include "nlohmann/json.hpp"
 
 namespace fs = std::filesystem;
 
@@ -106,15 +106,11 @@ Text::Text(std::string inputFile) {
 		std::ifstream file(inputFile);
 		std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 		file.close();
-		//use boost json to read the file and get the language
 		try {
-			boost::json::value v = boost::json::parse(contents);
-			boost::json::object o = v.as_object();
-			if (o.contains("lang")) {
-				lang = o["lang"].as_string();
-			}
+			nlohmann::json content = nlohmann::json::parse(contents);
+			lang = content["lang"];
 		} catch (std::exception& e) {
-			term.out<outFlag::Error, outFlag::Threadless>(flexi_format("Error parsing JSON: {}", e.what()));
+			term.out<outFlag::Error, outFlag::Threadless>(flexi_format("Error parsing JSON for language: {}", e.what()));
 		}
 		if (lang != "") {
 			applyLang(lang);

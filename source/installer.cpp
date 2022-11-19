@@ -32,7 +32,7 @@
 #include <unistd.h>
 #endif
 
-#include <boost/json.hpp>
+#include "nlohmann/json.hpp"
 
 #include "constants.hpp"
 #include "output.hpp"
@@ -51,27 +51,26 @@ void Installer::installNewServerConfigFile(ServerConfigFile& conf) {
 	if (fs::is_regular_file(conf.fileLocation) && !conf.skipFileCheck) {
 		throw 0;
 	} else {
-		std::ofstream outConf(conf.fileLocation);
 		std::string json;
 		for (int i = 0; i < default_json_len; i++) {
 			json += default_json[i];
 		}
 		try {
-			boost::json::value v = boost::json::parse(json);
-			boost::json::object o = v.as_object();
-			o["version"] = hajime_version;
-			o["name"] = conf.serverName;
-			o["path"] = fs::current_path().string();
-			o["flags"] = "-jar -Xmx4G -Xms4G " + conf.flags;
-			o["file"] = conf.serverFile;
-			o["counterintervalmax"] = std::to_string(defaultCounterInterval);
+			nlohmann::json content = nlohmann::json::parse(json);
+			content["version"] = hajime_version;
+			content["name"] = conf.serverName;
+			content["path"] = fs::current_path().string();
+			content["flags"] = "-jar -Xmx4G -Xms4G " + conf.flags;
+			content["file"] = conf.serverFile;
+			content["counterintervalmax"] = std::to_string(defaultCounterInterval);
 			//write json to file
-			outConf << o;
+			std::ofstream outConf(conf.fileLocation);
+			outConf << content.dump(4);
+			outConf.close();
 		} catch (std::exception& e) {
 			std::cout << e.what() << std::endl;
 		}
 		term.out<Info>(flexi_format(text.info.CreatedServerConfig, conf.fileLocation));
-		outConf.close();
 		if (!fs::is_regular_file(conf.fileLocation)) {
 			throw "Could not create server config file";
 		}
@@ -84,23 +83,22 @@ void Installer::installDefaultHajConfFile(std::string fileLocation = "(none)", b
 	if (fs::is_regular_file(fileLocation) && !skipFileCheck) {
 		throw 0;
 	} else {
-		std::ofstream outConf(fileLocation);
 		std::string json;
 		for (int i = 0; i < hajime_json_len; i++) {
 			json += hajime_json[i];
 		}
 		try {
-			boost::json::value v = boost::json::parse(json);
-			boost::json::object o = v.as_object();
-			o["version"] = hajime_version;
-			o["logfile"] = logFile;
-			o["lang"] = lang;
+			nlohmann::json content = nlohmann::json::parse(json);
+			content["version"] = hajime_version;
+			content["logfile"] = logFile;
+			content["lang"] = lang;
 			//write json to file
-			outConf << o;
+			std::ofstream outConf(fileLocation);
+			outConf << content.dump(4);
+			outConf.close();
 		} catch (std::exception& e) {
 			std::cout << e.what() << std::endl;
 		}
-		outConf.close();
 		term.out<Info>(flexi_format(text.info.HajConfigMade, fileLocation));
 		if (!fs::is_regular_file(fileLocation)) {
 			throw "Could not create Hajime config file";

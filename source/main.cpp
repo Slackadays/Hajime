@@ -39,7 +39,7 @@
 #include <ncurses.h>
 #endif
 
-#include <boost/json/src.hpp>
+#include "nlohmann/json.hpp"
 
 #include "hajime_startup.hpp"
 #include "constants.hpp"

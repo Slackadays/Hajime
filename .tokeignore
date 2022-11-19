@@ -2,3 +2,4 @@
 /.github/*
 *.md
 /source/httplib/*
+/source/nlohmann/*
