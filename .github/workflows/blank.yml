@@ -139,7 +139,7 @@ jobs:
         shell: bash {0}
         run: |
           sudo dpkg --add-architecture arm64
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy universe" | sudo tee --append /etc/apt/sources.list
+          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy universe" | sudo tee --append /etc/apt/sources.list
           cat /etc/apt/sources.list
           sudo apt update
           sudo apt install -y g++-12-arm-linux-gnueabihf libfmt-dev:arm64 libboost-all-dev:arm64 libsensors-dev:arm64 libz-dev:arm64
