@@ -138,6 +138,7 @@ jobs:
       - name: Run a multi-line script
         shell: bash {0}
         run: |
+          sudo dpkg --add-architecture arm64
           echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports" | sudo tee --append /etc/apt/sources.list
           cat /etc/apt/sources.list
           sudo apt update
