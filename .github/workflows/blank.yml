@@ -138,6 +138,7 @@ jobs:
       - name: Run a multi-line script
         shell: bash {0}
         run: |
+          sudo dpkg --add-architecture arm64
           sudo echo "deb [arch=arm64] http://ports.ubuntu.com/" >> /etc/apt/sources.list
           sudo apt update
           sudo apt install -y g++-12-arm-linux-gnueabihf libfmt-dev:arm64 libboost-all-dev:arm64 libsensors-dev:arm64 libz-dev:arm64
