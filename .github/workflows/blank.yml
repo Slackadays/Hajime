@@ -152,7 +152,7 @@ jobs:
           cat /etc/apt/sources.list
           sudo apt update
           sudo apt install aptitude
-          sudo aptitude install -y g++-12-arm-linux-gnueabihf libfmt-dev:arm64 libboost-dev:arm64 libsensors-dev:arm64 libz-dev:arm64 libc6-dev:arm64 libboost1.74-dev:arm64
+          sudo aptitude install -y g++-12-arm-linux-gnueabihf libfmt-dev:arm64 libboost-dev:arm64 libsensors-dev:arm64 libz-dev:arm64 libc6-dev:arm64 libboost1.74-dev:arm64 linux-libc-dev:arm64 libtirpc-dev:arm64 libnsl-dev:arm64
           cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-12 CMAKE_C_COMPILER=arm-linux-gnueabihf-g++-12
           cmake --build . -j 4
 
