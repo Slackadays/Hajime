@@ -138,6 +138,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           sudo dpkg --add-architecture arm64
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://|ports.ubuntu.com/ubuntu-ports' /etc/apt/sources.list
           sudo apt update
           sudo apt install -y g++-12-arm-linux-gnueabihf libfmt-dev:arm64 libboost-all-dev:arm64 libsensors-dev:arm64 libz-dev:arm64
           cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-12 CMAKE_C_COMPILER=arm-linux-gnueabihf-g++-12
