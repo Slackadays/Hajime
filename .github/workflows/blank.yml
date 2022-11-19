@@ -138,7 +138,8 @@ jobs:
       - name: Run a multi-line script
         shell: bash {0}
         run: |
-          echo "deb [arch=arm64] http://ports.ubuntu.com/" | sudo tee --append /etc/apt/sources.list
+          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports" | sudo tee --append /etc/apt/sources.list
+          cat /etc/apt/sources.list
           sudo apt update
           sudo apt install -y g++-12-arm-linux-gnueabihf libfmt-dev:arm64 libboost-all-dev:arm64 libsensors-dev:arm64 libz-dev:arm64
           cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-12 CMAKE_C_COMPILER=arm-linux-gnueabihf-g++-12
