@@ -136,8 +136,8 @@ jobs:
           submodules: recursive
 
       - name: Run a multi-line script
+        shell: bash {0}
         run: |
-          set +x
           sudo dpkg --add-architecture arm64
           sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
           sudo apt update
