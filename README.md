@@ -81,7 +81,7 @@ git clone --recursive https://github.com/slackadays/Hajime
 Step 2: **Compile** Hajime
 ```
 cmake Hajime/source
-cmake --build Hajime -j 8
+cmake --build . -j 8
 ```
 The resulting `hajime` file should now appear.
 
