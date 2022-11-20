@@ -104,7 +104,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          brew install boost fmt
+          brew install boost fmt libssh ncurses
           cmake source
           cmake --build . -j 4
 
@@ -112,21 +112,24 @@ jobs:
         with:
           name: hajime-macos-amd64
           path: hajime
-#  build-macos-arm64:
-#    runs-on: macos-latest
+  build-macos-arm64:
+    runs-on: [self-hosted, macos]
 
-#    steps:
-#      - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
-#      - name: Run a multi-line script
-#        run: |
-#          cmake -DADD_FLAGS="-target arm64-apple-macos" -DCMAKE_CXX_COMPILER=clang++ source
-#          cmake --build . -j 3
+      - name: Run a multi-line script
+        run: |
+          brew install boost fmt libssh ncurses
+          cmake source
+          cmake --build . -j 4
 
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: hajime-macos-arm64
-#          path: hajime
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hajime-macos-arm64
+          path: hajime
   build-linux-arm64:
     runs-on: self-hosted
 
