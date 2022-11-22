@@ -13,7 +13,6 @@ An advanced Minecraft server startup system
 
 ## 💬 Join our Discord server at https://discord.gg/J6asnc3pEG
 
-
 ## ⬇️ Get Hajime 
 ### 🐧🍎😈 Linux, macOS, & FreeBSD
 Copy and paste the below command into your terminal to install. Or, go to [GitHub Releases](https://github.com/Slackadays/Hajime/releases/) and download the latest release.
