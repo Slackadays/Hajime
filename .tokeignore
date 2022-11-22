@@ -3,3 +3,4 @@
 *.md
 /source/httplib/*
 /source/nlohmann/*
+/source/zlib/*
