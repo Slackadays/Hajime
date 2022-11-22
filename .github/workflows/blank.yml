@@ -21,7 +21,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
 
       - name: Run a multi-line script
         run: |
@@ -61,7 +60,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
 
       - name: Run a multi-line script
         run: |
@@ -97,7 +95,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
 
       - name: Run a multi-line script
         run: |
@@ -114,7 +111,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
 
       - name: Run a multi-line script
         run: |
@@ -131,7 +127,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
 
       - name: Run a multi-line script
         run: |
@@ -285,7 +280,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
 
       - name: Run a multi-line script
         run: |
