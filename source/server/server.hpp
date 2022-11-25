@@ -243,6 +243,8 @@ class Server {
 	std::deque<std::string> lines;
 
 	public:
+		enum class CounterLevel { Unavailable, Off, Low, Medium, All };
+		enum class Runstate { Running, StoppedByUser, StoppedBySelf };
 		struct ServerSettings {
 			std::mutex mutex; // mutex for settings
 
@@ -261,7 +263,9 @@ class Server {
 			std::string chatKickRegex;
 
 			int doCommands = 1;
-			int counterLevel = 0;
+
+			CounterLevel counterLevel = CounterLevel::Off;
+
 			long restartMins;
 			long long counterInterval = defaultCounterInterval;
 			long long counterMax = defaultCounterMax;
@@ -291,7 +295,7 @@ class Server {
 
 			int systemi = 0;
 
-			int runstate = 1;
+			Runstate runstate = Runstate::StoppedBySelf;
 
 			long long uptime = 0;
 			long long CPUjiffies = 0;

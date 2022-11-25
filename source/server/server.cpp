@@ -410,13 +410,13 @@ void Server::readSettings(const string confFile) {
 	std::getline(ss, serverSettings.autoUpdateVersion, ' ');
 	term.registerServerName(serverSettings.name); //send the name of the server name to term so that it can associate a name with a thread id
 	if (tempCounters == "high") {
-		serverSettings.counterLevel = 3;
+		serverSettings.counterLevel = CounterLevel::All;
 	} else if (tempCounters == "medium") {
-		serverSettings.counterLevel = 2;
+		serverSettings.counterLevel = CounterLevel::Medium;
 	} else if (tempCounters == "low") {
-		serverSettings.counterLevel = 1;
+		serverSettings.counterLevel = CounterLevel::Low;
 	} else if (tempCounters == "off") {
-		serverSettings.counterLevel = 0;
+		serverSettings.counterLevel = CounterLevel::Off;
 	}
 	if (serverSettings.device == "") {
 		term.out<Info>(text.info.NoMount);

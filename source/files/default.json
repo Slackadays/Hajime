@@ -10,7 +10,7 @@
     "docommands": 1,
     "custommsg": "",
     "chatkickregex": "",
-    "counters": "high",
+    "counters": "all",
     "autoupdate": "",
     "counterintervalmax": ""
 }
