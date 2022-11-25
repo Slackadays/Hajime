@@ -331,13 +331,13 @@ void processHajimeCommand(std::vector<std::string> input) {
 				term.out<Info>("Commands: " + std::to_string(server->serverSettings.doCommands));
 				term.out<Info>("Custom message: " + server->serverSettings.customMessage);
 				term.out<Info>("Chat kick regex: " + server->serverSettings.chatKickRegex);
-				if (server->serverSettings.counterLevel == server->CounterLevel::All) {
+				if (server->serverSettings.counterLevel == CounterLevel::All) {
 					term.out<Info>("Counter level: All");
-				} else if (server->serverSettings.counterLevel == server->CounterLevel::Medium) {
+				} else if (server->serverSettings.counterLevel == CounterLevel::Medium) {
 					term.out<Info>("Counter level: Medium");
-				} else if (server->serverSettings.counterLevel == server->CounterLevel::Low) {
+				} else if (server->serverSettings.counterLevel == CounterLevel::Low) {
 					term.out<Info>("Counter level: Low");
-				} else if (server->serverSettings.counterLevel == server->CounterLevel::Off) {
+				} else if (server->serverSettings.counterLevel == CounterLevel::Off) {
 					term.out<Info>("Counter level: Off");
 				}
 				term.out<Info>("Auto update name: " + server->serverSettings.autoUpdateName);
@@ -388,16 +388,16 @@ void processHajimeCommand(std::vector<std::string> input) {
 						term.out<Info>(flexi_format("Server {}'s chat kick regex set to {}", input.at(1), server->serverSettings.chatKickRegex));
 					} else if (input.at(2) == "counterlevel") {
 						if (input.at(3) == "all") {
-							server->serverSettings.counterLevel = server->CounterLevel::All;
+							server->serverSettings.counterLevel = CounterLevel::All;
 							term.out<Info>(flexi_format("Server {}'s counter level set to All", input.at(1)));
 						} else if (input.at(3) == "medium") {
-							server->serverSettings.counterLevel = server->CounterLevel::Medium;
+							server->serverSettings.counterLevel = CounterLevel::Medium;
 							term.out<Info>(flexi_format("Server {}'s counter level set to Medium", input.at(1)));
 						} else if (input.at(3) == "low") {
-							server->serverSettings.counterLevel = server->CounterLevel::Low;
+							server->serverSettings.counterLevel = CounterLevel::Low;
 							term.out<Info>(flexi_format("Server {}'s counter level set to Low", input.at(1)));
 						} else if (input.at(3) == "off") {
-							server->serverSettings.counterLevel = server->CounterLevel::Off;
+							server->serverSettings.counterLevel = CounterLevel::Off;
 							term.out<Info>(flexi_format("Server {}'s counter level set to Off", input.at(1)));
 						} else {
 							term.out<Error>("Invalid counter level");

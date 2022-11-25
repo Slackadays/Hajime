@@ -53,6 +53,9 @@
 #include "../output.hpp"
 #include "../languages.hpp"
 
+enum class CounterLevel { Unavailable, Off, Low, Medium, All };
+enum class Runstate { Running, StoppedByUser, StoppedBySelf };
+
 class Server {
 	template<typename T>
 	T averageVal(std::deque<T> myList, unsigned int minutes) {
@@ -243,8 +246,6 @@ class Server {
 	std::deque<std::string> lines;
 
 	public:
-		enum class CounterLevel { Unavailable, Off, Low, Medium, All };
-		enum class Runstate { Running, StoppedByUser, StoppedBySelf };
 		struct ServerSettings {
 			std::mutex mutex; // mutex for settings
 
