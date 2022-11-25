@@ -148,9 +148,8 @@ void Server::startServer(string confFile) {
 }
 
 std::vector<std::string> Server::toArray(std::string input) {
-	std::vector<string> flagVector;
-	string execFile = serverSettings.path + '/' + serverSettings.exec;
-	flagVector.push_back(execFile.c_str()); //convert the execFile string to a c-style string that the exec command will understand
+	std::vector<std::string> flagVector;
+	flagVector.push_back(serverSettings.exec); //convert the execFile string to a c-style string that the exec command will understand
 	std::istringstream iss(input);
 	std::string temp;
 	while (std::getline(iss, temp, ' ')) {

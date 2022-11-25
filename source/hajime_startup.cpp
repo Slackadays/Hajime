@@ -426,7 +426,7 @@ void processHajimeCommand(std::vector<std::string> input) {
 					content["custommsg"] = server->serverSettings.customMessage;
 					content["chatkickregex"] = server->serverSettings.chatKickRegex;
 					content["autoupdate"] = server->serverSettings.autoUpdateName + ' ' + server->serverSettings.autoUpdateVersion;
-					content["counterintervalmax"] = server->serverSettings.counterInterval + ' ' + server->serverSettings.counterMax;
+					content["counterintervalmax"] = std::to_string(server->serverSettings.counterInterval) + ' ' + std::to_string(server->serverSettings.counterMax);
 					content["version"] = server->serverSettings.version;
 					std::fstream fileOut(server->serverAttributes.configFileLocation, std::ios::out);
 					fileOut << content.dump(4);
