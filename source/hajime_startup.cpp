@@ -406,7 +406,41 @@ void processHajimeCommand(std::vector<std::string> input) {
 			term.out<Error>("Not enough arguments provided");
 		}
 	} else if (input.at(0) == "save") {
-		term.out<Error>("Not implemented yet");
+		if (input.size() >= 2) {
+			try {
+				std::shared_ptr<Server> server = getServerObject(input.at(1));
+				std::lock_guard<std::mutex> lock(server->serverSettings.mutex);
+				try {
+					std::fstream fileIn(server->serverAttributes.configFileLocation, std::ios::in);
+					std::string contents((std::istreambuf_iterator<char>(fileIn)), std::istreambuf_iterator<char>());
+					fileIn.close();
+					nlohmann::json content = nlohmann::json::parse(contents);
+					content["name"] = server->serverSettings.name;
+					content["exec"] = server->serverSettings.exec;
+					content["file"] = server->serverSettings.file;
+					content["path"] = server->serverSettings.path;
+					content["flags"] = server->serverSettings.flags;
+					content["device"] = server->serverSettings.device;
+					content["restartmins"] = server->serverSettings.restartMins;
+					content["docommands"] = server->serverSettings.doCommands;
+					content["custommsg"] = server->serverSettings.customMessage;
+					content["chatkickregex"] = server->serverSettings.chatKickRegex;
+					content["autoupdate"] = server->serverSettings.autoUpdateName + ' ' + server->serverSettings.autoUpdateVersion;
+					content["counterintervalmax"] = server->serverSettings.counterInterval + ' ' + server->serverSettings.counterMax;
+					content["version"] = server->serverSettings.version;
+					std::fstream fileOut(server->serverAttributes.configFileLocation, std::ios::out);
+					fileOut << content.dump(4);
+					fileOut.close();
+					term.out<Info>(flexi_format("Saved server {}'s settings", input.at(1)));
+				} catch (std::exception& e) {
+					term.out<Error>(flexi_format("Error saving server settings: {}", e.what()));
+				}
+			} catch(...) {
+				term.out<Error>(text.error.ServerSelectionInvalid);
+			}
+		} else {
+			term.out<Error>("Not enough arguments provided");
+		}
 	} else if (input.at(0) == "exit") {
 		term.out<Warning, NoEndline>("Are you sure you want to exit Hajime?");
 		if (term.getYN()) {

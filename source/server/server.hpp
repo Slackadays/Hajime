@@ -271,6 +271,8 @@ class Server {
 		struct ServerAttributes {
 			std::mutex mutex;
 
+			std::string configFileLocation;
+
 			std::chrono::time_point<std::chrono::steady_clock> timeStart;
 			std::chrono::time_point<std::chrono::steady_clock> timeCurrent;
 

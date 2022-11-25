@@ -375,6 +375,7 @@ void Server::removeSlashesFromEnd(string& var) {
 }
 
 void Server::readSettings(const string confFile) {
+	serverAttributes.configFileLocation = confFile;
 	std::string tempAutoUpdate;
 	std::string tempCounters;
 	std::string tempCounterIntervalMax;
