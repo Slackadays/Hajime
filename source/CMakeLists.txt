@@ -122,10 +122,6 @@ else()
   add_compile_options("$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>")
 endif()
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zlib/zconf.h.included)
-  file(RENAME zlib/zconf.h.included zlib/zconf.h)
-endif()
-
 target_link_libraries(hajime Threads::Threads)
 
 if(OpenMP_CXX_FOUND)
