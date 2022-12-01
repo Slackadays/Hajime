@@ -53,53 +53,58 @@
 namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]) {
-	#if !defined(_WIN64) && !defined(_WIN32) //Windows compatibility
-	setupTUI();
-	setupRLimits(); //increase available file descriptors
-	#else
-	setupTerminal();
-	#endif
-	//auto then = std::chrono::high_resolution_clock::now();
+	try {
+		#if !defined(_WIN64) && !defined(_WIN32) //Windows compatibility
+		setupTUI();
+		setupRLimits(); //increase available file descriptors
+		#else
+		setupTerminal();
+		#endif
+		//auto then = std::chrono::high_resolution_clock::now();
 
-	setupSignals();
+		setupSignals();
 
-	#if defined(__linux__)
-	setupSensors();
-	#endif
+		#if defined(__linux__)
+		setupSensors();
+		#endif
 
-	term.dividerLine();
+		term.dividerLine();
 
-	std::vector<std::string> flags;
-	for (int i = 0; i < argc; i++) {
-		flags.push_back(argv[i]);
+		std::vector<std::string> flags;
+		for (int i = 0; i < argc; i++) {
+			flags.push_back(argv[i]);
+		}
+
+		doPreemptiveFlags(flags);
+		doRegularFlags(flags);
+
+		term.out<Info>("Starting Hajime");
+
+		// check for a subdirectory called "Hajime" and if it does not exist, create it
+		setupHajimeDirectory();
+		if (fs::is_regular_file(hajDefaultConfFile)) {
+			readSettings();
+			empty(hajimePath + logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(hajimePath + logFile);
+		} else {
+			setupFirstTime();
+		}
+		if (!bypassPriviligeCheck && isUserPrivileged()) {
+			term.out<Error>(text.error.PrivilegedUser);
+			return 1;
+		}
+
+		//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
+		setupServers();
+		doHajimeTerminal();
+
+		//get out of curses mode
+		#if !defined(_WIN64) && !defined(_WIN32)
+		endwin();
+		#endif
+	} catch (std::exception &e) {
+		term.out<Error>(e.what());
+		exit(1);
 	}
-
-	doPreemptiveFlags(flags);
-	doRegularFlags(flags);
-
-	term.out<Info>("Starting Hajime");
-
-	// check for a subdirectory called "Hajime" and if it does not exist, create it
-	setupHajimeDirectory();
-	if (fs::is_regular_file(hajDefaultConfFile)) {
-		readSettings();
-		empty(hajimePath + logFile) ? term.out<Info>(text.info.NoLogFile) : term.init(hajimePath + logFile);
-	} else {
-		setupFirstTime();
-	}
-	if (!bypassPriviligeCheck && isUserPrivileged()) {
-		term.out<Error>(text.error.PrivilegedUser);
-		return 1;
-	}
-
-	//std::cout << "This took " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - then).count() << " microseconds" << std::endl;
-	setupServers();
-	doHajimeTerminal();
-
-	//get out of curses mode
-	#if !defined(_WIN64) && !defined(_WIN32)
-	endwin();
-	#endif
 	exit(0);
 }
 

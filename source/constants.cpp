@@ -18,7 +18,7 @@
 
 #include "constants.hpp"
 
-const std::string hajime_version = "0.2.0";
+const std::string hajime_version = "0.2.1";
 
 std::string hajimePath = "hajime.d/";
 

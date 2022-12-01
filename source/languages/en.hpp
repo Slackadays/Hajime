@@ -81,7 +81,12 @@ error.OptionNotAvailable = "Sorry, this option isn't available yet.";
 error.InvalidServerNumber = "Invalid server number";
 error.ServerSelectionInvalid = "Server selection invalid";
 error.DoesntSupportWindows = "Windows doesn't support this feature.";
-error.InvalidCommand = "Invalid command; list of valid commands:";
+error.InvalidCommand = "Invalid command; list of valid commands:\n"
+                        "info/i number/name | Show information for server number/name\n"
+                        "set/s number/name property value | Set property to value value for server number/name\n"
+                        "save number/name | Save server number/name's settings to its config file\n"
+                        "term/t number/name | Access server number/name's terminal\n"
+                        "exit | Exit Hajime";
 error.InvalidHajCommand1 = "term, t [server] | attach to server";
 error.InvalidServerCommand1 = ".d - detach from server";
 error.CreatingPipe = "Error creating pipe";
