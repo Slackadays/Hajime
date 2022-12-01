@@ -27,7 +27,7 @@
 
 namespace fs = std::filesystem;
 
-string Deduce::hajimeFile() {
+std::string Deduce::hajimeFile() {
 	if (!fs::is_regular_file(hajDefaultConfFile)) {
 		return hajDefaultConfFile;
 	} else {
@@ -36,8 +36,8 @@ string Deduce::hajimeFile() {
 	}
 }
 
-std::vector<string> Deduce::serverFiles(const fs::path& p) {
-	std::vector<string> results;
+std::vector<std::string> Deduce::serverFiles(const fs::path& p) {
+	std::vector<std::string> results;
 	auto path = fs::directory_iterator{p};
 	for (auto file = begin(path); file != end(path); ++file) {
 		if (std::regex_match(file->path().filename().string(), std::regex(".+\\.jar(?!.+)", std::regex_constants::optimize | std::regex_constants::icase))) {
@@ -49,12 +49,12 @@ std::vector<string> Deduce::serverFiles(const fs::path& p) {
 	return results;
 }
 
-string Deduce::serverConfig() {
+std::string Deduce::serverConfig() {
 	if (!fs::is_regular_file(defaultServerConfFile)) {
 		return defaultServerConfFile;
 	} else {
 		for (int i = 1; i < 10; i++) {
-			string temp = std::regex_replace(defaultServerConfFile, std::regex(".+(?=\\.\\w+)", std::regex_constants::optimize), "$&" + std::to_string(i));
+			std::string temp = std::regex_replace(defaultServerConfFile, std::regex(".+(?=\\.\\w+)", std::regex_constants::optimize), "$&" + std::to_string(i));
 			if (!fs::is_regular_file(temp)) {
 				return temp;
 			}
@@ -64,7 +64,7 @@ string Deduce::serverConfig() {
 			return defaultServerConfFile;
 		}
 		for (int i = 1; i < 10; i++) {
-			string temp = std::regex_replace(defaultServerConfFile, std::regex(".+(?=\\.\\w+)", std::regex_constants::optimize), "$&" + std::to_string(i));
+			std::string temp = std::regex_replace(defaultServerConfFile, std::regex(".+(?=\\.\\w+)", std::regex_constants::optimize), "$&" + std::to_string(i));
 			if (!fs::is_regular_file(temp + ".old")) {
 				rename(defaultServerConfFile.c_str(), (temp + ".old").c_str());
 				return temp;
@@ -74,7 +74,7 @@ string Deduce::serverConfig() {
 	}
 }
 
-string Deduce::usagePattern() {
+std::string Deduce::usagePattern() {
 	return std::string("bar");
 }
 

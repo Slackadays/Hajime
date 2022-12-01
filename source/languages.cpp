@@ -35,7 +35,7 @@ namespace fs = std::filesystem;
 #include "flexi_format.hpp"
 #include "output.hpp"
 
-void Text::applyLang(const string& lang) {
+void Text::applyLang(const std::string& lang) {
 	//the fallack is English
 	#include "languages/en.hpp"
 	language = lang;
@@ -55,7 +55,7 @@ void Text::autoSetLanguage() {
 	applyLang(filterLanguage(getUserLanguage()));
 }
 
-string Text::filterLanguage(const string& input) {
+std::string Text::filterLanguage(const std::string& input) {
 	if (std::regex_search(input, std::regex("en[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
 		return "en";
 	} else if (std::regex_search(input, std::regex("es[_-].*", std::regex_constants::optimize | std::regex_constants::icase))) {
@@ -67,7 +67,7 @@ string Text::filterLanguage(const string& input) {
 	}
 }
 
-string Text::getUserLanguage() {
+std::string Text::getUserLanguage() {
 	#if defined(_WIN32) || defined(_WIN64)
 	std::unique_ptr<wchar_t[]> locale(new wchar_t[LOCALE_NAME_MAX_LENGTH]);
 	int ret = GetUserDefaultLocaleName(locale.get(), LOCALE_NAME_MAX_LENGTH);
@@ -80,16 +80,16 @@ string Text::getUserLanguage() {
 	if (!len) {
 		term.out<outFlag::Error>("Error in WideCharToMultiByte");
 	}
-	string result(len, '\0');
+	std::string result(len, '\0');
 	WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, locale.get(), ret - 1, result.data(), len, NULL, NULL);
 	#else
-	string result;
+	std::string result;
 	if (getenv("LANGUAGE") != nullptr) {
-		result = (string)getenv("LANGUAGE");
+		result = (std::string)getenv("LANGUAGE");
 	} else if (getenv("LC_ALL") != nullptr) {
-		result = (string)getenv("LC_ALL");
+		result = (std::string)getenv("LC_ALL");
 	} else if (getenv("LANG") != nullptr) {
-		result = (string)getenv("LANG");
+		result = (std::string)getenv("LANG");
 	}
 	#endif
 	term.out<outFlag::Debug>("result = " + result);

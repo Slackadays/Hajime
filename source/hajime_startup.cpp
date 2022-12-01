@@ -158,7 +158,7 @@ void setupRLimits() {
 #if defined(__linux__)
 void setupSensors() {
 	if (sensors_init(nullptr) == 0) {
-		term.out<Debug>("libsensors initialized, library version " + string(libsensors_version));
+		term.out<Debug>("libsensors initialized, library version " + std::string(libsensors_version));
 	} else {
 		term.out<Error, Threadless>("Error initializing sensors");
 	}

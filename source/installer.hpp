@@ -43,11 +43,11 @@ class Installer {
 	void installWindows();
 	void installSysVInit();
 	void installLaunchd();
-	void installSystemd(const string& location);
+	void installSystemd(const std::string& location);
 	public:
-		void installStartupService(const string& sysService);
+		void installStartupService(const std::string& sysService);
 		static void installNewServerConfigFile(ServerConfigFile& conf);
-		static void installDefaultHajConfFile(string fileLocation, bool skipFileCheck = false, const string& lang = "en");
+		static void installDefaultHajConfFile(std::string fileLocation, bool skipFileCheck = false, const std::string& lang = "en");
 		//explicit Installer(std::shared_ptr<Output> log);
 };
 

@@ -40,29 +40,29 @@ class Output {
 	std::thread::id main_thread = std::this_thread::get_id();
 	inline static std::ofstream fileObj;
 
-	string removeEndlines(string input, bool keepEndlines = false);
-	string addPrefixByType(string data = "", outFlag type = None);
-	string getColorByID();
-	string makeMonochrome(string input);
+	std::string removeEndlines(std::string input, bool keepEndlines = false);
+	std::string addPrefixByType(std::string data = "", outFlag type = None);
+	std::string getColorByID();
+	std::string makeMonochrome(std::string input);
 	bool isExcluded(outFlag type);
-	void fileDispatch(string input, outFlag type, bool endLineAtEnd);
+	void fileDispatch(std::string input, outFlag type, bool endLineAtEnd);
 	inline static int threadCounter;
 	inline static std::unordered_map<std::thread::id, int> threadToNumMap;
-	inline static std::unordered_map<std::thread::id, string> threadToNameMap;
+	inline static std::unordered_map<std::thread::id, std::string> threadToNameMap;
 	inline static bool logToFile;
-	inline static string logFilename;
+	inline static std::string logFilename;
 
 	public:
 		int getTerminalWidth();
-		void dividerLine(string tx = "", bool exit = false);
-		void terminalDispatch(string input, outFlag type, bool endLineAtEnd);
+		void dividerLine(std::string tx = "", bool exit = false);
+		void terminalDispatch(std::string input, outFlag type, bool endLineAtEnd);
 
 		#if defined(__FreeBSD__)
 		template<auto... flags>
 		#else
 		template <std::same_as<outFlag> auto... flags>
 		#endif
-		void out(string data) {
+		void out(std::string data) {
 			constexpr bool force = ((flags == Force) || ...);
 			constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
 			constexpr bool borders = ((flags == Border) || ...);
@@ -102,7 +102,7 @@ class Output {
 			if (isExcluded(type)) {
 				return;
 			}
-			string outputString;
+			std::string outputString;
 			outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
 			if (noColors) {
 				outputString = makeMonochrome(outputString);
@@ -128,15 +128,15 @@ class Output {
 
 		template<typename ...T>
 		int getYN(T ...options) {
-			string response;
+			std::string response;
 			bool isComplex = false;
 			int i = 0;
-			if constexpr ((std::is_same_v<string, T> || ...)) { //check if we get a string in it or not
+			if constexpr ((std::is_same_v<std::string, T> || ...)) { //check if we get a string in it or not
 				isComplex = true;
 				std::cout << std::endl;
-				this->out<None, KeepEndlines, Border>("\033[1m" + string(" ─> " + text.option.ChooseOptionBelow));
+				this->out<None, KeepEndlines, Border>("\033[1m" + std::string(" ─> " + text.option.ChooseOptionBelow));
 				(this->out<None, Border>(("\033[1m " + std::to_string(++i) + ")\033[0m " + options)), ...);
-				this->out<None, NoEndline, Border>("\033[1m" + string(" ─> " + text.option.YourChoice));
+				this->out<None, NoEndline, Border>("\033[1m" + std::string(" ─> " + text.option.YourChoice));
 			} else {
 				this->out<None, NoEndline, NoSave>("\033[1m " + text.question.Prompt + ' ');
 			}
@@ -167,10 +167,10 @@ class Output {
 		}
 
 		inline static bool isWindows;
-		void init(const string& file);
-		void registerServerName(const string& name);
+		void init(const std::string& file);
+		void registerServerName(const std::string& name);
 		void end();
-		inline static string lastOutput;
+		inline static std::string lastOutput;
 		inline static bool threadless;
 		inline static int showThreadsAsColors;
 		inline static bool showExplicitInfoType;

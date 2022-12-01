@@ -86,9 +86,9 @@ void Server::commandHajime() {
 
 void Server::commandTime() {
 	std::time_t timeNow = std::time(nullptr);
-	string stringTimeNow = std::asctime(std::localtime(&timeNow));
+	std::string stringTimeNow = std::asctime(std::localtime(&timeNow));
 	stringTimeNow.erase(std::remove(stringTimeNow.begin(), stringTimeNow.end(), '\n'), stringTimeNow.end());
-	string hajInfo = text.server.command.time.output + stringTimeNow + '\"';
+	std::string hajInfo = text.server.command.time.output + stringTimeNow + '\"';
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
@@ -116,7 +116,7 @@ void Server::commandDie() {
 	std::random_device rand;
 	std::mt19937 mt(rand());
 	std::uniform_int_distribution<int> die(1, 6);
-	string hajInfo = text.server.command.die.output + std::to_string(die(mt));
+	std::string hajInfo = text.server.command.die.output + std::to_string(die(mt));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 	//switch this to C++20 format when it becomes supported
 }
@@ -125,7 +125,7 @@ void Server::commandD20() {
 	std::random_device rand;
 	std::mt19937 mt(rand());
 	std::uniform_int_distribution<int> die(1, 20);
-	string hajInfo = text.server.command.d20.output + std::to_string(die(mt));
+	std::string hajInfo = text.server.command.d20.output + std::to_string(die(mt));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 	//switch this to C++20 format when it becomes supported
 }
@@ -146,13 +146,13 @@ void Server::commandDiscord() {
 }
 
 void Server::commandName() {
-	string hajInfo = text.server.command.name.output + serverSettings.name;
+	std::string hajInfo = text.server.command.name.output + serverSettings.name;
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
 void Server::commandInfo() {
 	if (serverSettings.customMessage != "") {
-		string hajInfo = "[Hajime] " + serverSettings.customMessage;
+		std::string hajInfo = "[Hajime] " + serverSettings.customMessage;
 		writeToServerTerminal(formatWrapper(hajInfo));
 	} else {
 		writeToServerTerminal(formatWrapper("[Hajime] This server does not have a custom message set."));
@@ -160,12 +160,12 @@ void Server::commandInfo() {
 }
 
 void Server::commandUptime() {
-	string hajInfo = flexi_format(text.server.command.uptime.output, std::to_string(serverAttributes.uptime), std::to_string(serverAttributes.uptime / 60.0));
+	std::string hajInfo = flexi_format(text.server.command.uptime.output, std::to_string(serverAttributes.uptime), std::to_string(serverAttributes.uptime / 60.0));
 	writeToServerTerminal(formatWrapper(addNumberColors(hajInfo)));
 }
 
 void Server::commandRestart() {
-	string hajInfo;
+	std::string hajInfo;
 	if (serverSettings.restartMins > 0) {
 		hajInfo = flexi_format(text.server.command.restart.output, std::to_string(serverSettings.restartMins - serverAttributes.uptime), std::to_string((serverSettings.restartMins - serverAttributes.uptime) / 60.0));
 	} else {
@@ -175,7 +175,7 @@ void Server::commandRestart() {
 }
 
 void Server::commandSystem() {
-	string hajInfo;
+	std::string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + text.server.command.system.key.os + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getOS() + "\"}},"
 	"{\"text\":\"" + text.server.command.system.key.cpu + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPU() + "\"}},"
 	"{\"text\":\"" + text.server.command.system.key.ram + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAM() + "\"}},"
@@ -190,7 +190,7 @@ void Server::commandSystem() {
 
 void Server::commandPerf() {
 	writeToServerTerminal(formatWrapper("[Hajime] Roll over an item to show its explanation."));
-	string hajInfo;
+	std::string hajInfo;
 	hajInfo = "[{\"text\":\"" + text.server.command.perf.key.cpuusage + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.cpuusage + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.ramusage + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.ramusage + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.cpumigrations + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + text.server.command.perf.value.cpumigrations + "\"}},"
@@ -224,7 +224,7 @@ void Server::commandPerf() {
 }
 
 void Server::commandHWPerf() {
-	string hajInfo;
+	std::string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + text.server.command.perf.key.cpuusage + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUusage() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.ramusage + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getRAMusage() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.ipc + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getIPC() + "\"}},"
@@ -239,7 +239,7 @@ void Server::commandHWPerf() {
 }
 
 void Server::commandSWPerf() {
-	string hajInfo;
+	std::string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + text.server.command.perf.key.contextswitches + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getContextSwitches() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.cpumigrations + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getCPUmigs() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.emufaults + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getEmulationFaults() + "\"}},"
@@ -250,7 +250,7 @@ void Server::commandSWPerf() {
 }
 
 void Server::commandCAPerf() {
-	string hajInfo;
+	std::string hajInfo;
 	hajInfo = "[{\"text\":\"[Hajime] \"},{\"text\":\"" + text.server.command.perf.key.l1dreadmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dReadMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.l1dprefetchmisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dPrefetchMisses() + "\"}},"
 	"{\"text\":\"" + text.server.command.perf.key.l1dwritemisses + ", \",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§b" + getL1dWriteMisses() + "\"}},"
@@ -266,158 +266,158 @@ void Server::commandCAPerf() {
 	writeToServerTerminal(formatWrapper(hajInfo));
 }
 
-string Server::getCPUusage() {
+std::string Server::getCPUusage() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return std::to_string(averageVal(counterData.cpuusagereadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(counterData.cpuusagereadings, 5)) + "% last 5, " + std::to_string(averageVal(counterData.cpuusagereadings, 15)) + "% last 15 (Lower is better)";
 }
 
-string Server::getCPUmigs() {
+std::string Server::getCPUmigs() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return std::to_string(averageVal(counterData.cpumigrationreadings, 1)) + " last 1 minute, " + std::to_string(averageVal(counterData.cpumigrationreadings, 5)) + " last 5, " + std::to_string(averageVal(counterData.cpumigrationreadings, 15)) + " last 15";
 }
 
-string Server::getRAMusage() {
+std::string Server::getRAMusage() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return std::to_string(averageVal(counterData.rampercentreadings, 1)) + "% last 1 minute, " + std::to_string(averageVal(counterData.rampercentreadings, 5)) + "% last 5, " + std::to_string(averageVal(counterData.rampercentreadings, 15)) + "% last 15 (" + std::to_string((averageVal(counterData.rambytereadings, 1) / 1024) / 1024) + "MB/" + std::to_string((averageVal(counterData.rambytereadings, 5) / 1024) / 1024) + "MB/" + std::to_string((averageVal(counterData.rambytereadings, 15) / 1024) / 1024) + "MB) (Lower is better)";
 }
 
-string Server::getIPC() {
+std::string Server::getIPC() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return std::to_string((double)averageVal(counterData.cpuinstructionreadings, 1) / (double)averageVal(counterData.cpucyclereadings, 1)) + " last 1 minute, " + std::to_string((double)averageVal(counterData.cpuinstructionreadings, 5) / (double)averageVal(counterData.cpucyclereadings, 5)) + " last 5, " + std::to_string((double)averageVal(counterData.cpuinstructionreadings, 15) / (double)averageVal(counterData.cpucyclereadings, 15)) + " last 15 (Higher is better)";
 }
 
-string Server::getIPS() {
+std::string Server::getIPS() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return std::to_string((averageVal(counterData.cpuinstructionreadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(counterData.cpuinstructionreadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(counterData.cpuinstructionreadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
-string Server::getCPS() {
+std::string Server::getCPS() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return std::to_string((averageVal(counterData.cpucyclereadings, 1) / 60) / 1000000) + "M/s last 1 minute, " + std::to_string((averageVal(counterData.cpucyclereadings, 5) / 60) / 1000000) + "M/s last 5, " + std::to_string((averageVal(counterData.cpucyclereadings, 15) / 60) / 1000000) + "M/s last 15";
 }
 
-string Server::getContextSwitches() {
+std::string Server::getContextSwitches() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.contextswitchreadings, counterData.cpuinstructionreadings);
 }
 
-string Server::getStalledCyclesFrontend() {
+std::string Server::getStalledCyclesFrontend() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.stalledcyclesfrontendreadings);
 }
 
-string Server::getStalledCyclesBackend() {
+std::string Server::getStalledCyclesBackend() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.stalledcyclesbackendreadings);
 }
 
-string Server::getBusCycles() {
+std::string Server::getBusCycles() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsHIB(counterData.buscyclereadings);
 }
 
-string Server::getBranchMisses() {
+std::string Server::getBranchMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.branchmissreadings, counterData.branchinstructionreadings);
 }
 
-string Server::getCacheMisses() {
+std::string Server::getCacheMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.cachemissreadings, counterData.cachereferencereadings);
 }
 
-string Server::getAlignmentFaults() {
+std::string Server::getAlignmentFaults() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.alignmentfaultreadings);
 }
 
-string Server::getEmulationFaults() {
+std::string Server::getEmulationFaults() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.emulationfaultreadings);
 }
 
-string Server::getMinorPagefaults() {
+std::string Server::getMinorPagefaults() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.minorpagefaultreadings, counterData.pagefaultreadings);
 }
 
-string Server::getMajorPagefaults() {
+std::string Server::getMajorPagefaults() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.majorpagefaultreadings, counterData.pagefaultreadings);
 }
 
-string Server::getL1dReadMisses() {
+std::string Server::getL1dReadMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.l1dreadmissreadings, counterData.l1dreadaccessreadings);
 }
 
-string Server::getL1dPrefetchMisses() {
+std::string Server::getL1dPrefetchMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.l1dprefetchmissreadings, counterData.l1dprefetchaccessreadings);
 }
 
-string Server::getL1dWriteMisses() {
+std::string Server::getL1dWriteMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.l1dwritemissreadings, counterData.l1dwriteaccessreadings);
 }
 
-string Server::getL1iReadMisses() {
+std::string Server::getL1iReadMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.l1ireadmissreadings, counterData.l1ireadaccessreadings);
 }
 
-string Server::getL1iPrefetchMisses() {
+std::string Server::getL1iPrefetchMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.l1iprefetchmissreadings, counterData.l1iprefetchaccessreadings);
 }
 
-string Server::getLLReadMisses() {
+std::string Server::getLLReadMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.llreadmissreadings, counterData.llreadaccessreadings);
 }
 
-string Server::getLLWriteMisses() {
+std::string Server::getLLWriteMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.llwritemissreadings, counterData.llwriteaccessreadings);
 }
 
-string Server::getLLPrefetchMisses() {
+std::string Server::getLLPrefetchMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.llprefetchmissreadings);
 }
 
-string Server::getdTLBReadMisses() {
+std::string Server::getdTLBReadMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.dtlbreadmissreadings, counterData.dtlbreadaccessreadings);
 }
 
-string Server::getdTLBWriteMisses() {
+std::string Server::getdTLBWriteMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.dtlbwritemissreadings, counterData.dtlbwriteaccessreadings);
 }
 
-string Server::getdTLBPrefetchMisses() {
+std::string Server::getdTLBPrefetchMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.dtlbprefetchmissreadings, counterData.dtlbprefetchaccessreadings);
 }
 
-string Server::getiTLBReadMisses() {
+std::string Server::getiTLBReadMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.itlbreadmissreadings, counterData.itlbreadaccessreadings);
 }
 
-string Server::getBPUReadMisses() {
+std::string Server::getBPUReadMisses() {
 	std::lock_guard<std::mutex> lock(counterData.mutex);
 	return formatReadingsLIB(counterData.bpureadmissreadings, counterData.bpureadaccessreadings);
 }
 
-string Server::getOS() {
+std::string Server::getOS() {
 	#if defined(__linux__) && !defined(__FreeBSD__)
 	std::fstream proc;
 	proc.open("/proc/version", std::fstream::in);
 	std::ostringstream temp;
 	temp << proc.rdbuf();
-	string out = temp.str();
+	std::string out = temp.str();
 	out.erase(std::remove(out.begin(), out.end(), '\n'), out.end());
 	return out;
 	#elif defined(_WIN32) || defined (_WIN64)
@@ -465,10 +465,10 @@ string Server::getOS() {
 	#elif defined(__APPLE__)
 	size_t len;
 	sysctlbyname("kern.version", NULL, &len, NULL, 0);
-	string result(len, '\0');
+	std::string result(len, '\0');
 	sysctlbyname("kern.version", result.data(), &len, NULL, 0);
 	sysctlbyname("kern.osproductversion", NULL, &len, NULL, 0);
-       	string macosresult(len, '\0');
+       	std::string macosresult(len, '\0');
         sysctlbyname("kern.osproductversion", macosresult.data(), &len, NULL, 0);
 	return result + " (macOS " + macosresult + ")";
 	#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
@@ -477,14 +477,14 @@ string Server::getOS() {
 	return "Not available on your platform";
 }
 
-string Server::getCPU() {
+std::string Server::getCPU() {
 	#if defined(__linux__) && !defined(__FreeBSD__)
 	std::smatch m;
 	std::fstream proc;
 	proc.open("/proc/cpuinfo", std::fstream::in);
 	std::ostringstream temp;
 	temp << proc.rdbuf();
-	string temp2 = temp.str();
+	std::string temp2 = temp.str();
 	std::regex_search(temp2, m, std::regex("(?:model name\\s*:\\s*)(.*)", std::regex_constants::optimize));
 	return m[1];
 	#elif defined (_WIN32)
@@ -523,7 +523,7 @@ string Server::getCPU() {
 	#elif defined(__APPLE__)
 	size_t len;
   sysctlbyname("machdep.cpu.brand_string", NULL, &len, NULL, 0);
-  string cpuname(len, '\0');
+  std::string cpuname(len, '\0');
   sysctlbyname("machdep.cpu.brand_string", cpuname.data(), &len, NULL, 0);
 	sysctlbyname("hw.ncpu", NULL, &len, NULL, 0);
   int cpucount;
@@ -533,13 +533,13 @@ string Server::getCPU() {
 	return "Only available on Linux or Windows";
 }
 
-string Server::getRAM() {
+std::string Server::getRAM() {
 	#if defined(__linux__)
 	std::fstream proc;
 	proc.open("/proc/meminfo", std::fstream::in);
 	std::ostringstream temp;
 	temp << proc.rdbuf();
-	string temp2 = temp.str();
+	std::string temp2 = temp.str();
 	std::regex re("\\d+", std::regex_constants::optimize);
 	std::vector<std::string> meminfo;
 	for (auto it = std::sregex_iterator(temp2.begin(), temp2.end(), re); it != std::sregex_iterator(); ++it) {
@@ -547,9 +547,9 @@ string Server::getRAM() {
 		meminfo.push_back(m.str());
 	}
 	if (meminfo.size() < 3) {
-		return string("Could not get memory info");
+		return std::string("Could not get memory info");
 	}
-	string result = meminfo.at(0) + "kB total, " + meminfo.at(1) + "kB free, " + meminfo.at(2) + "kB available";
+	std::string result = meminfo.at(0) + "kB total, " + meminfo.at(1) + "kB free, " + meminfo.at(2) + "kB available";
 	return result;
 	#elif defined(_WIN32)
 	MEMORYSTATUSEX mem;
@@ -580,32 +580,32 @@ string Server::getRAM() {
 	#endif
 }
 
-string Server::getUptime() {
+std::string Server::getUptime() {
 	#if defined(__linux__)
 	std::smatch m;
 	std::fstream proc;
 	proc.open("/proc/uptime", std::fstream::in);
 	std::ostringstream temp;
 	temp << proc.rdbuf();
-	string temp2 = temp.str();
+	std::string temp2 = temp.str();
 	std::regex_search(temp2, m, std::regex("[0-9]+(\\.[0-9]+)?", std::regex_constants::optimize));
 	try {
-		return string(m[0]) + " seconds (" + std::to_string(stoi(m[0]) / 60) + string(" minutes, ") + std::to_string(stoi(m[0]) / 3600) + " hours)";
+		return std::string(m[0]) + " seconds (" + std::to_string(stoi(m[0]) / 60) + std::string(" minutes, ") + std::to_string(stoi(m[0]) / 3600) + " hours)";
 	} catch (std::exception& e) {
 		return flexi_format("Error parsing memory: {}", e.what());
 	}
 	#else
-	return string("Not available yet");
+	return std::string("Not available yet");
 	#endif
 }
 
-string Server::getLoadavg() {
+std::string Server::getLoadavg() {
 	#if defined(__linux__)
 	std::fstream proc;
 	proc.open("/proc/loadavg", std::fstream::in);
 	std::ostringstream temp;
 	temp << proc.rdbuf();
-	string temp2 = temp.str();
+	std::string temp2 = temp.str();
 	std::regex re("[0-9.]+", std::regex_constants::optimize);
 	std::vector<std::string> loadinfo;
 	for (auto it = std::sregex_iterator(temp2.begin(), temp2.end(), re); it != std::sregex_iterator(); ++it) {
@@ -613,44 +613,44 @@ string Server::getLoadavg() {
 		loadinfo.push_back(m.str());
 	}
 	if (loadinfo.size() < 3) {
-		return string("Could not get load average info");
+		return std::string("Could not get load average info");
 	}
-	string result = "last 1 minute: " + loadinfo.at(0) + ", last 5 minutes: " + loadinfo.at(1) + ", last 10 minutes: " + loadinfo.at(2);
+	std::string result = "last 1 minute: " + loadinfo.at(0) + ", last 5 minutes: " + loadinfo.at(1) + ", last 10 minutes: " + loadinfo.at(2);
 	return result;
 	#else
 	return "Not available yet";
 	#endif
 }
 
-string Server::getStorage() {
+std::string Server::getStorage() {
 	fs::space_info si = fs::space(fs::current_path());
-	string result = std::to_string(si.capacity / 1024 / 1024) + "MB total, " + std::to_string(si.free / 1024 / 1024) + "MB free, " + std::to_string(si.available / 1024 / 1024) + "MB available";
+	std::string result = std::to_string(si.capacity / 1024 / 1024) + "MB total, " + std::to_string(si.free / 1024 / 1024) + "MB free, " + std::to_string(si.available / 1024 / 1024) + "MB available";
 	return result;
 }
 
-string Server::getSwap() {
+std::string Server::getSwap() {
 	#if defined(__linux__)
 	struct sysinfo info;
 	sysinfo(&info);
-	string result = std::to_string(info.totalswap / 1024) + "kB total, " + std::to_string(info.freeswap / 1024) + "kB available";
+	std::string result = std::to_string(info.totalswap / 1024) + "kB total, " + std::to_string(info.freeswap / 1024) + "kB available";
 	return result;
 	#else
 	return "Not available yet";
 	#endif
 }
 
-string Server::getProcesses() {
+std::string Server::getProcesses() {
 	#if defined(__linux__)
 	struct sysinfo info;
 	sysinfo(&info);
-	string result = std::to_string(info.procs) + " total";
+	std::string result = std::to_string(info.procs) + " total";
 	return result;
 	#else
 	return "Not available yet";
 	#endif
 }
 
-string Server::getTemps() {
+std::string Server::getTemps() {
 	std::vector<std::string> temps;
 	#if defined(__linux__)
 	std::vector<sensors_chip_name const*> chips;
@@ -702,7 +702,7 @@ bool Server::areCountersAvailable() {
 	#endif
 }
 
-string Server::formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big) {
+std::string Server::formatReadingsLIB(const std::deque<long long>& little, const std::deque<long long>& big) {
 	if (areCountersAvailable()) {
 		return std::to_string(little.back()) + " (" + std::to_string(100.0 * (double)little.back() / (double)big.back()) + "% of total) last 5 seconds, " + std::to_string(averageVal(little, 1)) + " (" + std::to_string(100.0 * (double)averageVal(little, 1) / (double)averageVal(big, 1)) + "%) last 1 minute, " + std::to_string(averageVal(little, 5)) + " (" + std::to_string(100.0 * (double)averageVal(little, 5) / (double)averageVal(big, 5)) + "%) last 5, " + std::to_string(averageVal(little, 15)) + " (" + std::to_string(100.0 * (double)averageVal(little, 15) / (double)averageVal(big, 15)) + "%) last 15, " + std::to_string(averageVal(little, 60)) + " (" + std::to_string(100.0 * (double)averageVal(little, 60) / (double)averageVal(big, 60)) + "%) last 1 hour (Lower is better)";
 	} else {
@@ -710,7 +710,7 @@ string Server::formatReadingsLIB(const std::deque<long long>& little, const std:
 	}
 }
 
-string Server::formatReadingsLIB(const std::deque<long long>& readings) {
+std::string Server::formatReadingsLIB(const std::deque<long long>& readings) {
 	if (areCountersAvailable()) {
 		return std::to_string(readings.back()) + " last 5 seconds, " + std::to_string(averageVal(readings, 1)) + " last 1 minute, " + std::to_string(averageVal(readings, 5)) + " last 5, " + std::to_string(averageVal(readings, 15)) + " last 15, " + std::to_string(averageVal(readings, 60)) + " last 1 hour (Lower is better)";
 	} else {
@@ -718,7 +718,7 @@ string Server::formatReadingsLIB(const std::deque<long long>& readings) {
 	}
 }
 
-string Server::formatReadingsHIB(const std::deque<long long>& readings) {
+std::string Server::formatReadingsHIB(const std::deque<long long>& readings) {
 	if (areCountersAvailable()) {
 		return std::to_string(readings.back()) + " last 5 seconds, " + std::to_string(averageVal(readings, 1)) + " last 1 minute, " + std::to_string(averageVal(readings, 5)) + " last 5, " + std::to_string(averageVal(readings, 15)) + " last 15, " + std::to_string(averageVal(readings, 60)) + " last 1 hour (Higher is better)";
 	} else {

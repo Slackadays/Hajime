@@ -68,7 +68,7 @@ using namespace std::chrono;
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
-void Server::startServer(string confFile) {
+void Server::startServer(std::string confFile) {
 	term.hajimeTerminal = false;
 	try {
 		if (fs::is_regular_file(confFile)) {
@@ -139,7 +139,7 @@ void Server::startServer(string confFile) {
 			processAutoUpdate();
 			processAutoRestart();
 		}
-	} catch(string& s) {
+	} catch(std::string& s) {
 		term.out<>(s);
 	}
  catch(std::exception& e) { //error handling
@@ -216,8 +216,8 @@ void Server::startProgram() {
 		term.out<Debug>(text.debug.Flags + serverSettings.flags);
 		auto flagTemp = toArray(serverSettings.flags);
 		auto flagArray = toPointerArray(flagTemp);
-		term.out<Debug>(text.debug.flag.Array0 + (string)flagArray.at(0));
-		term.out<Debug>(text.debug.flag.Array1 + (string)flagArray.at(1));
+		term.out<Debug>(text.debug.flag.Array0 + (std::string)flagArray.at(0));
+		term.out<Debug>(text.debug.flag.Array1 + (std::string)flagArray.at(1));
 		serverAttributes.wantsLiveOutput = false;
 		fd = posix_openpt(O_RDWR);
 		if (fd == -1) {
@@ -293,7 +293,7 @@ void Server::mountDrive() {
 			term.out<Error>(text.error.FilesInPath);
 			return;
 		} else {
-			string error;
+			std::string error;
 			#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
 			//BSDs have different mount() parameters
 			if (!mount(systems[serverAttributes.systemi].c_str(), serverSettings.path.c_str(), 0, const_cast<char*>(serverSettings.device.c_str()))) { //cast a c-style device string to a constant char*
@@ -361,19 +361,19 @@ void Server::mountDrive() {
 			}
 		}
 	} catch (fs::filesystem_error& e) {
-		term.out<Error>((string)e.what());
+		term.out<Error>((std::string)e.what());
 		return;
 	}
 	#endif
 }
 
-void Server::removeSlashesFromEnd(string& var) {
+void Server::removeSlashesFromEnd(std::string& var) {
 	while (!var.empty() && ((var[var.length() - 1] == '/') || (!var.empty() && var[var.length() - 1] == '\\'))) {
 		var.pop_back();
 	}
 }
 
-void Server::readSettings(const string confFile) {
+void Server::readSettings(const std::string confFile) {
 	serverAttributes.configFileLocation = confFile;
 	std::string tempAutoUpdate;
 	std::string tempCounters;
@@ -453,7 +453,7 @@ int Server::getPID() {
 	if (!kill(pid, 0)) {
 		std::fstream cmdl;
 		cmdl.open("/proc/" + std::to_string(pid) + "/cmdline", std::fstream::in);
-		string temp = "";
+		std::string temp = "";
 		getline(cmdl, temp);
 		//std::cout << "temp is " << temp << std::endl;
 		cmdl.close();

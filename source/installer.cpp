@@ -216,10 +216,10 @@ void Installer::installWindows() {
 
 void Installer::installSysVInit() {
 	std::ofstream service("/etc/init.d/hajime.sh");
-	string user;
+	std::string user;
 	term.out<Question, NoEndline>(text.question.SysvinitUser);
 	std::cin >> user;
-	string group;
+	std::string group;
 	term.out<Question, NoEndline>(text.question.SysvinitGroup);
 	std::cin >> group;
 	std::string content;

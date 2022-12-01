@@ -64,7 +64,7 @@ void Server::updateCPUusage(std::deque<long long>& CPUreadings) {
 	//do stuff here
 	//update the values in server.hpp
 	#elif defined(__linux__)
-	string line;
+	std::string line;
 	double old_pidjiffies;
 	double old_cpujiffies;
 	double new_pidjiffies;
@@ -134,7 +134,7 @@ void Server::updateRAMusage() {
 	//do stuff here
 	//update the values in server.hpp
 	#elif defined(__linux__)
-	string line;
+	std::string line;
 	std::fstream pidprocstatm("/proc/" + std::to_string(pid) + "/statm", std::fstream::in);
 	std::getline(pidprocstatm, line);
 	std::regex repid("\\S+", std::regex_constants::optimize);

@@ -85,7 +85,7 @@ std::string Server::generateSecret() {
 	return options.substr(0, 16);
 }
 
-void Server::processTerminalBuffer(string input) {
+void Server::processTerminalBuffer(std::string input) {
 	while (lines.size() >= 100000) {
 		//std::cout << "Popping, ws.row = " << w.ws_row << std::endl;
 		lines.pop_front();
@@ -99,7 +99,7 @@ void Server::processTerminalBuffer(string input) {
 	}
 }
 
-void Server::processChatKicks(string input) {
+void Server::processChatKicks(std::string input) {
 	try {
 		std::regex kickreg("" + serverSettings.chatKickRegex, std::regex_constants::optimize | std::regex_constants::icase);
 		if (std::regex_search(input, kickreg)) {
@@ -111,7 +111,7 @@ void Server::processChatKicks(string input) {
 	}
 }
 
-void Server::processServerCommand(string input) {
+void Server::processServerCommand(std::string input) {
 	std::smatch m;
 	std::string command;
 	if (serverAttributes.usesHajimeHelper) {
@@ -173,20 +173,20 @@ void Server::processServerCommand(string input) {
 	}
 }
 
-void Server::processRestartAlert(string input) {
+void Server::processRestartAlert(std::string input) {
 	std::smatch m;
 	if (serverSettings.restartMins > 0 && serverAttributes.uptime >= (serverSettings.restartMins - 5) && std::regex_search(input, m, std::regex("\\[.+\\]: ([\\w\\d]+)\\[.+\\] .+", std::regex_constants::optimize))) {
-		string hajInfo = "tellraw " + string(m[1]) + flexi_format(text.server.restart.alert, std::to_string(serverSettings.restartMins - serverAttributes.uptime));
+		std::string hajInfo = "tellraw " + std::string(m[1]) + flexi_format(text.server.restart.alert, std::to_string(serverSettings.restartMins - serverAttributes.uptime));
 		writeToServerTerminal(addNumberColors(hajInfo));
 	}
 }
 
-string Server::addNumberColors(string input) {
+std::string Server::addNumberColors(std::string input) {
 	return std::regex_replace(input, std::regex("(?: |\\()\\d+\\.?\\d*", std::regex_constants::optimize), "§b$&§f");
 }
 
-string Server::formatWrapper(string input) {
-	string output;
+std::string Server::formatWrapper(std::string input) {
+	std::string output;
 	if (serverAttributes.usesHajimeHelper) {
 		if (input.front() == '[' && input.back() == ']') {
 			output = "tellraw " + serverAttributes.lastCommandUser + " " + input;
@@ -204,7 +204,7 @@ string Server::formatWrapper(string input) {
 	return output;
 }
 
-void Server::writeToServerTerminal(string input) {
+void Server::writeToServerTerminal(std::string input) {
 	input += "\n"; //this is the delimiter of the server command
 	#if defined(_WIN64) || defined(_WIN32)
 	DWORD byteswritten;
@@ -222,7 +222,7 @@ void Server::writeToServerTerminal(string input) {
 }
 
 void Server::processServerTerminal() {
-	string terminalOutput;
+	std::string terminalOutput;
 	while (true) {
 		terminalOutput = readFromServer();
 		if (serverSettings.doCommands) {
@@ -250,7 +250,7 @@ void Server::checkHajimeHelper(std::string input) {
 	}
 }
 
-string Server::readFromServer() {
+std::string Server::readFromServer() {
 	std::vector<char> input(2500);
 	#if defined(_WIN32) || defined (_WIN64)
 	DWORD length = 0;
@@ -349,7 +349,7 @@ void Server::processAutoUpdate(bool force) {
 			});
 			std::smatch matches;
 			if(std::regex_search(content, matches, std::regex("\"loader\"(.+\n){4}.+(\"version\": \")([0-9.]+)"))) {
-				target += "/" + string(matches[3]);
+				target += "/" + std::string(matches[3]);
 			}
 
 			content = "";
@@ -365,7 +365,7 @@ void Server::processAutoUpdate(bool force) {
 				return true;
 			});
 			if(std::regex_search(content, matches, std::regex("(\"version\": \")([0-9.]+)"))) {
-				target += "/" + string(matches[2]);
+				target += "/" + std::string(matches[2]);
 			}
 
 			content = "";
