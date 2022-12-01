@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run a multi-line script
         run: |
@@ -29,7 +29,7 @@ jobs:
           cmake source -D CMAKE_CXX_COMPILER=g++-12
           cmake --build . -j 4
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: hajime-linux-amd64
           path: hajime
@@ -37,7 +37,7 @@ jobs:
   #  runs-on: ubuntu-22.04
 #
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 #        with:
  #         submodules: recursive
 #
@@ -51,7 +51,7 @@ jobs:
 #          cmake source -DADD_FLAGS="-march=x86-64-v3" -DCMAKE_CXX_COMPILER=g++-11
 #          cmake --build . -j 4
 #
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-amd64-avx2
 #          path: hajime
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run a multi-line script
         run: |
@@ -69,7 +69,7 @@ jobs:
           cmake source -DADD_FLAGS="-march=x86-64-v4" -DCMAKE_CXX_COMPILER=g++-12
           cmake --build . -j 2
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: hajime-linux-amd64-avx512
           path: hajime
@@ -77,7 +77,7 @@ jobs:
 #    runs-on: ubuntu-latest
 ##
 ##    steps:
-##      - uses: actions/checkout@v2
+##      - uses: actions/checkout@v3
 
 ##      - name: Run a multi-line script
 ##        run: |
@@ -86,7 +86,7 @@ jobs:
 ##          cmake -DCMAKE_CXX_COMPILER=i686-linux-gnu-g++-10 source
 ##          cmake --build . -j 4
 ##
-##      - uses: actions/upload-artifact@v2
+##      - uses: actions/upload-artifact@v3
 ##        with:
 ##          name: hajime-linux-x86
 ##          path: hajime
@@ -94,7 +94,7 @@ jobs:
     runs-on: macos-12
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run a multi-line script
         run: |
@@ -102,7 +102,7 @@ jobs:
           cmake source
           cmake --build . -j 4
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: hajime-macos-amd64
           path: hajime
@@ -110,7 +110,7 @@ jobs:
     runs-on: [self-hosted, macos]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run a multi-line script
         run: |
@@ -118,7 +118,7 @@ jobs:
           cmake source
           cmake --build . -j 4
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: hajime-macos-arm64
           path: hajime
@@ -126,7 +126,7 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run a multi-line script
         run: |
@@ -135,7 +135,7 @@ jobs:
           cmake source -D CMAKE_CXX_COMPILER=g++-12
           cmake --build . -j 4
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: hajime-linux-arm64
           path: hajime
@@ -143,7 +143,7 @@ jobs:
 ##    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -152,7 +152,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=riscv64-linux-gnu-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-riscv64
 #          path: hajime
@@ -160,7 +160,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -169,7 +169,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=powerpc64le-linux-gnu-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-ppc64le
 #          path: hajime
@@ -177,7 +177,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -186,7 +186,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=sparc64-linux-gnu-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-sparc64
 #          path: hajime
@@ -194,7 +194,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -203,7 +203,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-arm32hf
 #          path: hajime
@@ -211,7 +211,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -220,7 +220,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=alpha-linux-gnu-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-alpha
 #          path: hajime
@@ -228,7 +228,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -237,7 +237,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=hppa-linux-gnu-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-hppa
 #          path: hajime
@@ -245,7 +245,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -254,7 +254,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=powerpc64-linux-gnu-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-ppc64
 #          path: hajime
@@ -262,7 +262,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -271,7 +271,7 @@ jobs:
 #          cmake source -D CMAKE_CXX_COMPILER=s390x-linux-gnu-g++-10
 #          cmake --build . -j 8
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-s390x
 #          path: hajime
@@ -279,17 +279,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run a multi-line script
         run: |
           vcpkg install fmt:x64-windows boost-algorithm:x64-windows boost-json:x64-windows
           vcpkg integrate install
           cmake source
-          cp source/zlib/zconf.h.in source/zlib/zconf.h
           cmake --build . -j 4 --config Release
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: hajime-windows-amd64
           path: Release\hajime.exe
@@ -297,13 +296,13 @@ jobs:
 #    runs-on: windows-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 #      - name: Run a multi-line script
 #        run: |
 #          cmake source -A Win32
 #          cmake --build . -j 8 --config Release
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-windows-x86
 #          path: Release\hajime.exe
@@ -311,13 +310,13 @@ jobs:
 #    runs-on: windows-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 #      - name: Run a multi-line script
 #        run: |
 #          cmake source -A ARM
 #          cmake --build . -j 8 --config Release
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-windows-arm32
 #          path: Release\hajime.exe
@@ -325,13 +324,13 @@ jobs:
 #    runs-on: windows-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 #      - name: Run a multi-line script
 #        run: |
 #          cmake source -A ARM64
 #          cmake --build . -j 8 --config Release
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-windows-arm64
 #          path: Release\hajime.exe
@@ -339,7 +338,7 @@ jobs:
 #    runs-on: ubuntu-22.04
 #
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 #        with:
 #          submodules: recursive
 #
@@ -358,7 +357,7 @@ jobs:
 #          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -lncursesw" -DCMAKE_CXX_COMPILER=clang++-14 source
 #          cmake --build . -j 4
 #          
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-freebsd-amd64
 #          path: hajime
@@ -366,7 +365,7 @@ jobs:
 #    runs-on: ubuntu-22.04
 #
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 #        with:
 #          submodules: recursive
 #
@@ -381,7 +380,7 @@ jobs:
 #          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -lncursesw -march=x86-64-v3" -DCMAKE_CXX_COMPILER=clang++-14 source
 #          cmake --build . -j 4
 #          
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-freebsd-amd64-avx2
 #          path: hajime
@@ -389,7 +388,7 @@ jobs:
 #    runs-on: ubuntu-22.04
 #
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 #        with:
 #          submodules: recursive
 #
@@ -404,7 +403,7 @@ jobs:
 #          cmake -DCMAKE_SYSTEM_NAME="FreeBSD" -DNO_SSL=1 -DADD_FLAGS="-target x86_64-unknown-freebsd13.0 --sysroot=temp/ -lncursesw -march=x86-64-v4" -DCMAKE_CXX_COMPILER=clang++-14 source
 #          cmake --build . -j 4
 #          
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-freebsd-amd64-avx512
 #          path: hajime
@@ -412,7 +411,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -449,7 +448,7 @@ jobs:
 #          VERBOSE=1 cmake -DCMAKE_CXX_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_C_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=$(realpath dummylld)" -DADD_FLAGS="-target aarch64-pc-freebsd13.0 --sysroot=$(realpath fbsd)/" source
 #          VERBOSE=1 cmake --build . -j 2
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-freebsd-arm64
 #          path: hajime
@@ -457,7 +456,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -494,7 +493,7 @@ jobs:
 #          VERBOSE=1 cmake -DCMAKE_CXX_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_C_COMPILER="$(realpath dummyclang.sh)" -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=$(realpath dummylld)" -DADD_FLAGS="-target powerpc64le-pc-freebsd13.0 --sysroot=$(realpath fbsd)/" source
 #          VERBOSE=1 cmake --build . -j 18
 
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-freebsd-ppc64le
 #          path: hajime
@@ -502,7 +501,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -510,7 +509,7 @@ jobs:
 #          sudo apt-get install -y g++-10-arm-linux-gnueabi
 #          cmake source -D CMAKE_CXX_COMPILER=arm-linux-gnueabi-g++-10
 #          cmake --build . -j 10
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-arm32l
 #          path: hajime
@@ -518,7 +517,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -526,7 +525,7 @@ jobs:
 #          sudo apt install g++-10-sh4-linux-gnu
 #          cmake source -D CMAKE_CXX_COMPILER=sh4-linux-gnu-g++-10
 #          cmake --build . -j 8
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-sh4
 #          path: hajime
@@ -534,7 +533,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -542,7 +541,7 @@ jobs:
 #          sudo apt install g++-10-m68k-linux-gnu
 #          cmake source -D CMAKE_CXX_COMPILER=m68k-linux-gnu-g++-10
 #          cmake --build . -j 8
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-m68k
 #          path: hajime
@@ -550,7 +549,7 @@ jobs:
 #    runs-on: ubuntu-latest
 
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3
 
 #      - name: Run a multi-line script
 #        run: |
@@ -558,7 +557,7 @@ jobs:
 #          sudo apt install g++-10-powerpc-linux-gnu
 #          cmake source -D CMAKE_CXX_COMPILER=powerpc-linux-gnu-g++-10
 #          cmake --build . -j 8
-#      - uses: actions/upload-artifact@v2
+#      - uses: actions/upload-artifact@v3
 #        with:
 #          name: hajime-linux-ppc
 #          path: hajime
