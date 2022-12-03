@@ -286,12 +286,12 @@ jobs:
           vcpkg install fmt:x64-mingw-static boost-algorithm:x64-mingw-static zlib:x64-mingw-static openssl:x64-mingw-static
           vcpkg integrate install
           cmake source -G "MinGW Makefiles" -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
-          cmake --build . -j 4 --config Release
+          cmake --build . -j 4
 
       - uses: actions/upload-artifact@v3
         with:
           name: hajime-windows-amd64
-          path: Release\hajime.exe
+          path: hajime.exe
 #  build-windows-x86:
 #    runs-on: windows-latest
 
