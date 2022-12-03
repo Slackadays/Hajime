@@ -126,7 +126,6 @@ if(MSVC)
   add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/W4>")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
   message(STATUS "CMAKE_CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
-  message()
 endif()
 
 target_link_libraries(hajime Threads::Threads)
