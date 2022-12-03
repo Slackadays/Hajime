@@ -21,7 +21,6 @@
 #include <shellapi.h>
 #include <VersionHelpers.h>
 #include <intrin.h>
-#include <powerbase.h>
 #pragma comment (lib, "Shell32")
 #elif defined(__APPLE__)
 #include <sys/types.h>
