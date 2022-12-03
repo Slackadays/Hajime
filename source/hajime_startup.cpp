@@ -86,7 +86,7 @@ void setupSignals() {
 		endwin();
 		#endif
 		shutdownServers();
-		#if defined(__APPLE__)
+		#if defined(__APPLE__) || defined(_WIN64) || defined(_WIN32)
 		exit(0);
 		#else
 		quick_exit(0);
