@@ -128,7 +128,7 @@ endif()
 
 target_link_libraries(hajime Threads::Threads)
 
-if(OpenMP_CXX_FOUND)
+if(OpenMP_CXX_FOUND AND NOT WIN32)
     target_link_libraries(hajime OpenMP::OpenMP_CXX)
 endif()
 
