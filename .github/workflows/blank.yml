@@ -285,7 +285,7 @@ jobs:
         run: |
           vcpkg install fmt:x64-mingw-static boost-algorithm:x64-mingw-static zlib:x64-mingw-static openssl:x64-mingw-static
           vcpkg integrate install
-          cmake source -G "MinGW Makefiles" -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+          cmake source -G "MinGW Makefiles" -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DADD_FLAGS="-static"
           cmake --build . -j 4
 
       - uses: actions/upload-artifact@v3
