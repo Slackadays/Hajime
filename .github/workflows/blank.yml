@@ -283,7 +283,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          vcpkg install fmt:x64-mingw boost-algorithm:x64-mingw zlib:x64-mingw-static openssl:x64-mingw-static
+          vcpkg install fmt:x64-mingw-static boost-algorithm:x64-mingw-static zlib:x64-mingw-static openssl:x64-mingw-static
           vcpkg integrate install
           cmake source -G "MinGW Makefiles" -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
           cmake --build . -j 4 --config Release
