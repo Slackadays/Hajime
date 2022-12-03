@@ -283,7 +283,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          vcpkg install fmt:x64-windows boost-algorithm:x64-windows boost-json:x64-windows
+          vcpkg install fmt:x64-windows boost-algorithm:x64-windows zlib:x64-windows-static openssl:x64-windows-static
           vcpkg integrate install
           cmake source
           cmake --build . -j 4 --config Release
