@@ -120,7 +120,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") # strip the binary for reduced size
   endif()
 else()
-  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/W4>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/W4 /MT>")
   add_compile_options("$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>")
 endif()
 
