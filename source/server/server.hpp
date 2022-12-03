@@ -46,7 +46,7 @@
 #include <mutex>
 #include <array>
 
-#if defined(_OPENMP)
+#if defined(_OPENMP) && (!defined(_WIN64) && !defined(_WIN32))
 #include <omp.h>
 #endif
 
