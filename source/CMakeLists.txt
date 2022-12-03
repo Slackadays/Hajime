@@ -164,7 +164,7 @@ endif()
 if (APPLE)
   target_link_libraries(hajime fmt::fmt)
 else()
-  target_link_libraries(hajime fmt)
+#  target_link_libraries(hajime fmt)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
