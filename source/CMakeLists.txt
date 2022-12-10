@@ -35,8 +35,27 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-#set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_BUILD_TYPE Release)
+if(TEST)
+  message(STATUS "Building in test mode")
+  set(CMAKE_BUILD_TYPE Debug)
+  if(NOT MSVC)
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -pg")
+  else()
+    add_compile_options(/fsanitize=address)
+    add_link_options(/fsanitize=address)
+  endif()
+else()
+  if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") # strip the binary for reduced size
+    endif()
+  endif()
+endif()
+
+add_compile_options("$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>")
 
 set(CMAKE_THREAD_PREFER_PTHREAD True)
 set(THREADS_PREFER_PTHREAD_FLAG True)
@@ -108,13 +127,6 @@ else()
 endif()
 
 set_property(TARGET hajime PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s") # strip the binary for reduced size
-  endif()
-  add_compile_options("$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>")
-endif()
 
 if(MSVC)
   add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/W4>")
