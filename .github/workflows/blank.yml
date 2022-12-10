@@ -33,28 +33,6 @@ jobs:
         with:
           name: hajime-linux-amd64
           path: hajime
-  #build-linux-amd64-avx2:
-  #  runs-on: ubuntu-22.04
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
- #         submodules: recursive
-#
-#      - name: Run a multi-line script
-#        run: |
-#          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-#          sudo apt update
-#          sudo apt install -y libfmt-dev g++-12 libboost-all-dev libsensors-dev
-#          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-#          brew install boost
-#          cmake source -DADD_FLAGS="-march=x86-64-v3" -DCMAKE_CXX_COMPILER=g++-11
-#          cmake --build . -j 4
-#
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: hajime-linux-amd64-avx2
-#          path: hajime
   build-linux-amd64-avx512:
     runs-on: ubuntu-22.04
 
@@ -73,23 +51,6 @@ jobs:
         with:
           name: hajime-linux-amd64-avx512
           path: hajime
-#  build-linux-x86:
-#    runs-on: ubuntu-latest
-##
-##    steps:
-##      - uses: actions/checkout@v3
-
-##      - name: Run a multi-line script
-##        run: |
-##          sudo apt update
-##          sudo apt install -y g++-10-i686-linux-gnu
-##          cmake -DCMAKE_CXX_COMPILER=i686-linux-gnu-g++-10 source
-##          cmake --build . -j 4
-##
-##      - uses: actions/upload-artifact@v3
-##        with:
-##          name: hajime-linux-x86
-##          path: hajime
   build-macos-amd64:
     runs-on: macos-12
 
@@ -99,7 +60,6 @@ jobs:
       - name: Run a multi-line script
         run: |
           brew install boost fmt libssh ncurses openssl
-          brew unlink openssl@3 && brew link --force openssl@3
           export PKG_CONFIG_PATH="/usr/local/opt/openssl@3/lib/pkgconfig"
           cmake source
           cmake --build . -j 4
