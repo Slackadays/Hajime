@@ -50,8 +50,8 @@
 #include <omp.h>
 #endif
 
-#include "../output.hpp"
-#include "../languages.hpp"
+#include "../output/output.hpp"
+#include "../output/languages.hpp"
 
 enum class CounterLevel { Unavailable, Off, Low, Medium, All };
 enum class Runstate { Running, StoppedByUser, StoppedBySelf };

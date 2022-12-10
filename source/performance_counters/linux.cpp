@@ -46,8 +46,8 @@
 #include <array>
 
 #include "../server/server.hpp"
-#include "../output.hpp"
-#include "../flexi_format.hpp"
+#include "../output/output.hpp"
+#include "../output/flexi_format.hpp"
 
 namespace fs = std::filesystem;
 namespace ch = std::chrono;

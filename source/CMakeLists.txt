@@ -4,9 +4,9 @@ project(Hajime LANGUAGES CXX)
 
 project(Hajime VERSION 0.2.1)
 
-find_package(fmt)
+find_package(fmt CONFIG REQUIRED)
 
-find_package(Boost)
+find_package(Boost REQUIRED)
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -45,15 +45,11 @@ find_package(Threads REQUIRED)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
 
-#set(OPENSSL_USE_STATIC_LIBS TRUE)
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 
-if(NOT NO_SSL)
-  find_package(OpenSSL)
-endif()
+find_package(OpenSSL REQUIRED)
 
-if(OpenSSL_FOUND)
-  add_compile_definitions(CPPHTTPLIB_OPENSSL_SUPPORT)
-endif()
+add_compile_definitions(CPPHTTPLIB_OPENSSL_SUPPORT)
 
 find_package(OpenMP)
 
@@ -73,15 +69,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADD_FLAGS}")
 
 add_executable(hajime
-main.cpp
-hajime_startup.cpp
-flags.cpp
-output.cpp
-installer.cpp
-deduce.cpp
-languages.cpp
-wizard.cpp
-constants.cpp
+hajime_main/main.cpp
+hajime_main/hajime_startup.cpp
+hajime_main/flags.cpp
+output/output.cpp
+setup/installer.cpp
+setup/deduce.cpp
+output/languages.cpp
+setup/wizard.cpp
+hajime_main/constants.cpp
 server/server.cpp
 server/commands.cpp
 server/server_features.cpp
@@ -129,7 +125,7 @@ endif()
 target_link_libraries(hajime Threads::Threads)
 
 if(OpenMP_CXX_FOUND AND NOT WIN32)
-    target_link_libraries(hajime OpenMP::OpenMP_CXX)
+  target_link_libraries(hajime OpenMP::OpenMP_CXX)
 endif()
 
 if(OpenSSL_FOUND)
@@ -139,12 +135,11 @@ endif()
 
 if(UNIX AND NOT APPLE)
   if(ZLIB_FOUND)
-    target_link_libraries(hajime ZLIB::ZLIB)
-  else()
-    set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${CMAKE_BINARY_DIR}/zlib/libz.a") #statically link zlib; this is the simplest way to do it
+    target_link_libraries(hajime libz.a)
   endif()
   if(CURSES_FOUND)
-    target_link_libraries(hajime ${CURSES_LIBRARIES})
+    target_link_libraries(hajime libncursesw.a)
+    target_link_libraries(hajime libtinfo.a)
   endif()
 else()
   if(ZLIB_FOUND)
@@ -164,11 +159,11 @@ endif()
 if (APPLE)
   target_link_libraries(hajime fmt::fmt)
 else()
-#  target_link_libraries(hajime fmt)
+  target_link_libraries(hajime fmt)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(hajime sensors)
+  target_link_libraries(hajime libsensors.a)
 endif()
 
 set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} ${ADD_FLAGS}")

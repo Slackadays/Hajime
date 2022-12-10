@@ -1,0 +1,186 @@
+/*  Hajime, the ultimate startup script.
+    Copyright (C) 2022 Slackadays and other contributors to Hajime on GitHub.com
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+
+#pragma once //this guards against g++ error "redefinition of class Output"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <thread>
+#include <mutex>
+#include <algorithm>
+#include <regex>
+#include <memory>
+#include <unordered_map>
+#include <type_traits>
+#if !defined(__FreeBSD__)
+#include <concepts>
+#endif
+
+#include "../output/languages.hpp"
+
+enum outFlag {None, Info, Error, Warning, Debug, Question, Force, NoEndline, KeepEndlines, Threadless, Border, NoSave};
+enum lines {Def = 2, True = 1, False = 0};
+
+class Output {
+	inline static std::mutex outMutex;
+	std::thread::id main_thread = std::this_thread::get_id();
+	inline static std::ofstream fileObj;
+
+	std::string removeEndlines(std::string input, bool keepEndlines = false);
+	std::string addPrefixByType(std::string data = "", outFlag type = None);
+	std::string getColorByID();
+	std::string makeMonochrome(std::string input);
+	bool isExcluded(outFlag type);
+	void fileDispatch(std::string input, outFlag type, bool endLineAtEnd);
+	inline static int threadCounter;
+	inline static std::unordered_map<std::thread::id, int> threadToNumMap;
+	inline static std::unordered_map<std::thread::id, std::string> threadToNameMap;
+	inline static bool logToFile;
+	inline static std::string logFilename;
+
+	public:
+		int getTerminalWidth();
+		void dividerLine(std::string tx = "", bool exit = false);
+		void terminalDispatch(std::string input, outFlag type, bool endLineAtEnd);
+
+		#if defined(__FreeBSD__)
+		template<auto... flags>
+		#else
+		template <std::same_as<outFlag> auto... flags>
+		#endif
+		void out(std::string data) {
+			constexpr bool force = ((flags == Force) || ...);
+			constexpr bool keepEndlines = ((flags == KeepEndlines) || ...);
+			constexpr bool borders = ((flags == Border) || ...);
+			constexpr bool noSave = ((flags == NoSave) || ...);
+			const bool oldThreadless = threadless;
+			threadless = ((flags == Threadless) || ...);
+			constexpr outFlag type = [] {
+				for (auto flag : std::initializer_list<outFlag>{flags...}) {
+					switch (flag) {
+						case None:
+							return None;
+						case Info:
+							return Info;
+						case Error:
+							return Error;
+						case Warning:
+							return Warning;
+						case Debug:
+							return Debug;
+						case Question:
+							return Question;
+						case KeepEndlines: //prevent a warning from Clang
+							break;
+						case Force:
+							break;
+						case NoEndline:
+							break;
+						case Threadless:
+							break;
+						default:
+							break;
+					}
+				}
+				return None;
+			}();
+			constexpr bool endLineAtEnd = (type != Question) && !((flags == NoEndline) || ...);
+			if (isExcluded(type)) {
+				return;
+			}
+			std::string outputString;
+			outputString = Output::addPrefixByType(Output::removeEndlines(data, keepEndlines), type);
+			if (noColors) {
+				outputString = makeMonochrome(outputString);
+			}
+			//std::cout << "first char of last output = " << makeMonochrome(lastOutput.substr(0, 3)) << std::endl;
+			//std::cout << "new output = " << makeMonochrome(outputString.substr(0, 18)) << std::endl;
+			if (hajimeTerminal && (type != None) && endLineAtEnd) {
+				outputString = '\r' + outputString;
+			}
+			terminalDispatch(outputString, type, endLineAtEnd);
+			if (logToFile) {
+				fileDispatch(outputString, type, endLineAtEnd);
+			}
+			threadless = oldThreadless;
+			if (hajimeTerminal && (type != None) && endLineAtEnd) {
+				terminalDispatch("\r \033[92m\033[1m# \033[0m", None, 0);
+			}
+			if (!noSave) {
+				lastOutput = outputString;
+			}
+			//std::cout << "last output = " << lastOutput << std::endl;
+		}
+
+		template<typename ...T>
+		int getYN(T ...options) {
+			std::string response;
+			bool isComplex = false;
+			int i = 0;
+			if constexpr ((std::is_same_v<std::string, T> || ...)) { //check if we get a string in it or not
+				isComplex = true;
+				std::cout << std::endl;
+				this->out<None, KeepEndlines, Border>("\033[1m" + std::string(" ─> " + text.option.ChooseOptionBelow));
+				(this->out<None, Border>(("\033[1m " + std::to_string(++i) + ")\033[0m " + options)), ...);
+				this->out<None, NoEndline, Border>("\033[1m" + std::string(" ─> " + text.option.YourChoice));
+			} else {
+				this->out<None, NoEndline, NoSave>("\033[1m " + text.question.Prompt + ' ');
+			}
+			std::getline(std::cin, response);
+			this->out<None, NoEndline, NoSave>("\033[0m");
+			if (!isComplex) {
+				if (std::regex_match(text.question.Prompt, std::regex("\\[" + response.substr(0, 1) + "\\/.*", std::regex_constants::optimize | std::regex_constants::icase))) { //match the first character of the response plus the rest of the prompt against the prompt provided by the language
+					return true;
+				}
+				else {
+					return false;
+				}
+			} else {
+				while (true) {
+					try {
+						if ((stoi(response) > i) || (stoi(response) < 1)) {
+							throw 1;
+						}
+						return stoi(response);
+					} catch(...) {
+						this->out<Error>("Answer not valid");
+						this->out<None, NoEndline, Border>("\033[1mYour choice: ");
+						std::getline(std::cin, response);
+						this->out<None, NoEndline, NoSave>("\033[0m");
+					}
+				}
+			}
+		}
+
+		inline static bool isWindows;
+		void init(const std::string& file);
+		void registerServerName(const std::string& name);
+		void end();
+		inline static std::string lastOutput;
+		inline static bool threadless;
+		inline static int showThreadsAsColors;
+		inline static bool showExplicitInfoType;
+		inline static bool normalDisabled;
+		inline static bool hajimeTerminal;
+		inline static bool noColors;
+		inline static bool reduceColors;
+		inline static bool verbose;
+		inline static int debug;
+		Output();
+};
+
+static Output term;

@@ -60,8 +60,8 @@
 #endif
 
 #include "server.hpp"
-#include "../output.hpp"
-#include "../flexi_format.hpp"
+#include "../output/output.hpp"
+#include "../output/flexi_format.hpp"
 
 using namespace std::chrono;
 

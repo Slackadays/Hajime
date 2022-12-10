@@ -74,7 +74,7 @@
 namespace fs = std::filesystem;
 
 #include "server.hpp"
-#include "../flexi_format.hpp"
+#include "../output/flexi_format.hpp"
 
 std::string Server::generateSecret() {
 	std::string options = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*_"; //64 options for 6 bits of entropy

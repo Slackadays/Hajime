@@ -74,7 +74,7 @@
 #include <array>
 
 #include "server.hpp"
-#include "../flexi_format.hpp"
+#include "../output/flexi_format.hpp"
 
 namespace fs = std::filesystem;
 
