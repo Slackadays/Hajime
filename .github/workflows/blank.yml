@@ -99,8 +99,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           brew install boost fmt libssh ncurses openssl
-          brew link --force openssl
-          brew link --force openssl
+          brew unlink openssl@3 && brew link --force openssl@3
           cmake source
           cmake --build . -j 4
 
