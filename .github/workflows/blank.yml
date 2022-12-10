@@ -98,7 +98,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          brew install boost fmt libssh ncurses
+          brew install boost fmt libssh ncurses openssl
           cmake source
           cmake --build . -j 4
 
@@ -114,7 +114,7 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          brew install boost fmt libssh ncurses
+          brew install boost fmt libssh ncurses openssl
           cmake source
           cmake --build . -j 4
 
